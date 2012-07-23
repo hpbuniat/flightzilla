@@ -186,12 +186,15 @@ class Model_Mergy_Revision_Stack {
     /**
      * Set the raw result
      *
-     * @param  SimpleXMLElement $oXml
+     * @param  string $sXml
      *
      * @return Model_Mergy_Revision_Stack
      */
-    public function setRaw(SimpleXMLElement $oXml) {
-        $this->_oXml = $oXml;
+    public function setRaw($sXml) {
+        $aMatches = array();
+        preg_match('!<tickets>.*?</tickets>!i', $sXml, $aMatches);
+
+        $this->_oXml = simplexml_load_string($aMatches[0]);
         $this->_parse();
         return $this;
     }

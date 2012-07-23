@@ -77,7 +77,7 @@ class Model_Mergy_Invoker {
      *
      * @var string
      */
-    const LIST_COMMAND = '%s --remote=%s --path=%s --config=false --list --formatter=xml --ticket=%s';
+    const LIST_COMMAND = '%s --remote=%s --path=%s --unattended --config=false --list --formatter=xml --ticket=%s';
 
     /**
      * Mergy command to merge
@@ -130,7 +130,7 @@ class Model_Mergy_Invoker {
         $this->_sCliOutput = trim($this->_oCommand->execute($sCommand)->get());
 
         if ($this->_oCommand->isSuccess() and empty($this->_sCliOutput) !== true) {
-            $this->_aStack[$oStack->getName()] = $oStack->setRaw(simplexml_load_string($this->_sCliOutput));
+            $this->_aStack[$oStack->getName()] = $oStack->setRaw($this->_sCliOutput);
         }
         else {
             Zend_Registry::get('_Logger')->err($this->_oCommand->status() . ' ' . $this->_sCliOutput, __FILE__ . ':' . __LINE__);
