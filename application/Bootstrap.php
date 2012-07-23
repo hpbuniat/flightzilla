@@ -110,7 +110,7 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap {
     /**
      * Init the view with some vars
      */
-    protected function _initView() {
+    protected function _initViewvars() {
         if (!$this->hasPluginResource('view')) {
             return;
         }
