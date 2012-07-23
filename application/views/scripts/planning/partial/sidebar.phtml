@@ -1,0 +1,15 @@
+<div class="span2">
+  <div class="well sidebar-nav">
+    <ul class="nav nav-list">
+      <li class="nav-header">
+          <?php echo $this->sHeading; ?>
+          <a href="javascript:;" class="pull-right btn btn-primary toggleNav">Alle</a>
+      </li>
+      <?php foreach ($this->aStack as $sName): ?>
+          <li class="active"><a href="javascript:;" data-noajax="true" data-target="<?php echo 't' . md5($sName);?>" class="toggleChart">
+            <?php echo trim(str_replace(array('Thema:', 'Theme:', 'Thema', 'Theme'), '', $sName)) ?>
+          </a></li>
+      <?php endforeach; ?>
+    </ul>
+  </div>
+</div>

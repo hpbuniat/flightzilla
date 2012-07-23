@@ -1,0 +1,66 @@
+<?php echo $this->render('index/partial/header.phtml')?>
+
+<div class="row-fluid">
+<?php
+echo $this->render('index/partial/overview.phtml');
+?>
+
+<div class="span10">
+<form id="buglist-form" method="get" target="_blank" action="<?php echo $this->url(array('controller' => 'index', 'action' => 'go-bugzilla'))?>">
+<h4 id="quickList" class="bugCount" style="display:none"></h4>
+<?php
+echo $this->partial('index/partial/table.phtml', array(
+    'caption' => 'Update-Testserver!',
+    'sBugzilla' => $this->sBugzilla,
+    'bugs' => $this->bugsTestserver,
+    'ready' => 'REVIEWED'
+));
+
+echo $this->partial('index/partial/table.phtml', array(
+    'caption' => 'Mergeable issues',
+    'sBugzilla' => $this->sBugzilla,
+    'bugs' => $this->bugsBranch,
+    'ready' => 'REVIEWED'
+));
+
+echo $this->partial('index/partial/table.phtml', array(
+    'caption' => 'Ready for release',
+    'sBugzilla' => $this->sBugzilla,
+    'bugs' => $this->bugsTrunk,
+    'ready' => 'VERIFIED'
+));
+
+echo $this->partial('index/partial/table.phtml', array(
+    'caption' => 'Reopened issues',
+    'sBugzilla' => $this->sBugzilla,
+    'bugs' => $this->bugsReopened,
+    'ready' => 'REVIEWED'
+));
+
+echo $this->partial('index/partial/table.phtml', array(
+    'caption' => 'Fixed without pending flags',
+    'sBugzilla' => $this->sBugzilla,
+    'bugs' => $this->bugsFixed,
+));
+
+echo $this->partial('index/partial/table.phtml', array(
+    'caption' => 'Issues w/o themes',
+    'sBugzilla' => $this->sBugzilla,
+    'bugs' => $this->bugsUnthemed,
+    'ready' => false
+));
+?>
+<h3>Bugs in Themes</h3>
+<?php
+    foreach($this->bugsOpen as $sTheme => $aBugs):
+    echo $this->partial('index/partial/table.phtml', array(
+        'caption' => '<a target="_blank" href="' . $this->sBugzilla . '/show_bug.cgi?id=' . preg_replace('/\D/', '', $sTheme) . '">' . $sTheme . '</a>',
+        'sBugzilla' => $this->sBugzilla,
+        'bugs' => $aBugs,
+        'ready' => false,
+    ));
+    endforeach;
+?>
+</form>
+</div>
+</div>

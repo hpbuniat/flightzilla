@@ -1,0 +1,37 @@
+<?php echo $this->render('index/partial/header.phtml')?>
+<div class="row-fluid">
+<?php
+echo $this->partial('planning/partial/sidebar.phtml', array(
+     'sHeading' => 'Projekte',
+     'aStack' => $this->aStack,
+));
+?>
+<div class="span10">
+<?php foreach ($this->aErrors as $sError): ?>
+    <div class="alert alert-error">
+      <button class="close" data-dismiss="alert">×</button>
+      <strong>Error!</strong> <?php echo $sError; ?>
+    </div>
+<?php endforeach; ?>
+<?php foreach ($this->aProjects as $iId => $aBugs): ?>
+    <div class="hidden" id="t<?php echo $iId; ?>">
+
+    </div>
+
+    <script type="text/javascript">
+    $(function() {
+    	$("#t<?php echo $iId; ?>").gantt({
+    		source: <?php echo $this->render('planning/data.phtml'); ?>,
+    		navigate: "scroll",
+    		scale: "hours",
+    		maxScale: "months",
+    		minScale: "hours",
+    		days: ["M", "T", "W", "T", "F", "S", "S"]
+    		itemsPerPage: 50
+    	});
+    });
+    </script>
+<?php endforeach; ?>
+
+</div>
+</div>

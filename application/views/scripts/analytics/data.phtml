@@ -1,0 +1,33 @@
+var options = {
+    "chart": {
+        "renderTo": "<?php echo $this->sTarget; ?>",
+        "type": "column"
+    },
+    "title": {
+        "text": "<?php echo $this->oPortal->name; ?>"
+    },
+    "xAxis": {
+        "categories": <?php echo json_encode(array_keys($this->aData)); ?>
+    },
+    "yAxis": {
+        "min": 0,
+        "title": {
+            "text": "Conversion in %"
+        }
+    },
+    "tooltip": {
+        "formatter": function() {
+            return '' + this.series.name + ': ' + this.y + ' %';
+        }
+    },
+    "plotOptions": {
+        "column": {
+            "pointPadding": 0.2,
+            "borderWidth": 0
+        }
+    },
+    credits:{
+        enabled: false
+    },
+    "series": <?php echo json_encode($this->aSeries); ?>
+};

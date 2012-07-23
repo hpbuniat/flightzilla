@@ -1,0 +1,31 @@
+<?php if ($this->bCompare !== true) :?>
+<thead>
+    <tr class="tableHeader">
+        <th class="campaignName" width="40%"><span><?php echo $this->sName; ?></span></th>
+        <th width="20%">Visits</th>
+        <th width="20%">Transactions</th>
+        <th width="20%">Conversion (<?php echo sprintf("%01.2f%%", $this->aBase['total']['conversion']); ?>)</th>
+    </tr>
+</thead>
+<tr>
+    <td><?php echo $this->sDate; ?></td>
+    <td><?php echo $this->aData['visits']; ?></td>
+    <td><?php echo $this->aData['transactions']; ?></td>
+    <td><?php echo sprintf("%01.2f%%", $this->aData['conversion']); ?></td>
+</tr>
+<?php elseif($this->bCompare):
+$aDiff = array();
+foreach ($this->aData as $sKey => $fValue) {
+    $aDiff[$sKey] = -100;
+    if ($this->aData[$sKey] > 0) {
+        $aDiff[$sKey] = round(-100 * (1 - ($this->aCompareData[$sKey] / $this->aData[$sKey])));
+    }
+}
+?>
+<tr class="<?php echo ($aDiff['conversion'] < 0 ? 'alert-error' : ''); ?>">
+    <td><?php echo $this->sCompareDate; ?></td>
+    <td><?php echo sprintf("%d (%+01.2f%%)", $this->aCompareData['visits'], $aDiff['visits']); ?></td>
+    <td><?php echo sprintf("%d (%+01.2f%%)", $this->aCompareData['transactions'], $aDiff['transactions']); ?></td>
+    <td><?php echo sprintf("%01.2f%% (%+01.2f%%)", $this->aCompareData['conversion'], $aDiff['conversion']); ?></td>
+</tr>
+<?php endif; ?>

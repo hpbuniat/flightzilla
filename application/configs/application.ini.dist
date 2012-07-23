@@ -1,0 +1,91 @@
+[production]
+appnamespace                                                = ""
+phpSettings.display_startup_errors                          = 0
+phpSettings.display_errors                                  = 0
+includePaths.library                                        = APPLICATION_PATH "/../library"
+bootstrap.path                                              = APPLICATION_PATH "/Bootstrap.php"
+bootstrap.class                                             = "Bootstrap"
+
+;name
+app.name                                                    = flightzilla
+
+;
+resources.frontController.controllerDirectory               = APPLICATION_PATH "/controllers"
+resources.frontController.params.displayExceptions          = 0
+resources.frontController.params.disableOutputBuffering     = true
+resources.layout.layoutPath                                 = APPLICATION_PATH "/layouts/"
+
+;view
+resources.view.encoding                                     = "UTF-8"
+resources.view.doctype                                      = "XHTML1_STRICT";
+resources.view.basePath                                     = APPLICATION_PATH "/views"
+resources.view.helperPath.View_Helper                       = APPLICATION_PATH "/views/helper"
+
+resources.log.stream.writerName                             = "Stream"
+resources.log.stream.writerParams.stream                    = APPLICATION_PATH "/../log/application.log"
+resources.log.stream.writerParams.mode                      = "a"
+resources.log.stream.filterName                             = "Priority"
+resources.log.stream.filterParams.priority                  = 4
+
+resources.cachemanager.bugzilla.frontend.name = Core
+resources.cachemanager.bugzilla.frontend.customFrontendNaming = false
+resources.cachemanager.bugzilla.frontend.options.lifetime = 86400
+resources.cachemanager.bugzilla.frontend.options.automatic_serialization = true
+resources.cachemanager.bugzilla.frontend.options.automatic_cleaning_factor = 100
+;resources.cachemanager.bugzilla.backend.name = File
+;resources.cachemanager.bugzilla.backend.customBackendNaming = false
+;resources.cachemanager.bugzilla.backend.options.cache_dir = APPLICATION_PATH "/../cache/"
+;resources.cachemanager.bugzilla.frontendBackendAutoload = false
+resources.cachemanager.bugzilla.backend.name = Memcached
+resources.cachemanager.bugzilla.backend.options.servers.nodeone.host = localhost
+resources.cachemanager.bugzilla.backend.options.servers.nodeone.port = 11211
+resources.cachemanager.bugzilla.frontendBackendAutoload = false
+
+resources.session.name = "flightzilla"
+
+forms.options.configPath = APPLICATION_PATH "/forms/configs"
+
+model.bugzilla.baseUrl         = "https://bugzilla"
+model.bugzilla.http.cookiePath = APPLICATION_PATH "/../cache/"
+
+model.bugzilla.portal.0.name    =
+model.bugzilla.portal.0.product =
+model.bugzilla.portal.0.exclude_components[] =
+
+;Use a second product, based on bugs of a specific theme
+;model.bugzilla.portal.1.name    =
+;model.bugzilla.portal.1.product =
+;model.bugzilla.portal.1.theme   =
+
+model.bugzilla.team[] = "hans-peter.buniat"
+
+model.mergy.command = "/usr/local/bin/mergy"
+
+model.mergy.source.portal.stable = "https://svn/project/trunk"
+model.mergy.source.portal.feature = "https://svn/project/branches/feature"
+model.mergy.source.portal.wc = "/opt/mergy/trunks/project"
+model.mergy.source.portal.trac = "https://trac/changeset/%d"
+
+;model.mergy.source.2.stable =
+;model.mergy.source.2.feature =
+;model.mergy.source.2.wc =
+;model.mergy.source.2.trac =
+
+model.analytics.login = ""
+model.analytics.password = ""
+model.analytics.unsecurepassword = ""
+
+model.analytics.portal.0.name = ""
+model.analytics.portal.0.id = ""
+
+
+[staging : production]
+
+[testing : production]
+phpSettings.display_startup_errors                          = 1
+phpSettings.display_errors                                  = 1
+
+[development : production]
+phpSettings.display_startup_errors                          = 1
+phpSettings.display_errors                                  = 1
+resources.frontController.params.displayExceptions          = 1

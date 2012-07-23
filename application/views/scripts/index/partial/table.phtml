@@ -1,0 +1,59 @@
+<?php
+$aTimes = array(
+    'spent' => 0,
+    'esti' => 0,
+    'left' => 0
+);
+foreach($this->bugs as $bug) {
+    if ($bug->isEstimated()) {
+        $fSpent = (float) $bug->actual_time;
+        $fEsti = (float) $bug->estimated_time;
+        $fLeft = ($fEsti > $fSpent) ? ($fEsti - $fSpent) : 0;
+        $aTimes['spent'] += $fSpent;
+        $aTimes['esti'] += $fEsti;
+        $aTimes['left'] += $fLeft;
+    }
+}
+
+if(count($this->bugs) > 0) {?>
+<table class="bugTable table-bordered table-condensed table" style="width: 100%; margin-bottom: 10px;">
+    <tr class="tableHeader">
+        <td colspan="5">
+            <span <?php if ($aTimes['spent'] < 8):?>class="red"<?php endif;?>>
+                <b><?php echo $this->caption; ?> (<?php echo count($this->bugs); ?>)</b>
+                <?php echo $aTimes['spent'];?>h worked (<?php echo $aTimes['esti']?>h estimated) - Left: <?php echo $aTimes['left']; ?>h / <?php echo round($aTimes['left']/8,1); ?>d
+            </span>
+        </td>
+        <td colspan="2">
+            <span class="fll">
+                <a class="allBugs btn btn-small" href="javascript:;">All</a> / <a class="noBugs btn btn-small" href="javascript:;">None</a>
+            </span>
+            <div class="btn-group pull-right">
+                <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+                    Action
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a href="#" class="changelist">Release-List</a>
+                    </li>
+                    <li>
+                        <a href="#" class="mergelist">Merge-List</a>
+                    </li>
+                    <li>
+                        <a href="#" class="bugzilla-link">Open in Bugzilla</a>
+                    </li>
+                </ul>
+            </div>
+        </td>
+    </tr>
+<?php
+    foreach($this->bugs as $bug) {
+        $this->bug = $bug;
+        $this->bReady = ($this->ready !== false and $bug->resolution === $this->ready);
+        echo $this->render('index/partial/bug.phtml');
+    }
+?>
+</table>
+<?php
+}

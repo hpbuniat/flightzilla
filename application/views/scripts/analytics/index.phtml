@@ -1,0 +1,52 @@
+<?php echo $this->render('index/partial/header.phtml')?>
+<div class="row-fluid">
+<div class="span2">
+  <div class="well sidebar-nav">
+    <ul class="nav nav-list">
+      <li class="nav-header">
+          Portale
+          <a href="javascript:;" class="pull-right btn toggleNav">Alle</a>
+      </li>
+      <?php foreach ($this->aPortals as $iId => $sPortal): ?>
+          <li><a href="javascript:;" data-tab="<?php echo 't' . $iId;?>" data-which="sem" data-mode="conversion" data-container="<?php echo 'st_c' . $iId;?>" data-target="<?php echo $sPortal?>" class="toggleChart">
+            <?php echo $sPortal ?>
+          </a></li>
+      <?php endforeach; ?>
+    </ul>
+  </div>
+</div>
+<div class="span10">
+<?php foreach ($this->aPortals as $iId => $sPortal): ?>
+    <div class="hidden tabContainer" id="t<?php echo $iId; ?>">
+        <ul class="nav nav-tabs">
+            <li>
+                <a data-container="<?php echo 'at_c' . $iId;?>" data-which="all" data-mode="conversion" data-target="<?php echo $sPortal?>" class="toggleChart" data-toggle="tab" href="#at_c<?php echo $iId; ?>"">All Traffic</a>
+            </li>
+            <li class="active">
+                <a data-container="<?php echo 'st_c' . $iId;?>" data-which="sem" data-mode="conversion" data-target="<?php echo $sPortal?>" class="toggleChart" data-toggle="tab" href="#st_c<?php echo $iId; ?>"">SEM Traffic</a>
+            </li>
+            <li>
+                <a data-container="<?php echo 'ac_c' . $iId;?>" data-which="all" data-mode="campaign" data-target="<?php echo $sPortal?>" class="toggleChart" data-toggle="tab" href="#ac_c<?php echo $iId; ?>"">All Campagins</a>
+            </li>
+            <li>
+                <a data-container="<?php echo 'sc_c' . $iId;?>" data-which="sem" data-mode="campaign" data-target="<?php echo $sPortal?>" class="toggleChart" data-toggle="tab" href="#sc_c<?php echo $iId; ?>"">SEM Campagins</a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane chartContainer" id="at_c<?php echo $iId; ?>"></div>
+            <div class="tab-pane active chartContainer" id="st_c<?php echo $iId; ?>"></div>
+            <div class="tab-pane chartContainer" id="ac_c<?php echo $iId; ?>"></div>
+            <div class="tab-pane chartContainer" id="sc_c<?php echo $iId; ?>"></div>
+        </div>
+    </div>
+<?php endforeach; ?>
+
+<script type="text/javascript">
+$(function() {
+    $('.toggleChart').eq(0).trigger('click');
+});
+</script>
+
+</div>
+</div>

@@ -1,0 +1,102 @@
+img {
+	border: none
+}
+
+.pl10 {
+	padding-left:10px;
+}
+
+.clearfix:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
+
+.fll {
+	float: left
+}
+
+.flr {
+	float: right
+}
+
+.left {
+	width: 150px
+}
+
+.right {
+	text-align: right
+}
+
+.table th, .table td {
+    vertical-align: middle !important;
+}
+
+.bugCount {
+	margin: 0 0 5px
+}
+
+.toggleNav {
+	margin-top: -5px !important;
+}
+
+.legend {
+    margin: 0 10px;
+    padding: 5px 0;
+    display:none;
+}
+
+#quickList {
+	text-align: right;
+}
+
+.red {
+	color: red
+}
+
+.green {
+	color: green
+}
+
+.chuck {
+	z-index: -1;
+}
+
+.timeSpan {
+	position: absolute;
+    margin-top: -16px;
+}
+
+.timeWidth {
+    overflow: visible;
+    background-image: none;
+    background-color: red;
+    height: 3px;
+    margin-top: 14px;
+}
+
+.chartContainer {
+	min-width: 400px;
+	min-height: 400px;
+	margin: 0 auto;
+}
+
+.loading {
+    display: none;
+    position: relative;
+    top: -250px;
+    left: 50%;
+    width: 50px;
+}
+
+.input-xxxlarge {
+    width: 95%;
+    height: 250px;
+}
+
+div.modal {
+    left: 25%;
+    width: 75%;
+}

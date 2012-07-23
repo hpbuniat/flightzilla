@@ -1,0 +1,9 @@
+<div class="merge-result">
+    <div class="alert <?php echo (($this->bSuccess === true) ? "alert-success" : "alert-error"); ?>">
+        <button class="close toggle" type="button"><i class="icon-list"></i></button>
+        <?php echo $this->sMessage; ?>
+    </div>
+    <div class="code">
+        <pre class="hidden prettyprint linenums"><?php echo $this->sResult; ?></pre>
+    </div>
+</div>
