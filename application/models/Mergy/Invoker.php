@@ -84,7 +84,7 @@ class Model_Mergy_Invoker {
      *
      * @var string
      */
-    const MERGE_COMMAND = 'cd %s; %s --ticket=%s --strict --unattended --verbose %s --config=mergy.unattended.json';
+    const MERGE_COMMAND = 'export LC_CTYPE=de_DE.UTF-8; cd %s; %s --ticket=%s --strict --unattended --verbose %s --config=mergy.unattended.json';
 
     /**
      * The commit-trigger
