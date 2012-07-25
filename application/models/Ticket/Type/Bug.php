@@ -233,7 +233,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      */
     public function isMergeable() {
         $sStatus = (string) $this->bug_status;
-        return ($this->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING,'?') !== true and $this->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING,'-') !== true and ($this->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE,'?') === true or (
+        return ($this->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING,'?') !== true and ($this->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE,'?') === true or (
             ($sStatus === Model_Ticket_Type_Bug::STATUS_RESOLVED or $sStatus === Model_Ticket_Type_Bug::STATUS_VERIFIED) and $this->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE,'+') === false and $this->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING,'+'))));
     }
 
