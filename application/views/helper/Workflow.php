@@ -23,6 +23,14 @@ class View_Helper_Workflow extends Zend_View_Helper_Abstract {
             $sClasses .= Model_Ticket_Type_Bug::WORKFLOW_MERGE . ' ';
         }
 
+        if ($oBug->isWorkedOn()) {
+            $sClasses .= Model_Ticket_Type_Bug::WORKFLOW_INPROGRESS . ' ';
+        }
+
+        if ($oBug->isActive()) {
+            $sClasses .= Model_Ticket_Type_Bug::WORKFLOW_ACTIVE . ' ';
+        }
+
         if ($oBug->isOnlyTranslation() === true) {
             $sClasses .= Model_Ticket_Type_Bug::WORKFLOW_TRANSLATION . ' ';
         }

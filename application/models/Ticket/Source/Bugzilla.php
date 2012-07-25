@@ -334,6 +334,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             Model_Ticket_Type_Bug::WORKFLOW_ORGA => 0,
             Model_Ticket_Type_Bug::WORKFLOW_UNESTIMATED => 0,
             Model_Ticket_Type_Bug::WORKFLOW_INPROGRESS => 0,
+            Model_Ticket_Type_Bug::WORKFLOW_ACTIVE => 0,
             Model_Ticket_Type_Bug::WORKFLOW_TESTING => 0,
             Model_Ticket_Type_Bug::WORKFLOW_MERGE => 0,
             Model_Ticket_Type_Bug::WORKFLOW_DEADLINE => 0,
@@ -357,8 +358,12 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
                 $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_UNESTIMATED]++;
             }
 
-            if ($oBug->workedOn()) {
+            if ($oBug->isWorkedOn()) {
                 $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_INPROGRESS]++;
+            }
+
+            if ($oBug->isActive()) {
+                $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_ACTIVE]++;
             }
 
             if ($oBug->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING,'?')) {

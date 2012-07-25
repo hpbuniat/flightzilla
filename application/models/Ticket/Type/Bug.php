@@ -97,6 +97,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     const WORKFLOW_ORGA = 'orga';
     const WORKFLOW_UNESTIMATED = 'unestimated';
     const WORKFLOW_INPROGRESS = 'working';
+    const WORKFLOW_ACTIVE = 'Active';
     const WORKFLOW_TESTING = 'testing';
     const WORKFLOW_MERGE = 'mergeable';
     const WORKFLOW_DEADLINE = 'deadline';
@@ -400,8 +401,19 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      *
      * @return bool
      */
-    public function workedOn() {
-        return ($this->isEstimated() and (bool) ($this->actual_time > 0));
+    public function isWorkedOn() {
+        $sStatus = (string) $this->bug_status;
+        return ($this->isEstimated() and (bool) ($this->actual_time > 0) and $sStatus !== Model_Ticket_Type_Bug::STATUS_RESOLVED);
+    }
+
+    /**
+     * Check, if someone is working on this bug
+     *
+     * @return bool
+     */
+    public function isActive() {
+        $sStatus = (string) $this->bug_status;
+        return ($sStatus === Model_Ticket_Type_Bug::STATUS_ASSIGNED);
     }
 
     /**
