@@ -193,9 +193,11 @@ class Model_Mergy_Revision_Stack {
     public function setRaw($sXml) {
         $aMatches = array();
         preg_match('!<tickets>.*?</tickets>!i', $sXml, $aMatches);
+        if (empty($aMatches[0]) !== true) {
+            $this->_oXml = simplexml_load_string($aMatches[0]);
+            $this->_parse();
+        }
 
-        $this->_oXml = simplexml_load_string($aMatches[0]);
-        $this->_parse();
         return $this;
     }
 

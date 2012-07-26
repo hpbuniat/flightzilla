@@ -403,7 +403,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      */
     public function isWorkedOn() {
         $sStatus = (string) $this->bug_status;
-        return ($this->isEstimated() and (bool) ($this->actual_time > 0) and $sStatus !== Model_Ticket_Type_Bug::STATUS_RESOLVED);
+        return ($this->isEstimated() and (bool) ($this->actual_time > 0) and $sStatus !== Model_Ticket_Type_Bug::STATUS_RESOLVED and $sStatus !== Model_Ticket_Type_Bug::STATUS_VERIFIED);
     }
 
     /**

@@ -57,7 +57,7 @@
             });
 
             if (buffer !== '') {
-                f.write.show().text('Quicklist: ' + buffer.replace(/,$/,''));
+                f.write.show().html('List:&nbsp;' + buffer.replace(/,$/,''));
             }
         }
     };
@@ -171,7 +171,7 @@
     });
 
     f.bugTable.on('click', 'a.mergelist', function() {
-        var bugs = f.write.text().replace('Quicklist: ', '');
+        var bugs = f.write.text();
 
         f.modal('Merge-List', $('#loading').clone().css({top:0}).show());
         $.ajax({
@@ -192,7 +192,7 @@
     });
 
     $('.merge-button').on('click', function() {
-        var bugs = f.write.text().replace('Quicklist: ', ''),
+        var bugs = f.write.text(),
             data = {
                 tickets: bugs
             },
@@ -214,10 +214,11 @@
                         url: BASE_URL + 'mergy/merge/',
                         data: data
                     }).done(function(msg) {
-                        container.find('.load-' + aRepos[index]).remove();
                         container.append(msg);
                     }).fail(function(jqXHR, textStatus) {
                         alert( "Request failed: " + textStatus );
+                    }).always(function() {
+                        container.find('.load-' + aRepos[index]).remove();
                     });
                 }(i));
             }

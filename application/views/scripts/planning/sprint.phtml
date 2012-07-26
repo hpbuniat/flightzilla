@@ -10,8 +10,6 @@ echo $this->partial('planning/partial/sidebar.phtml', array(
 
 <div class="span10">
 <form method="get" target="_blank" action="<?php echo $this->url(array('controller' => 'index', 'action' => 'go-bugzilla'))?>">
-
-<h4 id="quickList" class="bugCount" style="display:none"></h4>
 <?php
 foreach ($this->aRessources as $oRessource) {
     echo sprintf('<div class="gantt t%s" data-target="%s"></div>', md5($oRessource->getName()), $oRessource->getName());

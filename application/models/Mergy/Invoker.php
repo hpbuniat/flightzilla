@@ -108,6 +108,13 @@ class Model_Mergy_Invoker {
     const MSG_ERROR = '<strong>mergy failed</strong><br/>%s<br/><br/>Check the logs & the wc for errors';
 
     /**
+     * Message, if no tickets could be parsed
+     *
+     * @var string
+     */
+    const NO_TICKETS = 'No tickets found';
+
+    /**
      * Create the mergy-invoker
      *
      * @param Model_Command $oCommand
@@ -126,7 +133,7 @@ class Model_Mergy_Invoker {
      * @return Model_Mergy_Invoker
      */
     public function mergelist(Model_Mergy_Revision_Stack $oStack, $sMergy, Zend_Config $oSource, $sTickets) {
-        $sCommand = sprintf(self::LIST_COMMAND, $sMergy, $oSource->feature, $oSource->stable, $sTickets);
+        $sCommand = sprintf(self::LIST_COMMAND, $sMergy, $oSource->feature, $oSource->stable, $this->_parseTickets($sTickets));
         $this->_sCliOutput = trim($this->_oCommand->execute($sCommand)->get());
 
         if ($this->_oCommand->isSuccess() and empty($this->_sCliOutput) !== true) {
@@ -149,7 +156,7 @@ class Model_Mergy_Invoker {
      * @return Model_Mergy_Invoker
      */
     public function merge($sMergy, Zend_Config $oSource, $sTickets, $bCommit) {
-        $sCommand = sprintf(self::MERGE_COMMAND, $oSource->wc, $sMergy, $sTickets, (($bCommit !== false) ? self::MERGE_COMMIT : ''));
+        $sCommand = sprintf(self::MERGE_COMMAND, $oSource->wc, $sMergy, $this->_parseTickets($sTickets), (($bCommit !== false) ? self::MERGE_COMMIT : ''));
         $this->_sCliOutput = $sCommand . PHP_EOL . PHP_EOL . trim($this->_oCommand->execute($sCommand)->get());
 
         if ($this->_oCommand->isSuccess() !== true) {
@@ -157,6 +164,25 @@ class Model_Mergy_Invoker {
         }
 
         return $this;
+    }
+
+    /**
+     * Parse tickets of the param
+     *
+     * @param  string $sTickets
+     *
+     * @return string
+     *
+     * @throws InvalidArgumentException
+     */
+    protected function _parseTickets($sTickets) {
+        $aMatch = array();
+        preg_match_all('!\d+!', $sTickets, $aMatch);
+        if (empty($aMatch[0]) !== true) {
+            return implode(',', $aMatch[0]);
+        }
+
+        throw new InvalidArgumentException(self::NO_TICKETS);
     }
 
     /**

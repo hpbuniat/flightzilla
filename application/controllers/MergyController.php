@@ -91,11 +91,16 @@ class MergyController extends Zend_Controller_Action {
 
         $sTickets = $this->_getParam('tickets');
         $bCommit = (bool) $this->_getParam('commit', false);
-        if (empty($sTickets) !== true and isset($oConfig->source->$sRepository) === true) {
-            $oSource = $oConfig->source->$sRepository;
-            $this->view->sResult = $oMergy->merge($oConfig->command, $oSource, $sTickets, $bCommit)->getOutput();
-            $this->view->sMessage = $oMergy->getMessage();
-            $this->view->bSuccess = $oMergy->isSuccess();
+        try {
+            if (empty($sTickets) !== true and isset($oConfig->source->$sRepository) === true) {
+                $oSource = $oConfig->source->$sRepository;
+                $this->view->sResult = $oMergy->merge($oConfig->command, $oSource, $sTickets, $bCommit)->getOutput();
+                $this->view->sMessage = $oMergy->getMessage();
+                $this->view->bSuccess = $oMergy->isSuccess();
+            }
+        }
+        catch (Exception $e) {
+            $this->getResponse()->setHttpResponseCode(400);
         }
     }
 
@@ -109,15 +114,21 @@ class MergyController extends Zend_Controller_Action {
         $oMergy = new Model_Mergy_Invoker(new Model_Command());
 
         $sTickets = $this->_getParam('tickets');
-        if (empty($sTickets) !== true) {
-            $oSources = $oConfig->source;
-            foreach ($oSources as $sName => $oSource) {
-                $oMergy->mergelist(new Model_Mergy_Revision_Stack($sName, $oSource), $oConfig->command, $oSource, $sTickets);
-            }
-        }
 
-        $this->view->aMergyStack = $oMergy->getStack();
-        unset($oConfig, $oMergy);
+        try {
+            if (empty($sTickets) !== true) {
+                $oSources = $oConfig->source;
+                foreach ($oSources as $sName => $oSource) {
+                    $oMergy->mergelist(new Model_Mergy_Revision_Stack($sName, $oSource), $oConfig->command, $oSource, $sTickets);
+                }
+            }
+
+            $this->view->aMergyStack = $oMergy->getStack();
+            unset($oConfig, $oMergy);
+        }
+        catch (Exception $e) {
+            $this->getResponse()->setHttpResponseCode(400);
+        }
     }
 }
 

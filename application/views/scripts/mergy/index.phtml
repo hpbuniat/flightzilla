@@ -7,7 +7,6 @@
 
     <div class="span10">
         <form id="buglist-form" method="get" target="_blank" action="<?php echo $this->url(array('controller' => 'index', 'action' => 'go-bugzilla'))?>">
-        <h4 id="quickList" class="bugCount" style="display:none"></h4>
         <?php
         echo $this->partial('index/partial/table.phtml', array(
             'caption' => 'Mergeable issues',
@@ -23,12 +22,15 @@
         ));
         ?>
         </form>
+
         <p>
             <a class="btn btn-large commit merge-button" href="javascript:;">Merge & Commit</a>
             <a class="btn btn-primary btn-large merge-button" href="javascript:;">Merge</a>
         </p>
         <div id="container" data-repos='<?php echo $this->sRepositories?>'></div>
     </div>
+
+    <h4 id="quickList" class="bugCount" style="display:none"></h4>
 </div>
 
 <script type="text/javascript">
