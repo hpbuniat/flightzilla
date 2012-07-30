@@ -10,7 +10,7 @@
         headerRows: {},
         modalDiv: null,
         init: function() {
-            this.headerRows = $('.tableHeader td[colspan="5"], .campaignName');
+            this.headerRows = $('.tableHeader td[colspan="6"], .campaignName');
             this.bugs = $('tr');
             this.write = $('#quickList');
             this.toggleBugs = $('.toggleBugs');
@@ -178,7 +178,7 @@
             type: 'GET',
             url: BASE_URL + 'mergy/mergelist/',
             data: {
-                tickets: bugs,
+                tickets: bugs
             }
         }).done(function(msg) {
             f.modal('Merge-List', msg);
@@ -271,5 +271,9 @@
 
     $('input:checkbox').on('click', function() {
         f.quickList();
+    });
+
+    $(document).ready(function(){
+        $('.tablesorter').tablesorter();
     });
 }); }(jQuery));

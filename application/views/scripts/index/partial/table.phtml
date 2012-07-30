@@ -16,9 +16,10 @@ foreach($this->bugs as $bug) {
 }
 
 if(count($this->bugs) > 0) {?>
-<table class="bugTable table-bordered table-condensed table" style="width: 100%; margin-bottom: 10px;">
+<table class="bugTable table-bordered table-condensed table tablesorter" style="width: 100%; margin-bottom: 10px;">
+    <thead>
     <tr class="tableHeader">
-        <td colspan="5">
+        <td colspan="6">
             <span <?php if ($aTimes['spent'] < 8):?>class="red"<?php endif;?>>
                 <b><?php echo $this->caption; ?> (<?php echo count($this->bugs); ?>)</b>
                 <?php echo $aTimes['spent'];?>h worked (<?php echo $aTimes['esti']?>h estimated) - Left: <?php echo $aTimes['left']; ?>h / <?php echo round($aTimes['left']/8,1); ?>d
@@ -47,13 +48,27 @@ if(count($this->bugs) > 0) {?>
             </div>
         </td>
     </tr>
-<?php
-    foreach($this->bugs as $bug) {
-        $this->bug = $bug;
-        $this->bReady = ($this->ready !== false and $bug->resolution === $this->ready);
-        echo $this->render('index/partial/bug.phtml');
-    }
-?>
+
+    <tr class="tableHeader">
+        <th>Prio</th>
+        <th>Bug No.</th>
+        <th>Resolution</th>
+        <th>Status</th>
+        <th class="{sorter: 'digit'}">Times</th>
+        <th>Summary</th>
+        <th></th>
+        <th>Component</th>
+    </tr>
+    </thead>
+    <tbody>
+    <?php
+        foreach($this->bugs as $bug) {
+            $this->bug = $bug;
+            $this->bReady = ($this->ready !== false and $bug->resolution === $this->ready);
+            echo $this->render('index/partial/bug.phtml');
+        }
+    ?>
+    </tbody>
 </table>
 <?php
 }
