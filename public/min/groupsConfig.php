@@ -18,6 +18,8 @@ return array(
         '//ressource/js/bootstrap.js',
         '//ressource/js/highcharts.js',
         '//ressource/js/jquery.gantt.js',
+        '//ressource/js/jquery.tablesorter.js',
+        '//ressource/js/jquery.metadata.js',
     ),
     'css' => array(
         '//ressource/base.css',
