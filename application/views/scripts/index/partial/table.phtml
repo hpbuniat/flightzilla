@@ -20,7 +20,7 @@ if(count($this->bugs) > 0) {?>
     <thead>
     <tr class="tableHeader">
         <td colspan="6">
-            <span <?php if ($aTimes['spent'] < 8):?>class="red"<?php endif;?>>
+            <span class="caption"<?php if ($aTimes['spent'] < 8):?>class="red"<?php endif;?>>
                 <b><?php echo $this->caption; ?> (<?php echo count($this->bugs); ?>)</b>
                 <?php echo $aTimes['spent'];?>h worked (<?php echo $aTimes['esti']?>h estimated) - Left: <?php echo $aTimes['left']; ?>h / <?php echo round($aTimes['left']/8,1); ?>d
             </span>

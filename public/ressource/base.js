@@ -18,6 +18,7 @@
             this.bugTable = $('.bugTable');
             this.charts = {};
             this.modalDiv = $('#flightzillaModal');
+            this.searchable = $('.tableHeader td[colspan="6"], .campaignName, tr');
         },
         hideBugs: function() {
             this.bugTable.each(function() {
@@ -148,7 +149,7 @@
         var searchText = $.trim($(this).val()),
             result, t;
         if (searchText !== '') {
-            result = f.headerRows.find('span').filter(function() {
+            result = f.searchable.find('span, td.bugDesc, a.bugLink').filter(function() {
                 t = (new RegExp(searchText, "ig")).exec($(this).text());
                 return (t && t.length);
             });
@@ -156,7 +157,12 @@
             if (result.length) {
                 f.bugs.hide();
                 result.each(function() {
-                    $(this).parents('.bugTable').show().find('tr').show();
+                    if ($(this).attr('class') == 'caption') {
+                        $(this).parents('.bugTable').show().find('tr').show();
+                    }
+                    else{
+                        $(this).parents('.bugTable, tr').show();
+                    }
                 });
             }
             else {
