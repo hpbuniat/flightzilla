@@ -1,6 +1,8 @@
 <tr class="bug" data-assignee="<?php echo $this->bug->assignee_name?>" style="<?php echo $this->buggradient($this->bug, $this->bReady);?>">
-<td width="13%">
+<td width="2%">
     <?php echo $this->bug->priority?>
+</td>
+<td width="11%">
     <a class="bugLink" target="_blank" href="<?php echo $this->sBugzilla?>/show_bug.cgi?id=<?php echo $this->bug->bug_id?>"><?php echo $this->bug->bug_id?></a>
     &nbsp;
     <?php

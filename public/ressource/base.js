@@ -10,7 +10,7 @@
         headerRows: {},
         modalDiv: null,
         init: function() {
-            this.headerRows = $('.tableHeader td[colspan="5"], .campaignName');
+            this.headerRows = $('.tableHeader td[colspan="6"], .campaignName');
             this.bugs = $('tr');
             this.write = $('#quickList');
             this.toggleBugs = $('.toggleBugs');
@@ -18,6 +18,7 @@
             this.bugTable = $('.bugTable');
             this.charts = {};
             this.modalDiv = $('#flightzillaModal');
+            this.searchable = $('.tableHeader td[colspan="6"], .campaignName, tr');
         },
         hideBugs: function() {
             this.bugTable.each(function() {
@@ -148,7 +149,7 @@
         var searchText = $.trim($(this).val()),
             result, t;
         if (searchText !== '') {
-            result = f.headerRows.find('span').filter(function() {
+            result = f.searchable.find('span, td.bugDesc, a.bugLink').filter(function() {
                 t = (new RegExp(searchText, "ig")).exec($(this).text());
                 return (t && t.length);
             });
@@ -156,7 +157,12 @@
             if (result.length) {
                 f.bugs.hide();
                 result.each(function() {
-                    $(this).parents('.bugTable').show().find('tr').show();
+                    if ($(this).attr('class') == 'caption') {
+                        $(this).parents('.bugTable').show().find('tr').show();
+                    }
+                    else{
+                        $(this).parents('.bugTable, tr').show();
+                    }
                 });
             }
             else {
@@ -178,7 +184,7 @@
             type: 'GET',
             url: BASE_URL + 'mergy/mergelist/',
             data: {
-                tickets: bugs,
+                tickets: bugs
             }
         }).done(function(msg) {
             f.modal('Merge-List', msg);
@@ -271,5 +277,9 @@
 
     $('input:checkbox').on('click', function() {
         f.quickList();
+    });
+
+    $(document).ready(function(){
+        $('.tablesorter').tablesorter();
     });
 }); }(jQuery));
