@@ -51,14 +51,13 @@
         },
         quickList: function() {
             var buffer = '';
-            f.write.hide().empty();
+            this.write.hide().empty();
             $('input:checkbox:checked').each(function() {
-                var $this = $(this);
-                buffer += $this.parents('tr').find('td:eq(0) > a').text() + ',';
+                buffer += $(this).parents('tr').find('td:eq(1) > a').text() + ',';
             });
 
             if (buffer !== '') {
-                f.write.show().html('List:&nbsp;' + buffer.replace(/,$/,''));
+                this.write.show().html('List:&nbsp;' + buffer.replace(/,$/,''));
             }
         }
     };
@@ -157,11 +156,12 @@
             if (result.length) {
                 f.bugs.hide();
                 result.each(function() {
-                    if ($(this).attr('class') == 'caption') {
-                        $(this).parents('.bugTable').show().find('tr').show();
+                    var $this = $(this);
+                    if ($this.hasClass('caption') === true) {
+                        $this.parents('.bugTable').show().find('tr').show();
                     }
                     else{
-                        $(this).parents('.bugTable, tr').show();
+                        $this.parents('.bugTable, tr').show();
                     }
                 });
             }

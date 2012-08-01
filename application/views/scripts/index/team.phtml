@@ -6,9 +6,7 @@ echo $this->render('index/partial/overview.phtml');
 ?>
 
 <div class="span10">
-<form method="get" target="_blank" action="<?php echo $this->url(array('controller' => 'index', 'action' => 'go-bugzilla'))?>">
-
-<h4 id="quickList" class="bugCount" style="display:none"></h4>
+<form id="buglist-form" method="get" target="_blank" action="<?php echo $this->url(array('controller' => 'index', 'action' => 'go-bugzilla'))?>">
 <?php
 foreach ($this->aMemberBugs as $sName => $aBugs) {
     echo $this->partial('index/partial/table.phtml', array(

@@ -1,45 +1,49 @@
 img {
-	border: none
+    border: none
 }
 
 .pl10 {
-	padding-left:10px;
+    padding-left:10px;
 }
 
 .clearfix:after {
-	content: ".";
-	display: block;
-	height: 0;
-	clear: both;
-	visibility: hidden;
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
 }
 
 .fll {
-	float: left
+    float: left
 }
 
 .flr {
-	float: right
+    float: right
 }
 
 .left {
-	width: 150px
+    width: 150px
 }
 
 .right {
-	text-align: right
+    text-align: right
 }
 
 .table th, .table td {
     vertical-align: middle !important;
 }
 
+.table th:hover {
+    cursor: pointer;
+}
+
 .bugCount {
-	margin: 0 0 5px
+    margin: 0 0 5px
 }
 
 .toggleNav {
-	margin-top: -5px !important;
+    margin-top: -5px !important;
 }
 
 .legend {
@@ -49,23 +53,23 @@ img {
 }
 
 #quickList {
-	text-align: right;
+    text-align: right;
 }
 
 .red {
-	color: red
+    color: red
 }
 
 .green {
-	color: green
+    color: green
 }
 
 .chuck {
-	z-index: -1;
+    z-index: -1;
 }
 
 .timeSpan {
-	position: absolute;
+    position: absolute;
     margin-top: -16px;
 }
 
@@ -78,9 +82,9 @@ img {
 }
 
 .chartContainer {
-	min-width: 400px;
-	min-height: 400px;
-	margin: 0 auto;
+    min-width: 400px;
+    min-height: 400px;
+    margin: 0 auto;
 }
 
 .loading {
