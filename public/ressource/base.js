@@ -8,7 +8,9 @@
         bugTable: {},
         charts: {},
         headerRows: {},
+        searchable: {},
         modalDiv: null,
+        searchTimeout: 0,
         init: function() {
             this.headerRows = $('.tableHeader td[colspan="6"], .campaignName');
             this.bugs = $('tr');
@@ -18,12 +20,12 @@
             this.bugTable = $('.bugTable');
             this.charts = {};
             this.modalDiv = $('#flightzillaModal');
-            this.searchable = $('.tableHeader td[colspan="6"], .campaignName, tr');
+            this.searchable = $('.tableHeader td[colspan="6"], .campaignName, tr').find('span, td.bugDesc, a.bugLink');
         },
         hideBugs: function() {
             this.bugTable.each(function() {
                 $(this).show().find('.tableHeader').show();
-                if ($(this).find('tr:not(.tableHeader):visible').length == 0) {
+                if ($(this).find('tr:not(.tableHeader):visible').length === 0) {
                     $(this).hide();
                 }
             });
@@ -59,7 +61,14 @@
             if (buffer !== '') {
                 this.write.show().html('List:&nbsp;' + buffer.replace(/,$/,''));
             }
-        }
+        },
+        delay: (function() {
+            searchTimeout = this.searchTimeout;
+            return function(callback, ms) {
+              clearTimeout (searchTimeout);
+              searchTimeout = setTimeout(callback, ms);
+            };
+        })()
     };
 
     f.init();
@@ -145,35 +154,40 @@
     });
 
     $('#searchId').on('keyup', function() {
-        var searchText = $.trim($(this).val()),
-            result, t;
-        if (searchText !== '') {
-            result = f.searchable.find('span, td.bugDesc, a.bugLink').filter(function() {
-                t = (new RegExp(searchText, "ig")).exec($(this).text());
-                return (t && t.length);
-            });
+        var $this = $(this);
+        f.delay(function() {
+            var searchText = $.trim($this.val()),
+                result, t;
 
-            if (result.length) {
-                f.bugs.hide();
-                result.each(function() {
-                    var $this = $(this);
-                    if ($this.hasClass('caption') === true) {
-                        $this.parents('.bugTable').show().find('tr').show();
-                    }
-                    else{
-                        $this.parents('.bugTable, tr').show();
-                    }
+            if (searchText !== '') {
+                result = f.searchable.filter(function() {
+                    t = (new RegExp(searchText, "ig")).exec($(this).text());
+                    return (t && t.length);
                 });
+
+                if (result.length) {
+                    f.bugs.hide();
+                    result.each(function() {
+                        var $that = $(this);
+                        $that.parents('.bugTable').show();
+                        if ($that.hasClass('caption') === true) {
+                            $that.find('tr').show();
+                        }
+                        else{
+                            $that.parents('tr').show();
+                        }
+                    });
+                }
+                else {
+                    f.bugs.show();
+                }
             }
             else {
                 f.bugs.show();
             }
-        }
-        else {
-            f.bugs.show();
-        }
 
-        f.hideBugs();
+            f.hideBugs();
+        }, 500);
     });
 
     f.bugTable.on('click', 'a.mergelist', function() {
