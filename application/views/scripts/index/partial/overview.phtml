@@ -27,6 +27,15 @@
         <?php endif; ?>
         <?php endforeach; ?>
 
+        <li class="nav-header">Severities</li>
+        <?php foreach ($this->aSeverities as $sType => $aStatus): ?>
+        <?php if ($aStatus['num'] > 0): ?>
+            <li><a href="javascript:;" data-target="severity<?php echo $sType?>" class="toggleBugs severity<?php echo $sType?>">
+                <?php echo ucwords(strtolower($sType))?>: <?php echo $aStatus['num']?> (<?php echo ceil($aStatus['per'])?>%)
+            </a></li>
+        <?php endif; ?>
+        <?php endforeach; ?>
+
         <li class="nav-header"><a href="javascript:;" data-target="legend" class="toggle">Legende</a></li>
         <li class="legend"><div style="background-color: crimson; padding: 8px;">Test nicht bestanden!</div></li>
         <li class="legend"><div style="background-color: yellow; padding: 8px;">Test offen</div></li>

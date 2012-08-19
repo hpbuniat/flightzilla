@@ -9,7 +9,8 @@ class View_Helper_Workflow extends Zend_View_Helper_Abstract {
      * @return string
      */
     public function workflow(Model_Ticket_Type_Bug $oBug) {
-        $sClasses = 'prio' . $oBug->priority . ' ';
+        $sClasses = sprintf('prio%s ', $oBug->priority);
+        $sClasses .= sprintf('severity%s ', $oBug->bug_severity);
 
         if ($oBug->isQuickOne() === true) {
             $sClasses .= Model_Ticket_Type_Bug::WORKFLOW_QUICK . ' ';

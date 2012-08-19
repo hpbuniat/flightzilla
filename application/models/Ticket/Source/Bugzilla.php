@@ -242,6 +242,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         $oView->aStats = $this->getStats();
         $oView->aStatuses = $this->getStatuses();
         $oView->aPriorities = $this->getPriorities();
+        $oView->aSeverities = $this->getSeverities();
         $oView->sChuck = $this->getChuckStatus();
 
         return $this;
@@ -301,16 +302,32 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             $aPriorities[(string) $oBug->priority]++;
         }
 
-        $mStat = null;
-        foreach ($aPriorities as &$mStat) {
-            $mStat = array(
-                'num' => $mStat,
-                'per' => ($iCount > 0) ? round(($mStat / $iCount) * 100, 2) : 0
-            );
+        $this->_percentify($aPriorities, $iCount);
+        return $aPriorities;
+    }
+
+    /**
+     * Get the priorities
+     *
+     * @return array
+     */
+    public function getSeverities() {
+        $aSeverities = array();
+
+        $iCount = count($this->_allBugs);
+        foreach ($this->_allBugs as $oBug) {
+            $sSeverity = (string) $oBug->bug_severity;
+            if (empty($aSeverities[$sSeverity]) === true) {
+                $aSeverities[$sSeverity] = 0;
+            }
+
+            $aSeverities[$sSeverity]++;
         }
 
-        unset($mStat);
-        return $aPriorities;
+        $this->_percentify($aSeverities, $iCount);
+        arsort($aSeverities);
+
+        return $aSeverities;
     }
 
     /**
@@ -399,15 +416,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             }
         }
 
-        $mStat = null;
-        foreach ($this->_aStats as &$mStat) {
-            $mStat = array(
-                'num' => $mStat,
-                'per' => ($iCount > 0) ? round(($mStat / $iCount) * 100, 2) : 0
-            );
-        }
-
-        unset($mStat);
+        $this->_percentify($this->_aStats, $iCount);
         return $this->_aStats;
     }
 
@@ -1158,8 +1167,21 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             $this->_aStatuses[(string) $oBug->bug_status]++;
         }
 
+        $this->_percentify($this->_aStatuses, $iCount);
+        return $this->_aStatuses;
+    }
+
+    /**
+     * Get the percentage of each type in the stack
+     *
+     * @param  array $aStack
+     * @param  int $iCount
+     *
+     * @return Model_Ticket_Source_Bugzilla
+     */
+    protected function _percentify(array &$aStack, $iCount) {
         $mStat = null;
-        foreach ($this->_aStatuses as &$mStat) {
+        foreach ($aStack as &$mStat) {
             $mStat = array(
                 'num' => $mStat,
                 'per' => round(($mStat / $iCount) * 100, 2)
@@ -1167,6 +1189,6 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         }
 
         unset($mStat);
-        return $this->_aStatuses;
+        return $this;
     }
 }
