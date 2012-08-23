@@ -13,7 +13,7 @@
 
 return array(
     'js' => array(
-        '//ressource/js/jquery-1.7.2.min.js',
+        '//ressource/js/jquery-1.8.0.min.js',
         '//ressource/base.js',
         '//ressource/js/bootstrap.js',
         '//ressource/js/highcharts.js',
