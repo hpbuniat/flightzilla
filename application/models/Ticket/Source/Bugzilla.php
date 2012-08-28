@@ -118,6 +118,10 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
 
     private $_aFixedTrunk = array();
 
+    private $_aFixedToMerge = array();
+
+    private $_aFixed = array();
+
     private $_branchRelations = array();
 
     private $_summary = null;
@@ -833,16 +837,51 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
      * @return <type>
      */
     public function getFixedBugsInBranch() {
+        if ($this->_aFixedToMerge) {
+            return $this->_aFixedToMerge;
+        }
+
         $fixedBugs = $this->getFixedBugs();
-        $back = array();
+        $this->_aFixedToMerge = array();
         foreach ($fixedBugs as $bug) {
             if ($bug->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '?') or ($bug->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '+') !== true and $bug->hasFlag(Model_Ticket_Type_Bug::FLAG_DBCHANGE, '?'))) {
-                $back[$bug->id()] = $bug;
+                $aDepends = $this->getBugListByIds($bug->getDepends($this));
+                $bFixed = true;
+                foreach ($aDepends as $oDependBug) {
+                    if ($oDependBug->isMergeable() !== true) {
+                        $bFixed = false;
+                    }
+                }
+
+                if ($bFixed === true) {
+                    $this->_aFixedToMerge[$bug->id()] = $bug;
+                }
+                else {
+                    $this->_aFixed[$bug->id()] = $bug;
+                }
+            }
+            else {
+                $this->_aFixed[$bug->id()] = $bug;
             }
         }
 
-        ksort($back);
-        return $back;
+            ksort($this->_aFixed);
+        ksort($this->_aFixedToMerge);
+        return $this->_aFixedToMerge;
+    }
+
+    /**
+     *
+     * @return <type>
+     */
+    public function getFixedBugsUnknown() {
+        if ($this->_aFixed) {
+            return $this->_aFixed;
+        }
+
+        // if ($bug->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE) === false and $bug->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTSERVER, '?') === false and isset($this->_aFixedTrunk[$bug->id()]) === false) {
+        $this->getFixedBugsInBranch();
+        return $this->_aFixed;
     }
 
     /**
@@ -919,23 +958,6 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
 
         ksort($back);
         $this->_aFixedTrunk = $back;
-        return $back;
-    }
-
-    /**
-     *
-     * @return <type>
-     */
-    public function getFixedBugsUnknown() {
-        $fixedBugs = $this->getFixedBugs();
-        $back = array();
-        foreach ($fixedBugs as $bug) {
-            if ($bug->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE) === false and $bug->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTSERVER, '?') === false and isset($this->_aFixedTrunk[$bug->id()]) === false) {
-                $back[$bug->id()] = $bug;
-            }
-        }
-
-        ksort($back);
         return $back;
     }
 
