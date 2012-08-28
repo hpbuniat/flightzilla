@@ -168,10 +168,12 @@
                 if (result.length) {
                     f.bugs.hide();
                     result.each(function() {
-                        var $that = $(this);
-                        $that.parents('.bugTable').show();
+                        var $that = $(this),
+                            tables = $that.parents('.bugTable');
+
+                        tables.show();
                         if ($that.hasClass('caption') === true) {
-                            $that.find('tr').show();
+                            tables.find('tr').show();
                         }
                         else{
                             $that.parents('tr').show();
