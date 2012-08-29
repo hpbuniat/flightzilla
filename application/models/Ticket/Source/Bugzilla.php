@@ -899,7 +899,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         }
 
         $this->getFixedBugsInBranch();
-        return $this->_aFixedToMerge;
+        return $this->_aFixedTrunk;
     }
 
     /**
