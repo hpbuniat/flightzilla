@@ -848,7 +848,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
                 $aDepends = $this->getBugListByIds($bug->getDepends($this));
                 $bFixed = true;
                 foreach ($aDepends as $oDependBug) {
-                    if ($oDependBug->isMergeable() !== true) {
+                    if ($oDependBug->isMergeable() !== true and $oDependBug->couldBeInTrunk() !== true) {
                         $bFixed = false;
                     }
                 }
