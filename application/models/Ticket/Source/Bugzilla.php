@@ -844,7 +844,24 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         $fixedBugs = $this->getFixedBugs();
         $this->_aFixedToMerge = array();
         foreach ($fixedBugs as $bug) {
-            if ($bug->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '?') or ($bug->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '+') !== true and $bug->hasFlag(Model_Ticket_Type_Bug::FLAG_DBCHANGE, '?'))) {
+            if ($bug->isMerged()) {
+                $this->_aFixedTrunk[$bug->id()] = $bug;
+            }
+            elseif($bug->couldBeInTrunk() === true) {
+                $aBlocked = $this->getBugListByIds($bug->blocks());
+                $bTrunk = true;
+                foreach ($aBlocked as $oBlocked) {
+                    if (($oBlocked->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '+') !== true or $oBlocked->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '?') === true or $bug->hasFlag(Model_Ticket_Type_Bug::FLAG_SCREEN, '?') === true)
+                        and $oBlocked->isClosed() !== true and $oBlocked->isTheme() !== true and $oBlocked->hasFlag(Model_Ticket_Type_Bug::FLAG_SCREEN) !== true) {
+                        $bTrunk = false;
+                    }
+                }
+
+                if ($bTrunk === true) {
+                    $this->_aFixedTrunk[$bug->id()] = $bug;
+                }
+            }
+            elseif ($bug->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '?') or ($bug->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '+') !== true and $bug->hasFlag(Model_Ticket_Type_Bug::FLAG_DBCHANGE, '?'))) {
                 $aDepends = $this->getBugListByIds($bug->getDepends($this));
                 $bFixed = true;
                 foreach ($aDepends as $oDependBug) {
@@ -865,8 +882,23 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             }
         }
 
-            ksort($this->_aFixed);
+        ksort($this->_aFixedTrunk);
+        ksort($this->_aFixed);
         ksort($this->_aFixedToMerge);
+        return $this->_aFixedToMerge;
+    }
+
+
+    /**
+     *
+     * @return <type>
+     */
+    public function getFixedBugsInTrunk() {
+        if (empty($this->_aFixedTrunk) !== true) {
+            return $this->_aFixedTrunk;
+        }
+
+        $this->getFixedBugsInBranch();
         return $this->_aFixedToMerge;
     }
 
@@ -879,7 +911,6 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             return $this->_aFixed;
         }
 
-        // if ($bug->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE) === false and $bug->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTSERVER, '?') === false and isset($this->_aFixedTrunk[$bug->id()]) === false) {
         $this->getFixedBugsInBranch();
         return $this->_aFixed;
     }
@@ -922,42 +953,6 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         }
 
         ksort($back);
-        return $back;
-    }
-
-    /**
-     *
-     * @return <type>
-     */
-    public function getFixedBugsInTrunk() {
-        if (empty($this->_aFixedTrunk) !== true) {
-            return $this->_aFixedTrunk;
-        }
-
-        $fixedBugs = $this->getFixedBugs();
-        $back = array();
-        foreach ($fixedBugs as $bug) {
-            if ($bug->isMerged()) {
-                $back[$bug->id()] = $bug;
-            }
-            elseif($bug->couldBeInTrunk() === true) {
-                $aBlocked = $this->getBugListByIds($bug->blocks());
-                $bTrunk = true;
-                foreach ($aBlocked as $oBlocked) {
-                    if (($oBlocked->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '+') !== true or $oBlocked->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '?') === true or $bug->hasFlag(Model_Ticket_Type_Bug::FLAG_SCREEN, '?') === true)
-                        and $oBlocked->isClosed() !== true and $oBlocked->isTheme() !== true and $oBlocked->hasFlag(Model_Ticket_Type_Bug::FLAG_SCREEN) !== true) {
-                        $bTrunk = false;
-                    }
-                }
-
-                if ($bTrunk === true) {
-                    $back[$bug->id()] = $bug;
-                }
-            }
-        }
-
-        ksort($back);
-        $this->_aFixedTrunk = $back;
         return $back;
     }
 
