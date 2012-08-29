@@ -16,6 +16,13 @@ echo $this->partial('index/partial/table.phtml', array(
 ));
 
 echo $this->partial('index/partial/table.phtml', array(
+    'caption' => 'Reopened issues',
+    'sBugzilla' => $this->sBugzilla,
+    'bugs' => $this->bugsReopened,
+    'ready' => 'REVIEWED'
+));
+
+echo $this->partial('index/partial/table.phtml', array(
     'caption' => 'Mergeable issues',
     'sBugzilla' => $this->sBugzilla,
     'bugs' => $this->bugsBranch,
@@ -27,13 +34,6 @@ echo $this->partial('index/partial/table.phtml', array(
     'sBugzilla' => $this->sBugzilla,
     'bugs' => $this->bugsTrunk,
     'ready' => 'VERIFIED'
-));
-
-echo $this->partial('index/partial/table.phtml', array(
-    'caption' => 'Reopened issues',
-    'sBugzilla' => $this->sBugzilla,
-    'bugs' => $this->bugsReopened,
-    'ready' => 'REVIEWED'
 ));
 
 echo $this->partial('index/partial/table.phtml', array(
