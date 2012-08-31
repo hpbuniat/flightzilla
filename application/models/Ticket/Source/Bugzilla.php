@@ -849,36 +849,43 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             }
             elseif($bug->couldBeInTrunk() === true) {
                 $aBlocked = $this->getBugListByIds($bug->blocks());
-                $bTrunk = true;
+                $bTrunk = (empty($aBlocked) === true and $bug->hasFlag(Model_Ticket_Type_Bug::FLAG_SCREEN, '+') === true) ? false : true;
+                $bAllBlockedAreThemes = (empty($aBlocked) === true) ? false : true;
                 foreach ($aBlocked as $oBlocked) {
-                    if (($oBlocked->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '+') !== true or $oBlocked->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '?') === true or $bug->hasFlag(Model_Ticket_Type_Bug::FLAG_SCREEN, '?') === true)
-                        and $oBlocked->isClosed() !== true and $oBlocked->isTheme() !== true and $oBlocked->hasFlag(Model_Ticket_Type_Bug::FLAG_SCREEN) !== true) {
+                    if ($oBlocked->isTheme() !== true) {
+                        $bAllBlockedAreThemes = false;
+                    }
+
+                    if ($oBlocked->couldBeInTrunk() !== true and $oBlocked->isMerged() !== true) {
                         $bTrunk = false;
                     }
                 }
 
-                if ($bTrunk === true) {
+                if ($bTrunk === true and $bAllBlockedAreThemes === false) {
                     $this->_aFixedTrunk[$bug->id()] = $bug;
                 }
             }
-            elseif ($bug->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '?') or ($bug->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '+') !== true and $bug->hasFlag(Model_Ticket_Type_Bug::FLAG_DBCHANGE, '?'))) {
-                $aDepends = $this->getBugListByIds($bug->getDepends($this));
-                $bFixed = true;
-                foreach ($aDepends as $oDependBug) {
-                    if ($oDependBug->isMergeable() !== true and $oDependBug->couldBeInTrunk() !== true) {
-                        $bFixed = false;
-                    }
-                }
 
-                if ($bFixed === true) {
-                    $this->_aFixedToMerge[$bug->id()] = $bug;
+            if (empty($this->_aFixedTrunk[$bug->id()]) === true) {
+                if ($bug->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '?') or ($bug->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '+') !== true and $bug->hasFlag(Model_Ticket_Type_Bug::FLAG_DBCHANGE, '?'))) {
+                    $aDepends = $this->getBugListByIds($bug->getDepends($this));
+                    $bFixed = true;
+                    foreach ($aDepends as $oDependBug) {
+                        if ($oDependBug->isMergeable() !== true and $oDependBug->couldBeInTrunk() !== true) {
+                            $bFixed = false;
+                        }
+                    }
+
+                    if ($bFixed === true) {
+                        $this->_aFixedToMerge[$bug->id()] = $bug;
+                    }
+                    else {
+                        $this->_aFixed[$bug->id()] = $bug;
+                    }
                 }
                 else {
                     $this->_aFixed[$bug->id()] = $bug;
                 }
-            }
-            else {
-                $this->_aFixed[$bug->id()] = $bug;
             }
         }
 
@@ -1053,9 +1060,16 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             }
         }
 
-        unset($aThemes, $aThemeBugs);
-        ksort($aThemed);
-        return $aThemed;
+        $aKeys = array_keys($aThemed);
+        natsort($aKeys);
+
+        $aFinal = array();
+        foreach($aKeys as $sKey) {
+            $aFinal[$sKey] = $aThemed[$sKey];
+        }
+
+        unset($aThemes, $aThemed, $aThemeBugs);
+        return $aFinal;
     }
 
     /**

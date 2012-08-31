@@ -13,6 +13,8 @@ set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),
 )));
 
+define('STARTTIME', microtime(true));
+
 /** Zend_Application */
 require_once 'Zend/Application.php';
 

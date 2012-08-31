@@ -499,7 +499,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return boolean
      */
     public function isMerged() {
-        return ($this->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '+') === true and $this->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '?') === false);
+        return ($this->isClosed() === true or $this->isTheme() === true or ($this->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '+') === true and $this->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '?') === false));
     }
 
     /**
@@ -508,7 +508,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return boolean
      */
     public function couldBeInTrunk() {
-        return ($this->getDupe() !== false or (($this->isTheme() === true or $this->hasFlag(Model_Ticket_Type_Bug::FLAG_SCREEN, '+') === true) and $this->doesBlock() === true));
+        return ($this->getDupe() !== false or (($this->isClosed() === true or $this->isTheme() === true or $this->hasFlag(Model_Ticket_Type_Bug::FLAG_SCREEN, '+') === true) and $this->doesBlock() === true));
     }
 
     /**
