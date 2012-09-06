@@ -850,10 +850,10 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             elseif($bug->couldBeInTrunk() === true) {
                 $aBlocked = $this->getBugListByIds($bug->blocks());
                 $bTrunk = (empty($aBlocked) === true and $bug->hasFlag(Model_Ticket_Type_Bug::FLAG_SCREEN, '+') === true) ? false : true;
-                $bAllBlockedAreThemes = (empty($aBlocked) === true) ? false : true;
+                $bOnlyOrganizationTickets = (empty($aBlocked) === true) ? false : true;
                 foreach ($aBlocked as $oBlocked) {
-                    if ($oBlocked->isTheme() !== true) {
-                        $bAllBlockedAreThemes = false;
+                    if ($oBlocked->isTheme() !== true and $oBlocked->isConcept() !== true) {
+                        $bOnlyOrganizationTickets = false;
                     }
 
                     if ($oBlocked->couldBeInTrunk() !== true and $oBlocked->isMerged() !== true) {
@@ -861,7 +861,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
                     }
                 }
 
-                if ($bTrunk === true and $bAllBlockedAreThemes === false) {
+                if ($bTrunk === true and $bOnlyOrganizationTickets === false) {
                     $this->_aFixedTrunk[$bug->id()] = $bug;
                 }
             }

@@ -108,6 +108,13 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     const WORKFLOW_TRANSLATION = 'i18n';
 
     /**
+     * Components
+     *
+     * @var string
+     */
+    const COMPONENT_CONCEPT = 'Screens und Konzepte';
+
+    /**
      * The data-structure
      *
      * @var SimpleXMLElement
@@ -376,6 +383,15 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      */
     public function isTheme() {
         return $this->hasKeyword('theme');
+    }
+
+    /**
+     * Check if the bug is a theme
+     *
+     * @return boolean
+     */
+    public function isConcept() {
+        return (string) $this->component === self::COMPONENT_CONCEPT;
     }
 
     /**
