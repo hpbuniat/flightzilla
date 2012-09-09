@@ -296,7 +296,7 @@
         f.quickList();
     });
 
-    $(document).ready(function(){
-        $('.tablesorter').tablesorter();
-    });
+    $('p.description a, span.theme a').tooltip();
+
+    $('.tablesorter').tablesorter();
 }); }(jQuery));

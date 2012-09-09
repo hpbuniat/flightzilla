@@ -76,6 +76,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     const STATUS_ASSIGNED = 'ASSIGNED';
     const STATUS_RESOLVED = 'RESOLVED';
     const STATUS_REOPENED = 'REOPENED';
+    const STATUS_REVIEWED = 'REVIEWED';
     const STATUS_VERIFIED = 'VERIFIED';
     const STATUS_CLOSED = 'CLOSED';
 
@@ -106,6 +107,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     const WORKFLOW_FAILED = 'failed';
     const WORKFLOW_QUICK = 'quick';
     const WORKFLOW_TRANSLATION = 'i18n';
+    const WORKFLOW_TIMEDOUT = 'timedout';
 
     /**
      * Components
@@ -157,6 +159,13 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     protected $_aFlagCache = array();
 
     /**
+     * This bugs theme
+     *
+     * @var int
+     */
+    protected $_iTheme = array();
+
+    /**
      * Create the bug
      *
      * @param SimpleXMLElement $data
@@ -189,6 +198,27 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     public function __wakeup() {
         $this->_data = simplexml_load_string($this->_sleep);
         $this->_getFlags();
+    }
+
+    /**
+     * Set the theme
+     *
+     * @param  int $iTheme
+     *
+     * @return Model_Ticket_Type_Bug
+     */
+    public function setTheme($iTheme) {
+        $this->_iTheme = $iTheme;
+        return $this;
+    }
+
+    /**
+     * Get the theme
+     *
+     * @return int
+     */
+    public function getTheme() {
+        return $this->_iTheme;
     }
 
     /**
@@ -319,6 +349,15 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
 
 
         return 0;
+    }
+
+    /**
+     * Check, if a ticket was changed within a given time-limit
+     *
+     * @return boolean
+     */
+    public function isChangedWithinLimit($iLimit) {
+        return ((time() - $this->getLastActivity()) < $iLimit);
     }
 
     /**
@@ -611,6 +650,15 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     }
 
     /**
+     * Get the status
+     *
+     * @return string
+     */
+    public function getStatus() {
+        return (string) $this->bug_status;
+    }
+
+    /**
      * Get the worked ours
      *
      * @return array
@@ -648,6 +696,15 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
         }
 
         return $iTimestamp;
+    }
+
+    /**
+     * Get the date of the last-activity
+     *
+     * @return int
+     */
+    public function getLastActivity() {
+        return strtotime($this->_data->delta_ts);
     }
 
     /**

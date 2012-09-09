@@ -1,0 +1,98 @@
+<?php echo $this->render('index/partial/header.phtml')?>
+
+<div class="row-fluid kanban">
+    <div class="span12">
+        <div class="row-fluid">
+            <div class="span2 border-right">
+                <h4>Stack</h4>
+                <div class="row-fluid">
+                    <div class="span12">
+                        <h5>waiting</h5>
+                        <?php
+                            $this->aStack = $this->allBugsOpen;
+                            echo $this->render('kanban/partial/column.phtml');
+                        ?>
+                    </div>
+                </div>
+            </div>
+            <div class="span2 border-right">
+                <h4>Concept</h4>
+                <div class="row-fluid">
+                    <div class="span6">
+                        <h5>wip</h5>
+                        <?php
+                            $this->aStack =  $this->allScreenWip;
+                            echo $this->render('kanban/partial/column.phtml');
+                        ?>
+                    </div>
+                    <div class="span6">
+                        <h5>ready</h5>
+                        <?php
+                            $this->aStack =  $this->allScreenApproved;
+                            echo $this->render('kanban/partial/column.phtml');
+                        ?>
+                    </div>
+                </div>
+            </div>
+            <div class="span5 border-right">
+                <h4>Development</h4>
+                <div class="row-fluid">
+                    <div class="span5">
+                        <h5>waiting</h5>
+                        <?php
+                            $this->aStack =  $this->openWaiting;
+                            echo $this->render('kanban/partial/column.phtml');
+                        ?>
+                    </div>
+                    <div class="span4">
+                        <h5>wip</h5>
+                        <?php
+                            $this->aStack =  $this->bugsWip;
+                            echo $this->render('kanban/partial/column.phtml');
+                        ?>
+                    </div>
+                    <div class="span3">
+                        <h5>ready</h5>
+                        <?php
+                            $this->aStack =  $this->bugsFixedWithoutTesting;
+                            echo $this->render('kanban/partial/column.phtml');
+                        ?>
+                    </div>
+                </div>
+            </div>
+            <div class="span2 border-right">
+                <h4>Testing</h4>
+                <div class="row-fluid">
+                    <div class="span7">
+                        <h5>wip</h5>
+                        <?php
+                            $this->aStack =  $this->allBugsTesting;
+                            echo $this->render('kanban/partial/column.phtml');
+                        ?>
+                    </div>
+                    <div class="span5">
+                        <h5>ready</h5>
+                        <?php
+                            $this->aStack = $this->bugsBranch;
+                            $this->ready  = Model_Ticket_Type_Bug::STATUS_VERIFIED;
+                            echo $this->render('kanban/partial/column.phtml');
+                        ?>
+                    </div>
+                </div>
+            </div>
+            <div class="span1">
+                <h4>Staging</h4>
+                <div class="row-fluid">
+                    <div class="span12">
+                        <h5></h5>
+                        <?php
+                            $this->aStack = $this->bugsTrunk;
+                            $this->ready  = Model_Ticket_Type_Bug::STATUS_VERIFIED;
+                            echo $this->render('kanban/partial/column.phtml');
+                        ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

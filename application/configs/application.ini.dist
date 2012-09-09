@@ -45,6 +45,11 @@ resources.session.name = "flightzilla"
 
 forms.options.configPath = APPLICATION_PATH "/forms/configs"
 
+;after 4 months of inactivity, the ticket has timed-out
+model.tickets.workflow.timeout = 10368000
+;the board should only contain tickets which have been changed within this time-limit
+model.tickets.workflow.board   = 604800
+
 model.bugzilla.baseUrl         = "https://bugzilla"
 model.bugzilla.http.cookiePath = APPLICATION_PATH "/../cache/"
 

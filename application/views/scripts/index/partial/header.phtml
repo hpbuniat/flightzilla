@@ -15,10 +15,11 @@
       </div>
       <div class="nav-collapse">
         <ul class="nav">
-          <li class="<?php echo ($this->mode === 'dashboard') ? 'active' : ''; ?>"><a href="<?php echo $this->url(array('controller' => 'index', 'action' => 'dashboard'))?>">Dashboard</a></li>
+          <li class="<?php echo ($this->mode === 'dashboard') ? 'active' : ''; ?>"><a href="<?php echo $this->url(array('controller' => 'index', 'action' => 'dashboard'))?>">My Tickets</a></li>
           <li class="<?php echo ($this->mode === 'list') ? 'active' : ''; ?>"><a href="<?php echo $this->url(array('controller' => 'index', 'action' => 'index'))?>">Bugs</a></li>
           <li class="<?php echo ($this->mode === 'team') ? 'active' : ''; ?>"><a href="<?php echo $this->url(array('controller' => 'index', 'action' => 'team'))?>">Team</a></li>
           <li class="<?php echo ($this->mode === 'mergy') ? 'active' : ''; ?>"><a href="<?php echo $this->url(array('controller' => 'mergy', 'action' => 'index'))?>">Mergy</a></li>
+          <li class="<?php echo ($this->mode === 'board') ? 'active' : ''; ?>"><a href="<?php echo $this->url(array('controller' => 'kanban', 'action' => 'board'))?>">Board</a></li>
           <li class="<?php echo ($this->mode === 'sprint') ? 'active' : ''; ?>"><a href="<?php echo $this->url(array('controller' => 'planning', 'action' => 'sprint'))?>">Ressources</a></li>
           <li class="<?php echo ($this->mode === 'projects') ? 'active' : ''; ?>"><a href="<?php echo $this->url(array('controller' => 'planning', 'action' => 'projects'))?>">Projects</a></li>
           <li class="<?php echo ($this->mode === 'summary') ? 'active' : ''; ?>"><a href="<?php echo $this->url(array('controller' => 'index', 'action' => 'summary'))?>">Summary</a></li>

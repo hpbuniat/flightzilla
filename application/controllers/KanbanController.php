@@ -41,7 +41,7 @@
 */
 
 /**
- * View-Helper to create a deadline-flag
+ * Provide a simple kanban-board
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -49,42 +49,31 @@
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class View_Helper_Deadlinestatus extends Zend_View_Helper_Abstract {
+class KanbanController extends Zend_Controller_Action {
 
     /**
-     * Determine the deadline-status of a bug
-     *
-     * @param  Model_Ticket_Type_Bug $oBug
-     *
-     * @return string
+     * @var Model_Ticket_Source_Bugzilla
      */
-    public function deadlinestatus(Model_Ticket_Type_Bug $oBug) {
-        if ($oBug->deadlineStatus()) {
-            $sIcon = 'ui-silk-flag-green';
-            switch($oBug->deadlineStatus()) {
-                case Model_Ticket_Type_Bug::DEADLINE_PAST:
-                    $sIcon = 'ui-silk-flag-pink';
-                    break;
+    private $_oBugzilla;
 
-                case Model_Ticket_Type_Bug::DEADLINE_TODAY:
-                    $sIcon = 'ui-silk-flag-red';
-                    break;
-
-                case Model_Ticket_Type_Bug::DEADLINE_NEAR:
-                    $sIcon = 'ui-silk-flag-yellow';
-                    break;
-
-                case Model_Ticket_Type_Bug::DEADLINE_WEEK:
-                    $sIcon = 'ui-silk-flag-orange';
-                    break;
-
-                default:
-                    break;
-            }
-
-            return '&nbsp;<span class="deadline ui-silk ' . $sIcon . '" title="' . $oBug->getDeadline() . '">&nbsp;</span>';
+    /**
+     *
+     */
+    public function init() {
+        $sAction = $this->getRequest()->getActionName();
+        if (Zend_Auth::getInstance()->hasIdentity() === true) {
+            $this->_oBugzilla = new Model_Ticket_Source_Bugzilla(($sAction !== 'dashboard'));
+            $this->view->mode = $sAction;
         }
+        elseif ($sAction !== 'login' and $sAction !== 'logout') {
+            $this->_redirect('/index/login');
+        }
+    }
 
-        return '';
+    /**
+     *
+     */
+    public function boardAction() {
+        $this->_oBugzilla->setView($this->view, 'board');
     }
 }

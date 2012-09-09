@@ -1,0 +1,30 @@
+<?php
+foreach ($this->aStack as $oTicket) {
+    if ($oTicket->isChangedWithinLimit($this->oConfig->tickets->workflow->board) === true) {
+        $bReady = ($this->ready !== false and $oTicket->resolution === $this->ready);
+?>
+        <div class="pin" style="<?php echo $this->buggradient($oTicket, $bReady, false);?>">
+            <?php if ($oTicket->isEstimated()):?>
+                <span class="pull-right name label <?php echo ((float)$oTicket->actual_time >= (1.1 * (float)$oTicket->estimated_time)) ? 'label-important' : 'label-success'; ?>"><?php echo $oTicket->assignee_short ?></span>
+            <?php else:?>
+                <span class="pull-right name label <?php echo ($oTicket->isOrga() ? 'label-success' : 'label-warning') ?>'"><?php echo $oTicket->assignee_short ?></span>
+            <?php
+                endif;
+
+                $iTheme = $oTicket->getTheme();
+                if (empty($iTheme) !== true):
+            ?>
+                    <span class="pull-left theme label label-info">
+                        <a class="bugLink" target="_blank" data-title="<?php echo $this->escape($this->aThemes[$iTheme]); ?>" href="<?php echo $this->sBugzilla?>/show_bug.cgi?id=<?php echo $iTheme; ?>"><?php echo $iTheme; ?></a>
+                    </span>
+            <?php
+                endif;
+            ?>
+            <p class="description">
+                <a class="bugLink" target="_blank" data-title="<?php echo $this->escape($oTicket->short_desc)?>" href="<?php echo $this->sBugzilla?>/show_bug.cgi?id=<?php echo $oTicket->bug_id?>"><?php echo $this->escape($oTicket->short_desc)?></a>
+            </p>
+        </div>
+<?php
+    }
+}
+?>

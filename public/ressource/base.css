@@ -100,6 +100,42 @@ img {
     height: 250px;
 }
 
+.border-right {
+    border-right: 1px solid grey;
+}
+
+.kanban h4, .kanban h5 {
+    margin-bottom: 0;
+}
+
+.kanban .pin {
+    border: 1px solid grey;
+    border-radius: 6px 6px 6px 6px;
+    float: left;
+    font-size: 11px;
+    height: 90px;
+    margin: 5px;
+    overflow: hidden;
+    width: 90px;
+}
+
+.kanban .pin span {
+    position: relative;
+    top: 75px;
+}
+
+.kanban p.description {
+    margin: 5px;
+}
+
+.kanban .theme a {
+    color: white;
+}
+
+.kanban p.description a {
+    color: black;
+}
+
 div.modal {
     left: 25%;
     width: 75%;

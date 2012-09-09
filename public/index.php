@@ -14,6 +14,7 @@ set_include_path(implode(PATH_SEPARATOR, array(
 )));
 
 define('STARTTIME', microtime(true));
+ini_set('max_execution_time', 120);
 
 /** Zend_Application */
 require_once 'Zend/Application.php';

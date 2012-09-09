@@ -72,12 +72,8 @@ class PlanningController extends Zend_Controller_Action {
     /**
      *
      */
-    public function __call($sName, $aArgs) {
-        $this->_redirect('/');
-    }
-
     public function dataAction() {
-        $this->_oBugzilla->setView($this->view);
+        $this->_oBugzilla->setView($this->view, 'planning');
 
         $aTeam = $this->_oBugzilla->getTeam();
         $oRessource = new Model_Ressource_Manager();
@@ -97,7 +93,7 @@ class PlanningController extends Zend_Controller_Action {
      *
      */
     public function projectsAction() {
-        $this->_oBugzilla->setView($this->view);
+        $this->_oBugzilla->setView($this->view, 'planning');
         Zend_Debug::dump($this->_oBugzilla->getFirstWorkedDate(), __FILE__ . ':' . __LINE__);
 
         $oProject = new Model_Project_Container($this->_oBugzilla);

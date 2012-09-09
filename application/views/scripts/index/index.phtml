@@ -12,28 +12,28 @@ echo $this->partial('index/partial/table.phtml', array(
     'caption' => 'Update-Testserver!',
     'sBugzilla' => $this->sBugzilla,
     'bugs' => $this->bugsTestserver,
-    'ready' => 'REVIEWED'
+    'ready' => Model_Ticket_Type_Bug::STATUS_REVIEWED
 ));
 
 echo $this->partial('index/partial/table.phtml', array(
     'caption' => 'Reopened issues',
     'sBugzilla' => $this->sBugzilla,
     'bugs' => $this->bugsReopened,
-    'ready' => 'REVIEWED'
+    'ready' => Model_Ticket_Type_Bug::STATUS_REVIEWED
 ));
 
 echo $this->partial('index/partial/table.phtml', array(
     'caption' => 'Mergeable issues',
     'sBugzilla' => $this->sBugzilla,
     'bugs' => $this->bugsBranch,
-    'ready' => 'REVIEWED'
+    'ready' => Model_Ticket_Type_Bug::STATUS_REVIEWED
 ));
 
 echo $this->partial('index/partial/table.phtml', array(
     'caption' => 'Ready for release',
     'sBugzilla' => $this->sBugzilla,
     'bugs' => $this->bugsTrunk,
-    'ready' => 'VERIFIED'
+    'ready' => Model_Ticket_Type_Bug::STATUS_VERIFIED
 ));
 
 echo $this->partial('index/partial/table.phtml', array(

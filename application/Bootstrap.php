@@ -118,6 +118,7 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap {
         $oView = $this->getPluginResource('view')->getView();
         $oView->sBugzilla = $this->_config->model->bugzilla->baseUrl;
         $oView->sName = $this->_config->app->name;
+        $oView->oConfig = $this->_config->model;
     }
 }
 

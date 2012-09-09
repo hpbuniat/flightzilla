@@ -192,12 +192,12 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
      * @param boolean $bFilterProductConfig
     */
     public function __construct($bFilterProductConfig = true) {
-        $this->_config = Zend_Registry::get('_Config')->model->bugzilla;
+        $this->_config = Zend_Registry::get('_Config')->model;
         $this->_client = new Zend_Http_Client();
         $this->_client->setEncType(Zend_Http_Client::ENC_FORMDATA);
         $this->_sCookie = '/tmp/cookieBugzilla';
-        if (isset($this->_config->http->cookiePath) === true) {
-            $this->_sCookie = $this->_config->http->cookiePath . 'cookieBugzilla';
+        if (isset($this->_config->bugzilla->http->cookiePath) === true) {
+            $this->_sCookie = $this->_config->bugzilla->http->cookiePath . 'cookieBugzilla';
         }
 
         @unlink($this->_sCookie);
@@ -208,8 +208,8 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             CURLOPT_SSL_VERIFYPEER => false
         );
 
-        if (isset($this->_config->http->proxy) === true) {
-            $aCurlOptions[CURLOPT_PROXY] = $this->_config->http->proxy;
+        if (isset($this->_config->bugzilla->http->proxy) === true) {
+            $aCurlOptions[CURLOPT_PROXY] = $this->_config->bugzilla->http->proxy;
         }
 
         $this->_client->setConfig(array(
@@ -220,15 +220,15 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
 
         $this->_oCache = Zend_Registry::get('_Cache');
 
-        $this->user($this->_config->login);
+        $this->user($this->_config->bugzilla->login);
         if ($bFilterProductConfig === true) {
-            $aPortals = Zend_Registry::get('_Config')->model->bugzilla->portal;
+            $aPortals = $this->_config->bugzilla->portal;
             foreach ($aPortals as $portal) {
                 $this->product($portal->name);
             }
         }
 
-        $this->_aTeam = Zend_Registry::get('_Config')->model->bugzilla->team->toArray();
+        $this->_aTeam = $this->_config->bugzilla->team->toArray();
         $this->getBugsChangedToday();
     }
 
@@ -239,7 +239,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
      *
      * @return Model_Ticket_Source_Bugzilla
      */
-    public function setView(Zend_View $oView) {
+    public function setView(Zend_View $oView, $sMode = 'list') {
         $oView->bugsReopened = $this->getReopenedBugs();
         $oView->bugsTestserver = $this->getUpdateTestserver();
         $oView->bugsBranch = $this->getFixedBugsInBranch();
@@ -247,8 +247,29 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         $oView->bugsFixed = $this->getFixedBugsUnknown();
         $oView->bugsOpen = $this->getThemedOpenBugs();
         $oView->bugsUnthemed = $this->getUnthemedBugs();
-        $oView->aMemberBugs = $this->getMemberBugs();
-        $oView->aTeamBugs = $this->getTeamBugs($oView->aMemberBugs);
+        if ($sMode == 'board') {
+            // stack
+            $oView->allBugsOpen = $this->getUnworkedWithoutOrganization();
+
+            // concepts
+            $oView->allScreenWip = $this->getOpenConcepts();
+            $oView->allScreenApproved = $this->getBugsWithFlag(Model_Ticket_Type_Bug::FLAG_SCREEN, '+');
+
+            // testing
+            $oView->allBugsTesting = $this->getBugsWithFlag(Model_Ticket_Type_Bug::FLAG_TESTING, '?');
+
+            // developtment wating, wip
+            $oView->openWaiting = $this->getWaiting();
+            $oView->bugsWip = $this->getInprogress();
+
+            // development - ready
+            $aFixedWithoutTesting = $this->getFilteredList($oView->bugsFixed, $oView->allBugsTesting);
+            $oView->bugsFixedWithoutTesting = $this->getFilteredList($aFixedWithoutTesting, $oView->allScreenApproved);
+        }
+        elseif ($sMode == '') {
+            $oView->aMemberBugs = $this->getMemberBugs();
+            $oView->aTeamBugs = $this->getTeamBugs($oView->aMemberBugs);
+        }
 
         $oView->iTotal = $this->getCount();
         $oView->aStats = $this->getStats();
@@ -256,6 +277,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         $oView->aPriorities = $this->getPriorities();
         $oView->aSeverities = $this->getSeverities();
         $oView->sChuck = $this->getChuckStatus();
+        $oView->aThemes = $this->getThemesAsStack();
 
         return $this;
     }
@@ -372,7 +394,11 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             Model_Ticket_Type_Bug::WORKFLOW_FAILED => 0,
             Model_Ticket_Type_Bug::WORKFLOW_QUICK => 0,
             Model_Ticket_Type_Bug::WORKFLOW_TRANSLATION => 0,
+            Model_Ticket_Type_Bug::WORKFLOW_TIMEDOUT => 0,
         );
+
+        $iTimeoutLimit = $this->_config->tickets->workflow->timeout;
+
         foreach ($this->_allBugs as $oBug) {
             $bShouldHaveEstimation = true;
             if ($oBug->isOrga()) {
@@ -426,6 +452,10 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             if ($oBug->isOnlyTranslation()) {
                 $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_TRANSLATION]++;
             }
+
+            if ($oBug->isChangedWithinLimit($iTimeoutLimit) !== true) {
+                $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_TIMEDOUT]++;
+            }
         }
 
         $this->_percentify($this->_aStats, $iCount);
@@ -469,7 +499,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
                 '/href="show_bug/'
             ), array(
                 '',
-                sprintf('href="%s/show_bug', $this->_config->baseUrl)
+                sprintf('href="%s/show_bug', $this->_config->bugzilla->baseUrl)
             ), $oDocument->saveHTML()));
             if (strlen($sContent) > 0) {
                 $this->_summary[] = $sContent;
@@ -607,7 +637,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         $this->_iCount++;
 
         $queryString = rtrim($this->_getParameter, "&");
-        $this->_client->setUri($this->_config->baseUrl . "/" . $option . "?$queryString");
+        $this->_client->setUri($this->_config->bugzilla->baseUrl . "/" . $option . "?$queryString");
         $this->_loginToBugzilla();
         $return = $this->_client->request()->getBody();
         $this->_resetAllParameter();
@@ -699,7 +729,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             unset($sResponse);
         }
 
-        $aConfig = $this->_config->portal->toArray();
+        $aConfig = $this->_config->bugzilla->portal->toArray();
         foreach ($aTemp as $oBug) {
             $bAdd = true;
             foreach ($aConfig as $aProduct) {
@@ -741,6 +771,30 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     }
 
     /**
+     * Refresh the cached bugs, which have been changed today
+     *
+     * @return Model_Ticket_Source_Bugzilla
+     */
+    public function getBugsChangedToday() {
+        $this->_addParams();
+        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_REOPENED);
+        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_UNCONFIRMED);
+        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_CONFIRMED);
+        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_NEW);
+        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_ASSIGNED);
+        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_VERIFIED);
+        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_RESOLVED);
+        $this->_setGetParameter(self::BUG_PARAM_CHANGE_DATE_FROM, '0d');
+        $this->_setGetParameter(self::BUG_PARAM_CHANGE_DATE_TO, 'Now');
+        $page = $this->_request(self::BUG_LIST);
+        $bugIds = $this->_getBugIdsFromPage($page);
+        $bugs = $this->getBugListByIds($bugIds, false);
+        unset($page, $bugIds, $bugs);
+
+        return $this;
+    }
+
+    /**
      * Get all bugs
      *
      * @return array
@@ -769,6 +823,87 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         $bugIds = $this->_getBugIdsFromPage($page);
         $this->_openBugs = $this->getBugListByIds($bugIds);
         return $this->_openBugs;
+    }
+
+    /**
+     * Get all open tickets, which are not themes, no organization and not yet worked on
+     *
+     * @return array
+     */
+    public function getUnworkedWithoutOrganization() {
+        if (empty($this->_openBugs) === true) {
+            $this->getOpenBugs();
+        }
+
+        $aStack = array();
+        foreach ($this->_openBugs as $oTicket) {
+            if ($oTicket->isTheme() === false and $oTicket->isOrga() === false and $oTicket->isWorkedOn() !== true) {
+                $aStack[$oTicket->id()] = $oTicket;
+            }
+        }
+
+        return $aStack;
+    }
+
+    /**
+     * Get all open tickets, which are not themes, no organization and not yet worked on
+     *
+     * @return array
+     */
+    public function getWaiting() {
+        if (empty($this->_openBugs) === true) {
+            $this->getOpenBugs();
+        }
+
+        $aStack = array();
+        foreach ($this->_openBugs as $oTicket) {
+            if ($oTicket->isTheme() === false and $oTicket->isOrga() === false and $oTicket->isConcept() === false
+                and ($oTicket->isWorkedOn() === false or $oTicket->hasFlag(Model_Ticket_Type_Bug::FLAG_COMMENT, '?') === true)) {
+                $aStack[$oTicket->id()] = $oTicket;
+            }
+        }
+
+        return $aStack;
+    }
+
+    /**
+     * Get all open tickets which we are working on
+     *
+     * @return array
+     */
+    public function getInprogress() {
+        if (empty($this->_openBugs) === true) {
+            $this->getOpenBugs();
+        }
+
+        $aStack = array();
+        foreach ($this->_openBugs as $oTicket) {
+            if ($oTicket->isWorkedOn() === true and $oTicket->isTheme() === false and $oTicket->isOrga() === false and $oTicket->isConcept() === false and $oTicket->hasFlag(Model_Ticket_Type_Bug::FLAG_COMMENT, '?') === false) {
+                $aStack[$oTicket->id()] = $oTicket;
+            }
+        }
+
+        return $aStack;
+    }
+
+    /**
+     * Get all open concepts
+     *
+     * @return array
+     */
+    public function getOpenConcepts() {
+        if (empty($this->_openBugs) === true) {
+            $this->getOpenBugs();
+        }
+
+        $aStack = array();
+        foreach ($this->_openBugs as $oTicket) {
+            if ($oTicket->isConcept() === true) {
+                $aStack[$oTicket->id()] = $oTicket;
+            }
+        }
+
+        return $aStack;
     }
 
     /**
@@ -812,30 +947,6 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         }
 
         return $this->_aBugsListCache[$sHash];
-    }
-
-    /**
-     * Refresh the cached bugs, which have been changed today
-     *
-     * @return Model_Ticket_Source_Bugzilla
-     */
-    public function getBugsChangedToday() {
-        $this->_addParams();
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_REOPENED);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_UNCONFIRMED);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_CONFIRMED);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_NEW);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_ASSIGNED);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_VERIFIED);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_RESOLVED);
-        $this->_setGetParameter(self::BUG_PARAM_CHANGE_DATE_FROM, '0d');
-        $this->_setGetParameter(self::BUG_PARAM_CHANGE_DATE_TO, 'Now');
-        $page = $this->_request(self::BUG_LIST);
-        $bugIds = $this->_getBugIdsFromPage($page);
-        $bugs = $this->getBugListByIds($bugIds, false);
-        unset($page, $bugIds, $bugs);
-
-        return $this;
     }
 
     /**
@@ -888,7 +999,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             }
 
             if (empty($this->_aFixedTrunk[$bug->id()]) === true) {
-                if ($bug->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '?') or ($bug->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '+') !== true and $bug->hasFlag(Model_Ticket_Type_Bug::FLAG_DBCHANGE, '?'))) {
+                if ($bug->isMergeable() === true or ($bug->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '+') !== true and $bug->hasFlag(Model_Ticket_Type_Bug::FLAG_DBCHANGE, '?'))) {
                     $aDepends = $this->getBugListByIds($bug->getDepends($this));
                     $bFixed = true;
                     foreach ($aDepends as $oDependBug) {
@@ -920,29 +1031,76 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     /**
      * Get all fixed-tickets which are already in the stable-branch
      *
+     * @param  string $sFlag
+     * @param  string $sStatus
+     *
      * @return array
      */
-    public function getFixedBugsInTrunk() {
-        if (empty($this->_aFixedTrunk) !== true) {
-            return $this->_aFixedTrunk;
+    public function getFixedBugsInTrunk($sFlag = '', $sStatus = null) {
+        if (empty($this->_aFixedTrunk) === true) {
+            $this->getFixedBugsInBranch();
         }
 
-        $this->getFixedBugsInBranch();
-        return $this->_aFixedTrunk;
+        return (empty($sFlag) !== true) ? $this->getBugsWithFlag($sFlag, $sStatus, $this->_aFixedTrunk) : $this->_aFixedTrunk;
     }
 
     /**
      * Get all fixed-tickets which are not yet in the stable-branch
      *
+     * @param  string $sFlag
+     * @param  string $sStatus
+     *
      * @return array
      */
-    public function getFixedBugsUnknown() {
-        if ($this->_aFixed) {
-            return $this->_aFixed;
+    public function getFixedBugsUnknown($sFlag = '', $sStatus = null) {
+        if (empty($this->_aFixed) === true) {
+            $this->getFixedBugsInBranch();
         }
 
-        $this->getFixedBugsInBranch();
-        return $this->_aFixed;
+        return (empty($sFlag) !== true) ? $this->getBugsWithFlag($sFlag, $sStatus, $this->_aFixed) : $this->_aFixed;
+    }
+
+    /**
+     * Get all tickets with the given flag & value
+     *
+     * @param  string $sFlag
+     * @param  string $sStatus
+     * @param  array $aStack
+     *
+     * @return array
+     */
+    public function getBugsWithFlag($sFlag = '', $sStatus = null, $aStack = array()) {
+        $aResult = array();
+        if (empty($aStack) === true) {
+            $aStack = $this->_allBugs;
+        }
+
+        foreach ($this->_allBugs as $oTicket) {
+            if (empty($sFlag) === true or ($oTicket->hasFlag($sFlag, $sStatus) === true and ($sStatus === '?' or ($oTicket->hasFlag($sFlag, '?') !== true)))) {
+                $aResult[$oTicket->id()] = $oTicket;
+            }
+        }
+
+        return $aResult;
+    }
+
+    /**
+     * Filter a list of tickets by another list of tickets
+     *
+     * @param  array $aStack
+     * @param  array $aFilter
+     *
+     * @return array
+     */
+    public function getFilteredList(array $aStack, array $aFilter) {
+        foreach ($aFilter as $oTicket) {
+            $iIndex = $oTicket->id();
+            if (isset($aStack[$iIndex]) === true) {
+                unset($aStack[$iIndex]);
+            }
+        }
+
+        return $aStack;
     }
 
     /**
@@ -1154,6 +1312,10 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
                     }
                 }
             }
+        }
+
+        if ($mReturn !== false) {
+            $oBug->setTheme($mReturn);
         }
 
         return $mReturn;
