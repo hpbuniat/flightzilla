@@ -189,6 +189,7 @@
             }
 
             f.hideBugs();
+            window.scrollTo(0,0);
         }, 500);
     });
 
