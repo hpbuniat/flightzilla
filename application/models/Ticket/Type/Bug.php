@@ -108,6 +108,13 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     const WORKFLOW_TRANSLATION = 'i18n';
 
     /**
+     * Components
+     *
+     * @var string
+     */
+    const COMPONENT_CONCEPT = 'Screens und Konzepte';
+
+    /**
      * The data-structure
      *
      * @var SimpleXMLElement
@@ -379,6 +386,15 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     }
 
     /**
+     * Check if the bug is a theme
+     *
+     * @return boolean
+     */
+    public function isConcept() {
+        return (string) $this->component === self::COMPONENT_CONCEPT;
+    }
+
+    /**
      * Check if a bug is a project
      *
      * @return boolean
@@ -501,7 +517,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return boolean
      */
     public function isMerged() {
-        return ($this->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '+') === true and $this->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '?') === false);
+        return ($this->isClosed() === true or $this->isTheme() === true or ($this->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '+') === true and $this->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE, '?') === false));
     }
 
     /**
@@ -510,7 +526,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return boolean
      */
     public function couldBeInTrunk() {
-        return ($this->getDupe() !== false or (($this->isTheme() === true or $this->hasFlag(Model_Ticket_Type_Bug::FLAG_SCREEN, '+') === true) and $this->doesBlock() === true));
+        return ($this->getDupe() !== false or (($this->isClosed() === true or $this->isTheme() === true or $this->hasFlag(Model_Ticket_Type_Bug::FLAG_SCREEN, '+') === true) and $this->doesBlock() === true));
     }
 
     /**
