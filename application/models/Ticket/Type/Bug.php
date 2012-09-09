@@ -187,7 +187,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     /**
      * Get the blocked bug-id
      *
-     * @return int
+     * @return array
      */
     public function blocks() {
         if (empty($this->_aBlocks) !== true) {
@@ -425,6 +425,8 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
 
     /**
      * Check if a keyword exists
+     *
+     * @param  string $sKeyword
      *
      * @return boolean
      */

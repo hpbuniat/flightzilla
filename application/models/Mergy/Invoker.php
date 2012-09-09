@@ -126,6 +126,7 @@ class Model_Mergy_Invoker {
     /**
      * Fetch the revisions using mergy
      *
+     * @param  Model_Mergy_Revision_Stack $oStack
      * @param  string $sMergy
      * @param  Zend_Config $oSource
      * @param  string $sTickets
@@ -152,6 +153,7 @@ class Model_Mergy_Invoker {
      * @param  string $sMergy
      * @param  Zend_Config $oSource
      * @param  string $sTickets
+     * @param  boolean $bCommit
      *
      * @return Model_Mergy_Invoker
      */

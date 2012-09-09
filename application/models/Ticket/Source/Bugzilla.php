@@ -122,10 +122,13 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
 
     private $_aFixed = array();
 
-    private $_branchRelations = array();
-
     private $_summary = null;
 
+    /**
+     * The list of all tickets
+     *
+     * @var array[Model_Ticket_AbstractType]
+     */
     private $_allBugs = array();
 
     private $_aThemes = array();
@@ -164,6 +167,8 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
 
     /**
      * Count for bugzilla-requests
+     *
+     * @var int
      */
     protected $_iCount = 0;
 
@@ -183,6 +188,8 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
 
     /**
      * Do all Bug-related action
+     *
+     * @param boolean $bFilterProductConfig
     */
     public function __construct($bFilterProductConfig = true) {
         $this->_config = Zend_Registry::get('_Config')->model->bugzilla;
@@ -194,15 +201,21 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         }
 
         @unlink($this->_sCookie);
+        $aCurlOptions = array(
+            CURLOPT_COOKIEFILE => $this->_sCookie,
+            CURLOPT_COOKIEJAR => $this->_sCookie,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_SSL_VERIFYPEER => false
+        );
+
+        if (isset($this->_config->http->proxy) === true) {
+            $aCurlOptions[CURLOPT_PROXY] = $this->_config->http->proxy;
+        }
+
         $this->_client->setConfig(array(
             'timeout' => 120,
             'adapter' => 'Zend_Http_Client_Adapter_Curl',
-            'curloptions' => array(
-                CURLOPT_COOKIEFILE => $this->_sCookie,
-                CURLOPT_COOKIEJAR => $this->_sCookie,
-                CURLOPT_SSL_VERIFYHOST => false,
-                CURLOPT_SSL_VERIFYPEER => false
-            )
+            'curloptions' => $aCurlOptions
         ));
 
         $this->_oCache = Zend_Registry::get('_Cache');
@@ -211,11 +224,6 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         if ($bFilterProductConfig === true) {
             $aPortals = Zend_Registry::get('_Config')->model->bugzilla->portal;
             foreach ($aPortals as $portal) {
-                $onePortal = array(
-                    'name' => $portal->name,
-                    'value' => urlencode(serialize($portal->toArray()))
-                );
-
                 $this->product($portal->name);
             }
         }
@@ -232,7 +240,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
      * @return Model_Ticket_Source_Bugzilla
      */
     public function setView(Zend_View $oView) {
-        $oView->bugsReopened = $this->getReopendBugs();
+        $oView->bugsReopened = $this->getReopenedBugs();
         $oView->bugsTestserver = $this->getUpdateTestserver();
         $oView->bugsBranch = $this->getFixedBugsInBranch();
         $oView->bugsTrunk = $this->getFixedBugsInTrunk();
@@ -461,7 +469,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
                 '/href="show_bug/'
             ), array(
                 '',
-                'href="http://bugzilla.unister-gmbh.de/show_bug'
+                sprintf('href="%s/show_bug', $this->_config->baseUrl)
             ), $oDocument->saveHTML()));
             if (strlen($sContent) > 0) {
                 $this->_summary[] = $sContent;
@@ -534,9 +542,11 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
      * Login to bugzilla
      *
      * @return void
+     *
+     * @throws Zend_Exception If no login-parameters are set
      */
     private function _loginToBugzilla() {
-        if (!Zend_Registry::isRegistered('_login') || !Zend_Registry::isRegistered('_password')) {
+        if (Zend_Registry::isRegistered('_login') !== true or Zend_Registry::isRegistered('_password') !== true) {
             throw new Zend_Exception('no password or login set for Bugzilla');
         }
 
@@ -570,9 +580,10 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     }
 
     /**
+     * Set a get parameter
      *
-     * @param <type> $key
-     * @param <type> $value
+     * @param string $key
+     * @param mixed $value
      */
     private function _setGetParameter($key, $value) {
         if (is_array($value) === true) {
@@ -586,9 +597,11 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     }
 
     /**
+     * Do a bugzilla-request
      *
-     * @param <type> $option
-     * @return <type>
+     * @param  string $option
+     *
+     * @return string
      */
     private function _request($option) {
         $this->_iCount++;
@@ -603,7 +616,9 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     }
 
     /**
+     * Clear all parameters
      *
+     * @return void
      */
     private function _resetAllParameter() {
         $this->_client->resetParameters(true);
@@ -611,9 +626,11 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     }
 
     /**
+     * Get the bug-ids from a page
      *
-     * @param <type> $page
-     * @return <type>
+     * @param  string $page
+     *
+     * @return array
      */
     private function _getBugIdsFromPage($page) {
         $matches = array();
@@ -675,7 +692,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
                 unset($xml);
             }
             else {
-                Zend_Debug::dump($sResponse, 'Duration:' . (microtime(true) - STARTTIME) .  ' - ' . __FILE__ . ':' . __LINE__ . PHP_EOL);
+                Zend_Debug::dump($sResponse);
                 exit;
             }
 
@@ -733,8 +750,9 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     }
 
     /**
+     * Get all open tickets
      *
-     * @return <type>
+     * @return array
      */
     public function getOpenBugs() {
         if ($this->_openBugs) {
@@ -754,8 +772,9 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     }
 
     /**
+     * Get all fixed tickets
      *
-     * @return <type>
+     * @return array
      */
     public function getFixedBugs() {
         if (empty($this->_fixedBugs) !== true) {
@@ -775,7 +794,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     /**
      * Get a list of bugs by id
      *
-     * @param  array|string $aIds
+     * @param  array|string $mIds
      * @param  boolean $bCache Allow cache
      *
      * @return array
@@ -820,10 +839,11 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     }
 
     /**
+     * Get reopened tickets
      *
-     * @return <type>
+     * @return array
      */
-    public function getReopendBugs() {
+    public function getReopenedBugs() {
         $this->_addParams();
         $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_REOPENED);
         $page = $this->_request(self::BUG_LIST);
@@ -833,8 +853,9 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     }
 
     /**
+     * Get all fixed tickets which are in the integration-branch
      *
-     * @return <type>
+     * @return array
      */
     public function getFixedBugsInBranch() {
         if ($this->_aFixedToMerge) {
@@ -890,8 +911,9 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
 
 
     /**
+     * Get all fixed-tickets which are already in the stable-branch
      *
-     * @return <type>
+     * @return array
      */
     public function getFixedBugsInTrunk() {
         if (empty($this->_aFixedTrunk) !== true) {
@@ -903,8 +925,9 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     }
 
     /**
+     * Get all fixed-tickets which are not yet in the stable-branch
      *
-     * @return <type>
+     * @return array
      */
     public function getFixedBugsUnknown() {
         if ($this->_aFixed) {
@@ -940,8 +963,9 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     }
 
     /**
+     * Get all tickets that need a testserver-update
      *
-     * @return <type>
+     * @return array
      */
     public function getUpdateTestserver() {
         $aBugs = array_merge($this->getFixedBugs(), $this->getOpenBugs());
@@ -1006,8 +1030,9 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     }
 
     /**
+     * Get all open bugs, which are part of a theme
      *
-     * @return <type>
+     * @return array
      */
     public function getThemedOpenBugs() {
         $openBugs = $this->getOpenBugs();
@@ -1023,9 +1048,11 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     }
 
     /**
+     * Sort bugs to existing themes
      *
-     * @param <type> $aBugs
-     * @return <type>
+     * @param  array $aBugs
+     *
+     * @return array
      */
     private function _sortBugsToThemes($aBugs) {
         $aThemes = array();
@@ -1059,8 +1086,9 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     }
 
     /**
+     * Find bugs which are not yet assigned to a theme
      *
-     * @return <type>
+     * @return array
      */
     private function _findUnthemedBugs() {
         $openBugs = $this->getOpenBugs();
@@ -1083,7 +1111,11 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     }
 
     /**
+     * Find the theme to a bug
      *
+     * @param  Model_Ticket_Type_Bug $oBug
+     *
+     * @return int
      */
     private function _findTheme($oBug) {
         $mReturn = false;
@@ -1145,6 +1177,8 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
      * Get the first date, when worked time was entered
      *
      * @return int
+     *
+     * @throws Exception
      */
     public function getFirstWorkedDate() {
         $iTimestamp = PHP_INT_MAX;

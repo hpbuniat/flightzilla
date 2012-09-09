@@ -67,7 +67,8 @@ class Model_Mergy_Revision_Stack {
 
     /**
      * The location for the source- (feature-) branch
-     * @var unknown_type
+     *
+     * @var string
      */
     protected $_sRemote;
 

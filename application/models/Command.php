@@ -86,7 +86,7 @@ class Model_Command {
      *
      * @param  string $sCommand
      *
-     * @return Mergy_Util_Command
+     * @return Model_Command
      */
     public function command($sCommand = null) {
         if (empty($sCommand) !== true) {
@@ -101,7 +101,7 @@ class Model_Command {
      *
      * @param  string $sCommand
      *
-     * @return Mergy_Util_Command
+     * @return Model_Command
      */
     public function execute($sCommand = null) {
         $this->command($sCommand);

@@ -87,7 +87,6 @@ class MergyController extends Zend_Controller_Action {
         $sRepository = $this->_getParam('repo');
         $oConfig = Zend_Registry::get('_Config')->model->mergy;
         $oMergy = new Model_Mergy_Invoker(new Model_Command());
-        $aStack = array();
 
         $sTickets = $this->_getParam('tickets');
         $bCommit = (bool) $this->_getParam('commit', false);

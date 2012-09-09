@@ -79,7 +79,7 @@ class IndexController extends Zend_Controller_Action {
         if ($this->_getParam('username', false) !== false and $this->_getParam('password', false) !== false) {
             $adapter = new Model_Auth($this->_getAllParams());
             $oAuth = Zend_Auth::getInstance();
-            $auth = $oAuth->authenticate($adapter);
+            $oAuth->authenticate($adapter);
 
             if (Zend_Auth::getInstance()->hasIdentity() === true) {
                 setcookie('_BUGZILLA_LOGIN', $adapter->getCrypted(), time() + 604800, Zend_Controller_Front::getInstance()->getBaseUrl());
