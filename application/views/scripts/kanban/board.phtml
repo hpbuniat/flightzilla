@@ -9,8 +9,8 @@
                     <div class="span12">
                         <?php
                             $this->aStack = $this->allBugsOpen;
-                            echo sprintf('<h5>waiting (%d)</h5>', count($this->aStack));
-                            echo $this->render('kanban/partial/column.phtml');
+                            $sRender = $this->render('kanban/partial/column.phtml');
+                            echo sprintf('<h5>waiting (%d)</h5>%s', $this->iRendered, $sRender);
                         ?>
                     </div>
                 </div>
@@ -21,15 +21,15 @@
                     <div class="span6">
                         <?php
                             $this->aStack =  $this->allScreenWip;
-                            echo sprintf('<h5>wip (%d)</h5>', count($this->aStack));
-                            echo $this->render('kanban/partial/column.phtml');
+                            $sRender = $this->render('kanban/partial/column.phtml');
+                            echo sprintf('<h5>wip (%d)</h5>%s', $this->iRendered, $sRender);
                         ?>
                     </div>
                     <div class="span6">
                         <?php
                             $this->aStack =  $this->allScreenApproved;
-                            echo sprintf('<h5>ready (%d)</h5>', count($this->aStack));
-                            echo $this->render('kanban/partial/column.phtml');
+                            $sRender = $this->render('kanban/partial/column.phtml');
+                            echo sprintf('<h5>ready (%d)</h5>%s', $this->iRendered, $sRender);
                         ?>
                     </div>
                 </div>
@@ -40,22 +40,22 @@
                     <div class="span5">
                         <?php
                             $this->aStack =  $this->openWaiting;
-                            echo sprintf('<h5>waiting (%d)</h5>', count($this->aStack));
-                            echo $this->render('kanban/partial/column.phtml');
+                            $sRender = $this->render('kanban/partial/column.phtml');
+                            echo sprintf('<h5>waiting (%d)</h5>%s', $this->iRendered, $sRender);
                         ?>
                     </div>
                     <div class="span5">
                         <?php
                             $this->aStack =  $this->bugsWip;
-                            echo sprintf('<h5>wip (%d)</h5>', count($this->aStack));
-                            echo $this->render('kanban/partial/column.phtml');
+                            $sRender = $this->render('kanban/partial/column.phtml');
+                            echo sprintf('<h5>wip (%d)</h5>%s', $this->iRendered, $sRender);
                         ?>
                     </div>
                     <div class="span2">
                         <?php
                             $this->aStack =  $this->bugsFixedWithoutTesting;
-                            echo sprintf('<h5>ready (%d)</h5>', count($this->aStack));
-                            echo $this->render('kanban/partial/column.phtml');
+                            $sRender = $this->render('kanban/partial/column.phtml');
+                            echo sprintf('<h5>ready (%d)</h5>%s', $this->iRendered, $sRender);
                         ?>
                     </div>
                 </div>
@@ -66,16 +66,16 @@
                     <div class="span7">
                         <?php
                             $this->aStack =  $this->allBugsTesting;
-                            echo sprintf('<h5>wip (%d)</h5>', count($this->aStack));
-                            echo $this->render('kanban/partial/column.phtml');
+                            $sRender = $this->render('kanban/partial/column.phtml');
+                            echo sprintf('<h5>wip (%d)</h5>%s', $this->iRendered, $sRender);
                         ?>
                     </div>
                     <div class="span5">
                         <?php
                             $this->aStack = $this->bugsBranch;
-                            echo sprintf('<h5>ready (%d)</h5>', count($this->aStack));
                             $this->ready  = Model_Ticket_Type_Bug::STATUS_VERIFIED;
-                            echo $this->render('kanban/partial/column.phtml');
+                            $sRender = $this->render('kanban/partial/column.phtml');
+                            echo sprintf('<h5>ready (%d)</h5>%s', $this->iRendered, $sRender);
                         ?>
                     </div>
                 </div>
@@ -86,9 +86,9 @@
                     <div class="span12">
                         <?php
                             $this->aStack = $this->bugsTrunk;
-                            echo sprintf('<h5>Release (%d)</h5>', count($this->aStack));
                             $this->ready  = Model_Ticket_Type_Bug::STATUS_VERIFIED;
-                            echo $this->render('kanban/partial/column.phtml');
+                            $sRender = $this->render('kanban/partial/column.phtml');
+                            echo sprintf('<h5>Release (%d)</h5>%s', $this->iRendered, $sRender);
                         ?>
                     </div>
                 </div>

@@ -117,14 +117,16 @@ img {
     margin: 5px;
     overflow: hidden;
     width: 90px;
-}
-
-.kanban .pin span.bottom {
     position: relative;
-    top: 75px;
 }
 
-.kanban p.description {
+.kanban .pin div.bottom {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+.kanban div.description {
     margin: 5px;
 }
 
@@ -132,7 +134,7 @@ img {
     color: white;
 }
 
-.kanban p.description a {
+.kanban div.description a {
     color: black;
 }
 

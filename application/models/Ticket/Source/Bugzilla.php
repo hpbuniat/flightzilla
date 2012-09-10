@@ -248,12 +248,13 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         $oView->bugsOpen = $this->getThemedOpenBugs();
         $oView->bugsUnthemed = $this->getUnthemedBugs();
         if ($sMode === 'board') {
-            // stack
-            $oView->allBugsOpen = $this->getUnworkedWithoutOrganization();
 
             // concepts
             $oView->allScreenWip = $this->getOpenConcepts();
             $oView->allScreenApproved = $this->getBugsWithFlag(Model_Ticket_Type_Bug::FLAG_SCREEN, '+');
+
+            // stack
+            $oView->allBugsOpen = $this->getFilteredList($this->getUnworkedWithoutOrganization(), $oView->allScreenWip);
 
             // testing
             $oView->allBugsTesting = $this->getBugsWithFlag(Model_Ticket_Type_Bug::FLAG_TESTING, '?');

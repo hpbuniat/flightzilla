@@ -296,7 +296,7 @@
         f.quickList();
     });
 
-    $('p.description a, span.theme a').tooltip();
+    $('div.description a, span.theme a').tooltip();
 
     $('.tablesorter').tablesorter();
 }); }(jQuery));
