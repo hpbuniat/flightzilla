@@ -24,7 +24,6 @@ return array(
     'css' => array(
         '//ressource/base.css',
         '//ressource/css/bootstrap.css',
-        '//ressource/css/bootstrap-responsive.css',
         '//ressource/css/gantt.css',
         '//ressource/silk-sprite.css',
     ),

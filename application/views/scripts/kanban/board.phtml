@@ -7,9 +7,9 @@
                 <h4>Stack</h4>
                 <div class="row-fluid">
                     <div class="span12">
-                        <h5>waiting</h5>
                         <?php
                             $this->aStack = $this->allBugsOpen;
+                            echo sprintf('<h5>waiting (%d)</h5>', count($this->aStack));
                             echo $this->render('kanban/partial/column.phtml');
                         ?>
                     </div>
@@ -19,16 +19,16 @@
                 <h4>Concept</h4>
                 <div class="row-fluid">
                     <div class="span6">
-                        <h5>wip</h5>
                         <?php
                             $this->aStack =  $this->allScreenWip;
+                            echo sprintf('<h5>wip (%d)</h5>', count($this->aStack));
                             echo $this->render('kanban/partial/column.phtml');
                         ?>
                     </div>
                     <div class="span6">
-                        <h5>ready</h5>
                         <?php
                             $this->aStack =  $this->allScreenApproved;
+                            echo sprintf('<h5>ready (%d)</h5>', count($this->aStack));
                             echo $this->render('kanban/partial/column.phtml');
                         ?>
                     </div>
@@ -38,23 +38,23 @@
                 <h4>Development</h4>
                 <div class="row-fluid">
                     <div class="span5">
-                        <h5>waiting</h5>
                         <?php
                             $this->aStack =  $this->openWaiting;
+                            echo sprintf('<h5>waiting (%d)</h5>', count($this->aStack));
                             echo $this->render('kanban/partial/column.phtml');
                         ?>
                     </div>
-                    <div class="span4">
-                        <h5>wip</h5>
+                    <div class="span5">
                         <?php
                             $this->aStack =  $this->bugsWip;
+                            echo sprintf('<h5>wip (%d)</h5>', count($this->aStack));
                             echo $this->render('kanban/partial/column.phtml');
                         ?>
                     </div>
-                    <div class="span3">
-                        <h5>ready</h5>
+                    <div class="span2">
                         <?php
                             $this->aStack =  $this->bugsFixedWithoutTesting;
+                            echo sprintf('<h5>ready (%d)</h5>', count($this->aStack));
                             echo $this->render('kanban/partial/column.phtml');
                         ?>
                     </div>
@@ -64,16 +64,16 @@
                 <h4>Testing</h4>
                 <div class="row-fluid">
                     <div class="span7">
-                        <h5>wip</h5>
                         <?php
                             $this->aStack =  $this->allBugsTesting;
+                            echo sprintf('<h5>wip (%d)</h5>', count($this->aStack));
                             echo $this->render('kanban/partial/column.phtml');
                         ?>
                     </div>
                     <div class="span5">
-                        <h5>ready</h5>
                         <?php
                             $this->aStack = $this->bugsBranch;
+                            echo sprintf('<h5>ready (%d)</h5>', count($this->aStack));
                             $this->ready  = Model_Ticket_Type_Bug::STATUS_VERIFIED;
                             echo $this->render('kanban/partial/column.phtml');
                         ?>
@@ -84,9 +84,9 @@
                 <h4>Staging</h4>
                 <div class="row-fluid">
                     <div class="span12">
-                        <h5></h5>
                         <?php
                             $this->aStack = $this->bugsTrunk;
+                            echo sprintf('<h5>Release (%d)</h5>', count($this->aStack));
                             $this->ready  = Model_Ticket_Type_Bug::STATUS_VERIFIED;
                             echo $this->render('kanban/partial/column.phtml');
                         ?>
@@ -96,3 +96,6 @@
         </div>
     </div>
 </div>
+<script type="text/javascript">
+    setTimeout("location.reload(true);", 120000);
+</script>

@@ -753,6 +753,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             }
         }
 
+        ksort($aStack);
         return $aStack;
     }
 
@@ -769,11 +770,12 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         $aStack = array();
         foreach ($this->_openBugs as $oTicket) {
             if ($oTicket->isTheme() === false and $oTicket->isOrga() === false and $oTicket->isConcept() === false
-                and ($oTicket->isWorkedOn() === false or $oTicket->hasFlag(Model_Ticket_Type_Bug::FLAG_COMMENT, '?') === true)) {
+                and ($oTicket->isWorkedOn() === true or $oTicket->hasFlag(Model_Ticket_Type_Bug::FLAG_COMMENT, '?') === true)) {
                 $aStack[$oTicket->id()] = $oTicket;
             }
         }
 
+        ksort($aStack);
         return $aStack;
     }
 
@@ -789,11 +791,12 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
 
         $aStack = array();
         foreach ($this->_openBugs as $oTicket) {
-            if ($oTicket->isWorkedOn() === true and $oTicket->isTheme() === false and $oTicket->isOrga() === false and $oTicket->isConcept() === false and $oTicket->hasFlag(Model_Ticket_Type_Bug::FLAG_COMMENT, '?') === false) {
+            if ($oTicket->isTheme() === false and $oTicket->isOrga() === false and $oTicket->isConcept() === false and $oTicket->getStatus() === Model_Ticket_Type_Bug::STATUS_ASSIGNED) {
                 $aStack[$oTicket->id()] = $oTicket;
             }
         }
 
+        ksort($aStack);
         return $aStack;
     }
 
@@ -814,6 +817,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             }
         }
 
+        ksort($aStack);
         return $aStack;
     }
 
@@ -834,6 +838,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         $bugIds = $this->_getBugIdsFromPage($page);
         $this->_fixedBugs = $this->getBugListByIds($bugIds);
 
+        ksort($this->_fixedBugs);
         return $this->_fixedBugs;
     }
 
@@ -992,6 +997,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             }
         }
 
+        ksort($aResult);
         return $aResult;
     }
 
@@ -1011,6 +1017,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             }
         }
 
+        ksort($aStack);
         return $aStack;
     }
 
@@ -1035,6 +1042,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             $aStack[$oTheme->id()] = (string) $oTheme->short_desc;
         }
 
+        ksort($aStack);
         return $aStack;
     }
 
@@ -1382,7 +1390,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
      * @return array
      */
     public function getStatuses() {
-        if (empty($this->_aStats) === true) {
+        if (empty($this->_aStatuses) === true) {
             $this->_aStatuses = array(
                 Model_Ticket_Type_Bug::STATUS_UNCONFIRMED => 0,
                 Model_Ticket_Type_Bug::STATUS_NEW => 0,

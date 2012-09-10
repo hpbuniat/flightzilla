@@ -119,7 +119,7 @@ img {
     width: 90px;
 }
 
-.kanban .pin span {
+.kanban .pin span.bottom {
     position: relative;
     top: 75px;
 }

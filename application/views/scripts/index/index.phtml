@@ -52,12 +52,13 @@ echo $this->partial('index/partial/table.phtml', array(
 <h3>Bugs in Themes</h3>
 <?php
     foreach($this->bugsOpen as $sTheme => $aBugs):
-    echo $this->partial('index/partial/table.phtml', array(
-        'caption' => '<a target="_blank" href="' . $this->sBugzilla . '/show_bug.cgi?id=' . preg_replace('/\D/', '', $sTheme) . '">' . $sTheme . '</a>',
-        'sBugzilla' => $this->sBugzilla,
-        'bugs' => $aBugs,
-        'ready' => false,
-    ));
+        $iBug = preg_replace('/\D/', '', $sTheme);
+        echo $this->partial('index/partial/table.phtml', array(
+            'caption' => sprintf('%s - <a target="_blank" href="%s/show_bug.cgi?id=%s">%s</a>', $iBug, $this->sBugzilla, $iBug, trim(str_replace($iBug, '', $sTheme))),
+            'sBugzilla' => $this->sBugzilla,
+            'bugs' => $aBugs,
+            'ready' => false,
+        ));
     endforeach;
 ?>
 </form>
