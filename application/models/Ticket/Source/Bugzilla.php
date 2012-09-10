@@ -247,7 +247,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         $oView->bugsFixed = $this->getFixedBugsUnknown();
         $oView->bugsOpen = $this->getThemedOpenBugs();
         $oView->bugsUnthemed = $this->getUnthemedBugs();
-        if ($sMode == 'board') {
+        if ($sMode === 'board') {
             // stack
             $oView->allBugsOpen = $this->getUnworkedWithoutOrganization();
 
@@ -266,7 +266,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             $aFixedWithoutTesting = $this->getFilteredList($oView->bugsFixed, $oView->allBugsTesting);
             $oView->bugsFixedWithoutTesting = $this->getFilteredList($aFixedWithoutTesting, $oView->allScreenApproved);
         }
-        elseif ($sMode == '') {
+        elseif ($sMode === 'planning') {
             $oView->aMemberBugs = $this->getMemberBugs();
             $oView->aTeamBugs = $this->getTeamBugs($oView->aMemberBugs);
         }
@@ -371,95 +371,6 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
      */
     public function getCount() {
         return count($this->_allBugs);
-    }
-
-    /**
-     * Get the bug-stats
-     *
-     * @return array
-     */
-    public function getStats() {
-        $iCount = count($this->_allBugs);
-        $this->_aStats = array(
-            Model_Ticket_Type_Bug::WORKFLOW_ESTIMATED => 0,
-            Model_Ticket_Type_Bug::WORKFLOW_ORGA => 0,
-            Model_Ticket_Type_Bug::WORKFLOW_UNESTIMATED => 0,
-            Model_Ticket_Type_Bug::WORKFLOW_INPROGRESS => 0,
-            Model_Ticket_Type_Bug::WORKFLOW_ACTIVE => 0,
-            Model_Ticket_Type_Bug::WORKFLOW_TESTING => 0,
-            Model_Ticket_Type_Bug::WORKFLOW_MERGE => 0,
-            Model_Ticket_Type_Bug::WORKFLOW_DEADLINE => 0,
-            Model_Ticket_Type_Bug::WORKFLOW_SCREEN => 0,
-            Model_Ticket_Type_Bug::WORKFLOW_COMMENT => 0,
-            Model_Ticket_Type_Bug::WORKFLOW_FAILED => 0,
-            Model_Ticket_Type_Bug::WORKFLOW_QUICK => 0,
-            Model_Ticket_Type_Bug::WORKFLOW_TRANSLATION => 0,
-            Model_Ticket_Type_Bug::WORKFLOW_TIMEDOUT => 0,
-        );
-
-        $iTimeoutLimit = $this->_config->tickets->workflow->timeout;
-
-        foreach ($this->_allBugs as $oBug) {
-            $bShouldHaveEstimation = true;
-            if ($oBug->isOrga()) {
-                $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_ORGA]++;
-                $bShouldHaveEstimation = false;
-            }
-
-            if ($oBug->isEstimated()) {
-                $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_ESTIMATED]++;
-            }
-            elseif ($bShouldHaveEstimation === true) {
-                $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_UNESTIMATED]++;
-            }
-
-            if ($oBug->isWorkedOn()) {
-                $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_INPROGRESS]++;
-            }
-
-            if ($oBug->isActive()) {
-                $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_ACTIVE]++;
-            }
-
-            if ($oBug->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING,'?')) {
-                $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_TESTING]++;
-            }
-
-            if ($oBug->isFailed()) {
-                $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_FAILED]++;
-            }
-
-            if ($oBug->isMergeable()) {
-                $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_MERGE]++;
-            }
-
-            if ($oBug->deadlineStatus()) {
-                $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_DEADLINE]++;
-            }
-
-            if ($oBug->hasFlag(Model_Ticket_Type_Bug::FLAG_SCREEN, '?')) {
-                $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_SCREEN]++;
-            }
-
-            if ($oBug->hasFlag(Model_Ticket_Type_Bug::FLAG_COMMENT, '?')) {
-                $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_COMMENT]++;
-            }
-
-            if ($oBug->isQuickOne()) {
-                $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_QUICK]++;
-            }
-
-            if ($oBug->isOnlyTranslation()) {
-                $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_TRANSLATION]++;
-            }
-
-            if ($oBug->isChangedWithinLimit($iTimeoutLimit) !== true) {
-                $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_TIMEDOUT]++;
-            }
-        }
-
-        $this->_percentify($this->_aStats, $iCount);
-        return $this->_aStats;
     }
 
     /**
@@ -1372,29 +1283,125 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         return $iTimestamp;
     }
 
+
+    /**
+     * Get the bug-stats
+     *
+     * @return array
+     */
+    public function getStats() {
+        if (empty($this->_aStats) === true) {
+            $iCount = count($this->_allBugs);
+            $this->_aStats = array(
+                Model_Ticket_Type_Bug::WORKFLOW_ESTIMATED => 0,
+                Model_Ticket_Type_Bug::WORKFLOW_ORGA => 0,
+                Model_Ticket_Type_Bug::WORKFLOW_UNESTIMATED => 0,
+                Model_Ticket_Type_Bug::WORKFLOW_INPROGRESS => 0,
+                Model_Ticket_Type_Bug::WORKFLOW_ACTIVE => 0,
+                Model_Ticket_Type_Bug::WORKFLOW_TESTING => 0,
+                Model_Ticket_Type_Bug::WORKFLOW_MERGE => 0,
+                Model_Ticket_Type_Bug::WORKFLOW_DEADLINE => 0,
+                Model_Ticket_Type_Bug::WORKFLOW_SCREEN => 0,
+                Model_Ticket_Type_Bug::WORKFLOW_COMMENT => 0,
+                Model_Ticket_Type_Bug::WORKFLOW_FAILED => 0,
+                Model_Ticket_Type_Bug::WORKFLOW_QUICK => 0,
+                Model_Ticket_Type_Bug::WORKFLOW_TRANSLATION => 0,
+                Model_Ticket_Type_Bug::WORKFLOW_TIMEDOUT => 0,
+            );
+
+            $iTimeoutLimit = $this->_config->tickets->workflow->timeout;
+
+            foreach ($this->_allBugs as $oBug) {
+                $bShouldHaveEstimation = true;
+                if ($oBug->isOrga()) {
+                    $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_ORGA]++;
+                    $bShouldHaveEstimation = false;
+                }
+
+                if ($oBug->isEstimated()) {
+                    $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_ESTIMATED]++;
+                }
+                elseif ($bShouldHaveEstimation === true) {
+                    $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_UNESTIMATED]++;
+                }
+
+                if ($oBug->isWorkedOn()) {
+                    $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_INPROGRESS]++;
+                }
+
+                if ($oBug->isActive()) {
+                    $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_ACTIVE]++;
+                }
+
+                if ($oBug->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING,'?')) {
+                    $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_TESTING]++;
+                }
+
+                if ($oBug->isFailed()) {
+                    $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_FAILED]++;
+                }
+
+                if ($oBug->isMergeable()) {
+                    $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_MERGE]++;
+                }
+
+                if ($oBug->deadlineStatus()) {
+                    $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_DEADLINE]++;
+                }
+
+                if ($oBug->hasFlag(Model_Ticket_Type_Bug::FLAG_SCREEN, '?')) {
+                    $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_SCREEN]++;
+                }
+
+                if ($oBug->hasFlag(Model_Ticket_Type_Bug::FLAG_COMMENT, '?')) {
+                    $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_COMMENT]++;
+                }
+
+                if ($oBug->isQuickOne()) {
+                    $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_QUICK]++;
+                }
+
+                if ($oBug->isOnlyTranslation()) {
+                    $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_TRANSLATION]++;
+                }
+
+                if ($oBug->isChangedWithinLimit($iTimeoutLimit) !== true) {
+                    $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_TIMEDOUT]++;
+                }
+            }
+
+            $this->_percentify($this->_aStats, $iCount);
+        }
+
+        return $this->_aStats;
+    }
+
     /**
      * Return all bugzilla statuses with percentage.
      *
      * @return array
      */
     public function getStatuses() {
-        $this->_aStatuses = array(
-            Model_Ticket_Type_Bug::STATUS_UNCONFIRMED => 0,
-            Model_Ticket_Type_Bug::STATUS_NEW => 0,
-            Model_Ticket_Type_Bug::STATUS_CONFIRMED => 0,
-            Model_Ticket_Type_Bug::STATUS_ASSIGNED => 0,
-            Model_Ticket_Type_Bug::STATUS_RESOLVED => 0,
-            Model_Ticket_Type_Bug::STATUS_REOPENED => 0,
-            Model_Ticket_Type_Bug::STATUS_VERIFIED => 0,
-            Model_Ticket_Type_Bug::STATUS_CLOSED => 0
-        );
+        if (empty($this->_aStats) === true) {
+            $this->_aStatuses = array(
+                Model_Ticket_Type_Bug::STATUS_UNCONFIRMED => 0,
+                Model_Ticket_Type_Bug::STATUS_NEW => 0,
+                Model_Ticket_Type_Bug::STATUS_CONFIRMED => 0,
+                Model_Ticket_Type_Bug::STATUS_ASSIGNED => 0,
+                Model_Ticket_Type_Bug::STATUS_RESOLVED => 0,
+                Model_Ticket_Type_Bug::STATUS_REOPENED => 0,
+                Model_Ticket_Type_Bug::STATUS_VERIFIED => 0,
+                Model_Ticket_Type_Bug::STATUS_CLOSED => 0
+            );
 
-        $iCount = count($this->_allBugs);
-        foreach ($this->_allBugs as $oBug) {
-            $this->_aStatuses[(string) $oBug->bug_status]++;
+            $iCount = count($this->_allBugs);
+            foreach ($this->_allBugs as $oBug) {
+                $this->_aStatuses[(string) $oBug->bug_status]++;
+            }
+
+            $this->_percentify($this->_aStatuses, $iCount);
         }
 
-        $this->_percentify($this->_aStatuses, $iCount);
         return $this->_aStatuses;
     }
 
