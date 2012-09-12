@@ -1096,7 +1096,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         $aMember = array();
         foreach ($aOpenBugs as $oBug) {
             if ($oBug->isTheme() !== true) {
-                $sName = (string) $oBug->assignee_name;
+                $sName = $oBug->getAssignee();
                 $aMember[$sName][] = $oBug;
             }
         }

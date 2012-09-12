@@ -49,15 +49,9 @@
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-abstract class Model_Ressource_Builder {
+class Model_Resource_Manager_Exception extends Zend_Exception {
 
-    /**
-     *
-     */
-    public static function build($sName) {
-        $oTimecard = new Model_Ressource_Human_Timecard();
-        $oRessource = new Model_Ressource_Human($sName, $oTimecard);
+    const UNKNOWN_RESOURCE = 'The resource %s is not known to the manager, register it first';
 
-        return $oRessource;
-    }
+    const NO_AVAILABLE_RESOURCES = 'There are no resources registered';
 }

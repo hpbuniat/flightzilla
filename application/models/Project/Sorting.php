@@ -82,6 +82,13 @@ class Model_Project_Sorting {
     protected $_oBugzilla;
 
     /**
+     * The human resource model
+     *
+     * @var Model_Resource_Manager
+     */
+    protected $_oResource;
+
+    /**
      *
      */
     protected $_iDeadline;
@@ -89,8 +96,9 @@ class Model_Project_Sorting {
     /**
      *
      */
-    public function __construct($iDeadline, Model_Ticket_Source_Bugzilla $oBugzilla) {
+    public function __construct(Model_Ticket_Source_Bugzilla $oBugzilla, Model_Resource_Manager $oResource, $iDeadline = null) {
         $this->_oBugzilla = $oBugzilla;
+        $this->_oResource = $oResource;
         $this->_iDeadline = $iDeadline;
         $this->_aSorted = array();
     }
@@ -125,19 +133,19 @@ class Model_Project_Sorting {
     protected function _sort() {
         if ($this->_bSorted !== true) {
             $this->_sortByStartDate();
-            if (empty($this->_aNotSortedStack) !== true) {
-                $this->_sortByPriority();
-            }
-
-            while ($this->_sortByDependency() === true) {
-                // do nothing
-            }
+//            if (empty($this->_aNotSortedStack) !== true) {
+//                $this->_sortByPriority();
+//            }
+//
+//            while ($this->_sortByDependency() === true) {
+//                // do nothing
+//            }
 
             $this->_bSorted = true;
-            if (empty($this->_aNotSortedStack) !== true) {
-                $oBug = reset($this->_aNotSortedStack);
-                throw new Model_Project_Sorting_DataException(sprintf(Model_Project_Sorting_DataException::INVALID_DATE, $oBug->id(), (string) $oBug->short_desc));
-            }
+//            if (empty($this->_aNotSortedStack) !== true) {
+//                $oBug = reset($this->_aNotSortedStack);
+//                throw new Model_Project_Sorting_DataException(sprintf(Model_Project_Sorting_DataException::INVALID_DATE, $oBug->id(), (string) $oBug->short_desc));
+//            }
         }
 
         return $this->_aSorted;
@@ -149,9 +157,9 @@ class Model_Project_Sorting {
     protected function _findGaps() {
         $this->_aGaps = array();
         foreach ($this->_aSorted as $oBug) {
-            Zend_Debug::dump(date('r', $oBug->getStartDate()), __FILE__ . ':' . __LINE__);
-            Zend_Debug::dump($oBug->duration(), __FILE__ . ':' . __LINE__);
-            Zend_Debug::dump(date('r', $oBug->getEndDate()), __FILE__ . ':' . __LINE__);
+//            Zend_Debug::dump(date('r', $oBug->getStartDate()), __FILE__ . ':' . __LINE__);
+//            Zend_Debug::dump($oBug->duration(), __FILE__ . ':' . __LINE__);
+//            Zend_Debug::dump(date('r', $oBug->getEndDate()), __FILE__ . ':' . __LINE__);
         }
 
         return $this;
@@ -217,7 +225,7 @@ class Model_Project_Sorting {
 
         $aSort = array();
         foreach ($this->_aStack as $oBug) {
-            $iStartDate = $oBug->getStartDate($this->_iDeadline);
+            $iStartDate = $oBug->getStartDate($this->_oBugzilla, $this->_oResource, $this->_iDeadline);
             if (empty($iStartDate) === true) {
                 $this->_aNotSortedStack[$oBug->id()] = $oBug;
             }

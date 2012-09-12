@@ -41,7 +41,7 @@
  */
 
 /**
- * Ressource-planning
+ * Resource-planning
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -76,17 +76,18 @@ class PlanningController extends Zend_Controller_Action {
         $this->_oBugzilla->setView($this->view, 'planning');
 
         $aTeam = $this->_oBugzilla->getTeam();
-        $oRessource = new Model_Ressource_Manager();
+        $oResource = new Model_Resource_Manager();
         foreach ($aTeam as $sName) {
-            $oRessource->registerRessource(Model_Ressource_Builder::build($sName));
+            $oResource->registerResource(Model_Resource_Builder::build($sName));
         }
 
         $aTickets = $this->_oBugzilla->getAllBugs();
+
         foreach ($aTickets as $oTicket) {
-            $oRessource->addTicket($oTicket);
+            $oResource->addTicket($oTicket);
         }
 
-        $this->view->aRessource = $oRessource->getRessource($this->_getParam('name'));
+        $this->view->aResource = $oResource->getResource($this->_getParam('name'));
     }
 
     /**
@@ -94,14 +95,25 @@ class PlanningController extends Zend_Controller_Action {
      */
     public function projectsAction() {
         $this->_oBugzilla->setView($this->view, 'planning');
-        Zend_Debug::dump($this->_oBugzilla->getFirstWorkedDate(), __FILE__ . ':' . __LINE__);
 
-        $oProject = new Model_Project_Container($this->_oBugzilla);
-        $oProject->setup()->sortThemes();
+        $aTeam = $this->_oBugzilla->getTeam();
+        $oResource = new Model_Resource_Manager();
+        foreach ($aTeam as $sName) {
+            $oResource->registerResource(Model_Resource_Builder::build($sName));
+        }
+
+        $aTickets = $this->_oBugzilla->getAllBugs();
+        foreach ($aTickets as $oTicket) {
+            $oResource->addTicket($oTicket, false);
+        }
+
+        $oProject = new Model_Project_Container($this->_oBugzilla, $oResource);
+        $oProject->setup()->sortProjects();
 
         $this->view->aStack = $oProject->getProjectsAsStack();
         $this->view->aErrors = $oProject->getErrors();
-        $this->view->aProjects = $oProject->getProjects();
+        $proj = $oProject->getProjects();
+        $this->view->aProjects = reset($proj);
     }
 
     /**

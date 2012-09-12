@@ -41,7 +41,7 @@
  */
 
 /**
- * The available times of a ressource
+ * Enter a description ..
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -49,12 +49,68 @@
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class Model_Ressource_Human_Timecard {
+class Model_Resource_Human {
 
     /**
      *
      */
-    public function handle(array $aTimes) {
+    protected $_oBugzilla;
 
+    protected $_oTimecard;
+
+    protected $_sName;
+
+    protected $_aTickets;
+
+    /**
+     * Create the human
+     *
+     * @param string $sName
+     * @param Model_Resource_Human_Timecard $oTimecard
+     */
+    public function __construct($sName, Model_Resource_Human_Timecard $oTimecard) {
+        $this->_oTimecard = $oTimecard;
+        $this->_sName = $sName;
     }
+
+    /**
+     * Get the name
+     *
+     * @return string
+     */
+    public function getName() {
+        return $this->_sName;
+    }
+
+    /**
+     * Add the all resource corresponding tickets
+     *
+     * @param  Model_Ticket_Type_Bug $oTicket
+     *
+     * @return Model_Resource_Human
+     */
+    public function addTicket(Model_Ticket_Type_Bug $oTicket) {
+        $this->_aTickets[$oTicket->id()] = $oTicket;
+        $this->_oTimecard->handle($oTicket);
+
+        return $this;
+    }
+
+    /**
+     * Return the ticket with next higher priority which is confirmed or assigned.
+     *
+     * @param Model_Ticket_Type_Bug $oTicket
+     *
+     * @return \Model_Ticket_Type_Bug
+     */
+    public function getNextHigherPriorityTicket(Model_Ticket_Type_Bug $oTicket){
+        $nextPrioTicket = $oTicket;
+        foreach ($this->_aTickets as $ticket) {
+            //if ($oTicket)
+        }
+
+
+        return $oTicket;
+    }
+
 }
