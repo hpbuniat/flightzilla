@@ -10,13 +10,8 @@ foreach ($this->aStack as $oTicket) {
                 <a class="bugLink" target="_blank" data-title="<?php echo $this->escape($oTicket->short_desc)?>" href="<?php echo $this->sBugzilla?>/show_bug.cgi?id=<?php echo $oTicket->bug_id?>"><?php echo $this->escape($oTicket->short_desc)?></a>
             </div>
             <div class="bottom">
-                <?php if ($oTicket->isEstimated()):?>
-                    <span class="pull-right name label <?php echo ((float)$oTicket->actual_time >= (1.1 * (float)$oTicket->estimated_time)) ? 'label-important' : 'label-success'; ?>"><?php echo $oTicket->assignee_short ?></span>
-                <?php else:?>
-                    <span class="pull-right name label <?php echo ($oTicket->isOrga() ? 'label-success' : 'label-warning') ?>"><?php echo $oTicket->assignee_short ?></span>
                 <?php
-                    endif;
-
+                    echo $this->estimation($oTicket, 'board');
                     if ($oTicket->getStatus() === Model_Ticket_Type_Bug::STATUS_UNCONFIRMED or $oTicket->getStatus() === Model_Ticket_Type_Bug::STATUS_NEW):
                 ?>
                         <span class="pull-left status label label-success">NEW</span>

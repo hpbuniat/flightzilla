@@ -607,14 +607,21 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
      * @return array<Model_Ticket_Type_Bug>
      */
     private function _getXmlFromBugIds(array $aBugIds, $bCache = true) {
-        $aReturn = $aTemp = $aRequest = array();
+        $aCacheHits = $aReturn = $aTemp = $aRequest = array();
         foreach ($aBugIds as $iBugId) {
-            $oBug = $this->_oCache->load($this->_getBugHash($iBugId));
-            if ($oBug instanceof Model_Ticket_AbstractType and $bCache === true) {
-                $aTemp[] = $oBug;
+            if ($bCache === true and empty($this->_allBugs[$iBugId]) !== true) {
+                $aTemp[] = $this->_allBugs[$iBugId];
+                $aCacheHits[$iBugId] = $iBugId;
             }
             else {
-                $aRequest[] = $iBugId;
+                $oBug = $this->_oCache->load($this->_getBugHash($iBugId));
+                if ($oBug instanceof Model_Ticket_AbstractType and $bCache === true) {
+                    $aTemp[] = $oBug;
+                    $aCacheHits[$iBugId] = $iBugId;
+                }
+                else {
+                    $aRequest[] = $iBugId;
+                }
             }
         }
 
@@ -644,6 +651,8 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
 
         $aConfig = $this->_config->bugzilla->portal->toArray();
         foreach ($aTemp as $oBug) {
+            $iId = $oBug->id();
+
             $bAdd = true;
             foreach ($aConfig as $aProduct) {
                 if (strtolower($aProduct['name']) === strtolower($oBug->product)) {
@@ -667,16 +676,18 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             }
 
             if ($bAdd === true) {
-                $aReturn[$oBug->id()] = $oBug;
+                $aReturn[$iId] = $oBug;
                 if ($oBug->isClosed() !== true and $oBug->isTheme() !== true) {
-                    $this->_allBugs[$oBug->id()] = $oBug;
+                    $this->_allBugs[$iId] = $oBug;
                 }
                 elseif ($oBug->isTheme() === true) {
-                    $this->_aThemes[$oBug->id()] = $oBug;
+                    $this->_aThemes[$iId] = $oBug;
                 }
             }
 
-            $this->_oCache->save($oBug, $this->_getBugHash($oBug->id()));
+            if (empty($aCacheHits[$iId]) === true) {
+                $this->_oCache->save($oBug, $this->_getBugHash($iId));
+            }
         }
 
         ksort($aReturn);
