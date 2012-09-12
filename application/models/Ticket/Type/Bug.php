@@ -560,12 +560,12 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     }
 
     /**
-     * Return true, if this bug could already be merged, due its dependencies
+     * Return true, if this bug could have already been merged, due its dependencies
      *
      * @return boolean
      */
     public function couldBeInTrunk() {
-        return ($this->getDupe() !== false or (($this->isClosed() === true or $this->isTheme() === true or $this->hasFlag(Model_Ticket_Type_Bug::FLAG_SCREEN, '+') === true) and $this->doesBlock() === true));
+        return ($this->isMerged() === true or $this->getDupe() !== false or ($this->hasFlag(Model_Ticket_Type_Bug::FLAG_SCREEN, '+') === true and $this->doesBlock() === true));
     }
 
     /**
