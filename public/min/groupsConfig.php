@@ -13,18 +13,18 @@
 
 return array(
     'js' => array(
-        '//ressource/js/jquery-1.8.1.min.js',
-        '//ressource/base.js',
-        '//ressource/js/bootstrap.js',
-        '//ressource/js/highcharts.js',
-        '//ressource/js/jquery.gantt.js',
-        '//ressource/js/jquery.tablesorter.js',
-        '//ressource/js/jquery.metadata.js',
+        '//resource/js/jquery-1.8.1.min.js',
+        '//resource/base.js',
+        '//resource/js/bootstrap.js',
+        '//resource/js/highcharts.js',
+        '//resourcejs/jquery.gantt.js',
+        '//resource/js/jquery.tablesorter.js',
+        '//resource/js/jquery.metadata.js',
     ),
     'css' => array(
-        '//ressource/base.css',
-        '//ressource/css/bootstrap.css',
-        '//ressource/css/gantt.css',
-        '//ressource/silk-sprite.css',
+        '//resource/base.css',
+        '//resource/css/bootstrap.css',
+        '//resource/css/gantt.css',
+        '//resource/silk-sprite.css',
     ),
 );

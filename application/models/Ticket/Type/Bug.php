@@ -117,6 +117,46 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     const COMPONENT_CONCEPT = 'Screens und Konzepte';
 
     /**
+     * Bugzilla priorities
+     */
+    const PRIORITY_1 = 'P1';
+    const PRIORITY_2 = 'P2';
+    const PRIORITY_3 = 'P3';
+    const PRIORITY_4 = 'P4';
+    const PRIORITY_5 = 'P5';
+
+    protected $_mappedPriorities = array(
+        self::PRIORITY_1 => 5,
+        self::PRIORITY_2 => 4,
+        self::PRIORITY_3 => 3,
+        self::PRIORITY_4 => 2,
+        self::PRIORITY_5 => 1
+    );
+
+    /**
+     * Bugzilla severities
+     */
+    const SEVERITY_BLOCKER     = 'Blocker';
+    const SEVERITY_CRITICAL    = 'Critical';
+    const SEVERITY_MAJOR       = 'Major';
+    const SEVERITY_NORMAL      = 'Normal';
+    const SEVERITY_MINOR       = 'Minor';
+    const SEVERITY_TRIVIAL     = 'Trivial';
+    const SEVERITY_ENHANCEMENT = 'Enhancement';
+    const SEVERITY_IMPROVEMENT = 'Improvement';
+
+    protected $_mappedSeverities = array(
+        self::SEVERITY_BLOCKER     => 8,
+        self::SEVERITY_CRITICAL    => 7,
+        self::SEVERITY_MAJOR       => 6,
+        self::SEVERITY_NORMAL      => 5,
+        self::SEVERITY_MINOR       => 4,
+        self::SEVERITY_TRIVIAL     => 3,
+        self::SEVERITY_ENHANCEMENT => 2,
+        self::SEVERITY_IMPROVEMENT => 1,
+    );
+
+    /**
      * The data-structure
      *
      * @var SimpleXMLElement
@@ -332,11 +372,33 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     /**
      * Get the start-date in seconds
      *
-     * @param  int $iEndDate The optional end-date
+     * @param  Model_Ticket_Source_Bugzilla $oBugzilla
+     * @param  Model_Resource_Manager         $oResource
+     * @param  int                          $iEndDate The optional end-date
      *
      * @return int
      */
-    public function getStartDate($iEndDate = null) {
+    public function getStartDate(Model_Ticket_Source_Bugzilla $oBugzilla, Model_Resource_Manager $oResource, $iEndDate = null) {
+        $iStartDate = 0;
+
+        // is there a predecessor?
+        $iPredecessor = $this->getPredecessor();
+        if ($iPredecessor > 0) {
+            $iStartDate = $oBugzilla->getBugById($iPredecessor)->getEndDate();
+        }
+        elseif ($this->isEstimated() === true and $this->cf_due_date) {
+            $iEndDate = strtotime((string) $this->cf_due_date);
+
+            if (empty($iEndDate) !== true) {
+                $iStartDate = strtotime(sprintf('-%d day', ceil($this->duration() / Model_Timeline_Date::AMOUNT)), $iEndDate);
+            }
+        }
+        elseif ($this->isWorkedOn() === true) {
+            $iStartDate = $this->getWorkedHours();
+            $iStartDate =  strtotime(sprintf('-%d day', ceil($iStartDate[0]['duration'] / Model_Timeline_Date::AMOUNT)), $iStartDate[0]['date']);
+        }
+
+
         if ($this->isEstimated() === true) {
             if ($this->cf_due_date) {
                 $iEndDate = strtotime((string) $this->cf_due_date);
@@ -348,7 +410,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
         }
 
 
-        return 0;
+        return $iStartDate;
     }
 
     /**
@@ -506,6 +568,19 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
         }
 
         return $this->_aDepends;
+    }
+
+    /**
+     * Return the ticket number of the tickets predecessor or 0 if there isn't one.
+     *
+     * @return int
+     */
+    public function getPredecessor(){
+        if ($this->doesBlock()) {
+            return (int) $this->_data->blocked;
+        }
+
+        return 0;
     }
 
     /**
@@ -741,5 +816,34 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      */
     public function __toString() {
         return (string) $this->_data->bug_id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAssignee(){
+        return (string) $this->_data->assignee_name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPriority($bMapped = false){
+        if ($bMapped === true) {
+            return $this->_mappedPriorities[(string) $this->_data->priority];
+        }
+
+        return (string) $this->_data->priority;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSeverity($bMapped = false){
+        if ($bMapped === true) {
+            return $this->_mappedSeverities[(string) $this->_data->bug_severity];
+        }
+
+        return (string) $this->_data->bug_severity;
     }
 }

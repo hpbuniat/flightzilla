@@ -13,25 +13,23 @@ echo $this->partial('planning/partial/sidebar.phtml', array(
       <strong>Error!</strong> <?php echo $sError; ?>
     </div>
 <?php endforeach; ?>
-<?php foreach ($this->aProjects as $iId => $aBugs): ?>
-    <div class="hidden" id="t<?php echo $iId; ?>">
+    <div class="hidden" id="ganttGraph">
 
     </div>
 
     <script type="text/javascript">
-    $(function() {
-    	$("#t<?php echo $iId; ?>").gantt({
-    		source: <?php echo $this->render('planning/data.phtml'); ?>,
-    		navigate: "scroll",
-    		scale: "hours",
-    		maxScale: "months",
-    		minScale: "hours",
-    		days: ["M", "T", "W", "T", "F", "S", "S"],
-    		itemsPerPage: 50
-    	});
-    });
+        $(function() {
+            $("#ganttGraph").gantt({
+                source: <?php echo $this->render('planning/data.phtml'); ?>,
+                navigate: "scroll",
+                scale: "weeks",
+                maxScale: "months",
+                minScale: "days",
+                dow: ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
+                itemsPerPage: 50
+            });
+        });
     </script>
-<?php endforeach; ?>
 
 </div>
 </div>
