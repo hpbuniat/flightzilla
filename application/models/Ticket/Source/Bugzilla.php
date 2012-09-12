@@ -114,6 +114,8 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
 
     private $_openBugs = null;
 
+    private $_reopenedBugs = null;
+
     private $_fixedBugs = null;
 
     private $_aFixedTrunk = array();
@@ -681,6 +683,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         return $aReturn;
     }
 
+
     /**
      * Refresh the cached bugs, which have been changed today
      *
@@ -708,6 +711,50 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     /**
      * Get all bugs
      *
+     * @return Model_Ticket_Source_Bugzilla
+     */
+    public function getBugList() {
+        $this->_addParams();
+        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_REOPENED);
+        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_UNCONFIRMED);
+        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_CONFIRMED);
+        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_NEW);
+        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_ASSIGNED);
+        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_VERIFIED);
+        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_RESOLVED);
+        $page = $this->_request(self::BUG_LIST);
+        $bugIds = $this->_getBugIdsFromPage($page);
+        $bugs = $this->getBugListByIds($bugIds, true);
+
+        $this->_openBugs = $this->_fixedBugs = $this->_reopenedBugs = array();
+        foreach ($bugs as $bug) {
+            switch ($bug->getStatus()) {
+                case Model_Ticket_Type_Bug::STATUS_REOPENED:
+                    $this->_reopenedBugs[$bug->id()] = $bug;
+                    break;
+
+
+                case Model_Ticket_Type_Bug::STATUS_VERIFIED:
+                case Model_Ticket_Type_Bug::STATUS_RESOLVED:
+                    $this->_fixedBugs[$bug->id()] = $bug;
+                    break;
+
+                default:
+                    $this->_openBugs[$bug->id()] = $bug;
+                    break;
+            }
+        }
+
+        unset($bugs, $page, $bugIds);
+        ksort($this->_openBugs);
+        ksort($this->_fixedBugs);
+        ksort($this->_reopenedBugs);
+        return $this;
+    }
+
+    /**
+     * Get all bugs
+     *
      * @return array
      */
     public function getAllBugs() {
@@ -720,20 +767,37 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
      * @return array
      */
     public function getOpenBugs() {
-        if ($this->_openBugs) {
-            return $this->_openBugs;
+        if (is_null($this->_openBugs) === true) {
+            $this->getBugList();
         }
 
-        $this->_addParams();
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_REOPENED);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_UNCONFIRMED);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_CONFIRMED);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_NEW);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_ASSIGNED);
-        $page = $this->_request(self::BUG_LIST);
-        $bugIds = $this->_getBugIdsFromPage($page);
-        $this->_openBugs = $this->getBugListByIds($bugIds);
         return $this->_openBugs;
+    }
+
+    /**
+     * Get all fixed tickets
+     *
+     * @return array
+     */
+    public function getFixedBugs() {
+        if (is_null($this->_fixedBugs) === true) {
+            $this->getBugList();
+        }
+
+        return $this->_fixedBugs;
+    }
+
+    /**
+     * Get reopened tickets
+     *
+     * @return array
+     */
+    public function getReopenedBugs() {
+        if (is_null($this->_reopenedBugs) === true) {
+            $this->getBugList();
+        }
+
+        return $this->_reopenedBugs;
     }
 
     /**
@@ -822,27 +886,6 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     }
 
     /**
-     * Get all fixed tickets
-     *
-     * @return array
-     */
-    public function getFixedBugs() {
-        if (empty($this->_fixedBugs) !== true) {
-            return $this->_fixedBugs;
-        }
-
-        $this->_addParams();
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_VERIFIED);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_RESOLVED);
-        $page = $this->_request(self::BUG_LIST);
-        $bugIds = $this->_getBugIdsFromPage($page);
-        $this->_fixedBugs = $this->getBugListByIds($bugIds);
-
-        ksort($this->_fixedBugs);
-        return $this->_fixedBugs;
-    }
-
-    /**
      * Get a list of bugs by id
      *
      * @param  array|string $mIds
@@ -863,20 +906,6 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         }
 
         return $this->_aBugsListCache[$sHash];
-    }
-
-    /**
-     * Get reopened tickets
-     *
-     * @return array
-     */
-    public function getReopenedBugs() {
-        $this->_addParams();
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, Model_Ticket_Type_Bug::STATUS_REOPENED);
-        $page = $this->_request(self::BUG_LIST);
-        $bugIds = $this->_getBugIdsFromPage($page);
-        $bugs = $this->getBugListByIds($bugIds);
-        return ($bugs) ? $bugs : array();
     }
 
     /**
