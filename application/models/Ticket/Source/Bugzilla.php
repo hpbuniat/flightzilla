@@ -267,10 +267,9 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             $aFixedWithoutTesting = $this->getFilteredList($oView->bugsFixed, $oView->allBugsTesting);
             $oView->bugsFixedWithoutTesting = $this->getFilteredList($aFixedWithoutTesting, $oView->allScreenApproved);
         }
-        elseif ($sMode === 'planning') {
-            $oView->aMemberBugs = $this->getMemberBugs();
-            $oView->aTeamBugs = $this->getTeamBugs($oView->aMemberBugs);
-        }
+
+        $oView->aMemberBugs = $this->getMemberBugs();
+        $oView->aTeamBugs = $this->getTeamBugs($oView->aMemberBugs);
 
         $oView->iTotal = $this->getCount();
         $oView->aStats = $this->getStats();
