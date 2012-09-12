@@ -11,8 +11,8 @@ echo $this->partial('planning/partial/sidebar.phtml', array(
 <div class="span10">
 <form id="buglist-form" method="get" target="_blank" action="<?php echo $this->url(array('controller' => 'index', 'action' => 'go-bugzilla'))?>">
 <?php
-foreach ($this->aRessources as $oRessource) {
-    echo sprintf('<div class="gantt t%s" data-target="%s"></div>', md5($oRessource->getName()), $oRessource->getName());
+foreach ($this->aResources as $oResource) {
+    echo sprintf('<div class="gantt t%s" data-target="%s"></div>', md5($oResource->getName()), $oResource->getName());
 }
 ?>
 
@@ -23,7 +23,7 @@ $(function() {
     $(".gantt").each(function() {
         var $this = $(this);
         $this.gantt({
-            source: "planning/data/type/ressource/name/" + $this.data('target'),
+            source: "planning/data/type/resource/name/" + $this.data('target'),
             navigate: "scroll",
             scale: "days",
             maxScale: "months",

@@ -73,6 +73,13 @@ class Model_Project_Container {
     protected $_oBugzilla;
 
     /**
+     * The human resource model
+     *
+     * @var Model_Resource_Manager
+     */
+    protected $_oResource;
+
+    /**
      * Found errors, while sorting the projects
      *
      * @var array
@@ -84,8 +91,9 @@ class Model_Project_Container {
      *
      * @param  Model_Ticket_Source_Bugzilla $oBugzilla
      */
-    public function __construct(Model_Ticket_Source_Bugzilla $oBugzilla) {
+    public function __construct(Model_Ticket_Source_Bugzilla $oBugzilla, Model_Resource_Manager $oResource) {
         $this->_oBugzilla = $oBugzilla;
+        $this->_oResource = $oResource;
     }
 
     /**
@@ -125,6 +133,28 @@ class Model_Project_Container {
         }
 
         return $this;
+    }
+
+    /**
+     *
+     */
+    public function sortProjects() {
+
+        $this->_aOrderedProjects = array();
+        foreach ($this->_aProjects as $oProject) {
+            try {
+                $oSort = new Model_Project_Sorting($this->_oBugzilla, $this->_oResource, $oProject->getEndDate());
+                foreach ($oProject->getDepends($this->_oBugzilla) as $iBug) {
+                    $oSort->add($this->_oBugzilla->getBugById($iBug));
+                }
+
+                $this->_aOrderedProjects[$oProject->id()] = $oSort->getSortedBugs();
+                unset($oSort);
+            }
+            catch (Exception $e) {
+                $this->_aErrors[] = $e->getMessage();
+            }
+        }
     }
 
     /**

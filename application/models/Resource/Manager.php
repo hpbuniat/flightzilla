@@ -41,7 +41,7 @@
  */
 
 /**
- * The ressource manager handles ressources and their duties
+ * The resource manager handles resources and their duties
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -49,12 +49,12 @@
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class Model_Ressource_Manager {
+class Model_Resource_Manager {
 
     /**
      *
      */
-    protected $_aRessources = array();
+    protected $_aResources = array();
 
     /**
      *
@@ -66,22 +66,33 @@ class Model_Ressource_Manager {
     /**
      *
      */
-    public function registerRessource(Model_Ressource_Human $oHuman) {
-        $this->_aRessources[$oHuman->getName()] = $oHuman;
+    public function registerResource(Model_Resource_Human $oHuman) {
+        $this->_aResources[$oHuman->getName()] = $oHuman;
         return $this;
     }
 
     /**
+     * @param Model_Ticket_Type_Bug $oTicket
+     * @param bool                  $bOnlyWorkedBugs
      *
+     * @return Model_Resource_Manager
      */
-    public function addTicket(Model_Ticket_Type_Bug $oTicket) {
-        $aTimes = $oTicket->getWorkedHours();
-        if (empty($aTimes) !== true) {
-            foreach ($aTimes as $aTime) {
-                $sRessource = $aTime['user'];
-                if (isset($this->_aRessources[$sRessource]) === true) {
-                    $this->_aRessources[$sRessource]->addTicket($aTime);
+    public function addTicket(Model_Ticket_Type_Bug $oTicket, $bOnlyWorkedBugs = true) {
+
+        if ($bOnlyWorkedBugs === true) {
+            $aTimes = $oTicket->getWorkedHours();
+            if (empty($aTimes) !== true) {
+                foreach ($aTimes as $aTime) {
+                    if (isset($this->_aResources[$aTime['user']]) === true) {
+                        $this->addTicket($oTicket, false);
+                    }
                 }
+            }
+        }
+        else {
+            $sResource = $oTicket->getAssignee();
+            if (isset($this->_aResources[$sResource]) === true) {
+                $this->_aResources[$sResource]->addTicket($oTicket);
             }
         }
 
@@ -92,34 +103,34 @@ class Model_Ressource_Manager {
      *
      */
     public function addProject(Model_Project_Container $oProject) {
-        if (empty($this->_aRessources) === true) {
-            throw new Model_Ressource_Manager_Exception(Model_Ressource_Manager_Exception::NO_AVAILABLE_RESSOURCES);
+        if (empty($this->_aResources) === true) {
+            throw new Model_Resource_Manager_Exception(Model_Resource_Manager_Exception::NO_AVAILABLE_RESOURCES);
         }
 
         return $this;
     }
 
     /**
-     * Get all ressources
+     * Get all resources
      *
      * @return array
      */
-    public function getRessources() {
-        return $this->_aRessources;
+    public function getResources() {
+        return $this->_aResources;
     }
 
     /**
-     * Get a specific ressource
+     * Get a specific resource
      *
      * @param  string $sName
      *
-     * @return Model_Ressource_Human
+     * @return Model_Resource_Human
      *
      * @throws InvalidArgumentException
      */
-    public function getRessource($sName) {
-        if (isset($this->_aRessources[$sName]) === true) {
-            return $this->_aRessources[$sName];
+    public function getResource($sName) {
+        if (isset($this->_aResources[$sName]) === true) {
+            return $this->_aResources[$sName];
         }
 
         throw new InvalidArgumentException('name not known');
