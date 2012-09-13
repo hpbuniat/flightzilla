@@ -153,6 +153,9 @@
         }
     });
 
+    /**
+     * The search-bar functionality
+     */
     $('#searchId').on('keyup', function() {
         var $this = $(this);
         f.delay(function() {
@@ -193,6 +196,9 @@
         }, 500);
     });
 
+    /**
+     * Retrieve the merge-list for the selected tickets
+     */
     f.bugTable.on('click', 'a.mergelist', function() {
         var bugs = f.write.text();
 
@@ -210,10 +216,16 @@
         });
     });
 
+    /**
+     * Toggle the detailed merge-results-content
+     */
     $('#container').on('click', 'button.toggle', function() {
         $(this).parents('.merge-result').find('pre').toggleClass('hidden');
     });
 
+    /**
+     * Perform the merge action
+     */
     $('.merge-button').on('click', function() {
         var bugs = f.write.text(),
             data = {
@@ -248,6 +260,9 @@
         }
     });
 
+    /**
+     * Create the content for the release-log
+     */
     f.bugTable.on('click', 'a.changelist', function() {
         var head = "|| [" + BUGZILLA + "/buglist.cgi?quicksearch=##LIST## Liste] || ||||  '''Titel'''  || '''Assignee''' ||",
             bugs = [],
@@ -278,6 +293,46 @@
 
         string += "|| '''Champion''' ||||||||  [[Image(pokal_icons.png)]]  '''" + name + "''' [[Image(pokal_icons.png)]]  ||";
         f.modal('Release-Log', '<textarea class="input-xxxlarge">' + head.replace(/##LIST##/, bugs.join(',')) + '\n' + string + '</textarea>');
+    });
+
+    /**
+     * Create the content for the release-mail
+     */
+    f.bugTable.on('click', 'a.changemail', function() {
+        var bugs = {},
+            string = "",
+            $this, type, component, bug;
+        $('input:checkbox:checked').each(function() {
+            $this = $(this).parents('.bug');
+            type = $this.data('type');
+            component = $this.data('component');
+            bug = $this.find('.bugLink');
+
+            if (typeof bugs[type] === 'undefined') {
+                bugs[type] = [];
+            }
+
+            if (typeof bugs[type][component] === 'undefined') {
+                bugs[type][component] = [];
+            }
+
+            bugs[type][component].push({
+                nr: bug.text(),
+                text: $this.find('.bugDesc').text() + ' (' + $.trim($this.find('.bugProd').text()) + ')'
+            });
+        });
+
+        for (type in bugs) {
+            string += "\n" + type + "\n";
+            for (component in bugs[type]) {
+                string += component + "\n";
+                for (bug in bugs[type][component]) {
+                    string += '#' + bugs[type][component][bug].nr + ': ' + bugs[type][component][bug].text + "\n";
+                }
+            }
+        }
+
+        f.modal('Release-Log', '<textarea class="input-xxxlarge">' + string + '</textarea>');
     });
 
     $('.bugzilla-link').click(function() {

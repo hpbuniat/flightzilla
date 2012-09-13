@@ -1,4 +1,9 @@
-<tr class="bug" data-assignee="<?php echo $this->bug->getAssignee() ?>" style="<?php echo $this->buggradient($this->bug, $this->bReady);?>">
+<tr class="bug"
+    data-type="<?php echo ucfirst(strtolower($this->bug->getType())); ?>"
+    data-assignee="<?php echo $this->bug->getAssignee() ?>"
+    data-component="<?php echo $this->bug->getComponent() ?>"
+    style="<?php echo $this->buggradient($this->bug, $this->bReady);?>
+">
 <td width="2%">
     <?php echo $this->bug->priority?>
 </td>

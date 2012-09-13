@@ -117,6 +117,32 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     const COMPONENT_CONCEPT = 'Screens und Konzepte';
 
     /**
+     * Different types
+     *
+     * @var string
+     */
+    CONST TYPE_STRING_BUG = 'MTB';
+    CONST TYPE_STRING_THEME = 'Theme,Thema,Projekt';
+    CONST TYPE_STRING_FEATURE = '';
+    CONST TYPE_STRING_CONCEPT = 'Screen';
+
+    CONST TYPE_BUG = 'bug';
+    CONST TYPE_THEME = 'theme';
+    CONST TYPE_FEATURE = 'feature';
+    CONST TYPE_CONCEPT = 'screen';
+    /**
+     * The bug-types
+     *
+     * @var array
+     */
+    protected $_aTypes = array(
+        self::TYPE_STRING_BUG => self::TYPE_BUG,
+        self::TYPE_STRING_THEME  => self::TYPE_THEME,
+        self::TYPE_STRING_FEATURE  => self::TYPE_FEATURE,
+        self::TYPE_STRING_CONCEPT  => self::TYPE_CONCEPT,
+    );
+
+    /**
      * Bugzilla priorities
      */
     const PRIORITY_1 = 'P1';
@@ -206,6 +232,13 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     protected $_iTheme = array();
 
     /**
+     * The type of the bug
+     *
+     * @var string
+     */
+    protected $_sType;
+
+    /**
      * Create the bug
      *
      * @param SimpleXMLElement $data
@@ -218,6 +251,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
         $this->_data->assignee_short = $aName[0]{0} . $aName[1]{0};
 
         $this->_getFlags();
+        $this->_getType();
     }
 
     /**
@@ -238,6 +272,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     public function __wakeup() {
         $this->_data = simplexml_load_string($this->_sleep);
         $this->_getFlags();
+        $this->_getType();
     }
 
     /**
@@ -478,6 +513,51 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     }
 
     /**
+     * Determine the type of the bug
+     *
+     * @return Model_Ticket_Type_Bug
+     */
+    protected function _getType() {
+        $this->_sType = '';
+        foreach ($this->_aTypes as $sKeywords => $sType) {
+            $aKeywords = explode(',', $sKeywords);
+            if (empty($aKeywords) !== true) {
+                foreach ($aKeywords as $sKeyword) {
+                    if (empty($sKeyword) !== true) {
+                        if (stristr((string) $this->_data->short_desc, $sKeyword) !== false or $this->hasKeyword($sKeyword) === true) {
+                            $this->_sType = $sType;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (empty($this->_sType) === true) {
+            $this->_sType = ($this->isConcept() === true) ? self::TYPE_CONCEPT : self::TYPE_FEATURE;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Check if a bug is a given type
+     *
+     * @return boolean
+     */
+    public function isType($sType) {
+        return ($this->_sType === $sType);
+    }
+
+    /**
+     * Get the type
+     *
+     * @return string
+     */
+    public function getType() {
+        return $this->_sType;
+    }
+
+    /**
      * Check if the bug is a theme
      *
      * @return boolean
@@ -493,6 +573,15 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      */
     public function isConcept() {
         return (string) $this->component === self::COMPONENT_CONCEPT;
+    }
+
+    /**
+     * Get the bugs component
+     *
+     * @return string
+     */
+    public function getComponent() {
+        return (string) $this->component;
     }
 
     /**
