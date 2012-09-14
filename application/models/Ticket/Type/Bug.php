@@ -74,11 +74,23 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     const STATUS_UNCONFIRMED = 'UNCONFIRMED';
     const STATUS_CONFIRMED = 'CONFIRMED';
     const STATUS_ASSIGNED = 'ASSIGNED';
-    const STATUS_RESOLVED = 'RESOLVED';
     const STATUS_REOPENED = 'REOPENED';
+    const STATUS_RESOLVED = 'RESOLVED';
     const STATUS_REVIEWED = 'REVIEWED';
     const STATUS_VERIFIED = 'VERIFIED';
     const STATUS_CLOSED = 'CLOSED';
+
+    protected $_mappedStatus = array(
+        self::STATUS_NEW         => 0,
+        self::STATUS_UNCONFIRMED => 1,
+        self::STATUS_CONFIRMED   => 2,
+        self::STATUS_ASSIGNED    => 3,
+        self::STATUS_REOPENED    => 4,
+        self::STATUS_RESOLVED    => 5,
+        self::STATUS_REVIEWED    => 6,
+        self::STATUS_VERIFIED    => 7,
+        self::STATUS_CLOSED      => 8
+    );
 
     /**
      * Deadline status
@@ -237,6 +249,20 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @var string
      */
     protected $_sType;
+
+    /**
+     * Timestamp when the ticket starts.
+     *
+     * @var int
+     */
+    protected $_iStartDate = 0;
+
+    /**
+     * Timestamp for ticket's estimated end date.
+     *
+     * @var int
+     */
+    protected $_iEndDate = 0;
 
     /**
      * Create the bug
@@ -407,49 +433,52 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     /**
      * Get the start-date in seconds
      *
-     * @param  Model_Ticket_Source_Bugzilla $oBugzilla
+     * @param  Model_Ticket_Source_Bugzilla   $oBugzilla
      * @param  Model_Resource_Manager         $oResource
-     * @param  int                          $iEndDate The optional end-date
+     * @param  int                            $iEndDate The optional end-date
      *
+     * @throws Model_Ticket_Type_Bug_Exception
      * @return int
      */
     public function getStartDate(Model_Ticket_Source_Bugzilla $oBugzilla, Model_Resource_Manager $oResource, $iEndDate = null) {
-        $iStartDate = 0;
+        if ($this->_iStartDate > 0){
+            return $this->_iStartDate;
+        }
 
         // is there a predecessor?
-        $iPredecessor = $this->getPredecessor();
+        $iPredecessor = $this->getActivePredecessor($oBugzilla);
         if ($iPredecessor > 0) {
-            $iStartDate = $oBugzilla->getBugById($iPredecessor)->getEndDate();
+            $this->_iStartDate = $oBugzilla->getBugById($iPredecessor)->getEndDate($oBugzilla, $oResource);
         }
         elseif ($this->isEstimated() === true and $this->cf_due_date) {
             $iEndDate = strtotime((string) $this->cf_due_date);
 
             if (empty($iEndDate) !== true) {
-                $iStartDate = strtotime(sprintf('-%d day', ceil($this->duration() / Model_Timeline_Date::AMOUNT)), $iEndDate);
+                $this->_iStartDate = strtotime(sprintf('-%d day', ceil($this->duration() / Model_Timeline_Date::AMOUNT)), $iEndDate);
             }
         }
         elseif ($this->isWorkedOn() === true) {
             $iStartDate = $this->getWorkedHours();
-            $iStartDate =  strtotime(sprintf('-%d day', ceil($iStartDate[0]['duration'] / Model_Timeline_Date::AMOUNT)), $iStartDate[0]['date']);
+            $this->_iStartDate =  strtotime(sprintf('-%d day', ceil($iStartDate[0]['duration'] / Model_Timeline_Date::AMOUNT)), $iStartDate[0]['date']);
         }
-
-
-        if ($this->isEstimated() === true) {
-            if ($this->cf_due_date) {
-                $iEndDate = strtotime((string) $this->cf_due_date);
-            }
-
-            if (empty($iEndDate) !== true) {
-                return strtotime(sprintf('-%d day', ceil($this->duration() / Model_Timeline_Date::AMOUNT)), $iEndDate);
+        else {
+            $nextPrioBug = $oResource->getResource($this->getAssignee())->getNextHigherPriorityTicket($this);
+            if ($nextPrioBug->id() !== $this->id()) {
+                $this->_iStartDate = $nextPrioBug->getEndDate($oBugzilla, $oResource);
             }
         }
 
+        if ($this->_iStartDate === 0){
+            throw new Model_Ticket_Type_Bug_Exception(sprintf(Model_Ticket_Type_Bug_Exception::INVALID_START_DATE, $this->id()));
+        }
 
-        return $iStartDate;
+        return $this->_iStartDate;
     }
 
     /**
      * Check, if a ticket was changed within a given time-limit
+     *
+     * @param $iLimit
      *
      * @return boolean
      */
@@ -460,14 +489,24 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     /**
      * Get the end-date in seconds
      *
+     * @param Model_Ticket_Source_Bugzilla $oBugzilla
+     * @param Model_Resource_Manager       $oResource
+     *
      * @return int
      */
-    public function getEndDate() {
+    public function getEndDate(Model_Ticket_Source_Bugzilla $oBugzilla, Model_Resource_Manager $oResource) {
         if ($this->cf_due_date) {
             return strtotime((string) $this->cf_due_date);
         }
 
-        return 0;
+        if ($this->_iEndDate > 0) {
+            return $this->_iEndDate;
+        }
+
+        // Start date + estimated
+        $this->_iEndDate = $this->getStartDate($oBugzilla, $oResource) + (float) $this->estimated_time * 3600;
+
+        return $this->_iEndDate;
     }
 
     /**
@@ -623,6 +662,15 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     }
 
     /**
+     * Check if the ticket is already confirmed.
+     *
+     * @return bool
+     */
+    public function isConfirmed() {
+        return ($this->getStatus() === Model_Ticket_Type_Bug::STATUS_CONFIRMED);
+    }
+
+    /**
      * Check, if the bug is of type organisation
      */
     public function isOrga() {
@@ -662,11 +710,42 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     /**
      * Return the ticket number of the tickets predecessor or 0 if there isn't one.
      *
+     * A valid predecessor has the status unconfirmed, confirmed or assigned, and is not a project or theme.
+     * If there are more than one predecessor, the one with the highest estimated time will be returned.
+     *
+     * @param Model_Ticket_Source_Bugzilla $oBugzilla
+     *
      * @return int
      */
-    public function getPredecessor(){
+    public function getActivePredecessor(Model_Ticket_Source_Bugzilla $oBugzilla) {
+
         if ($this->doesBlock()) {
-            return (int) $this->_data->blocked;
+            $ticket         = 0;
+            $blockedTickets = $this->blocks();
+
+            if (count($blockedTickets) > 1) {
+                foreach ($blockedTickets as $blocked) {
+                    $oComparisonTicket = $oBugzilla->getBugById($blocked);
+                    if (($oComparisonTicket->isStatusAtMost(Model_Ticket_Type_Bug::STATUS_REOPENED)
+                            and $oComparisonTicket->isTheme() === false
+                            and $oComparisonTicket->isProject() === false
+                            and (float) $oBugzilla->getBugById($ticket)->estimated_time > (float) $oBugzilla->getBugById($blocked)->estimated_time)
+                        or $ticket === 0
+                    ) {
+
+                        $ticket = $blocked;
+                    }
+                }
+            }
+            elseif ($oBugzilla
+                    ->getBugById((int) $this->_data->blocked)
+                    ->isStatusAtMost(Model_Ticket_Type_Bug::STATUS_REOPENED)
+            ) {
+
+                $ticket = (int) $this->_data->blocked;
+            }
+
+            return $ticket;
         }
 
         return 0;
@@ -934,5 +1013,35 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
         }
 
         return (string) $this->_data->bug_severity;
+    }
+
+    /**
+     * @param $sComparisonStatus
+     *
+     * @throws Model_Ticket_Type_Bug_Exception
+     * @return bool
+     */
+    public function isStatusAtLeast($sComparisonStatus) {
+
+        if (isset($this->_mappedStatus[$sComparisonStatus]) === false){
+            throw new Model_Ticket_Type_Bug_Exception(sprintf(Model_Ticket_Type_Bug_Exception::INVALID_STATUS, $sComparisonStatus));
+        }
+
+        return ($this->_mappedStatus[$this->getStatus()] >= $this->_mappedStatus[$sComparisonStatus]);
+    }
+
+    /**
+     * @param $sComparisonStatus
+     *
+     * @throws Model_Ticket_Type_Bug_Exception
+     * @return bool
+     */
+    public function isStatusAtMost($sComparisonStatus){
+
+        if (isset($this->_mappedStatus[$sComparisonStatus]) === false){
+            throw new Model_Ticket_Type_Bug_Exception(sprintf(Model_Ticket_Type_Bug_Exception::INVALID_STATUS, $sComparisonStatus));
+        }
+
+        return ($this->_mappedStatus[$this->getStatus()] <= $this->_mappedStatus[$sComparisonStatus]);
     }
 }

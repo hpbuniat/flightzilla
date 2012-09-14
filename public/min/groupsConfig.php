@@ -17,7 +17,7 @@ return array(
         '//resource/base.js',
         '//resource/js/bootstrap.js',
         '//resource/js/highcharts.js',
-        '//resourcejs/jquery.gantt.js',
+        '//resource/js/jquery.gantt.js',
         '//resource/js/jquery.tablesorter.js',
         '//resource/js/jquery.metadata.js',
     ),

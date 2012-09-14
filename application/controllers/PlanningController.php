@@ -87,7 +87,7 @@ class PlanningController extends Zend_Controller_Action {
             $oResource->addTicket($oTicket);
         }
 
-        $this->view->aResource = $oResource->getResource($this->_getParam('name'));
+//        $this->view->aResource = $oResource->getResource($this->_getParam('name'));
     }
 
     /**
@@ -113,7 +113,27 @@ class PlanningController extends Zend_Controller_Action {
         $this->view->aStack = $oProject->getProjectsAsStack();
         $this->view->aErrors = $oProject->getErrors();
         $proj = $oProject->getProjects();
-        $this->view->aProjects = reset($proj);
+
+        $aProjects = array();
+        foreach ($proj as $id => $project) {
+            if (isset($project['tasks'])){
+
+                $aProjects[$id]['name'] = $project['short_desc'];
+                foreach ($project['tasks'] as $oTask) {
+                    $aProjects[$id]['desc'] = $oTask->id();
+                    $aProjects[$id]['values'] = '[' . json_encode(array(
+                        'from' => '/Date(' . $oTask->getStartDate($this->_oBugzilla, $oResource) * 1000 . ')/',
+                        'to' => '/Date(' . $oTask->getEndDate($this->_oBugzilla, $oResource) * 1000 . ')/',
+                        'label' => $oTask->short_desc,
+                        'customClass' => 'ganttRed'
+                    )) . ']';
+
+                }
+            }
+        }
+
+        $this->view->aProjects = $aProjects;
+        // todo die Struktur zu Konfiguration des gantt Graphen ans Template übergeben
     }
 
     /**

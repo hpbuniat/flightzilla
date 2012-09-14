@@ -41,7 +41,7 @@
  */
 
 /**
- * Enter a description ..
+ * Ticket-related exceptions
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -49,85 +49,7 @@
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class Model_Resource_Human {
-
-    /**
-     *
-     */
-    protected $_oBugzilla;
-
-    protected $_oTimecard;
-
-    protected $_sName;
-
-    protected $_aTickets;
-
-    /**
-     * Create the human
-     *
-     * @param string $sName
-     * @param Model_Resource_Human_Timecard $oTimecard
-     */
-    public function __construct($sName, Model_Resource_Human_Timecard $oTimecard) {
-        $this->_oTimecard = $oTimecard;
-        $this->_sName = $sName;
-    }
-
-    /**
-     * Get the name
-     *
-     * @return string
-     */
-    public function getName() {
-        return $this->_sName;
-    }
-
-    /**
-     * Add the all resource corresponding tickets
-     *
-     * @param  Model_Ticket_Type_Bug $oTicket
-     *
-     * @return Model_Resource_Human
-     */
-    public function addTicket(Model_Ticket_Type_Bug $oTicket) {
-        $this->_aTickets[$oTicket->id()] = $oTicket;
-        $this->_oTimecard->handle($oTicket);
-
-        return $this;
-    }
-
-    /**
-     * Return the ticket with next higher priority which is confirmed or assigned.
-     *
-     * It must not be a theme or project.
-     *
-     * @param Model_Ticket_Type_Bug $oTicket
-     *
-     * @return \Model_Ticket_Type_Bug
-     */
-    public function getNextHigherPriorityTicket(Model_Ticket_Type_Bug $oTicket) {
-
-        $nextPrioTicket = $oTicket;
-        foreach ($this->_aTickets as $ticket) {
-            if ($nextPrioTicket->isTheme() === false
-                and $nextPrioTicket->isProject() === false
-                and $ticket->getPriority(true) > $nextPrioTicket->getPriority(true)
-            ) {
-
-                $nextPrioTicket = $ticket;
-            }
-            elseif ($nextPrioTicket->isTheme() === false
-                and $nextPrioTicket->isProject() === false
-                and $ticket->getPriority(true) === $nextPrioTicket->getPriority(true)
-            ) {
-
-                if ($ticket->getSeverity(true) > $nextPrioTicket->getSeverity(true)) {
-                    $nextPrioTicket = $ticket;
-                }
-            }
-        }
-
-        return $nextPrioTicket;
-    }
-
+class Model_Ticket_Type_Bug_Exception extends Exception{
+    const INVALID_STATUS = '%s is not a valid bug status!';
+    const INVALID_START_DATE = 'Start date must not be zero! Please edit ticket %s.';
 }

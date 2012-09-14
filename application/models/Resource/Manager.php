@@ -133,6 +133,6 @@ class Model_Resource_Manager {
             return $this->_aResources[$sName];
         }
 
-        throw new InvalidArgumentException('name not known');
+        throw new InvalidArgumentException('name "' . $sName . '"not known');
     }
 }

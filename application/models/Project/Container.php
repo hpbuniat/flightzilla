@@ -54,7 +54,7 @@ class Model_Project_Container {
     /**
      * The found projects
      *
-     * @var array
+     * @var Model_Ticket_Type_Bug[]
      */
     protected $_aProjects = array();
 
@@ -73,7 +73,7 @@ class Model_Project_Container {
     protected $_oBugzilla;
 
     /**
-     * The human resource model
+     * The resource model
      *
      * @var Model_Resource_Manager
      */
@@ -119,7 +119,7 @@ class Model_Project_Container {
         $this->_aOrderedProjects = array();
         foreach ($this->_aProjects as $oProject) {
             try {
-                $oSort = new Model_Project_Sorting($oProject->getEndDate(), $this->_oBugzilla);
+                $oSort = new Model_Project_Sorting($oProject->getEndDate($this->_oBugzilla, $this->_oResource), $this->_oBugzilla);
                 foreach ($oProject->getDepends($this->_oBugzilla) as $iBug) {
                     $oSort->add($this->_oBugzilla->getBugById($iBug));
                 }
@@ -143,12 +143,15 @@ class Model_Project_Container {
         $this->_aOrderedProjects = array();
         foreach ($this->_aProjects as $oProject) {
             try {
-                $oSort = new Model_Project_Sorting($this->_oBugzilla, $this->_oResource, $oProject->getEndDate());
+                // todo getEndDate wirft durch internen Aufruf von getStartDate noch eine Exception, wenn ein Thema kein StartDate hat. Dadurch werden die UNterbugs nicht sortiert.
+                // todo Exception nicht werden sondern sauber die Fehler sammeln
+                $oSort = new Model_Project_Sorting($this->_oBugzilla, $this->_oResource, $oProject->getEndDate($this->_oBugzilla, $this->_oResource));
                 foreach ($oProject->getDepends($this->_oBugzilla) as $iBug) {
                     $oSort->add($this->_oBugzilla->getBugById($iBug));
                 }
 
-                $this->_aOrderedProjects[$oProject->id()] = $oSort->getSortedBugs();
+                $this->_aOrderedProjects[$oProject->id()]['short_desc'] = $oProject->short_desc;
+                $this->_aOrderedProjects[$oProject->id()]['tasks'] = $oSort->getSortedBugs();
                 unset($oSort);
             }
             catch (Exception $e) {
