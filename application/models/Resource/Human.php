@@ -99,18 +99,35 @@ class Model_Resource_Human {
     /**
      * Return the ticket with next higher priority which is confirmed or assigned.
      *
+     * It must not be a theme or project.
+     *
      * @param Model_Ticket_Type_Bug $oTicket
      *
      * @return \Model_Ticket_Type_Bug
      */
-    public function getNextHigherPriorityTicket(Model_Ticket_Type_Bug $oTicket){
+    public function getNextHigherPriorityTicket(Model_Ticket_Type_Bug $oTicket) {
+
         $nextPrioTicket = $oTicket;
         foreach ($this->_aTickets as $ticket) {
-            //if ($oTicket)
+            if ($nextPrioTicket->isTheme() === false
+                and $nextPrioTicket->isProject() === false
+                and $ticket->getPriority(true) > $nextPrioTicket->getPriority(true)
+            ) {
+
+                $nextPrioTicket = $ticket;
+            }
+            elseif ($nextPrioTicket->isTheme() === false
+                and $nextPrioTicket->isProject() === false
+                and $ticket->getPriority(true) === $nextPrioTicket->getPriority(true)
+            ) {
+
+                if ($ticket->getSeverity(true) > $nextPrioTicket->getSeverity(true)) {
+                    $nextPrioTicket = $ticket;
+                }
+            }
         }
 
-
-        return $oTicket;
+        return $nextPrioTicket;
     }
 
 }
