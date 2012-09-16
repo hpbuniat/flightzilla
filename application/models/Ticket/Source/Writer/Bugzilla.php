@@ -41,7 +41,7 @@
  */
 
 /**
- * Ticket-related exceptions
+ * Write changes into the source bugzilla
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -49,9 +49,73 @@
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class Model_Ticket_Type_Bug_Exception extends Zend_Exception {
+class Model_Ticket_Source_Writer_Bugzilla extends Model_Ticket_Source_AbstractWriter {
 
-    const INVALID_STATUS = '%s is not a valid bug status!';
+    /**
+     * The bugzilla-token
+     *
+     * @var string
+     */
+    protected $_sToken;
 
-    const INVALID_START_DATE = 'Start date must not be zero! Please edit ticket %s.';
+    /**
+     * The bugzilla-id
+     *
+     * @var string
+     */
+    protected $_sId;
+
+    /**
+     *
+     */
+    public function getPayload() {
+        $this->_aPayload['token'] = $this->_sToken;
+        $this->_aPayload['id'] = $this->_sId;
+
+        return $this->_aPayload;
+    }
+
+    /**
+     * Get common-data which is needed for bugzilla
+     *
+     * @param  Model_Ticket_AbstractType $oTicket
+     *
+     * @return Model_Ticket_Source_AbstractWriter
+     */
+    protected function _getCommon(Model_Ticket_AbstractType $oTicket) {
+        $this->_sToken = (string) $oTicket->token;
+        $this->_sId = (string) $oTicket->bug_id;
+
+        return $this;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see Model_Ticket_Source_AbstractWriter::setTestingRequest()
+     */
+    public function setTestingRequest(Model_Ticket_AbstractType $oTicket) {
+        $this->_getCommon($oTicket);
+
+        return $this;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see Model_Ticket_Source_AbstractWriter::reTest()
+     */
+    public function reTest(Model_Ticket_AbstractType $oTicket) {
+        $this->_getCommon($oTicket);
+
+        return $this;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see Model_Ticket_Source_AbstractWriter::setMerged()
+     */
+    public function setMerged(Model_Ticket_AbstractType $oTicket) {
+        $this->_getCommon($oTicket);
+
+        return $this;
+    }
 }

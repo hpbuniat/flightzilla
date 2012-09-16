@@ -41,7 +41,7 @@
  */
 
 /**
- * Ticket-related exceptions
+ * Ticket-related controller
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -49,9 +49,49 @@
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class Model_Ticket_Type_Bug_Exception extends Zend_Exception {
+class TicketController extends Zend_Controller_Action {
 
-    const INVALID_STATUS = '%s is not a valid bug status!';
+    /**
+     * @var Model_Ticket_Source_Bugzilla
+     */
+    private $_oBugzilla;
 
-    const INVALID_START_DATE = 'Start date must not be zero! Please edit ticket %s.';
+    /**
+     * Some common init stuff
+     */
+    public function init() {
+        $sAction = $this->getRequest()->getActionName();
+        if (Zend_Auth::getInstance()->hasIdentity() === true) {
+            $this->_oBugzilla = new Model_Ticket_Source_Bugzilla(($sAction !== 'dashboard'));
+            $this->view->mode = $sAction;
+        }
+        elseif ($sAction !== 'login' and $sAction !== 'logout') {
+            $this->_redirect('/index/login');
+        }
+    }
+
+    /**
+     *
+     */
+    public function modifyAction() {
+        $this->_helper->layout()->disableLayout();
+        $aTickets = $this->_getParam('tickets');
+        $sAction = $this->getParam('ticketaction');
+
+        if (empty($aTickets) !== true and empty($sAction) !== true) {
+            foreach ($aTickets as $iTicket) {
+                $oTicketWriter = new Model_Ticket_Source_Writer_Bugzilla($this->_oBugzilla);
+                if (method_exists($oTicketWriter, $sAction) === true) {
+                    $oTicket = $this->_oBugzilla->getBugById($iTicket);
+                    $oTicketWriter->$sAction($oTicket);
+                    $this->_oBugzilla->updateTicket($oTicketWriter);
+
+                    unset($oTicket);
+                }
+
+                unset($oTicketWriter);
+            }
+        }
+    }
 }
+

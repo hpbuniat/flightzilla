@@ -60,6 +60,8 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
 
     const BUG_SHOW = 'show_bug.cgi';
 
+    const BUG_PROCESS = 'process_bug.cgi';
+
     const BUG_SUMMARY = 'summarize_time.cgi';
 
     const BUG_PARAM_PRODUCT = 'product';
@@ -101,6 +103,23 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     const BUG_PARAM_CHANGE_DATE_FROM = 'chfieldfrom';
 
     const BUG_PARAM_CHANGE_DATE_TO = 'chfieldto';
+
+    const BUG_PARAM_FIELD_ASSIGNED_TO = 'assigned_to';
+
+    const BUG_PARAM_FIELD_BLOCKED = 'blocked';
+
+    const BUG_PARAM_FIELD_DEADLINE = 'deadline';
+
+    const BUG_PARAM_FIELD_FLAGTYPE_NAME = 'flagtypes.name';
+
+    const BUG_PARAM_FIELD_RELEASE_WEEK = 'cf_release_week';
+
+    const BUG_PARAM_FIELD_REPORTER = 'reporter';
+
+    const BUG_FLAG_REQUEST = '?';
+    const BUG_FLAG_GRANTED = '+';
+    const BUG_FLAG_DENIED  = '-';
+    const BUG_FLAG_CANCELLED = 'X';
 
     private $_sCookie = null;
 
@@ -550,13 +569,39 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     private function _request($option) {
         $this->_iCount++;
 
-        $queryString = rtrim($this->_getParameter, "&");
-        $this->_client->setUri($this->_config->bugzilla->baseUrl . "/" . $option . "?$queryString");
+        $queryString = rtrim($this->_getParameter, '&');
+        $this->_client->setUri($this->_config->bugzilla->baseUrl . '/' . $option . '?' . $queryString);
         $this->_loginToBugzilla();
-        $return = $this->_client->request()->getBody();
+        $sResult = $this->_client->request()->getBody();
         $this->_resetAllParameter();
 
-        return $return;
+        return $sResult;
+    }
+
+    /**
+     * Update a bugzila-ticket
+     *
+     * @param  Model_Ticket_Source_AbstractWriter $oWriter
+     *
+     * @return void
+     *
+     * @throws Model_Ticket_Type_Source_Writer_Exception
+     */
+    public function updateTicket(Model_Ticket_Source_AbstractWriter $oWriter) {
+        $this->_client->setMethod(Zend_Http_Client::POST);
+        $this->_client->setParameterPost($oWriter->getPayload());
+        $this->_client->setUri($this->_config->bugzilla->baseUrl . '/' . self::BUG_PROCESS);
+        $sResult = $this->_client->request()->getBody();
+
+        $aMatches = array();
+        if (preg_match('/\<td bgcolor="#ff0000"\>([\s\S]*)\<\/td\>/', $sResult, $aMatches) > 0) {
+            throw new Model_Ticket_Type_Source_Writer_Exception('Bugzilla Exception while updating: ' . trim(strip_tags($aMatches[1])));
+        }
+        elseif (preg_match('/\<td id="error_msg" class="throw_error"\>([\s\S]*)\<\/td\>/', $sResult, $aMatches) > 0) {
+            throw new Model_Ticket_Type_Source_Writer_Exception('Bugzilla Exception while updating: ' . trim(strip_tags($aMatches[1])));
+        }
+
+        $this->_resetAllParameter();
     }
 
     /**

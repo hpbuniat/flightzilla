@@ -66,6 +66,20 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     const FLAG_COMMENT = 'CommentRequest';
 
     /**
+     * @TODO: Move to configuration!
+     */
+    protected $_mappedFlags = array(
+        self::FLAG_MERGE => 'flag_type-30',
+        self::FLAG_SCREEN => 'flag_type-56',
+        self::FLAG_TESTSERVER => 'flag_type-71',
+        self::FLAG_TESTING => 'flag_type-35',
+        self::FLAG_TRANSLATION => 'flag_type-122',
+        self::FLAG_DBCHANGE => 'flag_type-112',
+        self::FLAG_DBCHANGE_TEST => 'flag_type-113',
+        self::FLAG_COMMENT => 'flag_type-21'
+    );
+
+    /**
      * Bugzilla status
      *
      * @var string

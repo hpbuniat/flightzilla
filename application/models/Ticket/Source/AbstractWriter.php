@@ -41,7 +41,7 @@
  */
 
 /**
- * Ticket-related exceptions
+ * Abstract for source-writer
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -49,9 +49,62 @@
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class Model_Ticket_Type_Bug_Exception extends Zend_Exception {
+abstract class Model_Ticket_Source_AbstractWriter {
 
-    const INVALID_STATUS = '%s is not a valid bug status!';
+    /**
+     * The Ticket-Source
+     *
+     * @var Model_Ticket_AbstractSource
+     */
+    protected $_oSource;
 
-    const INVALID_START_DATE = 'Start date must not be zero! Please edit ticket %s.';
+    /**
+     * The payload for the source
+     *
+     * @var string
+     */
+    protected $_aPayload;
+
+    /**
+     * Set the source, as the source knows the basic communication
+     *
+     * @param Model_Ticket_AbstractSource $oSource
+     */
+    public function __construct(Model_Ticket_AbstractSource $oSource) {
+        $this->_oSource = $oSource;
+    }
+
+    /**
+     * Get the payload-data
+     *
+     * @return array
+     */
+    abstract public function getPayload();
+
+    /**
+     * Set the inital testing-request
+     *
+     * @param  Model_Ticket_AbstractType $oTicket
+     *
+     * @return Model_Ticket_Source_AbstractWriter
+     */
+    abstract public function setTestingRequest(Model_Ticket_AbstractType $oTicket);
+
+    /**
+     * Re-test the ticket, after test was not sucessful
+     *
+     * @param Model_Ticket_AbstractType $oTicket
+     *
+     * @return Model_Ticket_Source_AbstractWriter
+     */
+    abstract public function reTest(Model_Ticket_AbstractType $oTicket);
+
+    /**
+     * Set a ticket as merged
+     *
+     * @param Model_Ticket_AbstractType $oTicket
+     *
+     * @return Model_Ticket_Source_AbstractWriter
+     */
+    abstract public function setMerged(Model_Ticket_AbstractType $oTicket);
 }

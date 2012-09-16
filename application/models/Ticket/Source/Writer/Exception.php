@@ -41,7 +41,7 @@
  */
 
 /**
- * Ticket-related exceptions
+ * Source_Writer related exception
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -49,9 +49,6 @@
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class Model_Ticket_Type_Bug_Exception extends Zend_Exception {
+class Model_Ticket_Type_Source_Writer_Exception extends Zend_Exception {
 
-    const INVALID_STATUS = '%s is not a valid bug status!';
-
-    const INVALID_START_DATE = 'Start date must not be zero! Please edit ticket %s.';
 }
