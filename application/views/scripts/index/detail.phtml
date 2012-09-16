@@ -1,0 +1,23 @@
+<blockquote>
+    <p><?php echo $this->oTicket->short_desc ?></p>
+</blockquote>
+<dl class="dl-horizontal">
+    <?php
+    foreach ($this->oTicket->flag as $oFlag):
+    ?>
+        <dt><?php echo $oFlag['name'] ?></dt>
+        <dd><strong><?php echo $oFlag['status'] ?></strong> (<?php echo $oFlag['setter'] ?>)</dd>
+    <?php
+    endforeach;
+    ?>
+</dl>
+<?php
+foreach ($this->oTicket->long_desc as $oLongDesc):
+?>
+    <blockquote>
+        <pre><?php echo (string) $oLongDesc->thetext ?></pre>
+        <small><?php echo (string) $oLongDesc->who ?> @ <?php echo (string) $oLongDesc->bug_when ?></small>
+    </blockquote>
+<?php
+endforeach;
+?>
