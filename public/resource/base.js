@@ -63,7 +63,7 @@
             }
         },
         delay: (function() {
-            searchTimeout = this.searchTimeout;
+            var searchTimeout = this.searchTimeout;
             return function(callback, ms) {
               clearTimeout (searchTimeout);
               searchTimeout = setTimeout(callback, ms);
@@ -333,6 +333,28 @@
         }
 
         f.modal('Release-Log', '<textarea class="input-xxxlarge">' + string + '</textarea>');
+    });
+
+    /**
+     * Show the details of a ticket
+     */
+    f.bugTable.on('click', 'a.ticket-detail', function() {
+        var string = '',
+            iTicket = $(this).data('ticket');
+        $.ajax({
+            type: 'GET',
+            url: BASE_URL + 'index/detail/',
+            data: {
+                ticket: iTicket
+            }
+        }).done(function(msg) {
+            string = msg;
+            f.modal('Details for Ticket #' + iTicket, string);
+        }).fail(function(jqXHR, textStatus) {
+            alert( "Request failed: " + textStatus);
+        });
+
+        f.modal('Loading Ticket #' + iTicket, $('#loading').clone().removeAttr('id').css({top:0}).show());
     });
 
     $('.bugzilla-link').click(function() {

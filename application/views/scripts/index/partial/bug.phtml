@@ -4,43 +4,46 @@
     data-component="<?php echo $this->bug->getComponent() ?>"
     style="<?php echo $this->buggradient($this->bug, $this->bReady);?>
 ">
-<td width="2%">
-    <?php echo $this->bug->priority?>
-</td>
-<td width="11%">
-    <a class="bugLink" target="_blank" href="<?php echo $this->sBugzilla?>/show_bug.cgi?id=<?php echo $this->bug->id()?>"><?php echo $this->bug->id()?></a>
-    &nbsp;
-    <?php
-    echo $this->bug->assignee_short;
-    echo $this->ticketicons($this->bug);
-    echo $this->deadlinestatus($this->bug);
-    ?>
-</td>
-<?php if (strlen($this->bug->resolution) == 0):?>
-    <td colspan="2" width="10%" class="<?php echo $this->bug->bug_status ?>"><?php echo $this->bug->bug_status?></td>
-    <td width="8%">
-        <?php if ($this->bug->isEstimated()):?>
-            <div class="timeWidth" style="width: <?php echo (round(((float)$this->bug->actual_time/(float)$this->bug->estimated_time),2)*100)?>%">&nbsp;</div>
-            <span class="timeSpan"><?php echo $this->bug->actual_time?> (<?php echo $this->bug->estimated_time?>)</span>
-        <?php elseif ($this->bug->isOrga()):?>
-            <span class="orga green">Orga <?php if ((float)$this->bug->actual_time > 0.00):?> (<?php echo $this->bug->actual_time?>) <?php endif;?></span>
-        <?php else:?>
-            <span class="unestimated red"><span class="ui-silk ui-silk-clock-red" title="Estimation missing">&nbsp;</span> <?php if ((float)$this->bug->actual_time > 0.00):?> (<?php echo $this->bug->actual_time?>) <?php endif;?></span>
-        <?php endif;?>
+    <td width="2%">
+        <?php echo $this->bug->priority?>
     </td>
-<?php else:?>
-    <td width="5%" class="<?php echo $this->bug->bug_status ?>"><?php echo substr($this->bug->bug_status,0,4)?></td>
-    <td width="5%"><?php echo substr($this->bug->resolution,0,6)?></td>
-    <td width="8%">
-        <?php echo $this->estimation($this->bug); ?>
+    <td width="11%">
+        <a class="bugLink" target="_blank" href="<?php echo $this->sBugzilla?>/show_bug.cgi?id=<?php echo $this->bug->id()?>"><?php echo $this->bug->id()?></a>
+        &nbsp;
+        <?php
+        echo $this->bug->assignee_short;
+        echo $this->ticketicons($this->bug);
+        echo $this->deadlinestatus($this->bug);
+        ?>
     </td>
-<?php endif?>
+    <?php if (strlen($this->bug->resolution) == 0):?>
+        <td colspan="2" width="10%" class="<?php echo $this->bug->bug_status ?>"><?php echo $this->bug->bug_status?></td>
+        <td width="8%">
+            <?php if ($this->bug->isEstimated()):?>
+                <div class="timeWidth" style="width: <?php echo (round(((float)$this->bug->actual_time/(float)$this->bug->estimated_time),2)*100)?>%">&nbsp;</div>
+                <span class="timeSpan"><?php echo $this->bug->actual_time?> (<?php echo $this->bug->estimated_time?>)</span>
+            <?php elseif ($this->bug->isOrga()):?>
+                <span class="orga green">Orga <?php if ((float)$this->bug->actual_time > 0.00):?> (<?php echo $this->bug->actual_time?>) <?php endif;?></span>
+            <?php else:?>
+                <span class="unestimated red"><span class="ui-silk ui-silk-clock-red" title="Estimation missing">&nbsp;</span> <?php if ((float)$this->bug->actual_time > 0.00):?> (<?php echo $this->bug->actual_time?>) <?php endif;?></span>
+            <?php endif;?>
+        </td>
+    <?php else:?>
+        <td width="5%" class="<?php echo $this->bug->bug_status ?>"><?php echo substr($this->bug->bug_status,0,4)?></td>
+        <td width="5%"><?php echo substr($this->bug->resolution,0,6)?></td>
+        <td width="8%">
+            <?php echo $this->estimation($this->bug); ?>
+        </td>
+    <?php endif?>
 
-<td class="bugDesc" width="50%"><?php echo $this->escape($this->bug->short_desc)?></td>
-<td width="2%">
-    <input class="<?php echo $this->workflow($this->bug); ?>" type="checkbox" name="id[]" value="<?php echo $this->bug->id(); ?>"/>
-</td>
-<td class="bugProd" width="17%">
-    <?php echo substr($this->bug->component,0,8)?> <?php if($this->bug->version != 'unspecified') { echo '(' . $this->bug->version . ')'; } ?>
-</td>
+    <td class="bugDesc" width="50%"><?php echo $this->escape($this->bug->short_desc)?></td>
+    <td width="2%">
+        <input class="<?php echo $this->workflow($this->bug); ?>" type="checkbox" name="id[]" value="<?php echo $this->bug->id(); ?>"/>
+    </td>
+    <td class="bugProd" width="17%">
+        <?php echo substr($this->bug->component,0,8)?> <?php if($this->bug->version != 'unspecified') { echo '(' . $this->bug->version . ')'; } ?>
+        <span class="pull-right">
+            <a href="javascript:;" data-ticket="<?php echo $this->bug->id(); ?>" class="ticket-detail icon-list"></a>
+        </span>
+    </td>
 </tr>

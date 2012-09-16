@@ -510,7 +510,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
      *
      * @param  array $params
      *
-     * @return <type>
+     * @return string
      */
     private function _search($params) {
         $idQueryString = "";
@@ -934,6 +934,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         $fixedBugs = $this->getFixedBugs();
         $this->_aFixedToMerge = array();
         foreach ($fixedBugs as $bug) {
+            /* @var $bug Model_Ticket_Type_Bug */
             if ($bug->isMerged()) {
                 $this->_aFixedTrunk[$bug->id()] = $bug;
             }
@@ -1362,6 +1363,8 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             $iTimeoutLimit = $this->_config->tickets->workflow->timeout;
 
             foreach ($this->_allBugs as $oBug) {
+                /* @var $oBug Model_Ticket_Type_Bug */
+
                 $bShouldHaveEstimation = true;
                 if ($oBug->isOrga()) {
                     $this->_aStats[Model_Ticket_Type_Bug::WORKFLOW_ORGA]++;

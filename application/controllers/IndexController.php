@@ -57,7 +57,7 @@ class IndexController extends Zend_Controller_Action {
     private $_oBugzilla;
 
     /**
-     *
+     * Some common init stuff
      */
     public function init() {
         $sAction = $this->getRequest()->getActionName();
@@ -71,7 +71,7 @@ class IndexController extends Zend_Controller_Action {
     }
 
     /**
-     *
+     * Login
      */
     public function loginAction() {
         Zend_Auth::getInstance()->clearIdentity();
@@ -90,7 +90,7 @@ class IndexController extends Zend_Controller_Action {
     }
 
     /**
-     *
+     * Logout
      */
     public function logoutAction() {
         Zend_Auth::getInstance()->clearIdentity();
@@ -99,7 +99,7 @@ class IndexController extends Zend_Controller_Action {
     }
 
     /**
-     *
+     * Main overview
      */
     public function indexAction() {
         $this->_oBugzilla->setView($this->view);
@@ -136,6 +136,18 @@ class IndexController extends Zend_Controller_Action {
 
         $this->view->sDate = $sDate;
         $this->view->bugsSummary = $this->_oBugzilla->getSummary($sDate);
+    }
+
+    /**
+     * Show ticket-details directly in flightzilla
+     */
+    public function detailAction() {
+        $this->_helper->layout()->disableLayout();
+
+        $sTicket = $this->getParam('ticket');
+        if (empty($sTicket) !== true) {
+            $this->view->oTicket = $this->_oBugzilla->getBugById($sTicket);
+        }
     }
 
     /**
