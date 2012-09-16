@@ -6,6 +6,12 @@ foreach ($this->aStack as $oTicket) {
         $bReady = ($this->ready !== false and $oTicket->resolution === $this->ready);
 ?>
         <div class="pin" style="<?php echo $this->buggradient($oTicket, $bReady, false);?>">
+            <div class="top label <?php echo $this->prioritycolor($oTicket); ?>">
+                <?php
+                    echo $this->ticketicons($oTicket);
+                    echo $this->deadlinestatus($oTicket);
+                ?>
+            </div>
             <div class="description">
                 <a class="bugLink" target="_blank" data-title="<?php echo $this->escape($oTicket->short_desc)?>" href="<?php echo $this->sBugzilla?>/show_bug.cgi?id=<?php echo $oTicket->bug_id?>"><?php echo $this->escape($oTicket->short_desc)?></a>
             </div>

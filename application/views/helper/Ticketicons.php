@@ -49,7 +49,7 @@
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class View_Helper_Flagicons extends Zend_View_Helper_Abstract {
+class View_Helper_Ticketicons extends Zend_View_Helper_Abstract {
 
     /**
      * Get the workflow-stats of the bug
@@ -58,17 +58,17 @@ class View_Helper_Flagicons extends Zend_View_Helper_Abstract {
      *
      * @return string
      */
-    public function flagicons(Model_Ticket_Type_Bug $oBug) {
+    public function ticketicons(Model_Ticket_Type_Bug $oBug) {
         $sClasses = '';
         if ($oBug->hasFlag(Model_Ticket_Type_Bug::FLAG_COMMENT, '?')) {
-            $sClasses .= '&nbsp;<span class="ui-silk ui-silk-exclamation" title="' . Model_Ticket_Type_Bug::FLAG_COMMENT . '">&nbsp;</span>';
+            $sClasses .= '&nbsp;<span class="ui-silk ui-silk-comment" title="' . Model_Ticket_Type_Bug::FLAG_COMMENT . '">&nbsp;</span>';
             if (strlen($oBug->commentrequest_user) > 0) {
-                $sClasses .= '<span class="red">&rarr; ' . $oBug->commentrequest_user . '</span>';
+                $sClasses .= '<span class="red"> ' . $oBug->commentrequest_user . '</span>';
             }
         }
 
         if ($oBug->hasFlag(Model_Ticket_Type_Bug::FLAG_TRANSLATION, '+')) {
-            $sClasses .= '<span class="red">i18n</span>';
+            $sClasses .= '&nbsp;<span class="red">i18n</span>';
         }
 
         if ($oBug->hasFlag(Model_Ticket_Type_Bug::FLAG_SCREEN, '+')) {
@@ -80,7 +80,12 @@ class View_Helper_Flagicons extends Zend_View_Helper_Abstract {
         }
 
         if ($oBug->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING, '?') and strlen($oBug->testingrequest_user) > 0) {
-            $sClasses .= '<span class="testing red">&rarr; ' . $oBug->testingrequest_user . '</span>';
+            $sClasses .= '&nbsp;<span class="ui-silk ui-silk-magnifier" title="' . Model_Ticket_Type_Bug::FLAG_TESTING . '">&nbsp;</span>';
+            $sClasses .= '<span class="red"> ' . $oBug->testingrequest_user . '</span>';
+        }
+
+        if ($oBug->isType(Model_Ticket_Type_Bug::TYPE_BUG) === true) {
+            $sClasses .= '&nbsp;<span class="ui-silk ui-silk-bug" title="' . Model_Ticket_Type_Bug::TYPE_BUG . '">&nbsp;</span>';
         }
 
         return $sClasses;

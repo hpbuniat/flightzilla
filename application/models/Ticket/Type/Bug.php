@@ -994,6 +994,10 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     }
 
     /**
+     * Get the priority
+     *
+     * @param  boolean $bMapped
+     *
      * @return string
      */
     public function getPriority($bMapped = false){
@@ -1005,6 +1009,10 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     }
 
     /**
+     * Get the severity
+     *
+     * @param  boolean $bMapped
+     *
      * @return string
      */
     public function getSeverity($bMapped = false){
@@ -1016,9 +1024,12 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     }
 
     /**
-     * @param $sComparisonStatus
+     * Check, if a status is at least $sComparisonStatus
+     *
+     * @param  string $sComparisonStatus
      *
      * @throws Model_Ticket_Type_Bug_Exception
+     *
      * @return bool
      */
     public function isStatusAtLeast($sComparisonStatus) {
@@ -1031,9 +1042,12 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     }
 
     /**
-     * @param $sComparisonStatus
+     * Check, if a status is at most $sComparisonStatus
+     *
+     * @param  string $sComparisonStatus
      *
      * @throws Model_Ticket_Type_Bug_Exception
+     *
      * @return bool
      */
     public function isStatusAtMost($sComparisonStatus){

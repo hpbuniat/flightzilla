@@ -238,6 +238,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
      * Set the bugzilla-results to the view
      *
      * @param  Zend_View $oView
+     * @param  string $sMode
      *
      * @return Model_Ticket_Source_Bugzilla
      */
@@ -844,7 +845,8 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
 
         $aStack = array();
         foreach ($this->_openBugs as $oTicket) {
-            if ($oTicket->isTheme() === false and $oTicket->isOrga() === false and $oTicket->isConcept() === false
+            /* @var $oTicket Model_Ticket_Type_Bug */
+            if ($oTicket->isTheme() === false and $oTicket->isOrga() === false and $oTicket->isConcept() === false and $oTicket->isStatusAtLeast(Model_Ticket_Type_Bug::STATUS_CONFIRMED)
                 and ($oTicket->isWorkedOn() === true or $oTicket->hasFlag(Model_Ticket_Type_Bug::FLAG_COMMENT, '?') === true)) {
                 $aStack[$oTicket->id()] = $oTicket;
             }
