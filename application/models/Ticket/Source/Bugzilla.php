@@ -579,7 +579,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     }
 
     /**
-     * Update a bugzila-ticket
+     * Update a bugzilla-ticket
      *
      * @param  Model_Ticket_Source_AbstractWriter $oWriter
      *

@@ -3,10 +3,16 @@
 </blockquote>
 <dl class="dl-horizontal">
     <?php
-    foreach ($this->oTicket->flag as $oFlag):
+    foreach ($this->oTicket->getFlags() as $aFlag):
     ?>
-        <dt><?php echo $oFlag['name'] ?></dt>
-        <dd><strong><?php echo $oFlag['status'] ?></strong> (<?php echo $oFlag['setter'] ?>)</dd>
+        <dt><?php echo $aFlag['name'] ?></dt>
+        <dd>
+            <strong><?php echo $aFlag['status'] ?></strong>
+            (by <?php echo $aFlag['setter']; ?>
+            <?php if (empty($aFlag['requestee']) !== true) {
+                echo sprintf('for %s', $aFlag['requestee']);
+            }?>)
+        </dd>
     <?php
     endforeach;
     ?>

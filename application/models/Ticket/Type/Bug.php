@@ -857,21 +857,70 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
                 ), '', $sName);
                 $sName = preg_replace('/\W/', '', $sName);
 
-                $flags[] = array(
+                $aFlag = array(
                     'name' => (string) $sName,
-                    'status' => (string) $flag['status']
+                    'id' =>  (int) $flag['id'],
+                    'type_id' => (int) $flag['type_id'],
+                    'status' => (string) $flag['status'],
+                    'setter' => (string) $flag['setter']
                 );
 
                 if (isset($flag['requestee']) === true) {
                     $sUser = strtok($flag['requestee'], '@');
                     $aName = explode('.', strtoupper($sUser));
                     $this->_data->{strtolower($sName) . '_user'} = $aName[0]{0} . ((isset($aName[1]) === true) ? $aName[1]{0} : '');
+                    $aFlag['requestee'] = $sUser;
+                    $aFlag['requestee_short'] = $this->_data->{strtolower($sName) . '_user'};
                 }
+
+                $flags[] = $aFlag;
             }
         }
 
         $this->_flags = $flags;
         return $this;
+    }
+
+    /**
+     * Get all flags
+     *
+     * @return array
+     */
+    public function getFlags() {
+        return $this->_flags;
+    }
+
+    /**
+     * Get the name of a flag for the update-payload
+     *
+     * @param  string $sFlag Name of the Flag
+     * @param  string $sFilter Filter a specific status
+     * @param  boolean $bNew
+     *
+     * @return string
+     */
+    public function getFlagName($sFlag, $sFilter = '', $bNew = false) {
+        $iCount = 0;
+        $aMatchingFlag = '';
+        foreach ($this->_flags as $aFlag) {
+            if ($aFlag['name'] === $sFlag) {
+                $iCount++;
+
+                if (empty($sFilter) === true or $aFlag['status'] === $sFilter) {
+                    $aMatchingFlag = $aFlag;
+                }
+            }
+        }
+
+        $sName = '';
+        if (empty($aMatchingFlag) === true) {
+            $sName = $this->_mappedFlags[$sFlag];
+        }
+        else {
+            $sName = ($iCount > 1) ? sprintf('flag-%d', $aMatchingFlag['id']) : sprintf('flag_type-%d', $aMatchingFlag['type-id']);
+        }
+
+        return $sName;
     }
 
     /**

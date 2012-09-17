@@ -66,7 +66,8 @@ class Model_Ticket_Source_Writer_Bugzilla extends Model_Ticket_Source_AbstractWr
     protected $_sId;
 
     /**
-     *
+     * (non-PHPdoc)
+     * @see Model_Ticket_Source_AbstractWriter::getPayload()
      */
     public function getPayload() {
         $this->_aPayload['token'] = $this->_sToken;
