@@ -73,6 +73,16 @@ class TicketController extends Zend_Controller_Action {
     /**
      *
      */
+    public function listAction() {
+        $sTickets = $this->_getParam('tickets');
+        if (empty($sTickets) !== true) {
+            $this->view->aTickets = $this->_oBugzilla->getBugListByIds($sTickets);
+        }
+    }
+
+    /**
+     *
+     */
     public function modifyAction() {
         $this->_helper->layout()->disableLayout();
         $aTickets = $this->_getParam('tickets');

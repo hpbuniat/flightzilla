@@ -27,26 +27,20 @@ if(count($this->bugs) > 0) {?>
         </td>
         <td colspan="2">
             <span class="fll">
-                <a class="allBugs btn btn-small" href="javascript:;">All</a> / <a class="noBugs btn btn-small" href="javascript:;">None</a>
+                <a class="allBugs btn btn-small" href="javascript:;">All</a> &ndash; <a class="noBugs btn btn-small" href="javascript:;">None</a>
             </span>
             <div class="btn-group pull-right">
                 <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
-                    Action
+                    Ticket-List
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
-                    <li>
-                        <a href="#" class="changelist">Release-List (Trac)</a>
-                    </li>
-                    <li>
-                        <a href="#" class="changemail">Release-List (Mail)</a>
-                    </li>
-                    <li>
-                        <a href="#" class="mergelist">Merge-List</a>
-                    </li>
-                    <li>
-                        <a href="#" class="bugzilla-link">Open in Bugzilla</a>
-                    </li>
+                    <li><a href="#" class="changelist">Release-List (Trac)</a></li>
+                    <li><a href="#" class="changemail">Release-List (Mail)</a></li>
+                    <li><a href="#" class="mergelist">Merge-List</a></li>
+                    <li><a href="#" class="bugzilla-link">Open in Bugzilla</a></li>
+                    <li class="divider"></li>
+                    <li><a href="#" class="modify-tickets">Modify Tickets</a></li>
                 </ul>
             </div>
         </td>

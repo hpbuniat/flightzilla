@@ -1,0 +1,32 @@
+<?php
+foreach ($this->aTickets as $oTicket):
+/* @var $oTicket Model_Ticket_Type_Bug */
+?>
+<blockquote>
+    <p><?php echo (string) $oTicket->short_desc ?></p>
+    <ul>
+
+        <?php if ($oTicket->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING) === false): ?>
+        <li>
+            <input type="checkbox" value="<?php echo $oTicket->id();?>" name="modify[setTestingRequest[]]" />
+            Testing-Request
+        </li>
+        <?php elseif ($oTicket->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING, Model_Ticket_Source_Bugzilla::BUG_FLAG_DENIED) === true): ?>
+        <li>
+            <input type="checkbox" value="<?php echo $oTicket->id();?>" name="modify[reTest[]]" />
+            Re-Test
+        </li>
+        <?php endif; ?>
+
+        <?php if ($oTicket->isMergeable() === true): ?>
+        <li>
+            <input type="checkbox" value="<?php echo $oTicket->id();?>" name="modify[setMerged[]]" />
+            Re-Test
+        </li>
+        <?php endif;?>
+    </ul>
+</blockquote>
+<?php
+endforeach;
+?>
+
