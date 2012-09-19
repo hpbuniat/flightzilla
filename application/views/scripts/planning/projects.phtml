@@ -7,6 +7,12 @@ echo $this->partial('planning/partial/sidebar.phtml', array(
 ));
 ?>
 <div class="span10">
+    <?php foreach ($this->aErrors as $sError): ?>
+    <div class="alert alert-error">
+        <button class="close" data-dismiss="alert">×</button>
+        <strong>Error!</strong> <?php echo $sError; ?>
+    </div>
+    <?php endforeach; ?>
 
     <div class="hidden" id="ganttGraph">
 
@@ -17,11 +23,11 @@ echo $this->partial('planning/partial/sidebar.phtml', array(
             $("#ganttGraph").gantt({
                 source: <?php echo $this->projects; ?>,
                 navigate: "scroll",
-                scale: "weeks",
+                scale: "days",
                 maxScale: "months",
-                minScale: "days",
+                minScale: "hours",
                 dow: ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
-                itemsPerPage: 50
+                itemsPerPage: 7
             });
         });
     </script>

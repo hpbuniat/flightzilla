@@ -94,6 +94,7 @@ class PlanningController extends Zend_Controller_Action {
      *
      */
     public function projectsAction() {
+
         $this->_oBugzilla->setView($this->view, 'planning');
 
         $aTeam = $this->_oBugzilla->getTeam();
@@ -114,26 +115,40 @@ class PlanningController extends Zend_Controller_Action {
         $this->view->aErrors = $oProject->getErrors();
         $proj = $oProject->getProjects();
 
-        $aProjects = array();
-        foreach ($proj as $id => $project) {
-            if (isset($project['tasks'])){
+        $aColors = array(
+            'ganttGreen',
+            'ganttRed',
+            'ganttOrange',
+        );
 
-                $aProjects[$id]['name'] = $project['short_desc'];
+        $aProjects = array();
+
+        $iColor = 0;
+        foreach ($proj as $project) {
+            if (isset($project['tasks'])){
+                if ($iColor >= count($aColors)){
+                    $iColor = 0;
+                }
+                $color = $aColors[$iColor];
+                $iColor++;
+                $i = 0;
                 foreach ($project['tasks'] as $oTask) {
-                    $aProjects[$id]['desc'] = $oTask->id();
-                    $aProjects[$id]['values'] = '[' . json_encode(array(
+
+                    $aProjects[$i]['name'] = ($i === 0) ? (string) $project['short_desc'] : ' ';
+                    $aProjects[$i]['desc'] = (string) $oTask->id();
+                    $aProjects[$i]['values'][0] = array(
                         'from' => '/Date(' . $oTask->getStartDate($this->_oBugzilla, $oResource) * 1000 . ')/',
                         'to' => '/Date(' . $oTask->getEndDate($this->_oBugzilla, $oResource) * 1000 . ')/',
-                        'label' => $oTask->short_desc,
-                        'customClass' => 'ganttRed'
-                    )) . ']';
-
+                        'label' => (string) $oTask->short_desc,
+                        'customClass' => $color
+                    );
+                    $i++;
                 }
             }
+
         }
 
-        $this->view->aProjects = $aProjects;
-        // todo die Struktur zu Konfiguration des gantt Graphen ans Template übergeben
+        $this->view->projects = str_replace('\/', '/', json_encode($aProjects));
     }
 
     /**

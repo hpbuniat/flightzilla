@@ -56,11 +56,11 @@ class Model_Timeline_Date {
      *
      * @var int
      */
-    const AMOUNT = 6.5;
+    const AMOUNT = 6.0;
 
     const START = '10:00';
 
-    const END = '16:30';
+    const END = '16:00';
 
     protected $_oDate;
 
