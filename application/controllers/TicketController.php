@@ -74,6 +74,8 @@ class TicketController extends Zend_Controller_Action {
      *
      */
     public function listAction() {
+        $this->_helper->layout()->disableLayout();
+
         $sTickets = $this->_getParam('tickets');
         if (empty($sTickets) !== true) {
             $this->view->aTickets = $this->_oBugzilla->getBugListByIds($sTickets);
@@ -85,21 +87,20 @@ class TicketController extends Zend_Controller_Action {
      */
     public function modifyAction() {
         $this->_helper->layout()->disableLayout();
-        $aTickets = $this->_getParam('tickets');
-        $sAction = $this->getParam('ticketaction');
+        $aModify = $this->_getParam('modify');
 
-        if (empty($aTickets) !== true and empty($sAction) !== true) {
-            foreach ($aTickets as $iTicket) {
+        if (empty($aModify) !== true and empty($sAction) !== true) {
+            foreach ($aModify as $iTicket => $aActions) {
                 $oTicketWriter = new Model_Ticket_Source_Writer_Bugzilla($this->_oBugzilla);
-                if (method_exists($oTicketWriter, $sAction) === true) {
-                    $oTicket = $this->_oBugzilla->getBugById($iTicket);
-                    $oTicketWriter->$sAction($oTicket);
-                    $this->_oBugzilla->updateTicket($oTicketWriter);
-
-                    unset($oTicket);
+                $oTicket = $this->_oBugzilla->getBugById($iTicket);
+                foreach ($aActions as $sAction) {
+                    if (method_exists($oTicketWriter, $sAction) === true) {
+                        $oTicketWriter->$sAction($oTicket);
+                    }
                 }
 
-                unset($oTicketWriter);
+                $this->_oBugzilla->updateTicket($oTicketWriter);
+                unset($oTicketWriter, $oTicket);
             }
         }
     }

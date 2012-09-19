@@ -119,4 +119,24 @@ class Model_Ticket_Source_Writer_Bugzilla extends Model_Ticket_Source_AbstractWr
 
         return $this;
     }
+
+    /**
+     * (non-PHPdoc)
+     * @see Model_Ticket_Source_AbstractWriter::setStaged()
+     */
+    public function setStaged(Model_Ticket_AbstractType $oTicket) {
+        $this->_getCommon($oTicket);
+
+        return $this;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see Model_Ticket_Source_AbstractWriter::setDbChanged()
+     */
+    public function setDbChanged(Model_Ticket_AbstractType $oTicket) {
+        $this->_getCommon($oTicket);
+
+        return $this;
+    }
 }

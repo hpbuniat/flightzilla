@@ -952,15 +952,18 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
      * @return array
      */
     public function getBugListByIds($mIds, $bCache = true) {
-        $aIds = $mIds;
-        if (is_array($aIds) === false) {
-            $aIds = explode(',', (string) $aIds);
+        if (is_array($mIds) === false) {
+            $aMatch = array();
+            preg_match_all('!\d+!', $mIds, $aMatch);
+            if (empty($aMatch[0]) !== true) {
+                $mIds = $aMatch[0];
+            }
         }
 
-        sort($aIds);
-        $sHash = md5(serialize($aIds));
+        sort($mIds);
+        $sHash = md5(serialize($mIds));
         if (empty($this->_aBugsListCache[$sHash]) === true) {
-            $this->_aBugsListCache[$sHash] = $this->_getXmlFromBugIds($aIds, $bCache);
+            $this->_aBugsListCache[$sHash] = $this->_getXmlFromBugIds($mIds, $bCache);
         }
 
         return $this->_aBugsListCache[$sHash];

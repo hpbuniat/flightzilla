@@ -279,6 +279,13 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     protected $_iEndDate = 0;
 
     /**
+     * The ticket-id
+     *
+     * @var int
+     */
+    protected $_iId;
+
+    /**
      * Create the bug
      *
      * @param SimpleXMLElement $data
@@ -288,10 +295,10 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
         $sName = strtok($data->assigned_to, '@');
         $aName = explode('.', strtoupper($sName));
         $this->_data->assignee_name = ucwords(preg_replace('!\W!', ' ', $sName));
-        $this->_data->assignee_short = $aName[0]{0} . $aName[1]{0};
+        $this->_data->assignee_short = $aName[0]{0} . ((isset($aName[1]) === true) ? $aName[1]{0} : '');
 
         $this->_getFlags();
-        $this->_getType();
+        $this->_getProperties();
     }
 
     /**
@@ -312,7 +319,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     public function __wakeup() {
         $this->_data = simplexml_load_string($this->_sleep);
         $this->_getFlags();
-        $this->_getType();
+        $this->_getProperties();
     }
 
     /**
@@ -549,7 +556,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return int
      */
     public function id() {
-        return (int) $this->_data->bug_id;
+        return $this->_iId;
     }
 
     /**
@@ -566,11 +573,15 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     }
 
     /**
-     * Determine the type of the bug
+     * Get some properties for the ticket
+     * - the type
+     * - the id
      *
      * @return Model_Ticket_Type_Bug
      */
-    protected function _getType() {
+    protected function _getProperties() {
+        $this->_iId = (int) $this->_data->bug_id;
+
         $this->_sType = '';
         foreach ($this->_aTypes as $sKeywords => $sType) {
             $aKeywords = explode(',', $sKeywords);
@@ -594,6 +605,8 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
 
     /**
      * Check if a bug is a given type
+     *
+     * @param  string $sType
      *
      * @return boolean
      */

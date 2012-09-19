@@ -1,32 +1,52 @@
-<?php
-foreach ($this->aTickets as $oTicket):
-/* @var $oTicket Model_Ticket_Type_Bug */
-?>
-<blockquote>
-    <p><?php echo (string) $oTicket->short_desc ?></p>
-    <ul>
+<form id="change-form" method="GET" action="<?php echo $this->url(array('ticket' => 'index', 'action' => 'modify'))?>">
+    <?php
+    foreach ($this->aTickets as $oTicket):
+    /* @var $oTicket Model_Ticket_Type_Bug */
+    ?>
+    <blockquote>
+        <p><?php echo (string) $oTicket->short_desc ?></p>
+        <ul>
 
-        <?php if ($oTicket->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING) === false): ?>
-        <li>
-            <input type="checkbox" value="<?php echo $oTicket->id();?>" name="modify[setTestingRequest[]]" />
-            Testing-Request
-        </li>
-        <?php elseif ($oTicket->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING, Model_Ticket_Source_Bugzilla::BUG_FLAG_DENIED) === true): ?>
-        <li>
-            <input type="checkbox" value="<?php echo $oTicket->id();?>" name="modify[reTest[]]" />
-            Re-Test
-        </li>
-        <?php endif; ?>
+            <?php if ($oTicket->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING) === false): ?>
+            <li>
+                <input type="checkbox" value="setTestingRequest" name="modify[<?php echo $oTicket->id();?>][]" />
+                Testing-Request
+            </li>
+            <?php elseif ($oTicket->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING, Model_Ticket_Source_Bugzilla::BUG_FLAG_DENIED) === true): ?>
+            <li>
+                <input type="checkbox" value="reTest" name="modify[<?php echo $oTicket->id();?>][]" />
+                Re-Test
+            </li>
+            <?php endif; ?>
 
-        <?php if ($oTicket->isMergeable() === true): ?>
-        <li>
-            <input type="checkbox" value="<?php echo $oTicket->id();?>" name="modify[setMerged[]]" />
-            Re-Test
-        </li>
-        <?php endif;?>
-    </ul>
-</blockquote>
-<?php
-endforeach;
-?>
+            <?php if ($oTicket->isMergeable() === true): ?>
+            <li>
+                <input type="checkbox" value="setMerged" name="modify[<?php echo $oTicket->id();?>][]" />
+                Set to merged
+            </li>
+            <?php endif;?>
+
+            <?php if ($oTicket->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTSERVER, '+') !== true): ?>
+            <li>
+                <input type="checkbox" value="setStaged" name="modify[<?php echo $oTicket->id();?>][]" />
+                Staged on the test-server
+            </li>
+            <?php endif;?>
+
+            <?php if ($oTicket->hasFlag(Model_Ticket_Type_Bug::FLAG_DBCHANGE, '?') === true): ?>
+            <li>
+                <input type="checkbox" value="setDbChanged" name="modify[<?php echo $oTicket->id();?>][]" />
+                Db-Changes are now deployed
+            </li>
+            <?php endif;?>
+        </ul>
+    </blockquote>
+    <?php
+    endforeach;
+    ?>
+    <hr />
+    <p class="pull right">
+        <input type="submit" value="Change selected tickets" class="btn btn-primary btn-large" />
+    </p>
+</form>
 

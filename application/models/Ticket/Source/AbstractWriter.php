@@ -100,11 +100,29 @@ abstract class Model_Ticket_Source_AbstractWriter {
     abstract public function reTest(Model_Ticket_AbstractType $oTicket);
 
     /**
-     * Set a ticket as merged
+     * The ticket has been merged
      *
      * @param Model_Ticket_AbstractType $oTicket
      *
      * @return Model_Ticket_Source_AbstractWriter
      */
     abstract public function setMerged(Model_Ticket_AbstractType $oTicket);
+
+    /**
+     * The ticket is now on the test-server
+     *
+     * @param Model_Ticket_AbstractType $oTicket
+     *
+     * @return Model_Ticket_Source_AbstractWriter
+     */
+    abstract public function setStaged(Model_Ticket_AbstractType $oTicket);
+
+    /**
+     * The db-changes of a ticket are now deployed
+     *
+     * @param Model_Ticket_AbstractType $oTicket
+     *
+     * @return Model_Ticket_Source_AbstractWriter
+     */
+    abstract public function setDbChanged(Model_Ticket_AbstractType $oTicket);
 }

@@ -339,8 +339,9 @@
      * Show the details of a ticket
      */
     f.bugTable.on('click', 'a.ticket-detail', function() {
-        var string = '',
-            iTicket = $(this).data('ticket');
+        var iTicket = $(this).data('ticket');
+
+        f.modal('Loading ticket #' + iTicket, $('#loading').clone().removeAttr('id').css({top:0}).show());
         $.ajax({
             type: 'GET',
             url: BASE_URL + 'index/detail/',
@@ -348,13 +349,51 @@
                 ticket: iTicket
             }
         }).done(function(msg) {
-            string = msg;
-            f.modal('Details for Ticket #' + iTicket, string);
+            f.modal('Details for Ticket #' + iTicket, msg);
+        }).fail(function(jqXHR, textStatus) {
+            alert( "Request failed: " + textStatus);
+        });
+    });
+
+    /**
+     * Get the list of tickets for the modify-view
+     */
+    f.bugTable.on('click', 'a.modify-tickets', function() {
+        var bugs = f.write.text(),
+            data = {
+                tickets: bugs
+            };
+
+        f.modal('Loading tickets', $('#loading').clone().removeAttr('id').css({top:0}).show());
+        $.ajax({
+            type: 'GET',
+            url: BASE_URL + 'ticket/list/',
+            data: data
+        }).done(function(msg) {
+            f.modal('Modify Tickets', msg);
+        }).fail(function(jqXHR, textStatus) {
+            alert( "Request failed: " + textStatus);
+        });
+    });
+
+    /**
+     * Execeute the modify-submit
+     */
+    $(document).on('submit', '#change-form', function(e) {
+        var $this = $(this);
+        f.modal('Modifying tickets', $('#loading').clone().removeAttr('id').css({top:0}).show());
+
+        $.ajax({
+            type: 'POST',
+            url: BASE_URL + 'ticket/modify/',
+            data: $this.serializeArray()
+        }).done(function(msg) {
+            f.modal('Modified Tickets', msg);
         }).fail(function(jqXHR, textStatus) {
             alert( "Request failed: " + textStatus);
         });
 
-        f.modal('Loading Ticket #' + iTicket, $('#loading').clone().removeAttr('id').css({top:0}).show());
+        e.preventDefault();
     });
 
     $('.bugzilla-link').click(function() {
