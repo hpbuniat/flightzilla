@@ -143,9 +143,8 @@ class Model_Project_Container {
         $this->_aOrderedProjects = array();
         foreach ($this->_aProjects as $oProject) {
             try {
-                // todo getEndDate wirft durch internen Aufruf von getStartDate noch eine Exception, wenn ein Thema kein StartDate hat. Dadurch werden die UNterbugs nicht sortiert.
-                // todo Exception nicht werden sondern sauber die Fehler sammeln
-                $oSort = new Model_Project_Sorting($this->_oBugzilla, $this->_oResource, $oProject->getEndDate($this->_oBugzilla, $this->_oResource));
+                $endDate = $oProject->getEndDate($this->_oBugzilla, $this->_oResource);
+                $oSort = new Model_Project_Sorting($this->_oBugzilla, $this->_oResource, $endDate);
                 foreach ($oProject->getDepends($this->_oBugzilla) as $iBug) {
                     $oSort->add($this->_oBugzilla->getBugById($iBug));
                 }

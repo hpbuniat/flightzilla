@@ -27,8 +27,8 @@
  * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
  * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-    * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-    * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
@@ -41,7 +41,7 @@
  */
 
 /**
- * A Date is one day of the timeline
+ * A Theme
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -49,82 +49,6 @@
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class Model_Timeline_Date {
+class Model_Ticket_Type_Theme extends Model_Ticket_Type_Bug{
 
-    /**
-     * Amount of minutes, which a programmer is working each day
-     *
-     * @var int
-     */
-    const AMOUNT = 6.0;
-
-    const START = '10:00';
-
-    const END = '16:00';
-
-    protected $_oDate;
-
-    protected $_fLeft;
-
-    protected $_aStack;
-
-
-    /**
-     * List of workdays
-     *
-     * @var array
-     */
-    protected $_aWorkdays = array(
-        '1' => true,
-        '2' => true,
-        '3' => true,
-        '4' => true,
-        '5' => true,
-        '6' => false,
-        '0' => false
-    );
-
-    /**
-     * Create a date
-     *
-     * @param int $iTime
-     */
-    public function __construct($iTime) {
-        $this->_oDate = new DateTime($iTime);
-        $this->_fLeft = self::AMOUNT;
-    }
-
-    /**
-     * Get the formatted date
-     *
-     * @return string
-     */
-    public function getFormatted() {
-        return $this->_oDate->format('Y-m-d');
-    }
-
-    /**
-     * Add a job for the day. If the return value is not 0, the remaining time has
-     * to be added, to another date
-     *
-     * @param  float $fDuration
-     * @param  sring $sDescription
-     *
-     * @return float Time left of this jobs
-     */
-    public function add($fDuration, $sDescription) {
-        if ($fDuration <= $this->_fLeft) {
-            $this->_aStack[$sDescription] = $fDuration;
-            $this->_fLeft = $this->_fLeft - $fDuration;
-        }
-        else {
-            $fPart = $fDuration - $this->_fLeft;
-
-            $this->_aStack[$sDescription] = $this->_fLeft;
-            $this->_fLeft = 0;
-            return $fPart;
-        }
-
-        return 0;
-    }
 }

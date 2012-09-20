@@ -60,7 +60,10 @@ class Model_Resource_Human {
 
     protected $_sName;
 
-    protected $_aTickets;
+    /**
+     * @var Model_Ticket_Type_Bug[]
+     */
+    protected $_aTickets = array();
 
     /**
      * Create the human
@@ -109,16 +112,23 @@ class Model_Resource_Human {
 
         $nextPrioTicket = $oTicket;
         foreach ($this->_aTickets as $ticket) {
-            if ($nextPrioTicket->isTheme() === false
-                and $nextPrioTicket->isProject() === false
-                and $ticket->getPriority(true) > $nextPrioTicket->getPriority(true)
+            if (($ticket->getStatus() !== Model_Ticket_Type_Bug::STATUS_CONFIRMED
+                    and $ticket->getStatus() !== Model_Ticket_Type_Bug::STATUS_ASSIGNED
+                    and $ticket->getStatus() !== Model_Ticket_Type_Bug::STATUS_REOPENED)
+                or $ticket->isProject()
+                or $ticket->isTheme()
+            ){
+
+                continue;
+            }
+
+
+            if ($ticket->getPriority(true) > $nextPrioTicket->getPriority(true)
             ) {
 
                 $nextPrioTicket = $ticket;
             }
-            elseif ($nextPrioTicket->isTheme() === false
-                and $nextPrioTicket->isProject() === false
-                and $ticket->getPriority(true) === $nextPrioTicket->getPriority(true)
+            elseif ($ticket->getPriority(true) === $nextPrioTicket->getPriority(true)
             ) {
 
                 if ($ticket->getSeverity(true) > $nextPrioTicket->getSeverity(true)) {

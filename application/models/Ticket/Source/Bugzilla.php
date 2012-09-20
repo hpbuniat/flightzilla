@@ -681,7 +681,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             if (strpos($sResponse, '<title>Invalid Username Or Password</title>') === false) {
                 $xml = simplexml_load_string($sResponse);
                 foreach ($xml as $bug) {
-                    $oBug = new Model_Ticket_Type_Bug($bug);
+                    $oBug = Model_Ticket_Type::factory($bug);
                     $aTemp[] = $oBug;
                 }
 

@@ -467,21 +467,25 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
         }
 
         // is there a predecessor?
-        $iPredecessor = $this->getActivePredecessor($oBugzilla);
+        $iPredecessor = $this->getActivePredecessor($oBugzilla, $oResource);
         if ($iPredecessor > 0) {
-            $this->_iStartDate = $oBugzilla->getBugById($iPredecessor)->getEndDate($oBugzilla, $oResource);
+            $iEndDate = $oBugzilla->getBugById($iPredecessor)->getEndDate($oBugzilla, $oResource);
+            $this->_iStartDate = strtotime('+1 day ' . Model_Timeline_Date::START, $iEndDate);
         }
+        // is there a deadline?
         elseif ($this->isEstimated() === true and $this->cf_due_date) {
             $iEndDate = strtotime((string) $this->cf_due_date);
 
             if (empty($iEndDate) !== true) {
-                $this->_iStartDate = strtotime(sprintf('-%d day', ceil($this->duration() / Model_Timeline_Date::AMOUNT)), $iEndDate);
+                $this->_iStartDate = strtotime(sprintf('-%d day ' . Model_Timeline_Date::START, ceil($this->duration() / Model_Timeline_Date::AMOUNT)), $iEndDate);
             }
         }
+        // is someone currently working on this ticket?
         elseif ($this->isWorkedOn() === true) {
             $iStartDate = $this->getWorkedHours();
-            $this->_iStartDate =  strtotime(sprintf('-%d day', ceil($iStartDate[0]['duration'] / Model_Timeline_Date::AMOUNT)), $iStartDate[0]['date']);
+            $this->_iStartDate =  strtotime(sprintf('-%d day ' . Model_Timeline_Date::START, ceil($iStartDate[0]['duration'] / Model_Timeline_Date::AMOUNT)), $iStartDate[0]['date']);
         }
+        // has the human resource other tickets?
         else {
             $nextPrioBug = $oResource->getResource($this->getAssignee())->getNextHigherPriorityTicket($this);
             if ($nextPrioBug->id() !== $this->id()) {
@@ -490,7 +494,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
         }
 
         if ($this->_iStartDate === 0){
-            throw new Model_Ticket_Type_Bug_Exception(sprintf(Model_Ticket_Type_Bug_Exception::INVALID_START_DATE, $this->id()));
+            $this->_iStartDate = strtotime('tomorrow ' . Model_Timeline_Date::START);
         }
 
         return $this->_iStartDate;
@@ -516,16 +520,19 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return int
      */
     public function getEndDate(Model_Ticket_Source_Bugzilla $oBugzilla, Model_Resource_Manager $oResource) {
-        if ($this->cf_due_date) {
-            return strtotime((string) $this->cf_due_date);
-        }
 
         if ($this->_iEndDate > 0) {
             return $this->_iEndDate;
         }
 
-        // Start date + estimated
-        $this->_iEndDate = $this->getStartDate($oBugzilla, $oResource) + (float) $this->estimated_time * 3600;
+        if ($this->cf_due_date) {
+            $this->_iEndDate = strtotime((string) $this->cf_due_date);
+        }
+        else {
+            // Start date + estimated
+            $iStartDate      = $this->getStartDate($oBugzilla, $oResource);
+            $this->_iEndDate = strtotime(sprintf('+%d day ' . Model_Timeline_Date::END, ceil($this->duration() / Model_Timeline_Date::AMOUNT)), $iStartDate);
+        }
 
         return $this->_iEndDate;
     }
@@ -538,7 +545,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
             return (float) $this->estimated_time;
         }
 
-        return -1;
+        return 0;
     }
 
     /**
@@ -570,6 +577,15 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
         }
 
         return false;
+    }
+
+    /**
+     * Does the ticket depends on other tickets?
+     *
+     * @return bool
+     */
+    public function hasDependencies(){
+        return (isset($this->dependson) === true);
     }
 
     /**
@@ -738,41 +754,44 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * Return the ticket number of the tickets predecessor or 0 if there isn't one.
      *
      * A valid predecessor has the status unconfirmed, confirmed or assigned, and is not a project or theme.
-     * If there are more than one predecessor, the one with the highest estimated time will be returned.
+     * If there are more than one predecessor, the one with the latest end will be returned.
      *
      * @param Model_Ticket_Source_Bugzilla $oBugzilla
+     * @param Model_Resource_Manager       $oResource
      *
      * @return int
      */
-    public function getActivePredecessor(Model_Ticket_Source_Bugzilla $oBugzilla) {
+    public function getActivePredecessor(Model_Ticket_Source_Bugzilla $oBugzilla, Model_Resource_Manager $oResource) {
+        if ($this->hasDependencies()) {
+            $iTicket         = 0;
+            $dependencies = $this->getDepends($oBugzilla);
 
-        if ($this->doesBlock()) {
-            $ticket         = 0;
-            $blockedTickets = $this->blocks();
-
-            if (count($blockedTickets) > 1) {
-                foreach ($blockedTickets as $blocked) {
-                    $oComparisonTicket = $oBugzilla->getBugById($blocked);
-                    if (($oComparisonTicket->isStatusAtMost(Model_Ticket_Type_Bug::STATUS_REOPENED)
+            if (count($dependencies) > 1) {
+                foreach ($dependencies as $dependency) {
+                    $oComparisonTicket = $oBugzilla->getBugById($dependency);
+                    if ($iTicket === 0
+                        or ($oComparisonTicket->isStatusAtMost(Model_Ticket_Type_Bug::STATUS_REOPENED)
                             and $oComparisonTicket->isTheme() === false
                             and $oComparisonTicket->isProject() === false
-                            and (float) $oBugzilla->getBugById($ticket)->estimated_time > (float) $oBugzilla->getBugById($blocked)->estimated_time)
-                        or $ticket === 0
+                            and (float) $oBugzilla->getBugById($dependency)->getEndDate($oBugzilla, $oResource) > (float) $oBugzilla->getBugById($iTicket)->getEndDate($oBugzilla, $oResource))
                     ) {
 
-                        $ticket = $blocked;
+                        $iTicket = $dependency;
                     }
                 }
             }
-            elseif ($oBugzilla
-                    ->getBugById((int) $this->_data->blocked)
-                    ->isStatusAtMost(Model_Ticket_Type_Bug::STATUS_REOPENED)
-            ) {
+            else {
+                $oComparisonTicket = $oBugzilla->getBugById((int) $this->_data->dependson);
+                if ($oComparisonTicket->isTheme() === false
+                    and $oComparisonTicket->isProject() === false
+                    and $oComparisonTicket->isStatusAtMost(Model_Ticket_Type_Bug::STATUS_REOPENED)
+                ) {
 
-                $ticket = (int) $this->_data->blocked;
+                    $iTicket = (int) $this->_data->dependson;
+                }
             }
 
-            return $ticket;
+            return $iTicket;
         }
 
         return 0;
