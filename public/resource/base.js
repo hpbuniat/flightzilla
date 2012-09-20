@@ -272,7 +272,7 @@
         $('input:checkbox:checked').each(function() {
             $this = $(this).parents('.bug');
             name = $this.data('assignee');
-            time =  $this.find('.time.green').eq(0).data('time');
+            time =  parseFloat($this.find('.time.green').eq(0).data('time'));
             bug = $this.find('.bugLink');
 
             bugs.push(bug.text());
