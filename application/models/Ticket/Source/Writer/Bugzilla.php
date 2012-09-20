@@ -97,6 +97,12 @@ class Model_Ticket_Source_Writer_Bugzilla extends Model_Ticket_Source_AbstractWr
     public function setTestingRequest(Model_Ticket_AbstractType $oTicket) {
         $this->_getCommon($oTicket);
 
+        $sPayload = $oTicket->getFlagName(Model_Ticket_Type_Bug::FLAG_TESTING);
+        if (empty($sPayload) !== true) {
+            $this->_aPayload[$sPayload] = Model_Ticket_Source_Bugzilla::BUG_FLAG_REQUEST;
+            $this->_aPayload['comment'] = 'Please test on the test-server';
+        }
+
         return $this;
     }
 
@@ -106,6 +112,12 @@ class Model_Ticket_Source_Writer_Bugzilla extends Model_Ticket_Source_AbstractWr
      */
     public function reTest(Model_Ticket_AbstractType $oTicket) {
         $this->_getCommon($oTicket);
+
+        $sPayload = $oTicket->getFlagName(Model_Ticket_Type_Bug::FLAG_TESTING, Model_Ticket_Source_Bugzilla::BUG_FLAG_DENIED);
+        if (empty($sPayload) !== true) {
+            $this->_aPayload[$sPayload] = Model_Ticket_Source_Bugzilla::BUG_FLAG_REQUEST;
+            $this->_aPayload['comment'] = 'Please test again';
+        }
 
         return $this;
     }
@@ -117,6 +129,11 @@ class Model_Ticket_Source_Writer_Bugzilla extends Model_Ticket_Source_AbstractWr
     public function setMerged(Model_Ticket_AbstractType $oTicket) {
         $this->_getCommon($oTicket);
 
+        $sPayload = $oTicket->getFlagName(Model_Ticket_Type_Bug::FLAG_MERGE);
+        if (empty($sPayload) !== true) {
+            $this->_aPayload[$sPayload] = Model_Ticket_Source_Bugzilla::BUG_FLAG_GRANTED;
+        }
+
         return $this;
     }
 
@@ -127,6 +144,11 @@ class Model_Ticket_Source_Writer_Bugzilla extends Model_Ticket_Source_AbstractWr
     public function setStaged(Model_Ticket_AbstractType $oTicket) {
         $this->_getCommon($oTicket);
 
+        $sPayload = $oTicket->getFlagName(Model_Ticket_Type_Bug::FLAG_TESTSERVER);
+        if (empty($sPayload) !== true) {
+            $this->_aPayload[$sPayload] = Model_Ticket_Source_Bugzilla::BUG_FLAG_GRANTED;
+        }
+
         return $this;
     }
 
@@ -136,6 +158,11 @@ class Model_Ticket_Source_Writer_Bugzilla extends Model_Ticket_Source_AbstractWr
      */
     public function setDbChanged(Model_Ticket_AbstractType $oTicket) {
         $this->_getCommon($oTicket);
+
+        $sPayload = $oTicket->getFlagName(Model_Ticket_Type_Bug::FLAG_DBCHANGE, Model_Ticket_Source_Bugzilla::BUG_FLAG_REQUEST);
+        if (empty($sPayload) !== true) {
+            $this->_aPayload[$sPayload] = Model_Ticket_Source_Bugzilla::BUG_FLAG_GRANTED;
+        }
 
         return $this;
     }

@@ -89,7 +89,7 @@ class TicketController extends Zend_Controller_Action {
         $this->_helper->layout()->disableLayout();
         $aModify = $this->_getParam('modify');
 
-        if (empty($aModify) !== true and empty($sAction) !== true) {
+        if (empty($aModify) !== true) {
             foreach ($aModify as $iTicket => $aActions) {
                 $oTicketWriter = new Model_Ticket_Source_Writer_Bugzilla($this->_oBugzilla);
                 $oTicket = $this->_oBugzilla->getBugById($iTicket);

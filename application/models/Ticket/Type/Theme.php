@@ -49,6 +49,6 @@
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class Model_Ticket_Type_Theme extends Model_Ticket_Type_Bug{
+class Model_Ticket_Type_Theme extends Model_Ticket_Type_Bug {
 
 }
