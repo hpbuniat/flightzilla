@@ -30,7 +30,9 @@ class Model_Ticket_Type {
     const PROJECT = 'Projekt';
 
     /**
-     * @param SimpleXMLElement $oXml
+     * Create a ticket
+     *
+     * @param  SimpleXMLElement $oXml
      *
      * @return Model_Ticket_Type_Bug|Model_Ticket_Type_Project|Model_Ticket_Type_Theme
      */

@@ -78,8 +78,8 @@ class TicketController extends Zend_Controller_Action {
         $aTickets = $this->_getParam('tickets');
         $sAction = $this->getParam('ticketaction');
 
-        if (empty($aTickets) !== true and empty($sAction) !== true) {
-            foreach ($aTickets as $iTicket) {
+        if (empty($aModify) !== true) {
+            foreach ($aModify as $iTicket => $aActions) {
                 $oTicketWriter = new Model_Ticket_Source_Writer_Bugzilla($this->_oBugzilla);
                 if (method_exists($oTicketWriter, $sAction) === true) {
                     $oTicket = $this->_oBugzilla->getBugById($iTicket);

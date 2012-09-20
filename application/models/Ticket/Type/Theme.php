@@ -17,6 +17,6 @@
  * @author     Fluege-Dev <fluege-dev@unister.de>
  * @author     Tibor Sári <tibor.sari@unister.de>
  */
-class Model_Ticket_Type_Theme extends Model_Ticket_Type_Bug{
+class Model_Ticket_Type_Theme extends Model_Ticket_Type_Bug {
 
 }
