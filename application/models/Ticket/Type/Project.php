@@ -24,6 +24,13 @@ class Model_Ticket_Type_Project extends Model_Ticket_Type_Bug{
      */
     protected $_aDependentProjects = array();
 
+    /**
+     * Get start date as timestamp.
+     *
+     * Start date is either the end of its predecessor or the next workday.
+     *
+     * @return int
+     */
     public function getStartDate() {
         if ($this->_iStartDate > 0){
             return $this->_iStartDate;
@@ -46,7 +53,7 @@ class Model_Ticket_Type_Project extends Model_Ticket_Type_Bug{
     }
 
     /**
-     * Get the end-date in seconds
+     * Get the end-date as timestamp.
      *
      * @return int
      */
@@ -82,7 +89,7 @@ class Model_Ticket_Type_Project extends Model_Ticket_Type_Bug{
      * Return the ticket number of the projects predecessor or 0 if there isn't one.
      *
      * A valid predecessor has the status unconfirmed, confirmed or assigned, and is a project or theme.
-     * If there are more than one predecessor, the one with the highest priority will be returned.
+     * If there are more than one predecessors, the one with the latest end date will be returned.
      *
      * @return int
      */
@@ -113,6 +120,8 @@ class Model_Ticket_Type_Project extends Model_Ticket_Type_Bug{
     }
 
     /**
+     * Determine all dependent projects.
+     *
      * @return array
      */
     public function getDependentProjects() {

@@ -88,6 +88,8 @@ class Model_Timeline_Date {
 
 
     /**
+     * Check if a day is a holiday or a dayy of the weekend.
+     *
      * @param $iTimestamp
      *
      * @return bool
@@ -119,6 +121,7 @@ class Model_Timeline_Date {
         $aHolidays[] = "0101"; // Neujahrstag
         $aHolidays[] = "0105"; // Tag der Arbeit
         $aHolidays[] = "0310"; // Tag der Deutschen Einheit
+        $aHolidays[] = "3110"; // Reformationstag
         $aHolidays[] = "2512"; // Erster Weihnachtstag
         $aHolidays[] = "2612"; // Zweiter Weihnachtstag
 
@@ -130,6 +133,17 @@ class Model_Timeline_Date {
         $aHolidays[] = date("dm", $easterSunday + 39 * $days); // Himmelfahrt
         $aHolidays[] = date("dm", $easterSunday + 50 * $days); // Pfingstmontag
 
+        // get the wednesday before the 23rd of november
+        $iDate = mktime(0, 0, 0, 11, 23, date('Y'));
+        do {
+            $iDate -= 86400;
+            $date = getdate($iDate);
+            $weekday = $date['wday'];
+
+        } while ($weekday !== 3);
+
+        $aHolidays[] = date('dm', $iDate); // Buß - und Bettag
+
         // Prüfen, ob Feiertag
         $code = $day.$month;
         if(in_array($code, $aHolidays)) {
@@ -140,6 +154,8 @@ class Model_Timeline_Date {
     }
 
     /**
+     * Get timestamp of the next working day.
+     *
      * @param $iTimestamp
      *
      * @return int

@@ -278,10 +278,19 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      */
     protected $_iEndDate = 0;
 
+    /**
+     * @var Model_Ticket_Source_Bugzilla
+     */
     protected $_oBugzilla;
 
+    /**
+     * @var Model_Resource_Manager
+     */
     protected $_oResource;
 
+    /**
+     * @var Model_Timeline_Date
+     */
     protected $_oDate;
 
     /**
@@ -322,6 +331,8 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     }
 
     /**
+     * Inject some necessary objects
+     *
      * @param Model_Ticket_Source_Bugzilla $oBugzilla
      * @param Model_Resource_Manager       $oResource
      * @param Model_Timeline_Date          $oDate
