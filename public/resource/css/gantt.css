@@ -79,6 +79,10 @@
     width: 115px;
 }
 
+.fn-gantt .leftPanel .fn-wide, .fn-gantt .leftPanel .fn-wide .fn-label {
+    width: 225px;
+}
+
 .fn-gantt .spacer {
     margin: -2px 0 1px 0;
     border-bottom: none;
@@ -101,7 +105,8 @@
     background-repeat: repeat;
     background-position: 24px 24px;
 }
-.fn-gantt .day {
+
+.fn-gantt .day, .fn-gantt .date {
     overflow: visible;
     width: 24px;
     line-height: 24px;

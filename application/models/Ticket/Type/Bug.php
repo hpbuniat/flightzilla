@@ -278,6 +278,12 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      */
     protected $_iEndDate = 0;
 
+    protected $_oBugzilla;
+
+    protected $_oResource;
+
+    protected $_oDate;
+
     /**
      * Create the bug
      *
@@ -313,6 +319,17 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
         $this->_data = simplexml_load_string($this->_sleep);
         $this->_getFlags();
         $this->_getType();
+    }
+
+    /**
+     * @param Model_Ticket_Source_Bugzilla $oBugzilla
+     * @param Model_Resource_Manager       $oResource
+     * @param Model_Timeline_Date          $oDate
+     */
+    public function inject(Model_Ticket_Source_Bugzilla $oBugzilla, Model_Resource_Manager $oResource, Model_Timeline_Date $oDate) {
+        $this->_oBugzilla = $oBugzilla;
+        $this->_oResource = $oResource;
+        $this->_oDate = $oDate;
     }
 
     /**
@@ -447,22 +464,17 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     /**
      * Get the start-date in seconds
      *
-     * @param  Model_Ticket_Source_Bugzilla   $oBugzilla
-     * @param  Model_Resource_Manager         $oResource
-     * @param  int                            $iEndDate The optional end-date
-     *
-     * @throws Model_Ticket_Type_Bug_Exception
      * @return int
      */
-    public function getStartDate(Model_Ticket_Source_Bugzilla $oBugzilla, Model_Resource_Manager $oResource, $iEndDate = null) {
+    public function getStartDate() {
         if ($this->_iStartDate > 0){
             return $this->_iStartDate;
         }
 
         // is there a predecessor?
-        $iPredecessor = $this->getActivePredecessor($oBugzilla, $oResource);
+        $iPredecessor = $this->getActivePredecessor();
         if ($iPredecessor > 0) {
-            $iEndDate = $oBugzilla->getBugById($iPredecessor)->getEndDate($oBugzilla, $oResource);
+            $iEndDate = $this->_oBugzilla->getBugById($iPredecessor)->getEndDate();
             $this->_iStartDate = strtotime('+1 day ' . Model_Timeline_Date::START, $iEndDate);
         }
         // is there a deadline?
@@ -480,15 +492,24 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
         }
         // has the human resource other tickets?
         else {
-            $nextPrioBug = $oResource->getResource($this->getAssignee())->getNextHigherPriorityTicket($this);
+            $nextPrioBug = $this->_oResource->getResource($this->getAssignee())->getNextHigherPriorityTicket($this);
             if ($nextPrioBug->id() !== $this->id()) {
-                $this->_iStartDate = $nextPrioBug->getEndDate($oBugzilla, $oResource);
+                $this->_iStartDate = $nextPrioBug->getEndDate();
+            }
+        }
+
+        if ($this->_iStartDate === 0) {
+            $oProject = $this->_oBugzilla->getProject($this);
+            if ($oProject instanceof Model_Ticket_Type_Project) {
+                $this->_iStartDate = $oProject->getStartDate();
             }
         }
 
         if ($this->_iStartDate === 0){
             $this->_iStartDate = strtotime('tomorrow ' . Model_Timeline_Date::START);
         }
+
+        $this->_iStartDate = $this->_oDate->getNextWorkday($this->_iStartDate);
 
         return $this->_iStartDate;
     }
@@ -507,12 +528,9 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     /**
      * Get the end-date in seconds
      *
-     * @param Model_Ticket_Source_Bugzilla $oBugzilla
-     * @param Model_Resource_Manager       $oResource
-     *
      * @return int
      */
-    public function getEndDate(Model_Ticket_Source_Bugzilla $oBugzilla, Model_Resource_Manager $oResource) {
+    public function getEndDate() {
 
         if ($this->_iEndDate > 0) {
             return $this->_iEndDate;
@@ -523,9 +541,11 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
         }
         else {
             // Start date + estimated
-            $iStartDate      = $this->getStartDate($oBugzilla, $oResource);
+            $iStartDate      = $this->getStartDate();
             $this->_iEndDate = strtotime(sprintf('+%d day ' . Model_Timeline_Date::END, ceil($this->duration() / Model_Timeline_Date::AMOUNT)), $iStartDate);
         }
+
+        $this->_iEndDate = $this->_oDate->getNextWorkday($this->_iEndDate);
 
         return $this->_iEndDate;
     }
@@ -582,6 +602,26 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     }
 
     /**
+     * Check if a ticket depends on a given ticket.
+     *
+     * @param Model_Ticket_Type_Bug        $oBug
+     *
+     * @return bool
+     */
+    public function doesDependOn(Model_Ticket_Type_Bug $oBug){
+        if ($this->hasDependencies()) {
+            $aDependencies = $this->getDepends();
+            foreach ($aDependencies as $iTicket) {
+                if ($oBug->id() === $this->_oBugzilla->getBugById($iTicket)->id()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Determine the type of the bug
      *
      * @return Model_Ticket_Type_Bug
@@ -610,6 +650,8 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
 
     /**
      * Check if a bug is a given type
+     *
+     * @param $sType
      *
      * @return boolean
      */
@@ -725,13 +767,11 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     /**
      * Get the depend-bugs
      *
-     * @param  Model_Ticket_Source_Bugzilla $oBugzilla
-     *
      * @return array
      */
-    public function getDepends(Model_Ticket_Source_Bugzilla $oBugzilla) {
+    public function getDepends() {
         if (empty($this->_aDepends) === true) {
-            $this->hasUnclosedBugs($oBugzilla);
+            $this->hasUnclosedBugs();
         }
 
         return $this->_aDepends;
@@ -743,35 +783,38 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * A valid predecessor has the status unconfirmed, confirmed or assigned, and is not a project or theme.
      * If there are more than one predecessor, the one with the latest end will be returned.
      *
-     * @param Model_Ticket_Source_Bugzilla $oBugzilla
-     * @param Model_Resource_Manager       $oResource
-     *
      * @return int
      */
-    public function getActivePredecessor(Model_Ticket_Source_Bugzilla $oBugzilla, Model_Resource_Manager $oResource) {
+    public function getActivePredecessor() {
         if ($this->hasDependencies()) {
-            $iTicket         = 0;
-            $dependencies = $this->getDepends($oBugzilla);
+
+            $aEndDates = array();
+            $dependencies = $this->getDepends($this->_oBugzilla);
 
             if (count($dependencies) > 1) {
                 foreach ($dependencies as $dependency) {
-                    $oComparisonTicket = $oBugzilla->getBugById($dependency);
-                    if ($iTicket === 0
-                        or ($oComparisonTicket->isStatusAtMost(Model_Ticket_Type_Bug::STATUS_REOPENED)
-                            and $oComparisonTicket->isTheme() === false
-                            and $oComparisonTicket->isProject() === false
-                            and (float) $oBugzilla->getBugById($dependency)->getEndDate($oBugzilla, $oResource) > (float) $oBugzilla->getBugById($iTicket)->getEndDate($oBugzilla, $oResource))
+                    $oTicket = $this->_oBugzilla->getBugById($dependency);
+                    if (($oTicket->isStatusAtMost(Model_Ticket_Type_Bug::STATUS_REOPENED)
+                            and $oTicket->isTheme() === false
+                            and $oTicket->isProject() === false)
                     ) {
 
-                        $iTicket = $dependency;
+                        $aEndDates[$oTicket->id()] = $oTicket->getEndDate();
                     }
                 }
+
+                if (empty($aEndDates) === true) {
+                    return 0;
+                }
+
+                arsort($aEndDates);
+                return key($aEndDates);
             }
             else {
-                $oComparisonTicket = $oBugzilla->getBugById((int) $this->_data->dependson);
-                if ($oComparisonTicket->isTheme() === false
-                    and $oComparisonTicket->isProject() === false
-                    and $oComparisonTicket->isStatusAtMost(Model_Ticket_Type_Bug::STATUS_REOPENED)
+                $oTicket = $this->_oBugzilla->getBugById((int) $this->_data->dependson);
+                if ($oTicket->isTheme() === false
+                    and $oTicket->isProject() === false
+                    and $oTicket->isStatusAtMost(Model_Ticket_Type_Bug::STATUS_REOPENED)
                 ) {
 
                     $iTicket = (int) $this->_data->dependson;
@@ -787,22 +830,22 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     /**
      * Determine, if the theme has unclosed dependencies
      *
-     * @param  Model_Ticket_Source_Bugzilla $oBugzilla
-     *
      * @return boolean
      */
-    public function hasUnclosedBugs(Model_Ticket_Source_Bugzilla $oBugzilla) {
+    public function hasUnclosedBugs() {
         $bReturn = false;
         if (isset($this->dependson) === true) {
             foreach ($this->dependson as $iBug) {
                 try {
                     $iBug = (int) $iBug;
-                    $oBug = $oBugzilla->getBugById($iBug);
-                    if ($oBug->isClosed() !== true) {
-                        $bReturn = true;
-                    }
+                    $oBug = $this->_oBugzilla->getBugById($iBug);
+                    if ($oBug->isProject() === false and $oBug->isTheme() === false) {
+                        if ($oBug->isClosed() !== true) {
+                            $bReturn = true;
+                        }
 
-                    $this->_aDepends[] = $iBug;
+                        $this->_aDepends[] = $iBug;
+                    }
                 }
                 catch (Exception $e) {
                     /* happens, if a bug is not found, which is ok for closed bugs */

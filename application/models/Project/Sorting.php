@@ -52,7 +52,7 @@
 class Model_Project_Sorting {
 
     /**
-     *
+     * @var Model_Ticket_Type_Bug[]
      */
     protected $_aStack = array();
 
@@ -82,24 +82,10 @@ class Model_Project_Sorting {
     protected $_oBugzilla;
 
     /**
-     * The human resource model
-     *
-     * @var Model_Resource_Manager
-     */
-    protected $_oResource;
-
-    /**
      *
      */
-    protected $_iDeadline;
-
-    /**
-     *
-     */
-    public function __construct(Model_Ticket_Source_Bugzilla $oBugzilla, Model_Resource_Manager $oResource, $iDeadline = null) {
+    public function __construct(Model_Ticket_Source_Bugzilla $oBugzilla) {
         $this->_oBugzilla = $oBugzilla;
-        $this->_oResource = $oResource;
-        $this->_iDeadline = $iDeadline;
         $this->_aSorted = array();
     }
 
@@ -173,7 +159,7 @@ class Model_Project_Sorting {
 
         $aSorted = array();
         foreach ($this->_aSorted as $oBug) {
-            $aDepends = $oBug->getDepends($this->_oBugzilla);
+            $aDepends = $oBug->getDepends();
             foreach ($aDepends as $iBug) {
                 if (isset($aSorted[$iBug]) !== true) {
                     $oDepends = $this->_oBugzilla->getBugById($iBug);
@@ -225,7 +211,7 @@ class Model_Project_Sorting {
 
         $aSort = array();
         foreach ($this->_aStack as $oBug) {
-            $iStartDate = $oBug->getStartDate($this->_oBugzilla, $this->_oResource, $this->_iDeadline);
+            $iStartDate = $oBug->getStartDate();
             if (empty($iStartDate) === true) {
                 $this->_aNotSortedStack[$oBug->id()] = $oBug;
             }

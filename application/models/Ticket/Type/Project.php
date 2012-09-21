@@ -20,14 +20,37 @@
 class Model_Ticket_Type_Project extends Model_Ticket_Type_Bug{
 
     /**
+     * @var array
+     */
+    protected $_aDependentProjects = array();
+
+    public function getStartDate() {
+        if ($this->_iStartDate > 0){
+            return $this->_iStartDate;
+        }
+
+        // is there a predecessor?
+        $iPredecessor = $this->getActivePredecessor();
+        if ($iPredecessor > 0) {
+            $iEndDate = $this->_oBugzilla->getBugById($iPredecessor)->getEndDate();
+            $this->_iStartDate = strtotime('+1 day ' . Model_Timeline_Date::START, $iEndDate);
+        }
+
+        if ($this->_iStartDate === 0){
+            $this->_iStartDate = strtotime('tomorrow ' . Model_Timeline_Date::START);
+        }
+
+        $this->_iStartDate = $this->_oDate->getNextWorkday($this->_iStartDate);
+
+        return $this->_iStartDate;
+    }
+
+    /**
      * Get the end-date in seconds
-     *
-     * @param Model_Ticket_Source_Bugzilla $oBugzilla
-     * @param Model_Resource_Manager       $oResource
      *
      * @return int
      */
-    public function getEndDate(Model_Ticket_Source_Bugzilla $oBugzilla, Model_Resource_Manager $oResource) {
+    public function getEndDate() {
 
         if ($this->_iEndDate > 0) {
             return $this->_iEndDate;
@@ -37,18 +60,19 @@ class Model_Ticket_Type_Project extends Model_Ticket_Type_Bug{
             $this->_iEndDate = strtotime((string) $this->cf_due_date);
         }
         else {
-            // Start date + estimated
-            $iStartDate = $this->getStartDate($oBugzilla, $oResource);
-
-            $estimated = 0.00;
-            $depends   = $this->getDepends($oBugzilla);
+            // End date of the last ticket in current project
+            $aEndDates = array();
+            $depends   = $this->getDepends($this->_oBugzilla);
             foreach ($depends as $child) {
-                $estimated += (float) $oBugzilla
+                $aEndDates[] = (float) $this->_oBugzilla
                     ->getBugById($child)
-                    ->duration();
+                    ->getEndDate();
             }
 
-            $this->_iEndDate = strtotime(sprintf('+%d day ' . Model_Timeline_Date::END, ceil($estimated / Model_Timeline_Date::AMOUNT)), $iStartDate);
+            arsort($aEndDates);
+            $this->_iEndDate = current($aEndDates);
+
+            $this->_iEndDate = $this->_oDate->getNextWorkday($this->_iEndDate);
         }
 
         return $this->_iEndDate;
@@ -58,47 +82,60 @@ class Model_Ticket_Type_Project extends Model_Ticket_Type_Bug{
      * Return the ticket number of the projects predecessor or 0 if there isn't one.
      *
      * A valid predecessor has the status unconfirmed, confirmed or assigned, and is a project or theme.
-     * If there are more than one predecessor, the one with the highest estimated time will be returned.
-     *
-     * @param Model_Ticket_Source_Bugzilla $oBugzilla
-     * @param Model_Resource_Manager       $oResource
+     * If there are more than one predecessor, the one with the highest priority will be returned.
      *
      * @return int
      */
-    public function getActivePredecessor(Model_Ticket_Source_Bugzilla $oBugzilla, Model_Resource_Manager $oResource) {
+    public function getActivePredecessor() {
+
         if ($this->hasDependencies()) {
-            $iTicket         = 0;
-            $dependencies = $this->getDepends($oBugzilla);
+            $dependencies = $this->getDependentProjects();
 
-            if (count($dependencies) > 1) {
-                foreach ($dependencies as $dependency) {
-                    $oComparisonTicket = $oBugzilla->getBugById($dependency);
-                    if ($iTicket === 0
-                        or ($oComparisonTicket->isStatusAtMost(Model_Ticket_Type_Bug::STATUS_REOPENED)
-                            and ($oComparisonTicket->isTheme() === true
-                                or $oComparisonTicket->isProject() === true)
-                            and (float) $oBugzilla->getBugById($dependency)->getEndDate($oBugzilla, $oResource) > (float) $oBugzilla->getBugById($iTicket)->getEndDate($oBugzilla, $oResource))
-                    ) {
+            $aEndDates = array();
 
-                        $iTicket = $dependency;
-                    }
-                }
-            }
-            else {
-                $oComparisonTicket = $oBugzilla->getBugById((int) $this->_data->dependson);
-                if (($oComparisonTicket->isTheme() === true
-                        or $oComparisonTicket->isProject() === true)
-                    and $oComparisonTicket->isStatusAtMost(Model_Ticket_Type_Bug::STATUS_REOPENED)
-                ) {
+            foreach ($dependencies as $dependency) {
 
-                    $iTicket = (int) $this->_data->dependson;
+                $oTicket = $this->_oBugzilla->getBugById($dependency);
+                if ($oTicket->isStatusAtMost(Model_Ticket_Type_Bug::STATUS_REOPENED)) {
+                    $aEndDates[$oTicket->id()] = $oTicket->getEndDate();
                 }
             }
 
-            return $iTicket;
+            if (empty($aEndDates) === true) {
+                return 0;
+            }
+
+            arsort($aEndDates);
+            return key($aEndDates);
         }
 
         return 0;
     }
 
+    /**
+     * @return array
+     */
+    public function getDependentProjects() {
+
+        if (empty($this->_aDependentProjects) === false) {
+            return $this->_aDependentProjects;
+        }
+
+        if (isset($this->dependson) === true) {
+            foreach ($this->dependson as $iBug) {
+                try {
+                    $iBug = (int) $iBug;
+                    $oBug = $this->_oBugzilla->getBugById($iBug);
+                    if ($oBug->isProject() === true and $oBug->isTheme() === true) {
+                        $this->_aDependentProjects[] = $iBug;
+                    }
+                }
+                catch (Exception $e) {
+                    /* happens, if a bug is not found, which is ok for closed bugs */
+                }
+            }
+        }
+
+        return $this->_aDependentProjects;
+    }
 }
