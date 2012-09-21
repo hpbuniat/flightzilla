@@ -27,27 +27,27 @@
  * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
  * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-    * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-    * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- * @package flightzilla
- * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @package   flightzilla
+ * @author    Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @license http://www.opensource.org/licenses/bsd-license.php BSD License
+ * @license   http://www.opensource.org/licenses/bsd-license.php BSD License
  */
 
 /**
  * Resource-planning
  *
- * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @author    Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @license http://www.opensource.org/licenses/bsd-license.php BSD License
- * @version Release: @package_version@
- * @link https://github.com/hpbuniat/flightzilla
+ * @license   http://www.opensource.org/licenses/bsd-license.php BSD License
+ * @version   Release: @package_version@
+ * @link      https://github.com/hpbuniat/flightzilla
  */
 class PlanningController extends Zend_Controller_Action {
 
@@ -60,9 +60,15 @@ class PlanningController extends Zend_Controller_Action {
      *
      */
     public function init() {
-        if (Zend_Auth::getInstance()->hasIdentity() === true) {
-            $this->_oBugzilla = new Model_Ticket_Source_Bugzilla();
-            $this->view->mode = $this->getRequest()->getActionName();
+
+        if (Zend_Auth::getInstance()
+            ->hasIdentity() === true
+        ) {
+            $oResource        = new Model_Resource_Manager;
+            $this->_oBugzilla = new Model_Ticket_Source_Bugzilla($oResource);
+            $this->view->mode = $this
+                ->getRequest()
+                ->getActionName();
         }
         else {
             $this->_redirect('/index/login');
@@ -73,9 +79,10 @@ class PlanningController extends Zend_Controller_Action {
      *
      */
     public function dataAction() {
+
         $this->_oBugzilla->setView($this->view, 'planning');
 
-        $aTeam = $this->_oBugzilla->getTeam();
+        $aTeam     = $this->_oBugzilla->getTeam();
         $oResource = new Model_Resource_Manager();
         foreach ($aTeam as $sName) {
             $oResource->registerResource(Model_Resource_Builder::build($sName));
@@ -86,8 +93,7 @@ class PlanningController extends Zend_Controller_Action {
         foreach ($aTickets as $oTicket) {
             $oResource->addTicket($oTicket);
         }
-
-//        $this->view->aResource = $oResource->getResource($this->_getParam('name'));
+        //        $this->view->aResource = $oResource->getResource($this->_getParam('name'));
     }
 
     /**
@@ -97,23 +103,14 @@ class PlanningController extends Zend_Controller_Action {
 
         $this->_oBugzilla->setView($this->view, 'planning');
 
-        $aTeam = $this->_oBugzilla->getTeam();
-        $oResource = new Model_Resource_Manager();
-        foreach ($aTeam as $sName) {
-            $oResource->registerResource(Model_Resource_Builder::build($sName));
-        }
+        $oProject = new Model_Project_Container($this->_oBugzilla);
+        $oProject
+            ->setup()
+            ->sortProjects();
 
-        $aTickets = $this->_oBugzilla->getAllBugs();
-        foreach ($aTickets as $oTicket) {
-            $oResource->addTicket($oTicket, false);
-        }
-
-        $oProject = new Model_Project_Container($this->_oBugzilla, $oResource);
-        $oProject->setup()->sortProjects();
-
-        $this->view->aStack = $oProject->getProjectsAsStack();
+        $this->view->aStack  = $oProject->getProjectsAsStack();
         $this->view->aErrors = $oProject->getErrors();
-        $proj = $oProject->getProjects();
+        $proj                = $oProject->getProjects();
 
         $aColors = array(
             'ganttGreen',
@@ -123,29 +120,38 @@ class PlanningController extends Zend_Controller_Action {
 
         $aProjects = array();
 
-        $iColor = 0;
+        $iColor = $i = 0;
         foreach ($proj as $project) {
-            if (isset($project['tasks'])){
-                if ($iColor >= count($aColors)){
+            if (isset($project['tasks'])) {
+                if ($iColor >= count($aColors)) {
                     $iColor = 0;
                 }
                 $color = $aColors[$iColor];
                 $iColor++;
-                $i = 0;
+                $bStillTheSameProject = false;
                 foreach ($project['tasks'] as $oTask) {
 
-                    $aProjects[$i]['name'] = ($i === 0) ? (string) $project['short_desc'] : ' ';
-                    $aProjects[$i]['desc'] = (string) $oTask->id();
+                    if (false === $bStillTheSameProject) {
+                        $aProjects[$i]['name'] = (string) $project['short_desc'];
+                    }
+                    else {
+                        $aProjects[$i]['name'] = ' ';
+                    }
+                    $aProjects[$i]['desc']      = (string) $oTask->id();
                     $aProjects[$i]['values'][0] = array(
-                        'from' => '/Date(' . $oTask->getStartDate($this->_oBugzilla, $oResource) * 1000 . ')/',
-                        'to' => '/Date(' . $oTask->getEndDate($this->_oBugzilla, $oResource) * 1000 . ')/',
-                        'label' => (string) $oTask->short_desc,
-                        'customClass' => $color
+                        'from'        => '/Date(' . $oTask->getStartDate() * 1000 . ')/',
+                        'to'          => '/Date(' . $oTask->getEndDate() * 1000 . ')/',
+                        'label'       => (string) $oTask->short_desc,
+                        'customClass' => $color,
+                        'desc'        => '<b>Bearbeiter:</b> ' . (string) $oTask->getAssignee() . '<br>'
+                            . '<b>Start:</b> ' . date('d.m.Y H:i', $oTask->getStartDate()) . '<br>'
+                            . '<b>Ende:</b> ' . date('d.m.Y H:i', $oTask->getEndDate()) . '<br>'
+                            . '<b>Inhalt: </b><br>' . (string) $oTask->long_desc->thetext
                     );
                     $i++;
+                    $bStillTheSameProject = true;
                 }
             }
-
         }
 
         $this->view->projects = str_replace('\/', '/', json_encode($aProjects));
@@ -155,6 +161,7 @@ class PlanningController extends Zend_Controller_Action {
      *
      */
     public function sprintAction() {
+
         $this->view->aStack = $this->_oBugzilla->getTeam();
     }
 }

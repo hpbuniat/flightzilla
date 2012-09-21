@@ -24,10 +24,10 @@ echo $this->partial('planning/partial/sidebar.phtml', array(
                 source: <?php echo $this->projects; ?>,
                 navigate: "scroll",
                 scale: "days",
-                maxScale: "months",
+                maxScale: "weeks",
                 minScale: "hours",
                 dow: ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
-                itemsPerPage: 7
+                itemsPerPage: 10
             });
         });
     </script>

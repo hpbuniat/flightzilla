@@ -73,13 +73,6 @@ class Model_Project_Container {
     protected $_oBugzilla;
 
     /**
-     * The resource model
-     *
-     * @var Model_Resource_Manager
-     */
-    protected $_oResource;
-
-    /**
      * Found errors, while sorting the projects
      *
      * @var array
@@ -91,9 +84,8 @@ class Model_Project_Container {
      *
      * @param  Model_Ticket_Source_Bugzilla $oBugzilla
      */
-    public function __construct(Model_Ticket_Source_Bugzilla $oBugzilla, Model_Resource_Manager $oResource) {
+    public function __construct(Model_Ticket_Source_Bugzilla $oBugzilla) {
         $this->_oBugzilla = $oBugzilla;
-        $this->_oResource = $oResource;
     }
 
     /**
@@ -119,7 +111,7 @@ class Model_Project_Container {
         $this->_aOrderedProjects = array();
         foreach ($this->_aProjects as $oProject) {
             try {
-                $oSort = new Model_Project_Sorting($oProject->getEndDate($this->_oBugzilla, $this->_oResource), $this->_oBugzilla);
+                $oSort = new Model_Project_Sorting($this->_oBugzilla);
                 foreach ($oProject->getDepends($this->_oBugzilla) as $iBug) {
                     $oSort->add($this->_oBugzilla->getBugById($iBug));
                 }
@@ -139,13 +131,11 @@ class Model_Project_Container {
      *
      */
     public function sortProjects() {
-
         $this->_aOrderedProjects = array();
         foreach ($this->_aProjects as $oProject) {
             try {
-                $endDate = $oProject->getEndDate($this->_oBugzilla, $this->_oResource);
-                $oSort = new Model_Project_Sorting($this->_oBugzilla, $this->_oResource, $endDate);
-                foreach ($oProject->getDepends($this->_oBugzilla) as $iBug) {
+                $oSort = new Model_Project_Sorting($this->_oBugzilla);
+                foreach ($oProject->getDepends() as $iBug) {
                     $oSort->add($this->_oBugzilla->getBugById($iBug));
                 }
 

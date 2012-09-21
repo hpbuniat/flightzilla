@@ -62,10 +62,6 @@ class Model_Timeline_Date {
 
     const END = '16:00';
 
-    protected $_oDate;
-
-    protected $_fLeft;
-
     protected $_aStack;
 
 
@@ -86,45 +82,94 @@ class Model_Timeline_Date {
 
     /**
      * Create a date
-     *
-     * @param int $iTime
      */
-    public function __construct($iTime) {
-        $this->_oDate = new DateTime($iTime);
-        $this->_fLeft = self::AMOUNT;
+    public function __construct() {
+    }
+
+
+    /**
+     * Check if a day is a holiday or a dayy of the weekend.
+     *
+     * @param $iTimestamp
+     *
+     * @return bool
+     */
+    public function isWorkFreeDay($iTimestamp) {
+
+        $day = date('d', $iTimestamp);
+        $month = date('m', $iTimestamp);
+        $year = date('Y', $iTimestamp);
+
+        // Parameter in richtiges Format bringen
+        if(strlen($day) == 1) {
+            $day = "0$day";
+        }
+        if(strlen($month) == 1) {
+            $month = "0$month";
+        }
+
+        // Wochentag berechnen
+        $date = getdate(mktime(0, 0, 0, $month, $day, $year));
+        $weekday = $date['wday'];
+
+        // Prüfen, ob Wochenende
+        if($weekday == 0 || $weekday == 6) {
+            return true;
+        }
+
+        // Feste Feiertage werden nach dem Schema ddmm eingetragen
+        $aHolidays[] = "0101"; // Neujahrstag
+        $aHolidays[] = "0105"; // Tag der Arbeit
+        $aHolidays[] = "0310"; // Tag der Deutschen Einheit
+        $aHolidays[] = "3110"; // Reformationstag
+        $aHolidays[] = "2512"; // Erster Weihnachtstag
+        $aHolidays[] = "2612"; // Zweiter Weihnachtstag
+
+        // Bewegliche Feiertage berechnen
+        $days = 60 * 60 * 24;
+        $easterSunday = easter_date($year);
+        $aHolidays[] = date("dm", $easterSunday - 2 * $days);  // Karfreitag
+        $aHolidays[] = date("dm", $easterSunday + 1 * $days);  // Ostermontag
+        $aHolidays[] = date("dm", $easterSunday + 39 * $days); // Himmelfahrt
+        $aHolidays[] = date("dm", $easterSunday + 50 * $days); // Pfingstmontag
+
+        // get the wednesday before the 23rd of november
+        $iDate = mktime(0, 0, 0, 11, 23, date('Y'));
+        do {
+            $iDate -= 86400;
+            $date = getdate($iDate);
+            $weekday = $date['wday'];
+
+        } while ($weekday !== 3);
+
+        $aHolidays[] = date('dm', $iDate); // Buß - und Bettag
+
+        // Prüfen, ob Feiertag
+        $code = $day.$month;
+        if(in_array($code, $aHolidays)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
-     * Get the formatted date
+     * Get timestamp of the next working day.
      *
-     * @return string
+     * @param $iTimestamp
+     *
+     * @return int
      */
-    public function getFormatted() {
-        return $this->_oDate->format('Y-m-d');
-    }
+    public function getNextWorkday($iTimestamp) {
 
-    /**
-     * Add a job for the day. If the return value is not 0, the remaining time has
-     * to be added, to another date
-     *
-     * @param  float $fDuration
-     * @param  sring $sDescription
-     *
-     * @return float Time left of this jobs
-     */
-    public function add($fDuration, $sDescription) {
-        if ($fDuration <= $this->_fLeft) {
-            $this->_aStack[$sDescription] = $fDuration;
-            $this->_fLeft = $this->_fLeft - $fDuration;
+        $d = 0;
+        do {
+            $iNextWorkday   = strtotime('+' . $d . 'day', $iTimestamp);
+            $bNonWorkingDay = $this->isWorkFreeDay($iNextWorkday);
+            $d++;
         }
-        else {
-            $fPart = $fDuration - $this->_fLeft;
+        while ($bNonWorkingDay);
 
-            $this->_aStack[$sDescription] = $this->_fLeft;
-            $this->_fLeft = 0;
-            return $fPart;
-        }
-
-        return 0;
+        return $iNextWorkday;
     }
 }

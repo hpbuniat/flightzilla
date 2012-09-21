@@ -148,11 +148,19 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     /**
      * The list of all tickets
      *
-     * @var array[Model_Ticket_AbstractType]
+     * @var Model_Ticket_Type_Bug[]
      */
     private $_allBugs = array();
 
+    /**
+     * @var Model_Ticket_Type_Theme[]
+     */
     private $_aThemes = array();
+
+    /**
+     * @var Model_Ticket_Type_Project[]
+     */
+    private $_aProjects = array();
 
     private $_aUnthemed = array();
 
@@ -208,12 +216,18 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     protected $_aFindThemeCache = array();
 
     /**
+     * @var Model_Resource_Manager
+     */
+    protected $_oResource;
+
+    /**
      * Do all Bug-related action
      *
+     * @param Model_Resource_Manager $oResource
      * @param boolean $bFilterProductConfig
      * @param Zend_Http_Client $oHttpClient
     */
-    public function __construct($bFilterProductConfig = true, Zend_Http_Client $oHttpClient = null) {
+    public function __construct(Model_Resource_Manager $oResource, $bFilterProductConfig = true, Zend_Http_Client $oHttpClient = null) {
         $this->_config = Zend_Registry::get('_Config')->model;
         $this->_client = ($oHttpClient instanceof Zend_Http_Client) ? $oHttpClient : new Zend_Http_Client();
         $this->_client->setEncType(Zend_Http_Client::ENC_FORMDATA);
@@ -697,6 +711,14 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             unset($sResponse);
         }
 
+        // prepare bug models
+        $oResource = new Model_Resource_Manager();
+        foreach ($this->_aTeam as $sName) {
+            $oResource->registerResource(Model_Resource_Builder::build($sName));
+        }
+
+        $oDate = new Model_Timeline_Date();
+
         $aConfig = $this->_config->bugzilla->portal->toArray();
         foreach ($aTemp as $oBug) {
             $iId = $oBug->id();
@@ -724,6 +746,9 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             }
 
             if ($bAdd === true) {
+                $oResource->addTicket($oBug, false);
+                $oBug->inject($this, $oResource,$oDate);
+
                 $aReturn[$iId] = $oBug;
                 if ($oBug->isClosed() !== true and $oBug->isTheme() !== true) {
                     $this->_allBugs[$iId] = $oBug;
@@ -731,6 +756,10 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
                 elseif ($oBug->isTheme() === true) {
                     $this->_aThemes[$iId] = $oBug;
                 }
+                if ($oBug->isProject() === true) {
+                    $this->_aProjects[$iId] = $oBug;
+                }
+
             }
 
             if (empty($aCacheHits[$iId]) === true) {
@@ -1123,6 +1152,15 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         return $this->_aThemes;
     }
 
+    /**
+     * Get the projects
+     *
+     * @return Model_Ticket_Type_Project[]
+     */
+    public function getProjects() {
+        return $this->_aProjects;
+    }
+
 
     /**
      * Get the themes as stack
@@ -1132,6 +1170,20 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     public function getThemesAsStack() {
         $aStack = array();
         foreach ($this->_aThemes as $oTheme) {
+            $aStack[$oTheme->id()] = (string) $oTheme->short_desc;
+        }
+
+        ksort($aStack);
+        return $aStack;
+    }
+
+    /**
+     * Get projects as stack
+     * @return array
+     */
+    public function getProjectsAsStack() {
+        $aStack = array();
+        foreach ($this->_aProjects as $oTheme) {
             $aStack[$oTheme->id()] = (string) $oTheme->short_desc;
         }
 
@@ -1350,6 +1402,21 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         }
 
         return $this->_allBugs[$iBug];
+    }
+
+    /**
+     * @param Model_Ticket_Type_Bug $oBug
+     *
+     * @return bool|Model_Ticket_Type_Project
+     */
+    public function getProject(Model_Ticket_Type_Bug $oBug){
+        foreach ($this->_aProjects as $oTicket) {
+            if ($oTicket->isProject() and $oTicket->doesDependOn($oBug, $this)){
+                return $oTicket;
+            }
+        }
+
+        return false;
     }
 
     /**
