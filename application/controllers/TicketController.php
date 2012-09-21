@@ -62,7 +62,8 @@ class TicketController extends Zend_Controller_Action {
     public function init() {
         $sAction = $this->getRequest()->getActionName();
         if (Zend_Auth::getInstance()->hasIdentity() === true) {
-            $this->_oBugzilla = new Model_Ticket_Source_Bugzilla(($sAction !== 'dashboard'));
+            $oResource        = new Model_Resource_Manager;
+            $this->_oBugzilla = new Model_Ticket_Source_Bugzilla($oResource, ($sAction !== 'dashboard'));
             $this->view->mode = $sAction;
         }
         elseif ($sAction !== 'login' and $sAction !== 'logout') {

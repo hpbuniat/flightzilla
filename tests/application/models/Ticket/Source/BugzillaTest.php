@@ -37,7 +37,8 @@ class Model_Ticket_Source_BugzillaTest extends PHPUnit_Framework_TestCase {
         Zend_Registry::set('_login', 'test');
         Zend_Registry::set('_password', 'test');
 
-        $this->_object = new Model_Ticket_Source_Bugzilla(true, $this->_oMock);
+        $oResource     = new Model_Resource_Manager;
+        $this->_object = new Model_Ticket_Source_Bugzilla($oResource, true, $this->_oMock);
     }
 
     /**
