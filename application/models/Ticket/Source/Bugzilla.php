@@ -211,10 +211,11 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
      * Do all Bug-related action
      *
      * @param boolean $bFilterProductConfig
+     * @param Zend_Http_Client $oHttpClient
     */
-    public function __construct($bFilterProductConfig = true) {
+    public function __construct($bFilterProductConfig = true, Zend_Http_Client $oHttpClient = null) {
         $this->_config = Zend_Registry::get('_Config')->model;
-        $this->_client = new Zend_Http_Client();
+        $this->_client = ($oHttpClient instanceof Zend_Http_Client) ? $oHttpClient : new Zend_Http_Client();
         $this->_client->setEncType(Zend_Http_Client::ENC_FORMDATA);
         $this->_sCookie = '/tmp/cookieBugzilla';
         if (isset($this->_config->bugzilla->http->cookiePath) === true) {
@@ -573,6 +574,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         $this->_client->setUri($this->_config->bugzilla->baseUrl . '/' . $option . '?' . $queryString);
         $this->_loginToBugzilla();
         $sResult = $this->_client->request()->getBody();
+
         $this->_resetAllParameter();
 
         return $sResult;
