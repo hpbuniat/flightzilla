@@ -1,2 +1,18 @@
 <?php
+foreach ($this->aTickets as $this->oTicket):
+    /* @var $oTicket Model_Ticket_Type_Bug */
+    ?>
+    <blockquote>
+        <p><?php echo sprintf('%s %s (%s)', $this->ticketicons($this->oTicket), (string) $this->oTicket->short_desc, $this->oTicket->assignee_short); ?></p>
+        <?php
+        echo $this->render('index/partial/flag.phtml');
+        ?>
+    </blockquote>
+    <?php
+endforeach;
+?>
+<hr />
+<p class="pull right">
+    <a href="javascript:window.location.reload()" class="btn btn-primary btn-large">Reload the ticket-list</a>
+</p>
 

@@ -265,6 +265,13 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     protected $_sType;
 
     /**
+     * The tickets keywords
+     *
+     * @var string
+     */
+    protected $_sKeywords = '';
+
+    /**
      * Timestamp when the ticket starts.
      *
      * @var int
@@ -417,7 +424,8 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      */
     public function isQuickOne() {
         $sStatus = (string) $this->bug_status;
-        return ($sStatus !== Model_Ticket_Type_Bug::STATUS_RESOLVED and (int) $this->estimated_time > 0 and (int) $this->estimated_time <= 3 and (int) $this->actual_time === 0);
+        $iEstimated = (int)  $this->estimated_time;
+        return ($sStatus !== Model_Ticket_Type_Bug::STATUS_RESOLVED and $iEstimated > 0 and $iEstimated <= 3 and (int) $this->actual_time === 0);
     }
 
     /**
@@ -437,7 +445,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return boolean
      */
     public function isFailed() {
-        return ($this->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING,'-') and $this->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING,'+') !== true and $this->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING,'?') !== true);
+        return ($this->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING, '-') === true and $this->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING,' +') !== true and $this->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING, '?') !== true);
     }
 
     /**
@@ -626,12 +634,9 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     }
 
     /**
-<<<<<<< HEAD
      * Get some properties for the ticket
      * - the type
      * - the id
-=======
-     * Check if a ticket depends on a given ticket.
      *
      * @param Model_Ticket_Type_Bug        $oBug
      *
@@ -652,12 +657,12 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
 
     /**
      * Determine the type of the bug
->>>>>>> tibor/planner
      *
      * @return Model_Ticket_Type_Bug
      */
     protected function _getProperties() {
         $this->_iId = (int) $this->_data->bug_id;
+        $this->_sKeywords = (string) $this->_data->keywords;
 
         $this->_sType = '';
         foreach ($this->_aTypes as $sKeywords => $sType) {
@@ -683,11 +688,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     /**
      * Check if a bug is a given type
      *
-<<<<<<< HEAD
      * @param  string $sType
-=======
-     * @param $sType
->>>>>>> tibor/planner
      *
      * @return boolean
      */
@@ -793,7 +794,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return boolean
      */
     public function hasKeyword($sKeyword) {
-        if (stripos((string) $this->_data->keywords, $sKeyword) !== false) {
+        if (stripos($this->_sKeywords, $sKeyword) !== false) {
             return true;
         }
 
@@ -898,7 +899,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return boolean
      */
     public function isClosed() {
-        if ((string) $this->_data->bug_status !== Model_Ticket_Type_Bug::STATUS_CLOSED) {
+        if ($this->getStatus() !== Model_Ticket_Type_Bug::STATUS_CLOSED) {
             return false;
         }
 
@@ -929,7 +930,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return mixed
      */
     public function getDupe() {
-        if ((string) $this->_data->bug_status === Model_Ticket_Type_Bug::STATUS_RESOLVED and isset($this->_data->dup_id) === true) {
+        if ($this->getStatus() === Model_Ticket_Type_Bug::STATUS_RESOLVED and isset($this->_data->dup_id) === true) {
             return $this->_data->dup_id;
         }
 
@@ -993,11 +994,10 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      *
      * @param  string $sFlag Name of the Flag
      * @param  string $sFilter Filter a specific status
-     * @param  boolean $bNew
      *
      * @return string
      */
-    public function getFlagName($sFlag, $sFilter = '', $bNew = false) {
+    public function getFlagName($sFlag, $sFilter = '') {
         $iCount = 0;
         $aMatchingFlag = '';
         foreach ($this->_flags as $aFlag) {
@@ -1015,7 +1015,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
             $sName = $this->_mappedFlags[$sFlag];
         }
         else {
-            $sName = ($iCount > 1) ? sprintf('flag-%d', $aMatchingFlag['id']) : sprintf('flag_type-%d', $aMatchingFlag['type_id']);
+            $sName = ($iCount > 0) ? sprintf('flag-%d', $aMatchingFlag['id']) : sprintf('flag_type-%d', $aMatchingFlag['type_id']);
         }
 
         return $sName;
@@ -1060,6 +1060,15 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      */
     public function getStatus() {
         return (string) $this->bug_status;
+    }
+
+    /**
+     * Get the reporter
+     *
+     * @return string
+     */
+    public function getReporter() {
+        return $this->_data->reporter;
     }
 
     /**
@@ -1144,7 +1153,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return string
      */
     public function __toString() {
-        return (string) $this->_data->bug_id;
+        return $this->id();
     }
 
     /**

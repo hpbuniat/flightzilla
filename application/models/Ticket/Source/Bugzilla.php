@@ -236,7 +236,6 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             $this->_sCookie = $this->_config->bugzilla->http->cookiePath . 'cookieBugzilla';
         }
 
-        @unlink($this->_sCookie);
         $aCurlOptions = array(
             CURLOPT_COOKIEFILE => $this->_sCookie,
             CURLOPT_COOKIEJAR => $this->_sCookie,
@@ -756,6 +755,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
                 elseif ($oBug->isTheme() === true) {
                     $this->_aThemes[$iId] = $oBug;
                 }
+
                 if ($oBug->isProject() === true) {
                     $this->_aProjects[$iId] = $oBug;
                 }

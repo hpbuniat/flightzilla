@@ -1,23 +1,9 @@
 <blockquote>
-    <p><?php echo $this->oTicket->short_desc ?></p>
+    <p><?php echo sprintf('%s %s (%s)', $this->ticketicons($this->oTicket), (string) $this->oTicket->short_desc, $this->oTicket->assignee_short); ?></p>
 </blockquote>
-<dl class="dl-horizontal">
-    <?php
-    foreach ($this->oTicket->getFlags() as $aFlag):
-    ?>
-        <dt><?php echo $aFlag['name'] ?></dt>
-        <dd>
-            <strong><?php echo $aFlag['status'] ?></strong>
-            (by <?php echo $aFlag['setter']; ?>
-            <?php if (empty($aFlag['requestee']) !== true) {
-                echo sprintf('for %s', $aFlag['requestee']);
-            }?>)
-        </dd>
-    <?php
-    endforeach;
-    ?>
-</dl>
 <?php
+echo $this->render('index/partial/flag.phtml');
+
 foreach ($this->oTicket->long_desc as $oLongDesc):
 ?>
     <blockquote>

@@ -100,7 +100,12 @@ class Model_Ticket_Source_Writer_Bugzilla extends Model_Ticket_Source_AbstractWr
         $sPayload = $oTicket->getFlagName(Model_Ticket_Type_Bug::FLAG_TESTING);
         if (empty($sPayload) !== true) {
             $this->_aPayload[$sPayload] = Model_Ticket_Source_Bugzilla::BUG_FLAG_REQUEST;
-            $this->_aPayload['comment'] = 'Please test on the test-server';
+            if ($oTicket->isType(Model_Ticket_Type_Bug::TYPE_BUG) !== true) {
+                $sRequesteePayload = str_replace('flag', 'requestee', $sPayload);
+                $this->_aPayload[$sRequesteePayload] = $oTicket->getReporter();
+            }
+
+            $this->_aPayload['comment'] = 'Please review the changes!' . PHP_EOL . 'Test-Server: ' . (($oTicket->isMerged() === true) ? 'Stable' : 'Development');
         }
 
         return $this;
@@ -116,7 +121,7 @@ class Model_Ticket_Source_Writer_Bugzilla extends Model_Ticket_Source_AbstractWr
         $sPayload = $oTicket->getFlagName(Model_Ticket_Type_Bug::FLAG_TESTING, Model_Ticket_Source_Bugzilla::BUG_FLAG_DENIED);
         if (empty($sPayload) !== true) {
             $this->_aPayload[$sPayload] = Model_Ticket_Source_Bugzilla::BUG_FLAG_REQUEST;
-            $this->_aPayload['comment'] = 'Please test again';
+            $this->_aPayload['comment'] = 'Please test again!' . PHP_EOL . 'Test-Server: ' . (($oTicket->isMerged() === true) ? 'Stable' : 'Development');
         }
 
         return $this;
