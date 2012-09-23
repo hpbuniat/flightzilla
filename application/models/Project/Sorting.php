@@ -52,39 +52,47 @@
 class Model_Project_Sorting {
 
     /**
+     * The ticket-stack
+     *
      * @var Model_Ticket_Type_Bug[]
      */
     protected $_aStack = array();
 
     /**
+     * Sorted tickets
      *
+     * @var array
      */
     protected $_aSorted = array();
 
     /**
+     * Tickets which are not yet sortable
      *
+     * @var array
      */
     protected $_aNotSortedStack = array();
 
     /**
+     * This stack was already sorted?
      *
-     */
-    protected $_aGaps = array();
-
-    /**
-     *
+     * @var boolean
      */
     protected $_bSorted = false;
 
     /**
+     * The ticket-source
      *
+     * @var Model_Ticket_Source_Bugzilla
      */
     protected $_oBugzilla;
 
     /**
+     * Create the sorter
      *
+     * @param Model_Ticket_Source_Bugzilla $oBugzilla
      */
     public function __construct(Model_Ticket_Source_Bugzilla $oBugzilla) {
+
         $this->_oBugzilla = $oBugzilla;
         $this->_aSorted = array();
     }
@@ -97,6 +105,7 @@ class Model_Project_Sorting {
      * @return Model_Project_Sorting
      */
     public function add(Model_Ticket_Type_Bug $oBug) {
+
         $this->_aStack[$oBug->id()] = $oBug;
         $this->_bSorted = false;
         return $this;
@@ -108,6 +117,7 @@ class Model_Project_Sorting {
      * @return array
      */
     public function getSortedBugs() {
+
         return $this->_sort();
     }
 
@@ -115,46 +125,31 @@ class Model_Project_Sorting {
      * Sort the bugs
      *
      * @return array
+     *
+     * @throws Model_Project_Sorting_DataException
      */
     protected function _sort() {
+
         if ($this->_bSorted !== true) {
             $this->_sortByStartDate();
-//            if (empty($this->_aNotSortedStack) !== true) {
-//                $this->_sortByPriority();
-//            }
-//
-//            while ($this->_sortByDependency() === true) {
-//                // do nothing
-//            }
-
             $this->_bSorted = true;
-//            if (empty($this->_aNotSortedStack) !== true) {
-//                $oBug = reset($this->_aNotSortedStack);
-//                throw new Model_Project_Sorting_DataException(sprintf(Model_Project_Sorting_DataException::INVALID_DATE, $oBug->id(), (string) $oBug->short_desc));
-//            }
+        }
+
+        if (empty($this->_aNotSortedStack) !== true) {
+            $oBug = reset($this->_aNotSortedStack);
+            throw new Model_Project_Sorting_DataException(sprintf(Model_Project_Sorting_DataException::INVALID_DATE, $oBug->id(), $oBug->short_desc));
         }
 
         return $this->_aSorted;
     }
 
     /**
+     * Sort tickets by dependency
      *
-     */
-    protected function _findGaps() {
-        $this->_aGaps = array();
-        foreach ($this->_aSorted as $oBug) {
-//            Zend_Debug::dump(date('r', $oBug->getStartDate()), __FILE__ . ':' . __LINE__);
-//            Zend_Debug::dump($oBug->duration(), __FILE__ . ':' . __LINE__);
-//            Zend_Debug::dump(date('r', $oBug->getEndDate()), __FILE__ . ':' . __LINE__);
-        }
-
-        return $this;
-    }
-
-    /**
-     *
+     * @return boolean
      */
     protected function _sortByDependency() {
+
         $bShiftedABug = false;
 
         $aSorted = array();
@@ -186,27 +181,12 @@ class Model_Project_Sorting {
     }
 
     /**
-     *
-     */
-    protected function _sortByPriority() {
-        $this->_findGaps();
-        if (empty($this->_aGaps) !== true) {
-            foreach ($this->_aNotSortedStack as $oBug) {
-                foreach ($this->_aGaps as $aGap) {
-
-                }
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * Sort the bugs by start-date
      *
      * @return array
      */
     protected function _sortByStartDate() {
+
         $this->_aNotSortedStack = array();
 
         $aSort = array();
@@ -218,7 +198,6 @@ class Model_Project_Sorting {
             else {
                 $aSort[$oBug->id()] = $iStartDate;
             }
-
         }
 
         asort($aSort);

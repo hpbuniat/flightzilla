@@ -58,12 +58,23 @@ class Model_Timeline_Date {
      */
     const AMOUNT = 6.0;
 
+    /**
+     * The day starts at
+     *
+     * @var string
+     *
+     * @TODO Config!
+     */
     const START = '10:00';
 
+    /**
+     * The day ends at (exclude the break from the real-end!)
+     *
+     * @var string
+     *
+     * @TODO Config!
+     */
     const END = '16:00';
-
-    protected $_aStack;
-
 
     /**
      * List of workdays
@@ -85,7 +96,6 @@ class Model_Timeline_Date {
      */
     public function __construct() {
     }
-
 
     /**
      * Check if a day is a holiday or a dayy of the weekend.
@@ -146,11 +156,7 @@ class Model_Timeline_Date {
 
         // Prüfen, ob Feiertag
         $code = $day.$month;
-        if(in_array($code, $aHolidays)) {
-            return true;
-        } else {
-            return false;
-        }
+        return (in_array($code, $aHolidays) === true) ? true : false;
     }
 
     /**

@@ -848,17 +848,16 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
                 return key($aEndDates);
             }
             else {
-                $oTicket = $this->_oBugzilla->getBugById((int) $this->_data->dependson);
+                $iDepends = (int) reset($dependencies);
+                $oTicket = $this->_oBugzilla->getBugById($iDepends);
                 if ($oTicket->isTheme() === false
                     and $oTicket->isProject() === false
                     and $oTicket->isStatusAtMost(Model_Ticket_Type_Bug::STATUS_REOPENED)
                 ) {
 
-                    $iTicket = (int) $this->_data->dependson;
+                    return $iDepends;
                 }
             }
-
-            return $iTicket;
         }
 
         return 0;
