@@ -137,7 +137,7 @@ class Model_Project_Sorting {
 
         if (empty($this->_aNotSortedStack) !== true) {
             $oBug = reset($this->_aNotSortedStack);
-            throw new Model_Project_Sorting_DataException(sprintf(Model_Project_Sorting_DataException::INVALID_DATE, $oBug->id(), $oBug->short_desc));
+            throw new Model_Project_Sorting_DataException(sprintf(Model_Project_Sorting_DataException::INVALID_DATE, $oBug->id(), $oBug->title()));
         }
 
         return $this->_aSorted;

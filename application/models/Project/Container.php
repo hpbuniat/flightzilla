@@ -161,7 +161,7 @@ class Model_Project_Container {
                     $oSort->add($this->_oBugzilla->getBugById($iBug));
                 }
 
-                $this->_aOrderedProjects[$oProject->id()]['short_desc'] = $oProject->short_desc;
+                $this->_aOrderedProjects[$oProject->id()]['short_desc'] = $oProject->title();
                 $this->_aOrderedProjects[$oProject->id()]['tasks'] = $oSort->getSortedBugs();
                 unset($oSort);
             }
@@ -183,6 +183,15 @@ class Model_Project_Container {
     }
 
     /**
+     * Get the raw project-data
+     *
+     * @return array
+     */
+    public function getProjectsRaw() {
+        return $this->_createIterator();
+    }
+
+    /**
      * Get the themes as stack
      *
      * @return array
@@ -190,7 +199,7 @@ class Model_Project_Container {
     public function getProjectsAsStack() {
         $aStack = array();
         foreach ($this->_aProjects as $oTheme) {
-            $aStack[$oTheme->id()] = (string) $oTheme->short_desc;
+            $aStack[$oTheme->id()] = $oTheme->title();
         }
 
         return $aStack;
@@ -223,15 +232,16 @@ class Model_Project_Container {
                 $iColor++;
                 $bStillTheSameProject = false;
                 foreach ($project['tasks'] as $oTask) {
+                    /* @var Model_Ticket_Type_Bug $oTask */
 
                     $aProjects[$i]['name'] = (false === $bStillTheSameProject) ? (string) $project['short_desc'] : ' ';
                     $aProjects[$i]['desc'] = (string) $oTask->id();
                     $aProjects[$i]['values'][0] = array(
                         'from'        => '/Date(' . $oTask->getStartDate() * 1000 . ')/',
                         'to'          => '/Date(' . $oTask->getEndDate() * 1000 . ')/',
-                        'label'       => (string) $oTask->short_desc,
+                        'label'       => $oTask->title(),
                         'customClass' => $color,
-                        'desc'        => '<b>' . (string) $oTask->short_desc . '</b><br />'
+                        'desc'        => '<b>' . $oTask->title() . '</b><br />'
                             . '<b>Assignee:</b> ' . (string) $oTask->getAssignee() . '<br />'
                             . '<b>Start:</b> ' . date('d.m.Y H:i', $oTask->getStartDate()) . '<br />'
                             . '<b>Ende:</b> ' . date('d.m.Y H:i', $oTask->getEndDate()) . '<br />'
@@ -240,6 +250,31 @@ class Model_Project_Container {
                     $i++;
                     $bStillTheSameProject = true;
                 }
+            }
+        }
+
+        return $aProjects;
+    }
+
+    /**
+     * Get the projects as iterateable data
+     *
+     * @return array
+     */
+    protected function _createIterator() {
+        $aProjects = array();
+        foreach ($this->_aOrderedProjects as $iTicket => $aProject) {
+            if (isset($aProject['tasks']) === true) {
+                $aStruct = array(
+                    'name' => (string) $aProject['short_desc'],
+                    'ticket' => $iTicket,
+                    'tasks' => array()
+                );
+                foreach ($aProject['tasks'] as $oTask) {
+                    $aStruct['tasks'][] = $oTask;
+                }
+
+                $aProjects[] = $aStruct;
             }
         }
 

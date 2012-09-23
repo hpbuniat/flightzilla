@@ -4,7 +4,10 @@
     /* @var $oTicket Model_Ticket_Type_Bug */
     ?>
     <blockquote>
-        <p><?php echo sprintf('%s %s (%s)', $this->ticketicons($oTicket), (string) $oTicket->short_desc, $oTicket->assignee_short); ?></p>
+    <?php
+        $this->oTask = $oTicket;
+        echo sprintf('<p>%s</p>', $this->render('index/partial/bug-line.phtml'));
+    ?>
         <ul>
 
             <?php if ($oTicket->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING) === false): ?>

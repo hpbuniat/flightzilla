@@ -17,26 +17,15 @@
         ?>
     </td>
     <?php if (strlen($this->bug->resolution) == 0):?>
-        <td colspan="2" width="10%" class="<?php echo $this->bug->bug_status ?>"><?php echo $this->bug->bug_status?></td>
-        <td width="8%">
-            <?php if ($this->bug->isEstimated()):?>
-                <div class="timeWidth" style="width: <?php echo (round(((float)$this->bug->actual_time/(float)$this->bug->estimated_time),2)*100)?>%">&nbsp;</div>
-                <span class="timeSpan"><?php echo $this->bug->actual_time?> (<?php echo $this->bug->estimated_time?>)</span>
-            <?php elseif ($this->bug->isOrga()):?>
-                <span class="orga green">Orga <?php if ((float)$this->bug->actual_time > 0.00):?> (<?php echo $this->bug->actual_time?>) <?php endif;?></span>
-            <?php else:?>
-                <span class="unestimated red"><span class="ui-silk ui-silk-clock-red" title="Estimation missing">&nbsp;</span> <?php if ((float)$this->bug->actual_time > 0.00):?> (<?php echo $this->bug->actual_time?>) <?php endif;?></span>
-            <?php endif;?>
-        </td>
+        <td colspan="2" width="10%" class="<?php echo $this->bug->getStatus() ?>"><?php echo $this->bug->getStatus()?></td>
     <?php else:?>
-        <td width="5%" class="<?php echo $this->bug->bug_status ?>"><?php echo substr($this->bug->bug_status,0,4)?></td>
+        <td width="5%" class="<?php echo $this->bug->getStatus() ?>"><?php echo substr($this->bug->getStatus(),0,4)?></td>
         <td width="5%"><?php echo substr($this->bug->resolution,0,6)?></td>
-        <td width="8%">
-            <?php echo $this->estimation($this->bug); ?>
-        </td>
     <?php endif?>
-
-    <td class="bugDesc" width="50%"><?php echo $this->escape($this->bug->short_desc)?></td>
+    <td width="8%">
+        <?php echo $this->estimation($this->bug); ?>
+    </td>
+    <td class="bugDesc" width="50%"><?php echo $this->escape($this->bug->title())?></td>
     <td width="2%">
         <input class="<?php echo $this->workflow($this->bug); ?>" type="checkbox" name="id[]" value="<?php echo $this->bug->id(); ?>"/>
     </td>

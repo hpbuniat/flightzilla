@@ -3,8 +3,9 @@ foreach ($this->aTickets as $this->oTicket):
     /* @var $oTicket Model_Ticket_Type_Bug */
     ?>
     <blockquote>
-        <p><?php echo sprintf('%s %s (%s)', $this->ticketicons($this->oTicket), (string) $this->oTicket->short_desc, $this->oTicket->assignee_short); ?></p>
         <?php
+        $this->oTask = $this->oTicket;
+        echo sprintf('<p>%s</p>', $this->render('index/partial/bug-line.phtml'));
         echo $this->render('index/partial/flag.phtml');
         ?>
     </blockquote>

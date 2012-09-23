@@ -102,10 +102,11 @@ class PlanningController extends Zend_Controller_Action {
         $oProject = new Model_Project_Container($this->_oBugzilla);
         $oProject->setup()->sortProjects();
 
-        $this->view->aStack  = $oProject->getProjectsAsStack();
-        $this->view->aErrors = $oProject->getErrors();
-        $aProjects           = $oProject->getProjects();
-        $this->view->projects = str_replace('\/', '/', json_encode($aProjects));
+        $this->view->aStack    = $oProject->getProjectsAsStack();
+        $this->view->aErrors   = $oProject->getErrors();
+        $this->view->aProjects = $oProject->getProjectsRaw();
+        $aProjects             = $oProject->getProjects();
+        $this->view->sProjects = str_replace('\/', '/', json_encode($aProjects));
     }
 
     /**
