@@ -236,7 +236,6 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
             $this->_sCookie = $this->_config->bugzilla->http->cookiePath . 'cookieBugzilla';
         }
 
-        @unlink($this->_sCookie);
         $aCurlOptions = array(
             CURLOPT_COOKIEFILE => $this->_sCookie,
             CURLOPT_COOKIEJAR => $this->_sCookie,
@@ -756,6 +755,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
                 elseif ($oBug->isTheme() === true) {
                     $this->_aThemes[$iId] = $oBug;
                 }
+
                 if ($oBug->isProject() === true) {
                     $this->_aProjects[$iId] = $oBug;
                 }
@@ -1170,7 +1170,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     public function getThemesAsStack() {
         $aStack = array();
         foreach ($this->_aThemes as $oTheme) {
-            $aStack[$oTheme->id()] = (string) $oTheme->short_desc;
+            $aStack[$oTheme->id()] = $oTheme->title();
         }
 
         ksort($aStack);
@@ -1184,7 +1184,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     public function getProjectsAsStack() {
         $aStack = array();
         foreach ($this->_aProjects as $oTheme) {
-            $aStack[$oTheme->id()] = (string) $oTheme->short_desc;
+            $aStack[$oTheme->id()] = $oTheme->title();
         }
 
         ksort($aStack);
@@ -1566,7 +1566,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
 
             $iCount = count($this->_allBugs);
             foreach ($this->_allBugs as $oBug) {
-                $this->_aStatuses[(string) $oBug->bug_status]++;
+                $this->_aStatuses[$oBug->getStatus()]++;
             }
 
             $this->_percentify($this->_aStatuses, $iCount);

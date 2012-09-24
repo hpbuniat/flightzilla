@@ -13,7 +13,7 @@ foreach ($this->aStack as $oTicket) {
                 ?>
             </div>
             <div class="description">
-                <a class="bugLink" target="_blank" data-title="<?php echo $this->escape($oTicket->short_desc)?>" href="<?php echo $this->sBugzilla?>/show_bug.cgi?id=<?php echo $oTicket->bug_id?>"><?php echo $this->escape($oTicket->short_desc)?></a>
+                <a class="bugLink" target="_blank" data-title="<?php echo $this->escape($oTicket->title())?>" href="<?php echo $this->sBugzilla?>/show_bug.cgi?id=<?php echo $oTicket->bug_id?>"><?php echo $this->escape($oTicket->title())?></a>
             </div>
             <div class="bottom">
                 <?php

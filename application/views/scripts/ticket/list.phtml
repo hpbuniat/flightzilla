@@ -4,39 +4,52 @@
     /* @var $oTicket Model_Ticket_Type_Bug */
     ?>
     <blockquote>
-        <p><?php echo (string) $oTicket->short_desc ?></p>
+    <?php
+        $this->oTask = $oTicket;
+        echo sprintf('<p>%s</p>', $this->render('index/partial/bug-line.phtml'));
+    ?>
         <ul>
 
             <?php if ($oTicket->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING) === false): ?>
             <li>
-                <input type="checkbox" value="setTestingRequest" name="modify[<?php echo $oTicket->id();?>][]" />
-                Testing-Request
+                <label class="checkbox">
+                    <input type="checkbox" value="setTestingRequest" name="modify[<?php echo $oTicket->id();?>][]" />
+                    Check, if testing of the changes is requested
+                </label>
             </li>
             <?php elseif ($oTicket->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING, Model_Ticket_Source_Bugzilla::BUG_FLAG_DENIED) === true): ?>
             <li>
-                <input type="checkbox" value="reTest" name="modify[<?php echo $oTicket->id();?>][]" />
-                Re-Test
+                <label class="checkbox">
+                    <input type="checkbox" value="reTest" name="modify[<?php echo $oTicket->id();?>][]" />
+                    Check, if the changes should be tested again
+                </label>
             </li>
             <?php endif; ?>
 
             <?php if ($oTicket->isMergeable() === true): ?>
             <li>
-                <input type="checkbox" value="setMerged" name="modify[<?php echo $oTicket->id();?>][]" />
-                Set to merged
+                <label class="checkbox">
+                    <input type="checkbox" value="setMerged" name="modify[<?php echo $oTicket->id();?>][]" />
+                    Check, if the changes have been merged into the master-branch/trunk
+                </label>
             </li>
             <?php endif;?>
 
             <?php if ($oTicket->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTSERVER, '+') !== true): ?>
             <li>
-                <input type="checkbox" value="setStaged" name="modify[<?php echo $oTicket->id();?>][]" />
-                Staged on the test-server
+                <label class="checkbox">
+                    <input type="checkbox" value="setStaged" name="modify[<?php echo $oTicket->id();?>][]" />
+                    Check, if the changes have been deployed to the test-system
+                </label>
             </li>
             <?php endif;?>
 
             <?php if ($oTicket->hasFlag(Model_Ticket_Type_Bug::FLAG_DBCHANGE, '?') === true): ?>
             <li>
-                <input type="checkbox" value="setDbChanged" name="modify[<?php echo $oTicket->id();?>][]" />
-                Db-Changes are now deployed
+                <label class="checkbox">
+                    <input type="checkbox" value="setDbChanged" name="modify[<?php echo $oTicket->id();?>][]" />
+                    Check, if the Database-Changes have been deployed to production
+                </label>
             </li>
             <?php endif;?>
         </ul>

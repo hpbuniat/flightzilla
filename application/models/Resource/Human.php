@@ -41,7 +41,7 @@
  */
 
 /**
- * Enter a description ..
+ * A human resource
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -52,15 +52,22 @@
 class Model_Resource_Human {
 
     /**
+     * The resource' timecard
      *
+     * @var Model_Resource_Human_Timecard
      */
-    protected $_oBugzilla;
-
     protected $_oTimecard;
 
+    /**
+     * The name of the resource
+     *
+     * @var string
+     */
     protected $_sName;
 
     /**
+     * Tickets which the resource is assigned to
+     *
      * @var Model_Ticket_Type_Bug[]
      */
     protected $_aTickets = array();
@@ -72,6 +79,7 @@ class Model_Resource_Human {
      * @param Model_Resource_Human_Timecard $oTimecard
      */
     public function __construct($sName, Model_Resource_Human_Timecard $oTimecard) {
+
         $this->_oTimecard = $oTimecard;
         $this->_sName = $sName;
     }
@@ -82,6 +90,7 @@ class Model_Resource_Human {
      * @return string
      */
     public function getName() {
+
         return $this->_sName;
     }
 
@@ -93,6 +102,7 @@ class Model_Resource_Human {
      * @return Model_Resource_Human
      */
     public function addTicket(Model_Ticket_Type_Bug $oTicket) {
+
         $this->_aTickets[$oTicket->id()] = $oTicket;
         $this->_oTimecard->handle($oTicket);
 
@@ -113,24 +123,19 @@ class Model_Resource_Human {
         $nextPrioTicket = $oTicket;
         foreach ($this->_aTickets as $ticket) {
             if (($ticket->getStatus() !== Model_Ticket_Type_Bug::STATUS_CONFIRMED
-                    and $ticket->getStatus() !== Model_Ticket_Type_Bug::STATUS_ASSIGNED
+                and $ticket->getStatus() !== Model_Ticket_Type_Bug::STATUS_ASSIGNED
                     and $ticket->getStatus() !== Model_Ticket_Type_Bug::STATUS_REOPENED)
                 or $ticket->isProject()
                 or $ticket->isTheme()
-            ){
+            ) {
 
                 continue;
             }
 
-
-            if ($ticket->getPriority(true) > $nextPrioTicket->getPriority(true)
-            ) {
-
+            if ($ticket->getPriority(true) > $nextPrioTicket->getPriority(true)) {
                 $nextPrioTicket = $ticket;
             }
-            elseif ($ticket->getPriority(true) === $nextPrioTicket->getPriority(true)
-            ) {
-
+            elseif ($ticket->getPriority(true) === $nextPrioTicket->getPriority(true)) {
                 if ($ticket->getSeverity(true) > $nextPrioTicket->getSeverity(true)) {
                     $nextPrioTicket = $ticket;
                 }

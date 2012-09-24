@@ -1,0 +1,16 @@
+<dl class="dl-horizontal">
+    <?php
+    foreach ($this->oTicket->getFlags() as $aFlag):
+        ?>
+        <dt><?php echo $aFlag['name'] ?></dt>
+        <dd>
+            <strong><?php echo $aFlag['status'] ?></strong>
+            (by <?php echo $aFlag['setter']; ?>
+            <?php if (empty($aFlag['requestee']) !== true) {
+            echo sprintf('for %s', $aFlag['requestee']);
+        }?>)
+        </dd>
+        <?php
+    endforeach;
+    ?>
+</dl>

@@ -96,7 +96,8 @@ class Model_Ticket_Type_Project extends Model_Ticket_Type_Bug {
         }
 
         if ($this->cf_due_date) {
-            $this->_iEndDate = strtotime((string) $this->cf_due_date);
+            $sEndDate = (string) $this->cf_due_date;
+            $this->_iEndDate = strtotime(str_replace('00:00:00', Model_Timeline_Date::END, $sEndDate));
         }
         else {
             // End date of the last ticket in current project
