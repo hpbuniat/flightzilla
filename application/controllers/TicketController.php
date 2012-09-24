@@ -62,7 +62,8 @@ class TicketController extends Zend_Controller_Action {
     public function init() {
         $sAction = $this->getRequest()->getActionName();
         if (Zend_Auth::getInstance()->hasIdentity() === true) {
-            $this->_oBugzilla = new Model_Ticket_Source_Bugzilla(($sAction !== 'dashboard'));
+            $oResource        = new Model_Resource_Manager;
+            $this->_oBugzilla = new Model_Ticket_Source_Bugzilla($oResource, ($sAction !== 'dashboard'));
             $this->view->mode = $sAction;
         }
         elseif ($sAction !== 'login' and $sAction !== 'logout') {
@@ -73,25 +74,41 @@ class TicketController extends Zend_Controller_Action {
     /**
      *
      */
+    public function listAction() {
+        $this->_helper->layout()->disableLayout();
+
+        $sTickets = $this->_getParam('tickets');
+        if (empty($sTickets) !== true) {
+            $this->view->aTickets = $this->_oBugzilla->getBugListByIds($sTickets);
+        }
+    }
+
+    /**
+     *
+     */
     public function modifyAction() {
         $this->_helper->layout()->disableLayout();
-        $aTickets = $this->_getParam('tickets');
-        $sAction = $this->getParam('ticketaction');
+        $aModify = $this->_getParam('modify');
 
+        $aTickets = array();
         if (empty($aModify) !== true) {
             foreach ($aModify as $iTicket => $aActions) {
                 $oTicketWriter = new Model_Ticket_Source_Writer_Bugzilla($this->_oBugzilla);
-                if (method_exists($oTicketWriter, $sAction) === true) {
-                    $oTicket = $this->_oBugzilla->getBugById($iTicket);
-                    $oTicketWriter->$sAction($oTicket);
-                    $this->_oBugzilla->updateTicket($oTicketWriter);
-
-                    unset($oTicket);
+                $oTicket = $this->_oBugzilla->getBugById($iTicket);
+                foreach ($aActions as $sAction) {
+                    if (method_exists($oTicketWriter, $sAction) === true) {
+                        $oTicketWriter->$sAction($oTicket);
+                    }
                 }
 
+                $this->_oBugzilla->updateTicket($oTicketWriter);
                 unset($oTicketWriter);
+
+                $aTickets[] = $oTicket->id();
             }
         }
+
+        $this->view->aTickets = $this->_oBugzilla->getBugListByIds($aTickets, false);
     }
 }
 

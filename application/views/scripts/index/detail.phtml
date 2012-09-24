@@ -1,23 +1,14 @@
 <blockquote>
-    <p><?php echo $this->oTicket->short_desc ?></p>
+    <p>
+    <?php
+        $this->oTask = $this->oTicket;
+        echo $this->render('index/partial/bug-line.phtml');
+    ?>
+    </p>
 </blockquote>
-<dl class="dl-horizontal">
-    <?php
-    foreach ($this->oTicket->getFlags() as $aFlag):
-    ?>
-        <dt><?php echo $aFlag['name'] ?></dt>
-        <dd>
-            <strong><?php echo $aFlag['status'] ?></strong>
-            (by <?php echo $aFlag['setter']; ?>
-            <?php if (empty($aFlag['requestee']) !== true) {
-                echo sprintf('for %s', $aFlag['requestee']);
-            }?>)
-        </dd>
-    <?php
-    endforeach;
-    ?>
-</dl>
 <?php
+echo $this->render('index/partial/flag.phtml');
+
 foreach ($this->oTicket->long_desc as $oLongDesc):
 ?>
     <blockquote>

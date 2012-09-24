@@ -52,7 +52,9 @@
 class Model_Resource_Manager {
 
     /**
+     * Known ressources
      *
+     * @var array
      */
     protected $_aResources = array();
 
@@ -64,7 +66,11 @@ class Model_Resource_Manager {
     }
 
     /**
+     * Register a resource
      *
+     * @param  Model_Resource_Human $oHuman
+     *
+     * @return $this
      */
     public function registerResource(Model_Resource_Human $oHuman) {
         $this->_aResources[$oHuman->getName()] = $oHuman;
@@ -72,6 +78,8 @@ class Model_Resource_Manager {
     }
 
     /**
+     * Add a ticket to the stack
+     *
      * @param Model_Ticket_Type_Bug $oTicket
      * @param bool                  $bOnlyWorkedBugs
      *
@@ -100,7 +108,13 @@ class Model_Resource_Manager {
     }
 
     /**
+     * Add a project
      *
+     * @param  Model_Project_Container $oProject
+     *
+     * @return $this
+     *
+     * @throws Model_Resource_Manager_Exception If there are no ressources available
      */
     public function addProject(Model_Project_Container $oProject) {
         if (empty($this->_aResources) === true) {
@@ -133,6 +147,6 @@ class Model_Resource_Manager {
             return $this->_aResources[$sName];
         }
 
-        throw new InvalidArgumentException('name "' . $sName . '"not known');
+        throw new InvalidArgumentException('name "' . $sName . '" not known');
     }
 }

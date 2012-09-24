@@ -41,7 +41,7 @@
  */
 
 /**
- * Enter a description ..
+ * Create a human-resource model
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -52,7 +52,11 @@
 abstract class Model_Resource_Builder {
 
     /**
+     * Create a human resource
      *
+     * @param  string $sName
+     *
+     * @return Model_Resource_Human
      */
     public static function build($sName) {
         $oTimecard = new Model_Resource_Human_Timecard();

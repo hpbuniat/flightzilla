@@ -61,9 +61,7 @@ class PlanningController extends Zend_Controller_Action {
      */
     public function init() {
 
-        if (Zend_Auth::getInstance()
-            ->hasIdentity() === true
-        ) {
+        if (Zend_Auth::getInstance()->hasIdentity() === true) {
             $oResource        = new Model_Resource_Manager;
             $this->_oBugzilla = new Model_Ticket_Source_Bugzilla($oResource);
             $this->view->mode = $this
@@ -89,11 +87,9 @@ class PlanningController extends Zend_Controller_Action {
         }
 
         $aTickets = $this->_oBugzilla->getAllBugs();
-
         foreach ($aTickets as $oTicket) {
             $oResource->addTicket($oTicket);
         }
-        //        $this->view->aResource = $oResource->getResource($this->_getParam('name'));
     }
 
     /**
@@ -104,57 +100,13 @@ class PlanningController extends Zend_Controller_Action {
         $this->_oBugzilla->setView($this->view, 'planning');
 
         $oProject = new Model_Project_Container($this->_oBugzilla);
-        $oProject
-            ->setup()
-            ->sortProjects();
+        $oProject->setup()->sortProjects();
 
-        $this->view->aStack  = $oProject->getProjectsAsStack();
-        $this->view->aErrors = $oProject->getErrors();
-        $proj                = $oProject->getProjects();
-
-        $aColors = array(
-            'ganttGreen',
-            'ganttRed',
-            'ganttOrange',
-        );
-
-        $aProjects = array();
-
-        $iColor = $i = 0;
-        foreach ($proj as $project) {
-            if (isset($project['tasks'])) {
-                if ($iColor >= count($aColors)) {
-                    $iColor = 0;
-                }
-                $color = $aColors[$iColor];
-                $iColor++;
-                $bStillTheSameProject = false;
-                foreach ($project['tasks'] as $oTask) {
-
-                    if (false === $bStillTheSameProject) {
-                        $aProjects[$i]['name'] = (string) $project['short_desc'];
-                    }
-                    else {
-                        $aProjects[$i]['name'] = ' ';
-                    }
-                    $aProjects[$i]['desc']      = (string) $oTask->id();
-                    $aProjects[$i]['values'][0] = array(
-                        'from'        => '/Date(' . $oTask->getStartDate() * 1000 . ')/',
-                        'to'          => '/Date(' . $oTask->getEndDate() * 1000 . ')/',
-                        'label'       => (string) $oTask->short_desc,
-                        'customClass' => $color,
-                        'desc'        => '<b>Bearbeiter:</b> ' . (string) $oTask->getAssignee() . '<br>'
-                            . '<b>Start:</b> ' . date('d.m.Y H:i', $oTask->getStartDate()) . '<br>'
-                            . '<b>Ende:</b> ' . date('d.m.Y H:i', $oTask->getEndDate()) . '<br>'
-                            . '<b>Inhalt: </b><br>' . (string) $oTask->long_desc->thetext
-                    );
-                    $i++;
-                    $bStillTheSameProject = true;
-                }
-            }
-        }
-
-        $this->view->projects = str_replace('\/', '/', json_encode($aProjects));
+        $this->view->aStack    = $oProject->getProjectsAsStack();
+        $this->view->aErrors   = $oProject->getErrors();
+        $this->view->aProjects = $oProject->getProjectsRaw();
+        $aProjects             = $oProject->getProjects();
+        $this->view->sProjects = str_replace('\/', '/', json_encode($aProjects));
     }
 
     /**

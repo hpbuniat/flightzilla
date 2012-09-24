@@ -224,18 +224,18 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
      * Do all Bug-related action
      *
      * @param Model_Resource_Manager $oResource
-     * @param boolean                $bFilterProductConfig
-     */
-    public function __construct(Model_Resource_Manager $oResource, $bFilterProductConfig = true) {
+     * @param boolean $bFilterProductConfig
+     * @param Zend_Http_Client $oHttpClient
+    */
+    public function __construct(Model_Resource_Manager $oResource, $bFilterProductConfig = true, Zend_Http_Client $oHttpClient = null) {
         $this->_config = Zend_Registry::get('_Config')->model;
-        $this->_client = new Zend_Http_Client();
+        $this->_client = ($oHttpClient instanceof Zend_Http_Client) ? $oHttpClient : new Zend_Http_Client();
         $this->_client->setEncType(Zend_Http_Client::ENC_FORMDATA);
         $this->_sCookie = '/tmp/cookieBugzilla';
         if (isset($this->_config->bugzilla->http->cookiePath) === true) {
             $this->_sCookie = $this->_config->bugzilla->http->cookiePath . 'cookieBugzilla';
         }
 
-        @unlink($this->_sCookie);
         $aCurlOptions = array(
             CURLOPT_COOKIEFILE => $this->_sCookie,
             CURLOPT_COOKIEJAR => $this->_sCookie,
@@ -587,6 +587,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         $this->_client->setUri($this->_config->bugzilla->baseUrl . '/' . $option . '?' . $queryString);
         $this->_loginToBugzilla();
         $sResult = $this->_client->request()->getBody();
+
         $this->_resetAllParameter();
 
         return $sResult;
@@ -754,6 +755,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
                 elseif ($oBug->isTheme() === true) {
                     $this->_aThemes[$iId] = $oBug;
                 }
+
                 if ($oBug->isProject() === true) {
                     $this->_aProjects[$iId] = $oBug;
                 }
@@ -981,15 +983,18 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
      * @return array
      */
     public function getBugListByIds($mIds, $bCache = true) {
-        $aIds = $mIds;
-        if (is_array($aIds) === false) {
-            $aIds = explode(',', (string) $aIds);
+        if (is_array($mIds) === false) {
+            $aMatch = array();
+            preg_match_all('!\d+!', $mIds, $aMatch);
+            if (empty($aMatch[0]) !== true) {
+                $mIds = $aMatch[0];
+            }
         }
 
-        sort($aIds);
-        $sHash = md5(serialize($aIds));
+        sort($mIds);
+        $sHash = md5(serialize($mIds));
         if (empty($this->_aBugsListCache[$sHash]) === true) {
-            $this->_aBugsListCache[$sHash] = $this->_getXmlFromBugIds($aIds, $bCache);
+            $this->_aBugsListCache[$sHash] = $this->_getXmlFromBugIds($mIds, $bCache);
         }
 
         return $this->_aBugsListCache[$sHash];
@@ -1165,7 +1170,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     public function getThemesAsStack() {
         $aStack = array();
         foreach ($this->_aThemes as $oTheme) {
-            $aStack[$oTheme->id()] = (string) $oTheme->short_desc;
+            $aStack[$oTheme->id()] = $oTheme->title();
         }
 
         ksort($aStack);
@@ -1179,7 +1184,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
     public function getProjectsAsStack() {
         $aStack = array();
         foreach ($this->_aProjects as $oTheme) {
-            $aStack[$oTheme->id()] = (string) $oTheme->short_desc;
+            $aStack[$oTheme->id()] = $oTheme->title();
         }
 
         ksort($aStack);
@@ -1561,7 +1566,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
 
             $iCount = count($this->_allBugs);
             foreach ($this->_allBugs as $oBug) {
-                $this->_aStatuses[(string) $oBug->bug_status]++;
+                $this->_aStatuses[$oBug->getStatus()]++;
             }
 
             $this->_percentify($this->_aStatuses, $iCount);

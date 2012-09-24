@@ -265,6 +265,13 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     protected $_sType;
 
     /**
+     * The tickets keywords
+     *
+     * @var string
+     */
+    protected $_sKeywords = '';
+
+    /**
      * Timestamp when the ticket starts.
      *
      * @var int
@@ -279,19 +286,39 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     protected $_iEndDate = 0;
 
     /**
+     * The ticket-id
+     *
+     * @var int
+     */
+    protected $_iId;
+
+    /**
+     * The ticket-source
+     *
      * @var Model_Ticket_Source_Bugzilla
      */
     protected $_oBugzilla;
 
     /**
+     * The resource manager
+     *
      * @var Model_Resource_Manager
      */
     protected $_oResource;
 
     /**
+     * The timeline, which keeps track of all necessary dates
+     *
      * @var Model_Timeline_Date
      */
     protected $_oDate;
+
+    /**
+     * The tickets-status
+     *
+     * @var string
+     */
+    protected $_sStatus;
 
     /**
      * Create the bug
@@ -303,10 +330,10 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
         $sName = strtok($data->assigned_to, '@');
         $aName = explode('.', strtoupper($sName));
         $this->_data->assignee_name = ucwords(preg_replace('!\W!', ' ', $sName));
-        $this->_data->assignee_short = $aName[0]{0} . $aName[1]{0};
+        $this->_data->assignee_short = $aName[0]{0} . ((isset($aName[1]) === true) ? $aName[1]{0} : '');
 
         $this->_getFlags();
-        $this->_getType();
+        $this->_getProperties();
     }
 
     /**
@@ -327,7 +354,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     public function __wakeup() {
         $this->_data = simplexml_load_string($this->_sleep);
         $this->_getFlags();
-        $this->_getType();
+        $this->_getProperties();
     }
 
     /**
@@ -403,8 +430,8 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return boolean
      */
     public function isQuickOne() {
-        $sStatus = (string) $this->bug_status;
-        return ($sStatus !== Model_Ticket_Type_Bug::STATUS_RESOLVED and (int) $this->estimated_time > 0 and (int) $this->estimated_time <= 3 and (int) $this->actual_time === 0);
+        $iEstimated = (int)  $this->estimated_time;
+        return ($this->getStatus() !== Model_Ticket_Type_Bug::STATUS_RESOLVED and $iEstimated > 0 and $iEstimated <= 3 and (int) $this->actual_time === 0);
     }
 
     /**
@@ -413,7 +440,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return boolean
      */
     public function isMergeable() {
-        $sStatus = (string) $this->bug_status;
+        $sStatus = $this->getStatus();
         return ($this->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING,'?') !== true and ($this->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE,'?') === true or (
             ($sStatus === Model_Ticket_Type_Bug::STATUS_RESOLVED or $sStatus === Model_Ticket_Type_Bug::STATUS_VERIFIED) and $this->hasFlag(Model_Ticket_Type_Bug::FLAG_MERGE,'+') === false and $this->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING,'+'))));
     }
@@ -424,7 +451,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return boolean
      */
     public function isFailed() {
-        return ($this->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING,'-') and $this->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING,'+') !== true and $this->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING,'?') !== true);
+        return ($this->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING, '-') === true and $this->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING,' +') !== true and $this->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING, '?') !== true);
     }
 
     /**
@@ -478,7 +505,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return int
      */
     public function getStartDate() {
-        if ($this->_iStartDate > 0){
+        if ($this->_iStartDate > 0) {
             return $this->_iStartDate;
         }
 
@@ -490,16 +517,33 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
         }
         // is there a deadline?
         elseif ($this->isEstimated() === true and $this->cf_due_date) {
-            $iEndDate = strtotime((string) $this->cf_due_date);
+            $iEndDate = $this->getEndDate();
 
             if (empty($iEndDate) !== true) {
                 $this->_iStartDate = strtotime(sprintf('-%d day ' . Model_Timeline_Date::START, ceil($this->duration() / Model_Timeline_Date::AMOUNT)), $iEndDate);
             }
         }
         // is someone currently working on this ticket?
-        elseif ($this->isWorkedOn() === true) {
-            $iStartDate = $this->getWorkedHours();
-            $this->_iStartDate =  strtotime(sprintf('-%d day ' . Model_Timeline_Date::START, ceil($iStartDate[0]['duration'] / Model_Timeline_Date::AMOUNT)), $iStartDate[0]['date']);
+        elseif ($this->isWorkedOn(Model_Ticket_Type_Bug::STATUS_CLOSED) === true) {
+            $aWorked = $this->getWorkedHours();
+            $iDays = floor($aWorked[0]['duration'] / Model_Timeline_Date::AMOUNT);
+            $fHours = $aWorked[0]['duration'];
+            if ($iDays > 0) {
+                $fHours = ($aWorked[0]['duration'] - ($iDays * Model_Timeline_Date::AMOUNT));
+            }
+
+            $fMinutes = $fHours * 60;
+
+            $sSign = '+';
+            $sStartHour = sprintf('%s:00', Model_Timeline_Date::START);
+            if ($this->isStatusAtLeast(Model_Ticket_Type_Bug::STATUS_RESOLVED) === true) {
+                // when a ticket is already closed, we can substract the worked time from the date, when it was entered
+                $sSign = '-';
+                $sStartHour = '';
+            }
+
+            $sTime = sprintf('-%d day %s %s%d minutes', $iDays, $sStartHour, $sSign, $fMinutes);
+            $this->_iStartDate =  strtotime($sTime, $aWorked[0]['date']);
         }
         // has the human resource other tickets?
         else {
@@ -521,7 +565,6 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
         }
 
         $this->_iStartDate = $this->_oDate->getNextWorkday($this->_iStartDate);
-
         return $this->_iStartDate;
     }
 
@@ -548,21 +591,31 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
         }
 
         if ($this->cf_due_date) {
-            $this->_iEndDate = strtotime((string) $this->cf_due_date);
+            $sEndDate = (string) $this->cf_due_date;
+            $this->_iEndDate = strtotime(str_replace('00:00:00', Model_Timeline_Date::END, $sEndDate));
+        }
+        elseif ($this->isStatusAtLeast(Model_Ticket_Type_Bug::STATUS_RESOLVED) === true) {
+            $aWorked = $this->getWorkedHours();
+            $aLast = end($aWorked);
+
+            $this->_iEndDate = $aLast['date'];
         }
         else {
             // Start date + estimated
             $iStartDate      = $this->getStartDate();
-            $this->_iEndDate = strtotime(sprintf('+%d day ' . Model_Timeline_Date::END, ceil($this->duration() / Model_Timeline_Date::AMOUNT)), $iStartDate);
-        }
+            $iDays           = ceil($this->duration() / Model_Timeline_Date::AMOUNT);
 
-        $this->_iEndDate = $this->_oDate->getNextWorkday($this->_iEndDate);
+            $this->_iEndDate = strtotime(sprintf('+%d day ' . Model_Timeline_Date::END, $iDays), $iStartDate);
+            $this->_iEndDate = $this->_oDate->getNextWorkday($this->_iEndDate);
+        }
 
         return $this->_iEndDate;
     }
 
     /**
+     * Get the tickets duration
      *
+     * @return float
      */
     public function duration() {
         if ($this->isEstimated()) {
@@ -587,7 +640,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return int
      */
     public function id() {
-        return (int) $this->_data->bug_id;
+        return $this->_iId;
     }
 
     /**
@@ -613,7 +666,9 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     }
 
     /**
-     * Check if a ticket depends on a given ticket.
+     * Get some properties for the ticket
+     * - the type
+     * - the id
      *
      * @param Model_Ticket_Type_Bug        $oBug
      *
@@ -637,20 +692,29 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      *
      * @return Model_Ticket_Type_Bug
      */
-    protected function _getType() {
+    protected function _getProperties() {
+        $this->_iId = (int) $this->_data->bug_id;
+        $this->_sKeywords = (string) $this->_data->keywords;
+        $this->_sStatus = (string) $this->bug_status;
+
         $this->_sType = '';
+        $sTitle = $this->title();
         foreach ($this->_aTypes as $sKeywords => $sType) {
             $aKeywords = explode(',', $sKeywords);
             if (empty($aKeywords) !== true) {
                 foreach ($aKeywords as $sKeyword) {
                     if (empty($sKeyword) !== true) {
-                        if (stristr((string) $this->_data->short_desc, $sKeyword) !== false or $this->hasKeyword($sKeyword) === true) {
+                        if (stristr($sTitle, $sKeyword) !== false or $this->hasKeyword($sKeyword) === true) {
                             $this->_sType = $sType;
                         }
                     }
                 }
             }
+
+            unset($aKeywords);
         }
+
+        unset($sTitle);
 
         if (empty($this->_sType) === true) {
             $this->_sType = ($this->isConcept() === true) ? self::TYPE_CONCEPT : self::TYPE_FEATURE;
@@ -662,7 +726,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     /**
      * Check if a bug is a given type
      *
-     * @param $sType
+     * @param  string $sType
      *
      * @return boolean
      */
@@ -727,11 +791,12 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
     /**
      * Check if the bug has been worked on
      *
+     * @param  string $sStatusFilter
+     *
      * @return bool
      */
-    public function isWorkedOn() {
-        $sStatus = (string) $this->bug_status;
-        return ($this->isEstimated() and (bool) ($this->actual_time > 0) and $sStatus !== Model_Ticket_Type_Bug::STATUS_RESOLVED and $sStatus !== Model_Ticket_Type_Bug::STATUS_VERIFIED);
+    public function isWorkedOn($sStatusFilter = Model_Ticket_Type_Bug::STATUS_ASSIGNED) {
+        return ($this->isEstimated() and (bool) ($this->actual_time > 0) and $this->isStatusAtMost($sStatusFilter) === true);
     }
 
     /**
@@ -740,8 +805,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return bool
      */
     public function isActive() {
-        $sStatus = (string) $this->bug_status;
-        return ($sStatus === Model_Ticket_Type_Bug::STATUS_ASSIGNED);
+        return ($this->getStatus() === Model_Ticket_Type_Bug::STATUS_ASSIGNED);
     }
 
     /**
@@ -768,7 +832,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return boolean
      */
     public function hasKeyword($sKeyword) {
-        if (stripos((string) $this->_data->keywords, $sKeyword) !== false) {
+        if (stripos($this->_sKeywords, $sKeyword) !== false) {
             return true;
         }
 
@@ -822,17 +886,16 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
                 return key($aEndDates);
             }
             else {
-                $oTicket = $this->_oBugzilla->getBugById((int) $this->_data->dependson);
+                $iDepends = (int) reset($dependencies);
+                $oTicket = $this->_oBugzilla->getBugById($iDepends);
                 if ($oTicket->isTheme() === false
                     and $oTicket->isProject() === false
                     and $oTicket->isStatusAtMost(Model_Ticket_Type_Bug::STATUS_REOPENED)
                 ) {
 
-                    $iTicket = (int) $this->_data->dependson;
+                    return $iDepends;
                 }
             }
-
-            return $iTicket;
         }
 
         return 0;
@@ -873,7 +936,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return boolean
      */
     public function isClosed() {
-        if ((string) $this->_data->bug_status !== Model_Ticket_Type_Bug::STATUS_CLOSED) {
+        if ($this->getStatus() !== Model_Ticket_Type_Bug::STATUS_CLOSED) {
             return false;
         }
 
@@ -904,7 +967,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return mixed
      */
     public function getDupe() {
-        if ((string) $this->_data->bug_status === Model_Ticket_Type_Bug::STATUS_RESOLVED and isset($this->_data->dup_id) === true) {
+        if ($this->getStatus() === Model_Ticket_Type_Bug::STATUS_RESOLVED and isset($this->_data->dup_id) === true) {
             return $this->_data->dup_id;
         }
 
@@ -968,11 +1031,10 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      *
      * @param  string $sFlag Name of the Flag
      * @param  string $sFilter Filter a specific status
-     * @param  boolean $bNew
      *
      * @return string
      */
-    public function getFlagName($sFlag, $sFilter = '', $bNew = false) {
+    public function getFlagName($sFlag, $sFilter = '') {
         $iCount = 0;
         $aMatchingFlag = '';
         foreach ($this->_flags as $aFlag) {
@@ -990,7 +1052,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
             $sName = $this->_mappedFlags[$sFlag];
         }
         else {
-            $sName = ($iCount > 1) ? sprintf('flag-%d', $aMatchingFlag['id']) : sprintf('flag_type-%d', $aMatchingFlag['type_id']);
+            $sName = ($iCount > 0) ? sprintf('flag-%d', $aMatchingFlag['id']) : sprintf('flag_type-%d', $aMatchingFlag['type_id']);
         }
 
         return $sName;
@@ -1034,7 +1096,16 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return string
      */
     public function getStatus() {
-        return (string) $this->bug_status;
+        return $this->_sStatus;
+    }
+
+    /**
+     * Get the reporter
+     *
+     * @return string
+     */
+    public function getReporter() {
+        return $this->_data->reporter;
     }
 
     /**
@@ -1119,7 +1190,7 @@ class Model_Ticket_Type_Bug extends Model_Ticket_AbstractType {
      * @return string
      */
     public function __toString() {
-        return (string) $this->_data->bug_id;
+        return $this->id();
     }
 
     /**

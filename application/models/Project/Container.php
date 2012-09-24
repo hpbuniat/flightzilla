@@ -80,6 +80,18 @@ class Model_Project_Container {
     protected $_aErrors = array();
 
     /**
+     * Gantt-Graph colors
+     *
+     * @var array
+     */
+    protected $_aColors = array(
+        'ganttGreen',
+        'ganttRed',
+        'ganttOrange',
+    );
+
+
+    /**
      * Create the container
      *
      * @param  Model_Ticket_Source_Bugzilla $oBugzilla
@@ -91,7 +103,7 @@ class Model_Project_Container {
     /**
      * Collect all projects
      *
-     * @return Model_Project_Container
+     * @return $this
      */
     public function setup() {
         $aThemes = $this->_oBugzilla->getThemes();
@@ -105,7 +117,9 @@ class Model_Project_Container {
     }
 
     /**
+     * Sort the themes
      *
+     * @return $this
      */
     public function sortThemes() {
         $this->_aOrderedProjects = array();
@@ -116,7 +130,13 @@ class Model_Project_Container {
                     $oSort->add($this->_oBugzilla->getBugById($iBug));
                 }
 
-                $this->_aOrderedProjects[$oProject->id()] = $oSort->getSortedBugs();
+                try {
+                    $this->_aOrderedProjects[$oProject->id()] = $oSort->getSortedBugs();
+                }
+                catch (Model_Project_Sorting_DataException $e) {
+                    $this->_aErrors[] = $e->getMessage();
+                }
+
                 unset($oSort);
             }
             catch (Exception $e) {
@@ -128,7 +148,9 @@ class Model_Project_Container {
     }
 
     /**
+     * Sort the projects
      *
+     * @return $this
      */
     public function sortProjects() {
         $this->_aOrderedProjects = array();
@@ -139,14 +161,16 @@ class Model_Project_Container {
                     $oSort->add($this->_oBugzilla->getBugById($iBug));
                 }
 
-                $this->_aOrderedProjects[$oProject->id()]['short_desc'] = $oProject->short_desc;
+                $this->_aOrderedProjects[$oProject->id()]['short_desc'] = $oProject->title();
                 $this->_aOrderedProjects[$oProject->id()]['tasks'] = $oSort->getSortedBugs();
                 unset($oSort);
             }
             catch (Exception $e) {
-                $this->_aErrors[] = $e->getMessage();
+                $this->_aErrors[] = sprintf('%s (Project: %d)', $e->getMessage(), $oProject->id());
             }
         }
+
+        return $this;
     }
 
     /**
@@ -155,7 +179,16 @@ class Model_Project_Container {
      * @return array
      */
     public function getProjects() {
-        return $this->_aOrderedProjects;
+        return $this->_createGanttData();
+    }
+
+    /**
+     * Get the raw project-data
+     *
+     * @return array
+     */
+    public function getProjectsRaw() {
+        return $this->_createIterator();
     }
 
     /**
@@ -166,7 +199,7 @@ class Model_Project_Container {
     public function getProjectsAsStack() {
         $aStack = array();
         foreach ($this->_aProjects as $oTheme) {
-            $aStack[$oTheme->id()] = (string) $oTheme->short_desc;
+            $aStack[$oTheme->id()] = $oTheme->title();
         }
 
         return $aStack;
@@ -179,5 +212,72 @@ class Model_Project_Container {
      */
     public function getErrors() {
         return $this->_aErrors;
+    }
+
+    /**
+     * Create gantt-view-data
+     *
+     * @return array
+     */
+    protected function _createGanttData() {
+        $iColor = $i = 0;
+        $aProjects = array();
+        foreach ($this->_aOrderedProjects as $project) {
+            if (isset($project['tasks']) === true) {
+                if ($iColor >= count($this->_aColors)) {
+                    $iColor = 0;
+                }
+
+                $color = $this->_aColors[$iColor];
+                $iColor++;
+                $bStillTheSameProject = false;
+                foreach ($project['tasks'] as $oTask) {
+                    /* @var Model_Ticket_Type_Bug $oTask */
+
+                    $aProjects[$i]['name'] = (false === $bStillTheSameProject) ? (string) $project['short_desc'] : ' ';
+                    $aProjects[$i]['desc'] = (string) $oTask->id();
+                    $aProjects[$i]['values'][0] = array(
+                        'from'        => '/Date(' . $oTask->getStartDate() * 1000 . ')/',
+                        'to'          => '/Date(' . $oTask->getEndDate() * 1000 . ')/',
+                        'label'       => $oTask->title(),
+                        'customClass' => $color,
+                        'desc'        => '<b>' . $oTask->title() . '</b><br />'
+                            . '<b>Assignee:</b> ' . (string) $oTask->getAssignee() . '<br />'
+                            . '<b>Start:</b> ' . date('d.m.Y H:i', $oTask->getStartDate()) . '<br />'
+                            . '<b>Ende:</b> ' . date('d.m.Y H:i', $oTask->getEndDate()) . '<br />'
+                            . (string) $oTask->long_desc->thetext
+                    );
+                    $i++;
+                    $bStillTheSameProject = true;
+                }
+            }
+        }
+
+        return $aProjects;
+    }
+
+    /**
+     * Get the projects as iterateable data
+     *
+     * @return array
+     */
+    protected function _createIterator() {
+        $aProjects = array();
+        foreach ($this->_aOrderedProjects as $iTicket => $aProject) {
+            if (isset($aProject['tasks']) === true) {
+                $aStruct = array(
+                    'name' => (string) $aProject['short_desc'],
+                    'ticket' => $iTicket,
+                    'tasks' => array()
+                );
+                foreach ($aProject['tasks'] as $oTask) {
+                    $aStruct['tasks'][] = $oTask;
+                }
+
+                $aProjects[] = $aStruct;
+            }
+        }
+
+        return $aProjects;
     }
 }
