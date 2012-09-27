@@ -81,7 +81,7 @@ class View_Helper_Buggradient extends Zend_View_Helper_Abstract {
             $aColors[] = 'orchid';
         }
 
-        if ($oBug->isFailed()) {
+        if ($oBug->isFailed() === true and $bTestingGranted !== true) {
             $aColors[] = 'crimson';
         }
 
