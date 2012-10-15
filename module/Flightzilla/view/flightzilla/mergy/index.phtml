@@ -1,0 +1,40 @@
+<?php echo $this->render('flightzilla/index/partial/header.phtml')?>
+
+<div class="row-fluid">
+    <?php
+    echo $this->render('flightzilla/index/partial/overview.phtml');
+    ?>
+
+    <div class="span10">
+        <form id="buglist-form" method="get" target="_blank" action="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'go-bugzilla'))?>">
+        <?php
+        echo $this->partial('flightzilla/index/partial/table.phtml', array(
+            'caption' => 'Mergeable issues',
+            'sBugzilla' => $this->sBugzilla,
+            'bugs' => $this->bugsBranch,
+            'ready' => 'REVIEWED'
+        ));
+
+        echo $this->partial('flightzilla/index/partial/table.phtml', array(
+            'caption' => 'Fixed without pending flags',
+            'sBugzilla' => $this->sBugzilla,
+            'bugs' => $this->bugsFixed,
+        ));
+        ?>
+        </form>
+
+        <p>
+            <a class="btn btn-large commit merge-button" href="javascript:;">Merge & Commit</a>
+            <a class="btn btn-primary btn-large merge-button" href="javascript:;">Merge</a>
+        </p>
+        <div id="container" data-repos='<?php echo $this->sRepositories?>'></div>
+    </div>
+
+    <h4 id="quickList" class="bugCount" style="display:none"></h4>
+</div>
+
+<script type="text/javascript">
+    $(function() {
+        $('a.mergeable.toggleBugs').trigger('click');
+    });
+</script>

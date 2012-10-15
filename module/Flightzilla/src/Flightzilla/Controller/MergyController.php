@@ -1,0 +1,119 @@
+<?php
+/**
+ * flightzilla
+ *
+ * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in
+ * the documentation and/or other materials provided with the
+ * distribution.
+ *
+ * * Neither the name of Hans-Peter Buniat nor the names of his
+ * contributors may be used to endorse or promote products derived
+ * from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+    * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @package flightzilla
+ * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @license http://opensource.org/licenses/BSD-3-Clause
+ */
+namespace Flightzilla\Controller;
+
+use Zend\Mvc\Controller\AbstractActionController,
+    Zend\View\Model\ViewModel,
+    Flightzilla\Controller\Plugin\TicketService;
+
+/**
+ * Access mergy-related methods
+ *
+ * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @license http://opensource.org/licenses/BSD-3-Clause
+ * @version Release: @package_version@
+ * @link https://github.com/hpbuniat/flightzilla
+ */
+class MergyController extends AbstractActionController {
+
+    /**
+     *
+     */
+    public function indexAction() {
+        $this->_oBugzilla->setView($this->view);
+        $this->view->sRepositories = json_encode(array_keys($this->getServiceLocator()->get('_serviceConfig')->model->mergy->source->toArray()));
+    }
+
+    /**
+     *
+     */
+    public function mergeAction() {
+        $this->_helper->layout()->disableLayout();
+
+        $sRepository = $this->_getParam('repo');
+        $oConfig = $this->getServiceLocator()->get('_serviceConfig')->model->mergy;
+        $oMergy = new \Flightzilla\Model\Mergy\Invoker(new \Flightzilla\Model\Command());
+
+        $sTickets = $this->_getParam('tickets');
+        $bCommit = (bool) $this->_getParam('commit', false);
+        try {
+            if (empty($sTickets) !== true and isset($oConfig->source->$sRepository) === true) {
+                $oSource = $oConfig->source->$sRepository;
+                $this->view->sResult = $oMergy->merge($oConfig->command, $oSource, $sTickets, $bCommit)->getOutput();
+                $this->view->sMessage = $oMergy->getMessage();
+                $this->view->bSuccess = $oMergy->isSuccess();
+            }
+        }
+        catch (Exception $e) {
+            $this->getResponse()->setHttpResponseCode(400);
+        }
+    }
+
+    /**
+     *
+     */
+    public function mergelistAction() {
+        $this->_helper->layout()->disableLayout();
+
+        $oConfig = $this->getServiceLocator()->get('_serviceConfig')->model->mergy;
+        $oMergy = new \Flightzilla\Model\Mergy\Invoker(new \Flightzilla\Model\Command());
+
+        $sTickets = $this->_getParam('tickets');
+
+        try {
+            if (empty($sTickets) !== true) {
+                $oSources = $oConfig->source;
+                foreach ($oSources as $sName => $oSource) {
+                    $oMergy->mergelist(new \Flightzilla\Model\Mergy\Revision\Stack($sName, $oSource), $oConfig->command, $oSource, $sTickets);
+                }
+            }
+
+            $this->view->aMergyStack = $oMergy->getStack();
+            unset($oConfig, $oMergy);
+        }
+        catch (Exception $e) {
+            $this->getResponse()->setHttpResponseCode(400);
+        }
+    }
+}
+
