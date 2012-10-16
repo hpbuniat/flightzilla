@@ -10,41 +10,41 @@ echo $this->render('flightzilla/index/partial/overview.phtml');
 <?php
 echo $this->partial('flightzilla/index/partial/table.phtml', array(
     'caption' => 'Update-Testserver!',
-    'sBugzilla' => $this->sBugzilla,
+    'sBugzilla' => $this->layout()->sBugzilla,
     'bugs' => $this->bugsTestserver,
     'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_REVIEWED
 ));
 
 echo $this->partial('flightzilla/index/partial/table.phtml', array(
     'caption' => 'Reopened issues',
-    'sBugzilla' => $this->sBugzilla,
+    'sBugzilla' => $this->layout()->sBugzilla,
     'bugs' => $this->bugsReopened,
     'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_REVIEWED
 ));
 
 echo $this->partial('flightzilla/index/partial/table.phtml', array(
     'caption' => 'Mergeable issues',
-    'sBugzilla' => $this->sBugzilla,
+    'sBugzilla' => $this->layout()->sBugzilla,
     'bugs' => $this->bugsBranch,
     'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_REVIEWED
 ));
 
 echo $this->partial('flightzilla/index/partial/table.phtml', array(
     'caption' => 'Ready for release',
-    'sBugzilla' => $this->sBugzilla,
+    'sBugzilla' => $this->layout()->sBugzilla,
     'bugs' => $this->bugsTrunk,
     'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED
 ));
 
 echo $this->partial('flightzilla/index/partial/table.phtml', array(
     'caption' => 'Fixed without pending flags',
-    'sBugzilla' => $this->sBugzilla,
+    'sBugzilla' => $this->layout()->sBugzilla,
     'bugs' => $this->bugsFixed,
 ));
 
 echo $this->partial('flightzilla/index/partial/table.phtml', array(
     'caption' => 'Issues w/o themes',
-    'sBugzilla' => $this->sBugzilla,
+    'sBugzilla' => $this->layout()->sBugzilla,
     'bugs' => $this->bugsUnthemed,
     'ready' => false
 ));
@@ -54,8 +54,8 @@ echo $this->partial('flightzilla/index/partial/table.phtml', array(
     foreach($this->bugsOpen as $sTheme => $aBugs):
         $iBug = preg_replace('/\D/', '', $sTheme);
         echo $this->partial('flightzilla/index/partial/table.phtml', array(
-            'caption' => sprintf('%s - <a target="_blank" href="%s/show_bug.cgi?id=%s">%s</a>', $iBug, $this->sBugzilla, $iBug, trim(str_replace($iBug, '', $sTheme))),
-            'sBugzilla' => $this->sBugzilla,
+            'caption' => sprintf('%s - <a target="_blank" href="%s/show_bug.cgi?id=%s">%s</a>', $iBug, $this->layout()->sBugzilla, $iBug, trim(str_replace($iBug, '', $sTheme))),
+            'sBugzilla' => $this->layout()->sBugzilla,
             'bugs' => $aBugs,
             'ready' => false,
         ));

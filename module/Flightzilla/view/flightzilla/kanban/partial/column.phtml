@@ -13,7 +13,7 @@ foreach ($this->aStack as $oTicket) {
                 ?>
             </div>
             <div class="description">
-                <a class="bugLink" target="_blank" data-title="<?php echo $this->escapeHtml($oTicket->title())?>" href="<?php echo $this->sBugzilla?>/show_bug.cgi?id=<?php echo $oTicket->bug_id?>"><?php echo $this->escapeHtml($oTicket->title())?></a>
+                <a class="bugLink" target="_blank" data-title="<?php echo $this->escapeHtml($oTicket->title())?>" href="<?php echo $this->layout()->sBugzilla; ?>/show_bug.cgi?id=<?php echo $oTicket->bug_id?>"><?php echo $this->escapeHtml($oTicket->title())?></a>
             </div>
             <div class="bottom">
                 <?php
@@ -28,7 +28,7 @@ foreach ($this->aStack as $oTicket) {
                     if (empty($iTheme) !== true):
                 ?>
                         <span class="pull-left theme label label-info">
-                            <a class="bugLink" target="_blank" data-title="<?php echo $this->escapeHtml($this->aThemes[$iTheme]); ?>" href="<?php echo $this->sBugzilla?>/show_bug.cgi?id=<?php echo $iTheme; ?>"><?php echo $iTheme; ?></a>
+                            <a class="bugLink" target="_blank" data-title="<?php echo $this->escapeHtml($this->aThemes[$iTheme]); ?>" href="<?php echo $this->layout()->sBugzilla; ?>/show_bug.cgi?id=<?php echo $iTheme; ?>"><?php echo $iTheme; ?></a>
                         </span>
                 <?php
                     endif;

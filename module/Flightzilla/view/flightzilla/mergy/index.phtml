@@ -10,14 +10,14 @@
         <?php
         echo $this->partial('flightzilla/index/partial/table.phtml', array(
             'caption' => 'Mergeable issues',
-            'sBugzilla' => $this->sBugzilla,
+            'sBugzilla' => $this->layout()->sBugzilla,
             'bugs' => $this->bugsBranch,
             'ready' => 'REVIEWED'
         ));
 
         echo $this->partial('flightzilla/index/partial/table.phtml', array(
             'caption' => 'Fixed without pending flags',
-            'sBugzilla' => $this->sBugzilla,
+            'sBugzilla' => $this->layout()->sBugzilla,
             'bugs' => $this->bugsFixed,
         ));
         ?>

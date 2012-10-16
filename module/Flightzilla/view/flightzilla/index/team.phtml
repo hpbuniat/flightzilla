@@ -11,7 +11,7 @@ echo $this->render('flightzilla/index/partial/overview.phtml');
 foreach ($this->aMemberBugs as $sName => $aBugs) {
     echo $this->partial('flightzilla/index/partial/table.phtml', array(
           'caption' => $sName,
-          'sBugzilla' => $this->sBugzilla,
+          'sBugzilla' => $this->layout()->sBugzilla,
           'bugs' => $aBugs,
           'ready' => 'REVIEWED'
      ));

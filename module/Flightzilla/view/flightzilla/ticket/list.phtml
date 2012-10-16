@@ -1,5 +1,9 @@
 <form id="change-form" method="GET" action="<?php echo $this->url('flightzilla', array('controller' => 'ticket', 'action' => 'modify'))?>">
     <?php
+    if (empty($this->aTickets) === true) {
+        $this->aTickets = array();
+    }
+
     foreach ($this->aTickets as $oTicket):
     /* @var $oTicket \Flightzilla\Model\Ticket\Type\Bug */
     ?>
