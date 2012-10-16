@@ -42,11 +42,6 @@ return array(
                 'child_routes' => array(
                     'default' => array(
                         'type' => 'Wildcard',
-                        'options' => array(
-                            'key_value_delimiter' => '/',
-                            'param_delimiter' => '/',
-                        ),
-                        'may_terminate' => true,
                     ),
                 ),
             ),
