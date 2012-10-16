@@ -148,7 +148,10 @@ class Authenticate extends AbstractPlugin {
      */
     public function clearIdentity() {
         setcookie(self::COOKIE_NAME, '', -1);
-        $this->getAuthService()->clearIdentity();
+        $oAuthService = $this->getAuthService();
+        if ($oAuthService->hasIdentity()) {
+            $oAuthService->clearIdentity();
+        }
     }
 
     /**
