@@ -60,46 +60,55 @@ class MergyController extends AbstractActionController {
      *
      */
     public function indexAction() {
-        $this->_oBugzilla->setView($this->view);
-        $this->view->sRepositories = json_encode(array_keys($this->getServiceLocator()->get('_serviceConfig')->model->mergy->source->toArray()));
+        $oViewModel = new ViewModel;
+        $oViewModel->mode = 'mergy';
+
+        $this->getPluginManager()->get(TicketService::NAME)->init($this, $oViewModel);
+        $oViewModel->sRepositories = json_encode(array_keys($this->get('_serviceConfig')->mergy->source->toArray()));
+        return $oViewModel;
     }
 
     /**
      *
      */
     public function mergeAction() {
-        $this->_helper->layout()->disableLayout();
+        $oViewModel = new ViewModel;
+        $oViewModel->setTerminal(true);
+        $oViewModel->mode = 'mergy';
 
-        $sRepository = $this->_getParam('repo');
-        $oConfig = $this->getServiceLocator()->get('_serviceConfig')->model->mergy;
+        $sRepository = $this->params('repo');
+        $oConfig = $this->get('_serviceConfig')->mergy;
         $oMergy = new \Flightzilla\Model\Mergy\Invoker(new \Flightzilla\Model\Command());
 
-        $sTickets = $this->_getParam('tickets');
-        $bCommit = (bool) $this->_getParam('commit', false);
+        $sTickets = $this->params('tickets');
+        $bCommit = (bool) $this->params('commit', false);
         try {
             if (empty($sTickets) !== true and isset($oConfig->source->$sRepository) === true) {
                 $oSource = $oConfig->source->$sRepository;
-                $this->view->sResult = $oMergy->merge($oConfig->command, $oSource, $sTickets, $bCommit)->getOutput();
-                $this->view->sMessage = $oMergy->getMessage();
-                $this->view->bSuccess = $oMergy->isSuccess();
+                $oViewModel->sResult = $oMergy->merge($oConfig->command, $oSource, $sTickets, $bCommit)->getOutput();
+                $oViewModel->sMessage = $oMergy->getMessage();
+                $oViewModel->bSuccess = $oMergy->isSuccess();
             }
         }
         catch (Exception $e) {
             $this->getResponse()->setHttpResponseCode(400);
         }
+
+        return $oViewModel;
     }
 
     /**
      *
      */
     public function mergelistAction() {
-        $this->_helper->layout()->disableLayout();
+        $oViewModel = new ViewModel;
+        $oViewModel->setTerminal(true);
+        $oViewModel->mode = 'mergy';
 
-        $oConfig = $this->getServiceLocator()->get('_serviceConfig')->model->mergy;
+        $oConfig = $this->get('_serviceConfig')->mergy;
         $oMergy = new \Flightzilla\Model\Mergy\Invoker(new \Flightzilla\Model\Command());
 
-        $sTickets = $this->_getParam('tickets');
-
+        $sTickets = $this->params('tickets');
         try {
             if (empty($sTickets) !== true) {
                 $oSources = $oConfig->source;
@@ -108,12 +117,14 @@ class MergyController extends AbstractActionController {
                 }
             }
 
-            $this->view->aMergyStack = $oMergy->getStack();
+            $oViewModel->aMergyStack = $oMergy->getStack();
             unset($oConfig, $oMergy);
         }
         catch (Exception $e) {
             $this->getResponse()->setHttpResponseCode(400);
         }
+
+        return $oViewModel;
     }
 }
 

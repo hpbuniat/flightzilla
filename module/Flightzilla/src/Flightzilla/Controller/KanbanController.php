@@ -61,6 +61,8 @@ class KanbanController extends AbstractActionController {
      */
     public function boardAction() {
         $oViewModel = new ViewModel;
+        $oViewModel->mode = 'board';
+
         $this->getPluginManager()->get(TicketService::NAME)->init($this, $oViewModel, 'board');
         return $oViewModel;
     }

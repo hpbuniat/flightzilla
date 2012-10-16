@@ -88,7 +88,10 @@ class IndexController extends AbstractActionController {
      */
     public function indexAction() {
         $oViewModel = new ViewModel;
+        $oViewModel->mode = 'list';
+
         $this->getPluginManager()->get(TicketService::NAME)->init($this, $oViewModel);
+
         return $oViewModel;
     }
 
@@ -97,6 +100,8 @@ class IndexController extends AbstractActionController {
      */
     public function dashboardAction() {
         $oViewModel = new ViewModel;
+        $oViewModel->mode = 'dashboard';
+
         $this->getPluginManager()->get(TicketService::NAME)->init($this, $oViewModel);
         return $oViewModel;
     }
@@ -106,6 +111,8 @@ class IndexController extends AbstractActionController {
      */
     public function teamAction() {
         $oViewModel = new ViewModel;
+        $oViewModel->mode = 'team';
+
         $this->getPluginManager()->get(TicketService::NAME)->init($this, $oViewModel);
         return $oViewModel;
     }
@@ -115,6 +122,7 @@ class IndexController extends AbstractActionController {
      */
     public function summaryAction() {
         $oViewModel = new ViewModel;
+        $oViewModel->mode = 'summary';
 
         $sDate = $this->params('date');
         if (strtotime($sDate) === false or strtotime($sDate) === 0) {
