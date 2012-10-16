@@ -1,4 +1,4 @@
-<form id="change-form" method="GET" action="<?php echo $this->url(array('ticket' => 'index', 'action' => 'modify'))?>">
+<form id="change-form" method="GET" action="<?php echo $this->url('flightzilla', array('controller' => 'ticket', 'action' => 'modify'))?>">
     <?php
     foreach ($this->aTickets as $oTicket):
     /* @var $oTicket \Flightzilla\Model\Ticket\Type\Bug */
