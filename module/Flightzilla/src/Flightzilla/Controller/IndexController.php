@@ -158,7 +158,7 @@ class IndexController extends AbstractActionController {
      */
     public function goBugzillaAction() {
         $params = implode(',', $this->params('id'));
-        $this->redirect()->toUrl($this->get('_serviceConfig')->bugzilla->baseUrl . '/buglist.cgi?quicksearch=' . $params);
+        $this->redirect()->toUrl($this->getServiceLocator()->get('_serviceConfig')->bugzilla->baseUrl . '/buglist.cgi?quicksearch=' . $params);
         exit();
     }
 }

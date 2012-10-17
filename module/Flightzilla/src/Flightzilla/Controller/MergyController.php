@@ -64,7 +64,7 @@ class MergyController extends AbstractActionController {
         $oViewModel->mode = 'mergy';
 
         $this->getPluginManager()->get(TicketService::NAME)->init($this, $oViewModel);
-        $oViewModel->sRepositories = json_encode(array_keys($this->get('_serviceConfig')->mergy->source->toArray()));
+        $oViewModel->sRepositories = json_encode(array_keys($this->getServiceLocator()->get('_serviceConfig')->mergy->source->toArray()));
         return $oViewModel;
     }
 
@@ -77,7 +77,7 @@ class MergyController extends AbstractActionController {
         $oViewModel->mode = 'mergy';
 
         $sRepository = $this->params('repo');
-        $oConfig = $this->get('_serviceConfig')->mergy;
+        $oConfig = $this->getServiceLocator()->get('_serviceConfig')->mergy;
         $oMergy = new \Flightzilla\Model\Mergy\Invoker(new \Flightzilla\Model\Command());
 
         $sTickets = $this->params('tickets');
@@ -105,7 +105,7 @@ class MergyController extends AbstractActionController {
         $oViewModel->setTerminal(true);
         $oViewModel->mode = 'mergy';
 
-        $oConfig = $this->get('_serviceConfig')->mergy;
+        $oConfig = $this->getServiceLocator()->get('_serviceConfig')->mergy;
         $oMergy = new \Flightzilla\Model\Mergy\Invoker(new \Flightzilla\Model\Command());
 
         $sTickets = $this->params('tickets');
