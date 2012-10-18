@@ -95,6 +95,10 @@ class View_Helper_Workflow extends Zend_View_Helper_Abstract {
             $sClasses .= Model_Ticket_Type_Bug::WORKFLOW_COMMENT . ' ';
         }
 
+        if ($oBug->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING, '?') === true) {
+            $sClasses .= Model_Ticket_Type_Bug::WORKFLOW_TESTING . ' ';
+        }
+
         if ($oBug->isChangedWithinLimit(Zend_Registry::get('_Config')->model->tickets->workflow->timeout) !== true) {
             $sClasses .= Model_Ticket_Type_Bug::WORKFLOW_TIMEDOUT . ' ';
         }

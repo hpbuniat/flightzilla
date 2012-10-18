@@ -17,7 +17,7 @@
                     Check, if testing of the changes is requested
                 </label>
             </li>
-            <?php elseif ($oTicket->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING, Model_Ticket_Source_Bugzilla::BUG_FLAG_DENIED) === true): ?>
+            <?php elseif ($oTicket->isFailed() === true and $oTicket->hasFlag(Model_Ticket_Type_Bug::FLAG_TESTING, Model_Ticket_Source_Bugzilla::BUG_FLAG_GRANTED) === false): ?>
             <li>
                 <label class="checkbox">
                     <input type="checkbox" value="reTest" name="modify[<?php echo $oTicket->id();?>][]" />

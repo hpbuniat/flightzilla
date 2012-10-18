@@ -231,7 +231,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         $this->_config = Zend_Registry::get('_Config')->model;
         $this->_client = ($oHttpClient instanceof Zend_Http_Client) ? $oHttpClient : new Zend_Http_Client();
         $this->_client->setEncType(Zend_Http_Client::ENC_FORMDATA);
-        $this->_sCookie = '/tmp/cookieBugzilla';
+        $this->_sCookie = APPLICATION_PATH . '/cache/cookieBugzilla';
         if (isset($this->_config->bugzilla->http->cookiePath) === true) {
             $this->_sCookie = $this->_config->bugzilla->http->cookiePath . 'cookieBugzilla';
         }
@@ -1588,7 +1588,7 @@ class Model_Ticket_Source_Bugzilla extends Model_Ticket_AbstractSource {
         foreach ($aStack as &$mStat) {
             $mStat = array(
                 'num' => $mStat,
-                'per' => round(($mStat / $iCount) * 100, 2)
+                'per' => ($iCount === 0) ? 0 : round(($mStat / $iCount) * 100, 2)
             );
         }
 
