@@ -1,41 +1,8 @@
 <?php
 $this->iRendered = 0;
-foreach ($this->aStack as $oTicket) {
-    if ($oTicket->isChangedWithinLimit($this->oConfig->tickets->workflow->board) === true) {
+foreach ($this->aStack as $this->oTicket) {
+    if ($this->oTicket->isChangedWithinLimit($this->oConfig->tickets->workflow->board) === true) {
         $this->iRendered++;
-        $bReady = ($this->ready !== false and $oTicket->resolution === $this->ready);
-?>
-        <div class="pin" style="<?php echo $this->buggradient($oTicket, $bReady, false);?>">
-            <div class="top label <?php echo $this->prioritycolor($oTicket); ?>">
-                <?php
-                    echo $this->ticketicons($oTicket);
-                    echo $this->deadlinestatus($oTicket);
-                ?>
-            </div>
-            <div class="description">
-                <a class="bugLink" target="_blank" data-title="<?php echo $this->escapeHtml($oTicket->title())?>" href="<?php echo $this->layout()->sBugzilla; ?>/show_bug.cgi?id=<?php echo $oTicket->bug_id?>"><?php echo $this->escapeHtml($oTicket->title())?></a>
-            </div>
-            <div class="bottom">
-                <?php
-                    echo $this->estimation($oTicket, 'board');
-                    if ($oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED or $oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_NEW):
-                ?>
-                        <span class="pull-left status label label-success">NEW</span>
-                <?php
-                    endif;
-
-                    $iTheme = $oTicket->getTheme();
-                    if (empty($iTheme) !== true):
-                ?>
-                        <span class="pull-left theme label label-info">
-                            <a class="bugLink" target="_blank" data-title="<?php echo $this->escapeHtml($this->aThemes[$iTheme]); ?>" href="<?php echo $this->layout()->sBugzilla; ?>/show_bug.cgi?id=<?php echo $iTheme; ?>"><?php echo $iTheme; ?></a>
-                        </span>
-                <?php
-                    endif;
-                ?>
-            </div>
-        </div>
-<?php
+        echo $this->render('flightzilla/kanban/partial/pin.phtml');
     }
 }
-?>

@@ -121,6 +121,17 @@ class IndexController extends AbstractActionController {
     /**
      *
      */
+    public function teamdashAction() {
+        $oViewModel = new ViewModel;
+        $oViewModel->mode = 'team';
+
+        $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
+        return $oViewModel;
+    }
+
+    /**
+     *
+     */
     public function summaryAction() {
         $oViewModel = new ViewModel;
         $oViewModel->mode = 'summary';
