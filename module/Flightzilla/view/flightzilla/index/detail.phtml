@@ -1,3 +1,4 @@
+<?php if ($oTicket instanceof \Flightzilla\Model\Ticket\Type\Bug): ?>
 <blockquote>
     <p>
     <?php
@@ -17,4 +18,11 @@ foreach ($this->oTicket->long_desc as $oLongDesc):
     </blockquote>
 <?php
 endforeach;
+else:
+    ?>
+<blockquote>
+    <p>Ticket not found</p>
+</blockquote>
+<?php
+endif;
 ?>

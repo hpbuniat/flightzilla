@@ -124,7 +124,7 @@ class IndexController extends AbstractActionController {
         $oViewModel = new ViewModel;
         $oViewModel->mode = 'summary';
 
-        $sDate = $this->params('date');
+        $sDate = $this->params()->fromPost('date');
         if (strtotime($sDate) === false or strtotime($sDate) === 0) {
             $sDate = '';
         }
@@ -145,7 +145,7 @@ class IndexController extends AbstractActionController {
         $oViewModel = new ViewModel;
         $oViewModel->setTerminal(true);
 
-        $sTicket = $this->params('ticket');
+        $sTicket = $this->params()->fromPost('ticket');
         if (empty($sTicket) !== true) {
             $oViewModel->oTicket = $this->getPluginManager()->get(TicketService::NAME)->getBugById($sTicket);
         }
