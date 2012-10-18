@@ -116,6 +116,6 @@ class TicketService extends AbstractPlugin {
         $oView->sChuck = $oTicketService->getChuckStatus();
         $oView->aThemes = $oTicketService->getThemesAsStack();
 
-        return $this;
+        return $oTicketService;
     }
 }

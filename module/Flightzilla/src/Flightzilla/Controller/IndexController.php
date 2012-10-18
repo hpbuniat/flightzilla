@@ -66,7 +66,8 @@ class IndexController extends AbstractActionController {
         /* @var $oAuth Authenticate */
         $oAuth->clearIdentity();
 
-        if ($this->params()->fromPost('username', false) !== false and $this->params()->fromPost('password', false) !== false) {
+        $oParams = $this->params();
+        if ($oParams->fromPost('username', false) !== false and $oParams->fromPost('password', false) !== false) {
             if ($oAuth->performAuthentication()->hasIdentity() === true) {
                 $oAuth->persist();
             }
@@ -157,7 +158,7 @@ class IndexController extends AbstractActionController {
      *
      */
     public function goBugzillaAction() {
-        $params = implode(',', $this->params('id'));
+        $params = implode(',', $this->params()->fromQuery('id'));
         $this->redirect()->toUrl($this->getServiceLocator()->get('_serviceConfig')->bugzilla->baseUrl . '/buglist.cgi?quicksearch=' . $params);
         exit();
     }

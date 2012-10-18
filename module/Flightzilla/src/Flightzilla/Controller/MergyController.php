@@ -76,12 +76,13 @@ class MergyController extends AbstractActionController {
         $oViewModel->setTerminal(true);
         $oViewModel->mode = 'mergy';
 
-        $sRepository = $this->params()->fromPost('repo');
+        $oParams = $this->params();
+        $sRepository = $oParams->fromPost('repo');
         $oConfig = $this->getServiceLocator()->get('_serviceConfig')->mergy;
         $oMergy = new \Flightzilla\Model\Mergy\Invoker(new \Flightzilla\Model\Command());
 
-        $sTickets = $this->params()->fromPost('tickets');
-        $bCommit = (bool) $this->params()->fromPost('commit', false);
+        $sTickets = $oParams->fromPost('tickets');
+        $bCommit = (bool) $oParams->fromPost('commit', false);
         try {
             if (empty($sTickets) !== true and isset($oConfig->source->$sRepository) === true) {
                 $oSource = $oConfig->source->$sRepository;
