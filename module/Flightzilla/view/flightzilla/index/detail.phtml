@@ -1,0 +1,28 @@
+<?php if ($oTicket instanceof \Flightzilla\Model\Ticket\Type\Bug): ?>
+<blockquote>
+    <p>
+    <?php
+        $this->oTask = $this->oTicket;
+        echo $this->render('flightzilla/index/partial/bug-line.phtml');
+    ?>
+    </p>
+</blockquote>
+<?php
+echo $this->render('flightzilla/index/partial/flag.phtml');
+
+foreach ($this->oTicket->long_desc as $oLongDesc):
+?>
+    <blockquote>
+        <pre><?php echo (string) $oLongDesc->thetext ?></pre>
+        <small><?php echo (string) $oLongDesc->who ?> @ <?php echo (string) $oLongDesc->bug_when ?></small>
+    </blockquote>
+<?php
+endforeach;
+else:
+    ?>
+<blockquote>
+    <p>Ticket not found</p>
+</blockquote>
+<?php
+endif;
+?>

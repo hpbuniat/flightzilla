@@ -1,0 +1,14 @@
+{
+    "name": "hpbuniat/flightzilla",
+    "description": "flightzilla",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "bugzilla",
+        "flightzilla"
+    ],
+    "homepage": "https://github.com/hpbuniat/flightzilla",
+    "require": {
+        "php": ">=5.3.3",
+        "zendframework/zendframework": "2.*"
+    }
+}

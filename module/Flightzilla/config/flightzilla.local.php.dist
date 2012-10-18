@@ -1,0 +1,62 @@
+<?php
+return array(
+    'flightzilla' => array(
+        'name' => 'flightzilla',
+        'tickets' => array(
+            'workflow' => array(
+                // after 4 months of inactivity, the ticket has timed-out
+                'timeout' => 10368000,
+
+                // the board should only contain tickets which have been changed within this time-limit
+                'board' => 604800
+            )
+        ),
+        'bugzilla' => array(
+            'baseUrl' => "https://bugzilla",
+            'http' => array(
+                //'proxy' => "ip",
+                'cookiePath' => APPLICATION_PATH . "/data/cache/",
+            ),
+            'portal' => array(
+                array(
+                    'name' => '',
+                    'product' => '',
+                    'exclude_components' => array(
+                        '',
+                    )
+                ),
+                /* Use a second product, based on bugs of a specific theme
+                array(
+                    'name' => '',
+                    'product' => '',
+                    'theme' =>
+                )*/
+            ),
+            'team' => array(
+                "Hans Peter Buniat",
+            )
+        ),
+        'mergy' => array(
+            'command' => "/usr/local/bin/mergy",
+            'source' => array(
+                'portal' => array(
+                    'stable' => "https://svn/project/trunk",
+                    'feature' => "https://svn/project/branches/feature",
+                    'wc' => "/opt/mergy/trunks/project",
+                    'trac' => "https://trac/changeset/%d"
+                ),
+            )
+        ),
+        'analytics' => array(
+            'login' => "",
+            'password' => "",
+            'unsecurepassword' => "",
+            'portal' => array(
+                array(
+                    'name' => "portal.de",
+                    'id' =>
+                ),
+            )
+        )
+    )
+);

@@ -1,0 +1,8 @@
+<?php
+$this->iRendered = 0;
+foreach ($this->aStack as $this->oTicket) {
+    if ($this->oTicket->isChangedWithinLimit($this->oConfig->tickets->workflow->board) === true) {
+        $this->iRendered++;
+        echo $this->render('flightzilla/kanban/partial/pin.phtml');
+    }
+}

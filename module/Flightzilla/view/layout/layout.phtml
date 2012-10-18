@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title><?php echo $this->sName; ?></title>
+    <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0') ?>
+
+    <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/images/favicon.ico'))
+                    ->appendStylesheet($this->basePath() . '/css/bootstrap-responsive.min.css')
+                    ->appendStylesheet($this->basePath() . '/css/bootstrap.min.css')
+                    ->appendStylesheet($this->basePath() . '/css/flightzilla.css')
+                    ->appendStylesheet($this->basePath() . '/css/gantt.css')
+                    ->appendStylesheet($this->basePath() . '/css/silk-sprite.css');
+    ?>
+
+    <style type="text/css">
+        body {
+            font-size: 13px;
+            padding-top: 60px;
+            padding-bottom: 40px;
+        }
+    </style>
+    <script type="text/javascript">
+        var BASE_URL = "<?php echo $this->basePath() ?>",
+            BUGZILLA = "<?php echo $this->sBugzilla ?>";
+    </script>
+
+    <!-- Scripts -->
+    <?php echo $this->headScript()->appendFile($this->basePath() . '/js/jquery-1.8.2.min.js')
+                                  ->appendFile($this->basePath() . '/js/flightzilla.js')
+                                  ->appendFile($this->basePath() . '/js/bootstrap.min.js')
+                                  ->appendFile($this->basePath() . '/js/highcharts.js')
+                                  ->appendFile($this->basePath() . '/js/jquery.fn.gantt.js')
+                                  ->appendFile($this->basePath() . '/js/jquery.tablesorter.js')
+                                  ->appendFile($this->basePath() . '/js/jquery.metadata.js')
+    ?>
+</head>
+<body class="">
+    <div class="<?php echo ($this->sRoute === 'login') ? 'container' : 'container-fluid'; ?>">
+        <?php echo $this->content ?>
+
+        <hr />
+        <footer>
+            <p id="footer-left"><?php echo $this->sName; ?>, based on <a href="https://github.com/hpbuniat/flightzilla">flightzilla</a> - <span id="spanYear">&copy; <?php echo date('Y'); ?></span> <a href="mailto:hpbuniat@googlemail.com">Hans-Peter Buniat</a>.</p>
+        </footer>
+    </div>
+    <div class="modal hide" id="flightzillaModal">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">×</button>
+            <h3></h3>
+        </div>
+        <div class="modal-body">
+            <p></p>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="btn" data-dismiss="modal">Close</a>
+        </div>
+    </div>
+    <p id="loading" class="loading">
+        <img src="<?php echo $this->basePath() . '/images/ajax-loader.gif'; ?>" />
+    </p>
+    <?php echo $this->inlineScript(); ?>
+</body>
+</html>

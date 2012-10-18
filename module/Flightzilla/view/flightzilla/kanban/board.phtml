@@ -1,0 +1,90 @@
+<?php echo $this->render('flightzilla/index/partial/header.phtml')?>
+
+<div class="row-fluid kanban">
+    <div class="span2 border-right">
+        <h4>Stack</h4>
+        <?php
+            $this->aStack = $this->allBugsOpen;
+            $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
+            echo sprintf('<h5>waiting (%d)</h5>%s', $this->iRendered, $sRender);
+        ?>
+    </div>
+    <div class="span2 border-right">
+        <h4>Concept</h4>
+        <div class="row-fluid">
+            <div class="span6">
+                <?php
+                    $this->aStack =  $this->allScreenWip;
+                    $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
+                    echo sprintf('<h5>wip (%d)</h5>%s', $this->iRendered, $sRender);
+                ?>
+            </div>
+            <div class="span6">
+                <?php
+                    $this->aStack =  $this->allScreenApproved;
+                    $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
+                    echo sprintf('<h5>ready (%d)</h5>%s', $this->iRendered, $sRender);
+                ?>
+            </div>
+        </div>
+    </div>
+    <div class="span4 border-right">
+        <h4>Development</h4>
+        <div class="row-fluid">
+            <div class="span6">
+                <?php
+                    $this->aStack =  $this->openWaiting;
+                    $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
+                    echo sprintf('<h5>waiting (%d)</h5>%s', $this->iRendered, $sRender);
+                ?>
+            </div>
+            <div class="span6">
+                <?php
+                    $this->aStack =  $this->bugsWip;
+                    $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
+                    echo sprintf('<h5>wip (%d)</h5>%s', $this->iRendered, $sRender);
+                ?>
+            </div>
+        </div>
+    </div>
+    <div class="span1 border-right">
+        <h4>Done</h4>
+        <?php
+        $this->aStack =  $this->bugsFixedWithoutTesting;
+        $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
+        echo sprintf('<h5>waiting (%d)</h5>%s', $this->iRendered, $sRender);
+        ?>
+    </div>
+    <div class="span2 border-right">
+        <h4>Testing</h4>
+        <div class="row-fluid">
+            <div class="span6">
+                <?php
+                    $this->aStack =  $this->allBugsTesting;
+                    $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
+                    echo sprintf('<h5>wip (%d)</h5>%s', $this->iRendered, $sRender);
+                ?>
+            </div>
+            <div class="span6">
+                <?php
+                    $this->aStack = $this->bugsBranch;
+                    $this->ready  = \Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED;
+                    $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
+                    echo sprintf('<h5>ready (%d)</h5>%s', $this->iRendered, $sRender);
+                ?>
+            </div>
+        </div>
+    </div>
+    <div class="span1">
+        <h4>Staging</h4>
+        <?php
+            $this->aStack = $this->bugsTrunk;
+            $this->ready  = \Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED;
+            $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
+            echo sprintf('<h5>Release (%d)</h5>%s', $this->iRendered, $sRender);
+        ?>
+    </div>
+</div>
+<script type="text/javascript">
+    setTimeout("location.reload(true);", 120000);
+</script>
