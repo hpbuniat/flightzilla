@@ -41,7 +41,6 @@
  */
 namespace Flightzilla\Model\Ticket;
 
-
 /**
  * Abstract for Tickets
  *

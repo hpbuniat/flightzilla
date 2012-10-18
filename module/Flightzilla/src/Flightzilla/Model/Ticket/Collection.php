@@ -39,11 +39,11 @@
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
-
 namespace Flightzilla\Model\Ticket;
 
+
 /**
- * Create a ticket as special type according to its keywords
+ * A collection of tickets
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -51,34 +51,6 @@ namespace Flightzilla\Model\Ticket;
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-abstract class Type {
+class Collection {
 
-    /**
-     * A theme is a collection of bugs.
-     */
-    const THEME = 'Theme';
-
-    /**
-     * A project.
-     */
-    const PROJECT = 'Projekt';
-
-    /**
-     * Create a ticket
-     *
-     * @param  \SimpleXMLElement $oXml
-     *
-     * @return \Flightzilla\Model\Ticket\Type\Bug|\Flightzilla\Model\Ticket\Type\Project|\Flightzilla\Model\Ticket\Type\Theme
-     */
-    public static function factory(\SimpleXMLElement $oXml) {
-
-        if (stripos((string) $oXml->keywords, \Flightzilla\Model\Ticket\Type::PROJECT) !== false) {
-            return new \Flightzilla\Model\Ticket\Type\Project($oXml);
-        }
-        elseif (stripos((string) $oXml->keywords, \Flightzilla\Model\Ticket\Type::THEME) !== false) {
-            return new \Flightzilla\Model\Ticket\Type\Theme($oXml);
-        }
-
-        return new \Flightzilla\Model\Ticket\Type\Bug($oXml);
-    }
 }

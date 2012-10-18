@@ -7,7 +7,6 @@ return array(
                 'options' => array(
                     'route'    => '/',
                     'defaults' => array(
-                        '__NAMESPACE__' => 'Flightzilla\Controller',
                         'controller' => 'index',
                         'action'     => 'index',
                     ),
@@ -18,7 +17,6 @@ return array(
                 'options' => array(
                     'route'    => '/login',
                     'defaults' => array(
-                        '__NAMESPACE__' => 'Flightzilla\Controller',
                         'controller' => 'index',
                         'action'     => 'login',
                     ),
@@ -33,7 +31,6 @@ return array(
                         'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
                     ),
                     'defaults' => array(
-                        '__NAMESPACE__' => 'Flightzilla\Controller',
                         'controller' => 'index',
                         'action'     => 'index',
                     ),
