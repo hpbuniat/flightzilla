@@ -105,6 +105,8 @@ class IndexController extends AbstractActionController {
         $oViewModel->mode = 'dashboard';
 
         $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
+
+        $oViewModel->setTemplate('index');
         return $oViewModel;
     }
 
