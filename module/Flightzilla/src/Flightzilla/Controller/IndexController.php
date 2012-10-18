@@ -91,7 +91,7 @@ class IndexController extends AbstractActionController {
         $oViewModel = new ViewModel;
         $oViewModel->mode = 'list';
 
-        $this->getPluginManager()->get(TicketService::NAME)->init($this, $oViewModel);
+        $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
 
         return $oViewModel;
     }
@@ -103,7 +103,7 @@ class IndexController extends AbstractActionController {
         $oViewModel = new ViewModel;
         $oViewModel->mode = 'dashboard';
 
-        $this->getPluginManager()->get(TicketService::NAME)->init($this, $oViewModel);
+        $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
         return $oViewModel;
     }
 
@@ -114,7 +114,7 @@ class IndexController extends AbstractActionController {
         $oViewModel = new ViewModel;
         $oViewModel->mode = 'team';
 
-        $this->getPluginManager()->get(TicketService::NAME)->init($this, $oViewModel);
+        $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
         return $oViewModel;
     }
 
@@ -135,7 +135,7 @@ class IndexController extends AbstractActionController {
         }
 
         $oViewModel->sDate = $sDate;
-        $oViewModel->bugsSummary = $this->getPluginManager()->get(TicketService::NAME)->getSummary($sDate);
+        $oViewModel->bugsSummary = $this->getPluginManager()->get(TicketService::NAME)->getService()->getSummary($sDate);
         return $oViewModel;
     }
 
@@ -148,7 +148,7 @@ class IndexController extends AbstractActionController {
 
         $sTicket = $this->params()->fromPost('ticket');
         if (empty($sTicket) !== true) {
-            $oViewModel->oTicket = $this->getPluginManager()->get(TicketService::NAME)->getBugById($sTicket);
+            $oViewModel->oTicket = $this->getPluginManager()->get(TicketService::NAME)->getService()->getBugById($sTicket);
         }
 
         return $oViewModel;

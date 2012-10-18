@@ -63,7 +63,7 @@ class MergyController extends AbstractActionController {
         $oViewModel = new ViewModel;
         $oViewModel->mode = 'mergy';
 
-        $this->getPluginManager()->get(TicketService::NAME)->init($this, $oViewModel);
+        $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
         $oViewModel->sRepositories = json_encode(array_keys($this->getServiceLocator()->get('_serviceConfig')->mergy->source->toArray()));
         return $oViewModel;
     }

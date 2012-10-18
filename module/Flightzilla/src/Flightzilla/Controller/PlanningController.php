@@ -61,8 +61,7 @@ class PlanningController extends AbstractActionController {
      */
     public function dataAction() {
         $oViewModel = new ViewModel;
-        $oServiceModel = $this->getPluginManager()->get(TicketService::NAME);
-        $oServiceModel->init($this, $oViewModel, 'planning');
+        $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'planning')->getService();
 
         $aTeam     = $oServiceModel->getTeam();
         $oResource = new \Flightzilla\Model\Resource\Manager();
@@ -83,8 +82,7 @@ class PlanningController extends AbstractActionController {
      */
     public function projectsAction() {
         $oViewModel = new ViewModel;
-        $oServiceModel = $this->getPluginManager()->get(TicketService::NAME);
-        $oServiceModel->init($this, $oViewModel, 'planning');
+        $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'planning')->getService();
 
         $oProject = new \Flightzilla\Model\Project\Container($oServiceModel);
         $oProject->setup()->sortProjects();
@@ -102,7 +100,7 @@ class PlanningController extends AbstractActionController {
      */
     public function sprintAction() {
         $oViewModel = new ViewModel;
-        $oServiceModel = $this->getPluginManager()->get(TicketService::NAME);
+        $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'planning')->getService();
         $oViewModel->aStack = $oServiceModel->getTeam();
         return $oViewModel;
     }

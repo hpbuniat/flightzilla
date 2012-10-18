@@ -63,16 +63,47 @@ class TicketService extends AbstractPlugin {
     const NAME = 'ticketservice';
 
     /**
+     * The ticket-service
+     *
+     * @var \Flightzilla\Model\Ticket\AbstractSource
+     */
+    protected $_oService = null;
+
+    /**
+     * Get the ticket-service
+     *
+     * @return \Flightzilla\Model\Ticket\AbstractSource
+     */
+    public function getService() {
+        if (empty($this->_oService) === true) {
+            $this->_oService = $this->getController()->getServiceLocator()->get('_bugzilla');
+        }
+
+        return $this->_oService;
+    }
+
+    /**
+     * Set the ticket-service
+     *
+     * @param  \Flightzilla\Model\Ticket\AbstractSource $oService
+     *
+     * @return $this
+     */
+    public function setService(\Flightzilla\Model\Ticket\AbstractSource $oService) {
+        $this->_oService = $oService;
+        return $this;
+    }
+
+    /**
      * Init the ticket-service
      *
-     * @param  AbstractActionController $oController
      * @param  \Zend\View\Model\ViewModel $oView
      * @param  string $sMode
      *
      * @return $this
      */
-    public function init(AbstractActionController $oController, \Zend\View\Model\ViewModel $oView, $sMode = 'list') {
-        $oTicketService = $oController->getServiceLocator()->get('_bugzilla');
+    public function init(\Zend\View\Model\ViewModel $oView, $sMode = 'list') {
+        $oTicketService = $this->getService();
         /* @var $oTicketService \Flightzilla\Model\Ticket\Source\Bugzilla */
 
         $oTicketService->getBugsChangedToday();
@@ -116,6 +147,6 @@ class TicketService extends AbstractPlugin {
         $oView->sChuck = $oTicketService->getChuckStatus();
         $oView->aThemes = $oTicketService->getThemesAsStack();
 
-        return $oTicketService;
+        return $this;
     }
 }

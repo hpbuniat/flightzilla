@@ -66,7 +66,7 @@ class TicketController extends AbstractActionController {
 
         $sTickets = $this->params()->fromPost('tickets');
         if (empty($sTickets) !== true) {
-            $oViewModel->aTickets = $this->getPluginManager()->get(TicketService::NAME)->getBugListByIds($sTickets);
+            $oViewModel->aTickets = $this->getPluginManager()->get(TicketService::NAME)->getService()->getBugListByIds($sTickets);
         }
 
         return $oViewModel;
@@ -81,7 +81,7 @@ class TicketController extends AbstractActionController {
 
         $aModify = $this->params()->fromPost('modify');
 
-        $oServiceModel = $this->getPluginManager()->get(TicketService::NAME);
+        $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->getService();
         $aTickets = array();
         if (empty($aModify) !== true) {
             foreach ($aModify as $iTicket => $aActions) {
