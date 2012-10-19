@@ -53,14 +53,13 @@ return array(
                 return $oLogger;
             },
             '_cache' => function(\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
-                $oCache = Zend\Cache\StorageFactory::factory(array(
-                     'adapter' => 'memcached',
-                     'plugins' => array(
-                         'serializer'
-                     )
+                $sAdapter = (extension_loaded('memcached') === true) ? 'memcached' : '\Flightzilla\Cache\Storage\Adapter\Memcache';
+                return Zend\Cache\StorageFactory::factory(array(
+                    'adapter' => $sAdapter,
+                    'plugins' => array(
+                        'serializer'
+                    )
                 ));
-
-                return $oCache;
             },
             '_serviceConfig'=> function(\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
                 $aConfig = $oServiceManager->get('config');
