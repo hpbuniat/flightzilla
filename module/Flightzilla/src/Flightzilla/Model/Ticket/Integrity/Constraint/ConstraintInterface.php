@@ -39,11 +39,10 @@
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
-namespace Flightzilla\Model\Ticket;
-
+namespace Flightzilla\Model\Ticket\Integrity\Constraint;
 
 /**
- * A list of tickets
+ * A resolved ticket must not have failed testing-requests only
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -51,6 +50,14 @@ namespace Flightzilla\Model\Ticket;
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class List {
+interface ConstraintInterface {
 
+    /**
+     * Check, if the Ticket passes the constraint
+     *
+     * @param  \Flightzilla\Model\Ticket\Type\Bug $oTicket
+     *
+     * @return boolean If true, the ticket passes
+     */
+    public static function check(\Flightzilla\Model\Ticket\Type\Bug $oTicket);
 }

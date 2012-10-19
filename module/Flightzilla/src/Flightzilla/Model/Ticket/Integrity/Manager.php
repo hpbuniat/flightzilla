@@ -39,11 +39,10 @@
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
-
-namespace Flightzilla\Model\Ticket;
+namespace Flightzilla\Model\Ticket\Integrity;
 
 /**
- * Create a ticket as special type according to its keywords
+ * Handle the integrity of tickets & their workflow
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -51,34 +50,42 @@ namespace Flightzilla\Model\Ticket;
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-abstract class Type {
+class Manager {
 
     /**
-     * A theme is a collection of bugs.
-     */
-    const THEME = 'Theme';
-
-    /**
-     * A project.
-     */
-    const PROJECT = 'Projekt';
-
-    /**
-     * Create a ticket
+     * The active constraints
      *
-     * @param  \SimpleXMLElement $oXml
-     *
-     * @return \Flightzilla\Model\Ticket\Type\Bug|\Flightzilla\Model\Ticket\Type\Project|\Flightzilla\Model\Ticket\Type\Theme
+     * @var array
      */
-    public static function factory(\SimpleXMLElement $oXml) {
+    protected $_aConstraints = array(
+        \Flightzilla\Model\Ticket\Integrity\Constraint\ResolvedTestFailed::NAME
+    );
 
-        if (stripos((string) $oXml->keywords, \Flightzilla\Model\Ticket\Type::PROJECT) !== false) {
-            return new \Flightzilla\Model\Ticket\Type\Project($oXml);
-        }
-        elseif (stripos((string) $oXml->keywords, \Flightzilla\Model\Ticket\Type::THEME) !== false) {
-            return new \Flightzilla\Model\Ticket\Type\Theme($oXml);
+    /**
+     * Check a list of tickets, if they pass all constraints
+     *
+     * @param  array $aTickets
+     *
+     * @return array
+     */
+    public function check(array $aTickets = array()) {
+        $aStack = array();
+
+        foreach ($aTickets as $oTicket) {
+            foreach ($this->_aConstraints as $sConstraint) {
+                if (empty($aStack[$sConstraint]) === true) {
+                    $aStack[$sConstraint] = array();
+                }
+
+                $bPass = call_user_func(array($sConstraint, 'check'), $oTicket);
+                if ($bPass === false) {
+                    $aStack[$sConstraint][] = $oTicket;
+                    break;
+                }
+            }
         }
 
-        return new \Flightzilla\Model\Ticket\Type\Bug($oXml);
+        return $aStack;
     }
+
 }

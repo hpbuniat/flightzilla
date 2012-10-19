@@ -82,6 +82,7 @@ class IndexController extends AbstractActionController {
     public function logoutAction() {
         $this->getPluginManager()->get(Authenticate::NAME)->clearIdentity();
         $this->redirect()->toRoute('login');
+        return $this->response;
     }
 
     /**
@@ -104,6 +105,8 @@ class IndexController extends AbstractActionController {
         $oViewModel->mode = 'dashboard';
 
         $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
+
+        $oViewModel->setTemplate('index');
         return $oViewModel;
     }
 
@@ -126,6 +129,20 @@ class IndexController extends AbstractActionController {
         $oViewModel->mode = 'team';
 
         $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
+        return $oViewModel;
+    }
+
+    /**
+     *
+     */
+    public function conflictAction() {
+        $oViewModel = new ViewModel;
+        $oViewModel->mode = 'dashboard';
+
+        $aTickets = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel)->getService()->getAllBugs();
+        $oConstraintManager = new \Flightzilla\Model\Ticket\Integrity\Manager();
+        $oViewModel->aStack = $oConstraintManager->check($aTickets);
+
         return $oViewModel;
     }
 

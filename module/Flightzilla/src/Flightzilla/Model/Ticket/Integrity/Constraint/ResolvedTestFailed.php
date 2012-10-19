@@ -39,11 +39,13 @@
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
+namespace Flightzilla\Model\Ticket\Integrity\Constraint;
 
-namespace Flightzilla\Model\Ticket;
+use \Flightzilla\Model\Ticket\Type\Bug;
+use \Flightzilla\Model\Ticket\Source\Bugzilla;
 
 /**
- * Create a ticket as special type according to its keywords
+ * A resolved ticket must not have failed testing-requests only
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -51,34 +53,22 @@ namespace Flightzilla\Model\Ticket;
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-abstract class Type {
+class ResolvedTestFailed implements ConstraintInterface {
 
     /**
-     * A theme is a collection of bugs.
-     */
-    const THEME = 'Theme';
-
-    /**
-     * A project.
-     */
-    const PROJECT = 'Projekt';
-
-    /**
-     * Create a ticket
+     * Name of the constraint
      *
-     * @param  \SimpleXMLElement $oXml
-     *
-     * @return \Flightzilla\Model\Ticket\Type\Bug|\Flightzilla\Model\Ticket\Type\Project|\Flightzilla\Model\Ticket\Type\Theme
+     * @var string
      */
-    public static function factory(\SimpleXMLElement $oXml) {
+    const NAME = 'ResolvedTestFailed';
 
-        if (stripos((string) $oXml->keywords, \Flightzilla\Model\Ticket\Type::PROJECT) !== false) {
-            return new \Flightzilla\Model\Ticket\Type\Project($oXml);
-        }
-        elseif (stripos((string) $oXml->keywords, \Flightzilla\Model\Ticket\Type::THEME) !== false) {
-            return new \Flightzilla\Model\Ticket\Type\Theme($oXml);
-        }
-
-        return new \Flightzilla\Model\Ticket\Type\Bug($oXml);
+    /**
+     * (non-PHPdoc)
+     * @see ConstraintInterface::check()
+     */
+    public static function check(Bug $oTicket) {
+        return (($oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_DENIED) === true
+                and $oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST) === false
+                and $oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED) === false) === false);
     }
 }

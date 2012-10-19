@@ -7,7 +7,6 @@ return array(
                 'options' => array(
                     'route'    => '/',
                     'defaults' => array(
-                        '__NAMESPACE__' => 'Flightzilla\Controller',
                         'controller' => 'index',
                         'action'     => 'index',
                     ),
@@ -18,7 +17,6 @@ return array(
                 'options' => array(
                     'route'    => '/login',
                     'defaults' => array(
-                        '__NAMESPACE__' => 'Flightzilla\Controller',
                         'controller' => 'index',
                         'action'     => 'login',
                     ),
@@ -33,7 +31,6 @@ return array(
                         'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
                     ),
                     'defaults' => array(
-                        '__NAMESPACE__' => 'Flightzilla\Controller',
                         'controller' => 'index',
                         'action'     => 'index',
                     ),
@@ -56,14 +53,13 @@ return array(
                 return $oLogger;
             },
             '_cache' => function(\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
-                $oCache = Zend\Cache\StorageFactory::factory(array(
-                     'adapter' => 'memcached',
-                     'plugins' => array(
-                         'serializer'
-                     )
+                $sAdapter = (extension_loaded('memcached') === true) ? 'memcached' : '\Flightzilla\Cache\Storage\Adapter\Memcache';
+                return Zend\Cache\StorageFactory::factory(array(
+                    'adapter' => $sAdapter,
+                    'plugins' => array(
+                        'serializer'
+                    )
                 ));
-
-                return $oCache;
             },
             '_serviceConfig'=> function(\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
                 $aConfig = $oServiceManager->get('config');
