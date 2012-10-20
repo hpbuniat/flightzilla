@@ -41,6 +41,9 @@
  */
 namespace Flightzilla\Model\Ticket\Integrity\Constraint;
 
+use \Flightzilla\Model\Ticket\Type\Bug;
+use \Flightzilla\Model\Ticket\Source\Bugzilla;
+
 /**
  * A resolved ticket must not have failed testing-requests only
  *
@@ -55,9 +58,10 @@ interface ConstraintInterface {
     /**
      * Check, if the Ticket passes the constraint
      *
-     * @param  \Flightzilla\Model\Ticket\Type\Bug $oTicket
+     * @param  Bug $oTicket
+     * @param  Bugzilla $oTicketSource
      *
      * @return boolean If true, the ticket passes
      */
-    public static function check(\Flightzilla\Model\Ticket\Type\Bug $oTicket);
+    public static function check(Bug $oTicket, Bugzilla $oTicketSource);
 }
