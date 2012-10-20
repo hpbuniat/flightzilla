@@ -106,7 +106,7 @@ class IndexController extends AbstractActionController {
 
         $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
 
-        $oViewModel->setTemplate('index');
+        $oViewModel->setTemplate('flightzilla/index/index.phtml');
         return $oViewModel;
     }
 
@@ -188,7 +188,29 @@ class IndexController extends AbstractActionController {
     public function goBugzillaAction() {
         $params = implode(',', $this->params()->fromQuery('id'));
         $this->redirect()->toUrl($this->getServiceLocator()->get('_serviceConfig')->bugzilla->baseUrl . '/buglist.cgi?quicksearch=' . $params);
-        exit();
+        return $this->response;
+    }
+
+    /**
+     *
+     */
+    public function setprojectAction() {
+        $oServiceManager = $this->getServiceLocator();
+        $oConfig = $oServiceManager->get('_serviceConfig');
+
+        $oSession = $oServiceManager->get('_session');
+
+        $sProject = $this->params()->fromQuery('project');
+        $aProducts = $oConfig->bugzilla->projects->toArray();
+        if (empty($sProject) !== true and isset($aProducts[$sProject]) === true) {
+            $oSession->offsetSet('sCurrentProduct', $sProject);
+        }
+        else {
+            $oSession->offsetSet('sCurrentProduct', key($aProducts));
+        }
+
+        $this->redirect()->toRoute('home');
+        return $this->response;
     }
 }
 
