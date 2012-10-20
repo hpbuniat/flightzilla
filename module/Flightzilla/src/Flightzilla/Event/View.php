@@ -63,7 +63,8 @@ class View {
      * @return bool
      */
     public static function setup(MvcEvent $oEvent) {
-        $oConfig = $oEvent->getApplication()->getServiceManager()->get('_serviceConfig');
+        $oServiceManager = $oEvent->getApplication()->getServiceManager();
+        $oConfig = $oServiceManager->get('_serviceConfig');
 
         $oViewModel = $oEvent->getViewModel();
         $oViewModel->sController = $oEvent->getController();
@@ -71,6 +72,16 @@ class View {
         $oViewModel->sBugzilla = $oConfig->bugzilla->baseUrl;
         $oViewModel->sName = $oConfig->name;
         $oViewModel->oConfig = $oConfig->bugzilla;
+
+        $aProducts = $oConfig->bugzilla->projects->toArray();
+        $oSession = $oServiceManager->get('_session');
+        if ($oSession->offsetExists('sCurrentProduct') !== true) {
+            $oSession->offsetSet('sCurrentProduct', key($aProducts));
+        }
+
+        $oViewModel->sCurrentProject = $oSession->offsetGet('sCurrentProduct');
+        $oViewModel->aConfigProjects = array_keys($aProducts);
+        unset ($aProducts);
 
         return true;
     }

@@ -139,8 +139,9 @@ class IndexController extends AbstractActionController {
         $oViewModel = new ViewModel;
         $oViewModel->mode = 'dashboard';
 
-        $aTickets = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel)->getService()->getAllBugs();
-        $oConstraintManager = new \Flightzilla\Model\Ticket\Integrity\Manager();
+        $oTicketService = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel)->getService();
+        $aTickets = $oTicketService->getAllBugs();
+        $oConstraintManager = new \Flightzilla\Model\Ticket\Integrity\Manager($oTicketService);
         $oViewModel->aStack = $oConstraintManager->check($aTickets);
 
         return $oViewModel;
@@ -200,7 +201,7 @@ class IndexController extends AbstractActionController {
 
         $oSession = $oServiceManager->get('_session');
 
-        $sProject = $this->params()->fromQuery('project');
+        $sProject = $this->getEvent()->getRouteMatch()->getParam('project');
         $aProducts = $oConfig->bugzilla->projects->toArray();
         if (empty($sProject) !== true and isset($aProducts[$sProject]) === true) {
             $oSession->offsetSet('sCurrentProduct', $sProject);

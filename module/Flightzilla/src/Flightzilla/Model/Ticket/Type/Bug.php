@@ -1196,10 +1196,12 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * Get the assignee (parsed)
+     *
      * @return string
      */
     public function getAssignee(){
-        return (string) $this->_data->assignee_name;
+        return (string) $this->_data->assigned_to;
     }
 
     /**

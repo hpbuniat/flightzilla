@@ -46,6 +46,9 @@ return array(
     ),
     'service_manager' => array(
         'factories' => array(
+            '_session' => function(\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
+                return new Zend\Session\Container('flightzilla');
+            },
             '_log' => function(\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
                 $oLogger = new Zend\Log\Logger;
                 $oLogger->addWriter(new Zend\Log\Writer\Stream(sprintf('./data/log/%s-error.log', date('Y-m-d'))));
@@ -70,11 +73,14 @@ return array(
                 $oResource = new \Flightzilla\Model\Resource\Manager;
                 $oHttpClient = new \Zend\Http\Client();
                 $oConfig = $oServiceManager->get('_serviceConfig');
-                $oBugzilla = new \Flightzilla\Model\Ticket\Source\Bugzilla($oResource, $oHttpClient, $oConfig);
-                $oBugzilla->setCache($oServiceManager->get('_cache'))
-                          ->setAuth($oServiceManager->get('_auth'));
+                $oSession = $oServiceManager->get('session');
 
-                return $oBugzilla;
+                $oTicketSource = new \Flightzilla\Model\Ticket\Source\Bugzilla($oResource, $oHttpClient, $oConfig);
+                $oTicketSource->setCache($oServiceManager->get('_cache'))
+                              ->setAuth($oServiceManager->get('_auth'))
+                              ->setProject($oSession->sCurrentProduct);
+
+                return $oTicketSource;
             }
         ),
     ),

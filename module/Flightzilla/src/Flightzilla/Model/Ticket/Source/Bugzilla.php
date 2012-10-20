@@ -211,9 +211,18 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     protected $_aFindThemeCache = array();
 
     /**
+     * The resource-manager
+     *
      * @var \Flightzilla\Model\Resource\Manager
      */
     protected $_oResource;
+
+    /**
+     * The current project
+     *
+     * @var array
+     */
+    protected $_aProject = null;
 
     /**
      * Do all Bug-related action
@@ -246,12 +255,25 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         ));
 
         $this->user($this->_config->bugzilla->login);
-        $aPortals = $this->_config->bugzilla->portal;
-        foreach ($aPortals as $portal) {
-            $this->product($portal->name);
+    }
+
+    /**
+     * Set the project
+     *
+     * @param  string $sProject
+     *
+     * @return $this
+     */
+    public function setProject($sProject) {
+        $aProjects = $this->_config->bugzilla->projects->$sProject->toArray();
+
+        $this->_aTeam =$aProjects['team'];
+        $this->_aProject = $aProjects['products'];
+        foreach ($this->_aProject as $aPortal) {
+            $this->product($aPortal['name']);
         }
 
-        $this->_aTeam = $this->_config->bugzilla->team->toArray();
+        return $this;
     }
 
     /**
@@ -372,10 +394,10 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $this->_setGetParameter(self::BUG_PARAM_START_DATE, $sDate);
         $this->_setGetParameter(self::BUG_PARAM_END_DATE, $sDate);
         $page = $this->_request(self::BUG_SUMMARY);
-        $oDom = new Zend_Dom_Query($page);
-        $oTables = $oDom->query('table.owner tr');
+        $oDom = new \Zend\Dom\Query($page);
+        $oTables = $oDom->execute('table.owner tr');
         foreach ($oTables as $oTable) {
-            $oDocument = new DomDocument();
+            $oDocument = new \DomDocument();
             $oDocument->appendChild($oDocument->importNode($oTable, true));
             $sContent = trim(preg_replace(array(
                 '/(width="\d+%?")/',
@@ -643,18 +665,17 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         // prepare bug models
         $oResource = new \Flightzilla\Model\Resource\Manager();
-        foreach ($this->_aTeam as $sName) {
-            $oResource->registerResource(\Flightzilla\Model\Resource\Builder::build($sName));
+        foreach ($this->_aTeam as $aMember) {
+            $oResource->registerResource(\Flightzilla\Model\Resource\Builder::build($aMember));
         }
 
         $oDate = new \Flightzilla\Model\Timeline\Date();
 
-        $aConfig = $this->_config->bugzilla->portal->toArray();
         foreach ($aTemp as $oBug) {
             $iId = $oBug->id();
 
             $bAdd = true;
-            foreach ($aConfig as $aProduct) {
+            foreach ($this->_aProject as $aProduct) {
                 if (strtolower($aProduct['name']) === strtolower($oBug->product)) {
                     if (isset($aProduct['theme'])) {
                         $bAdd = false;
@@ -1150,8 +1171,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     public function getTeamBugs($aMemberBugs) {
         $aTeam = array();
         foreach ($aMemberBugs as $sName => $aBugs) {
-            foreach ($this->_aTeam as $sTeamName) {
-                if (stripos($sName, $sTeamName) !== false) {
+            foreach ($this->_aTeam as $aMember) {
+                if (stripos($sName, $aMember['mail']) !== false) {
                     $aTeam[$sName] = $aBugs;
                     break;
                 }
@@ -1170,6 +1191,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $aOpenBugs = $this->getOpenBugs();
         $aMember = array();
         foreach ($aOpenBugs as $oBug) {
+            /* @var $oBug \Flightzilla\Model\Ticket\Type\Bug */
             if ($oBug->isTheme() !== true) {
                 $sName = $oBug->getAssignee();
                 $aMember[$sName][] = $oBug;
@@ -1364,7 +1386,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      *
      * @return int
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function getFirstWorkedDate() {
         $iTimestamp = PHP_INT_MAX;
@@ -1376,7 +1398,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         }
 
         if (empty($iTimestamp) === true) {
-            throw new Exception();
+            throw new \Exception();
         }
 
         return $iTimestamp;
