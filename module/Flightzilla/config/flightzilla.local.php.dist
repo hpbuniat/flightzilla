@@ -17,23 +17,27 @@ return array(
                 //'proxy' => "ip",
                 'cookiePath' => APPLICATION_PATH . "/data/cache/",
             ),
-            'portal' => array(
-                array(
-                    'name' => '',
-                    'product' => '',
-                    'exclude_components' => array(
-                        '',
+            'projects' => array(
+                'My Project 1' => array(
+                    'products' => array(
+                        array(
+                            'name' => '',
+                            'product' => '',
+                            'exclude_components' => array(
+                                '',
+                            )
+                        ),
+                        /* Use a second product, based on bugs of a specific theme
+                        array(
+                            'name' => '',
+                            'product' => '',
+                            'theme' =>
+                        )*/
+                    ),
+                    'team' => array(
+                        "Hans Peter Buniat",
                     )
-                ),
-                /* Use a second product, based on bugs of a specific theme
-                array(
-                    'name' => '',
-                    'product' => '',
-                    'theme' =>
-                )*/
-            ),
-            'team' => array(
-                "Hans Peter Buniat",
+                )
             )
         ),
         'mergy' => array(
