@@ -1,0 +1,38 @@
+<?php
+$aTimes = $this->collectiontime($this->aStack);
+?>
+<div class="row-fluid">
+    <div class="span12 well">
+        <div class="row-fluid">
+            <div class="span2">
+                <?php echo sprintf('%s %d', $this->sName, count($this->aStack)); ?>
+                <?php echo $aTimes['spent'];?>h worked (<?php echo $aTimes['esti']?>h estimated) - Left: <?php echo $aTimes['left']; ?>h / <?php echo $aTimes['days']; ?>d
+            </div>
+            <div class="span10">
+                <div class="progress progress-info progress-striped">
+                    <div class="bar" style="width: <?php echo $aTimes['future']; ?>%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <?php
+                $sActive = $sPending = '';
+                foreach ($this->aStack as $this->oTicket) {
+                    $sRender = $this->render('flightzilla/kanban/partial/pin.phtml');
+                    if ($this->oTicket->isWip() === true) {
+                        $sActive .= $sRender;
+                    }
+                    else {
+                        $sPending .= $sRender;
+                    }
+                }
+            ?>
+            <div class="span2">
+                <?php echo $sActive; ?>
+            </div>
+            <div class="span9 pending">
+                <?php echo $sPending; ?>
+            </div>
+        </div>
+    </div>
+</div>

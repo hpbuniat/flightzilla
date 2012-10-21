@@ -896,7 +896,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         $aStack = array();
         foreach ($this->_openBugs as $oTicket) {
-            if ($oTicket->isTheme() === false and $oTicket->isOrga() === false and $oTicket->isConcept() === false and $oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED) {
+            if ($oTicket->isWip() === true) {
                 $aStack[$oTicket->id()] = $oTicket;
             }
         }

@@ -802,6 +802,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * Check, if the bug is active & wip
+     *
+     * @return boolean
+     */
+    public function isWip() {
+        return ($this->isTheme() === false and $this->isOrga() === false and $this->isConcept() === false and $this->getStatus() === Bug::STATUS_ASSIGNED);
+    }
+
+    /**
      * Check, if someone is working on this bug
      *
      * @return bool

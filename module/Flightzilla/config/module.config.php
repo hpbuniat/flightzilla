@@ -107,6 +107,7 @@ return array(
             'estimation' => 'Flightzilla\View\Helper\Estimation',
             'prioritycolor' => 'Flightzilla\View\Helper\Prioritycolor',
             'ticketicons' => 'Flightzilla\View\Helper\Ticketicons',
+            'collectiontime' => 'Flightzilla\View\Helper\CollectionTime',
         ),
         'factories' => array(
             'workflow' => function (\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
