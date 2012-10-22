@@ -1,4 +1,9 @@
-<?php echo $this->render('flightzilla/index/partial/header.phtml')?>
+<?php echo $this->render('flightzilla/index/partial/header.phtml'); ?>
 
 <div class="row-fluid kanban">
+<?php
+    foreach ($this->aMemberBugs as $this->sMemberName => $this->aStack) {
+        echo $this->render('flightzilla/index/partial/member.phtml');
+    }
+?>
 </div>

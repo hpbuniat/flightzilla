@@ -37,7 +37,9 @@
 </head>
 <body class="">
     <div class="<?php echo ($this->sRoute === 'login') ? 'container' : 'container-fluid'; ?>">
-        <?php echo $this->content ?>
+        <?php
+            echo $this->content
+        ?>
 
         <hr />
         <footer>

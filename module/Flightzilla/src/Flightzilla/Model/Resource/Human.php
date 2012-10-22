@@ -41,7 +41,6 @@
  */
 namespace Flightzilla\Model\Resource;
 
-
 /**
  * A human resource
  *
@@ -68,6 +67,13 @@ class Human {
     protected $_sName;
 
     /**
+     * The resource-data
+     *
+     * @var array
+     */
+    protected $_aData = array();
+
+    /**
      * Tickets which the resource is assigned to
      *
      * @var \Flightzilla\Model\Ticket\Type\Bug[]
@@ -77,13 +83,14 @@ class Human {
     /**
      * Create the human
      *
-     * @param string $sName
+     * @param array $aMember
      * @param \Flightzilla\Model\Resource\Human\Timecard $oTimecard
      */
-    public function __construct($sName, \Flightzilla\Model\Resource\Human\Timecard $oTimecard) {
+    public function __construct($aMember, \Flightzilla\Model\Resource\Human\Timecard $oTimecard) {
 
         $this->_oTimecard = $oTimecard;
-        $this->_sName = $sName;
+        $this->_sName = $aMember['name'];
+        $this->_aData = $aMember;
     }
 
     /**

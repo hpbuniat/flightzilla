@@ -56,8 +56,19 @@ class Date {
      * Amount of minutes, which a programmer is working each day
      *
      * @var int
+     *
+     * @TODO Config!
      */
     const AMOUNT = 6.0;
+
+    /**
+     * Amount of days, we'd like to plan in the future
+     *
+     * @var int
+     *
+     * @TODO Config!
+     */
+    const FUTURE = 10;
 
     /**
      * The day starts at

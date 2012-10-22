@@ -6,6 +6,13 @@
         "bugzilla",
         "flightzilla"
     ],
+    "authors": [
+        {
+            "name": "Hans-Peter Buniat",
+            "email": "hpbuniat@googlemail.com",
+            "role": "lead"
+        }
+    ],
     "homepage": "https://github.com/hpbuniat/flightzilla",
     "require": {
         "php": ">=5.3.3",

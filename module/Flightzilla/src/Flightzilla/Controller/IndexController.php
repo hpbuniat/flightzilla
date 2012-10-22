@@ -106,7 +106,7 @@ class IndexController extends AbstractActionController {
 
         $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
 
-        $oViewModel->setTemplate('index');
+        $oViewModel->setTemplate('flightzilla/index/index.phtml');
         return $oViewModel;
     }
 
@@ -139,8 +139,9 @@ class IndexController extends AbstractActionController {
         $oViewModel = new ViewModel;
         $oViewModel->mode = 'dashboard';
 
-        $aTickets = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel)->getService()->getAllBugs();
-        $oConstraintManager = new \Flightzilla\Model\Ticket\Integrity\Manager();
+        $oTicketService = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel)->getService();
+        $aTickets = $oTicketService->getAllBugs();
+        $oConstraintManager = new \Flightzilla\Model\Ticket\Integrity\Manager($oTicketService);
         $oViewModel->aStack = $oConstraintManager->check($aTickets);
 
         return $oViewModel;
@@ -188,7 +189,29 @@ class IndexController extends AbstractActionController {
     public function goBugzillaAction() {
         $params = implode(',', $this->params()->fromQuery('id'));
         $this->redirect()->toUrl($this->getServiceLocator()->get('_serviceConfig')->bugzilla->baseUrl . '/buglist.cgi?quicksearch=' . $params);
-        exit();
+        return $this->response;
+    }
+
+    /**
+     *
+     */
+    public function setprojectAction() {
+        $oServiceManager = $this->getServiceLocator();
+        $oConfig = $oServiceManager->get('_serviceConfig');
+
+        $oSession = $oServiceManager->get('_session');
+
+        $sProject = $this->getEvent()->getRouteMatch()->getParam('project');
+        $aProducts = $oConfig->bugzilla->projects->toArray();
+        if (empty($sProject) !== true and isset($aProducts[$sProject]) === true) {
+            $oSession->offsetSet('sCurrentProduct', $sProject);
+        }
+        else {
+            $oSession->offsetSet('sCurrentProduct', key($aProducts));
+        }
+
+        $this->redirect()->toRoute('home');
+        return $this->response;
     }
 }
 

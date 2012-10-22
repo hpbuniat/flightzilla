@@ -147,3 +147,19 @@ div.modal {
     left: 25%;
     width: 75%;
 }
+
+.largeGray {
+    font-size: 40px;
+    bottom: 0;
+    position: absolute;
+    color: #aaa;
+    text-align: center;
+}
+.relative-box {
+    position: relative;
+    height: 90px;
+}
+
+.dash .progress {
+    margin: 0 20px 0 0;
+}

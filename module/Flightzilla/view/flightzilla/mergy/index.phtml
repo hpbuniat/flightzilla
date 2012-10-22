@@ -1,9 +1,7 @@
-<?php echo $this->render('flightzilla/index/partial/header.phtml')?>
+<?php echo $this->render('flightzilla/index/partial/header.phtml'); ?>
 
 <div class="row-fluid">
-    <?php
-    echo $this->render('flightzilla/index/partial/overview.phtml');
-    ?>
+    <?php echo $this->render('flightzilla/index/partial/overview.phtml'); ?>
 
     <div class="span10">
         <form id="buglist-form" method="get" target="_blank" action="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'go-bugzilla'))?>">

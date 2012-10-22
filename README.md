@@ -15,4 +15,9 @@ flightzilla will assist in an environment, where it is not possible to use enter
 Usage:
 -----
 
-flightzilla requires a installed Zend-Framework 1.12/trunk in its include path. flightzilla can use mergy (https://github.com/hpbuniat/mergy), to execute simple merges.
+flightzilla is based on zend-framework 2 and many open-source libraries like jquery, twitter-bootstrap, etc.. flightzilla can use mergy (https://github.com/hpbuniat/mergy), to execute simple merges.
+
+To install flightzilla execute:
+    git clone
+    php composer.phar install
+    cp ./module/Flightzilla/config/flightzilla.local.php.dist ./config/autoload/flightzilla.local.php

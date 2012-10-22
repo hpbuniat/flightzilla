@@ -40,12 +40,8 @@
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 
-namespace Flightzilla\Event;
-
-use \Zend\Mvc\MvcEvent;
-
 /**
- * A simple event-handler for the authentication
+ * View-Helper to get the summarized times of a ticket-collection
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -53,36 +49,39 @@ use \Zend\Mvc\MvcEvent;
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class View {
+namespace Flightzilla\View\Helper;
+use Zend\View\Helper\AbstractHelper;
+
+class CollectionTime extends AbstractHelper {
 
     /**
-     * Event handler for the view
+     * Get the summarzied times
      *
-     * @param \Zend\Mvc\MvcEvent $oEvent
+     * @param  array $aTickets
      *
-     * @return bool
+     * @return string
      */
-    public static function setup(MvcEvent $oEvent) {
-        $oServiceManager = $oEvent->getApplication()->getServiceManager();
-        $oConfig = $oServiceManager->get('_serviceConfig');
+    public function __invoke(array $aTickets) {
+        $aTimes = array(
+            'spent' => 0,
+            'esti' => 0,
+            'left' => 0
+        );
 
-        $oViewModel = $oEvent->getViewModel();
-        $oViewModel->sController = $oEvent->getController();
-        $oViewModel->sRoute = $oEvent->getRouteMatch()->getMatchedRouteName();
-        $oViewModel->sBugzilla = $oConfig->bugzilla->baseUrl;
-        $oViewModel->sName = $oConfig->name;
-        $oViewModel->oConfig = $oConfig->bugzilla;
-
-        $aProducts = $oConfig->bugzilla->projects->toArray();
-        $oSession = $oServiceManager->get('_session');
-        if ($oSession->offsetExists('sCurrentProduct') !== true) {
-            $oSession->offsetSet('sCurrentProduct', key($aProducts));
+        foreach($aTickets as $oTicket) {
+            if ($oTicket->isEstimated()) {
+                $fSpent = (float) $oTicket->actual_time;
+                $fEsti = (float) $oTicket->estimated_time;
+                $fLeft = ($fEsti > $fSpent) ? ($fEsti - $fSpent) : 0;
+                $aTimes['spent'] += $fSpent;
+                $aTimes['esti'] += $fEsti;
+                $aTimes['left'] += $fLeft;
+            }
         }
 
-        $oViewModel->sCurrentProject = $oSession->offsetGet('sCurrentProduct');
-        $oViewModel->aConfigProjects = array_keys($aProducts);
-        unset ($aProducts);
+        $aTimes['days'] = round($aTimes['left'] / \Flightzilla\Model\Timeline\Date::AMOUNT, 1);
+        $aTimes['future'] = round(($aTimes['left'] / (\Flightzilla\Model\Timeline\Date::FUTURE * \Flightzilla\Model\Timeline\Date::AMOUNT)) * 100, 1);
 
-        return true;
+        return $aTimes;
     }
 }

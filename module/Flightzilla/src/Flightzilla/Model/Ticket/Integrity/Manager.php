@@ -62,6 +62,22 @@ class Manager {
     );
 
     /**
+     * The ticket-source
+     *
+     * @var \Flightzilla\Model\Ticket\AbstractSource
+     */
+    protected $_oTicketSource = null;
+
+    /**
+     * Create the integrity-manager
+     *
+     * @param \Flightzilla\Model\Ticket\AbstractSource $oTicketService
+     */
+    public function __construct(\Flightzilla\Model\Ticket\AbstractSource $oTicketService) {
+        $this->_oTicketSource = $oTicketService;
+    }
+
+    /**
      * Check a list of tickets, if they pass all constraints
      *
      * @param  array $aTickets
@@ -77,7 +93,7 @@ class Manager {
                     $aStack[$sConstraint] = array();
                 }
 
-                $bPass = call_user_func(array($sConstraint, 'check'), $oTicket);
+                $bPass = call_user_func_array(array($sConstraint, 'check'), array($oTicket, $this->_oTicketSource));
                 if ($bPass === false) {
                     $aStack[$sConstraint][] = $oTicket;
                     break;
