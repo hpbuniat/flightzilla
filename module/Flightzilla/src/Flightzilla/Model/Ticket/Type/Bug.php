@@ -41,6 +41,7 @@
  */
 namespace Flightzilla\Model\Ticket\Type;
 
+use \Flightzilla\Model\Ticket\Type\Bug\Exception as BugException;
 
 /**
  * A Ticket
@@ -549,9 +550,12 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         }
         // has the human resource other tickets?
         else {
-            $nextPrioBug = $this->_oResource->getResource($this->getAssignee())->getNextHigherPriorityTicket($this);
-            if ($nextPrioBug->id() !== $this->id()) {
-                $this->_iStartDate = $nextPrioBug->getEndDate();
+            $oResource = $this->getResource();
+            if ($oResource instanceof \Flightzilla\Model\Resource\Human) {
+                $nextPrioBug = $oResource->getNextHigherPriorityTicket($this);
+                if ($nextPrioBug->id() !== $this->id()) {
+                    $this->_iStartDate = $nextPrioBug->getEndDate();
+                }
             }
         }
 
@@ -1070,7 +1074,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
-     * Check, if a flag exists, optionaly compare the value with $value
+     * Check, if a flag exists, optionally compare the value with $value
      *
      * @param  string $key
      * @param  string $value
@@ -1129,11 +1133,11 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         $aTimes = array();
         foreach ($aHistory as $oItem) {
             if (isset($oItem->work_time) === true) {
-                $aWho = explode('@', (string) $oItem->who);
+                $sResource = $this->_oResource->getResourceByEmail((string) $oItem->who);
                 $aTimes[] = array(
                     'date' => strtotime((string) $oItem->bug_when),
                     'duration' => (float) $oItem->work_time,
-                    'user' => $aWho[0],
+                    'user' => $sResource,
                     'ticket' => $this->id()
                 );
             }
@@ -1214,6 +1218,23 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * Get the resource
+     *
+     * return \Flightzilla\Model\Resource\Human | string
+     */
+    public function getResource() {
+        $sRealName = null;
+        $sAssignee = $this->getAssignee();
+        try {
+            $sRealName = $this->_oResource->getResourceByEmail($sAssignee);
+            return ($sRealName === $sAssignee) ? $sAssignee : $this->_oResource->getResource($sRealName);
+        }
+        catch (\InvalidArgumentException $e) {
+            return $sAssignee;
+        }
+    }
+
+    /**
      * Get the priority
      *
      * @param  boolean $bMapped
@@ -1248,14 +1269,14 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      *
      * @param  string $sComparisonStatus
      *
-     * @throws \Flightzilla\Model\Ticket\Type\Bug\Exception
+     * @throws BugException
      *
      * @return bool
      */
     public function isStatusAtLeast($sComparisonStatus) {
 
         if (isset($this->_mappedStatus[$sComparisonStatus]) === false){
-            throw new \Flightzilla\Model\Ticket\Type\Bug\Exception(sprintf(\Flightzilla\Model\Ticket\Type\Bug\Exception::INVALID_STATUS, $sComparisonStatus));
+            throw new BugException(sprintf(BugException::INVALID_STATUS, $sComparisonStatus));
         }
 
         return ($this->_mappedStatus[$this->getStatus()] >= $this->_mappedStatus[$sComparisonStatus]);
@@ -1266,14 +1287,14 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      *
      * @param  string $sComparisonStatus
      *
-     * @throws \Flightzilla\Model\Ticket\Type\Bug\Exception
+     * @throws BugException
      *
      * @return bool
      */
     public function isStatusAtMost($sComparisonStatus){
 
         if (isset($this->_mappedStatus[$sComparisonStatus]) === false){
-            throw new \Flightzilla\Model\Ticket\Type\Bug\Exception(sprintf(\Flightzilla\Model\Ticket\Type\Bug\Exception::INVALID_STATUS, $sComparisonStatus));
+            throw new BugException(sprintf(BugException::INVALID_STATUS, $sComparisonStatus));
         }
 
         return ($this->_mappedStatus[$this->getStatus()] <= $this->_mappedStatus[$sComparisonStatus]);

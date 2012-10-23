@@ -5,7 +5,16 @@ $aTimes = $this->collectiontime($this->aStack);
     <div class="span12 well">
         <div class="span2">
             <a href="#" class="thumbnail">
-                <img src="http://placehold.it/160x160" alt="<?php echo $this->sMemberName; ?>" />
+                <?php
+                    echo $this->gravatar($this->oResourceManager->getResource($this->sMemberName)->getGravatar(), array(
+                            'imgSize' => 90,
+                            'secure' => true
+                        ),
+                        array(
+                            'class' => 'avatar',
+                            'title' => $this->sMemberName
+                        ));
+                ?>
             </a>
             <?php echo sprintf('<h5><strong>%s</strong></h5><h5>%d Tickets</h5>', $this->sMemberName, count($this->aStack)); ?>
         </div>

@@ -41,7 +41,6 @@
  */
 namespace Flightzilla\Model\Resource;
 
-
 /**
  * The resource manager handles resources and their duties
  *
@@ -54,18 +53,25 @@ namespace Flightzilla\Model\Resource;
 class Manager {
 
     /**
-     * Known ressources
+     * Known resources
      *
      * @var array
      */
     protected $_aResources = array();
 
     /**
+     * A lookup-cache
      *
+     * @var array
      */
-    public function __construct() {
+    protected $_aLookup = array();
 
-    }
+    /**
+     * The list of handled tickets
+     *
+     * @var array
+     */
+    protected $_aHandled = array();
 
     /**
      * Register a resource
@@ -80,29 +86,34 @@ class Manager {
     }
 
     /**
-     * Add a ticket to the stack
+     * Add a ticket to a resources the stack
      *
      * @param \Flightzilla\Model\Ticket\Type\Bug $oTicket
-     * @param bool                  $bOnlyWorkedBugs
      *
      * @return Manager
      */
-    public function addTicket(\Flightzilla\Model\Ticket\Type\Bug $oTicket, $bOnlyWorkedBugs = true) {
+    public function addTicket(\Flightzilla\Model\Ticket\Type\Bug $oTicket) {
+        $iId = $oTicket->id();
+        if (empty($this->_aHandled[$iId]) === true) {
+            $this->_aHandled[$iId] = $iId;
 
-        if ($bOnlyWorkedBugs === true) {
+            try {
+                $sResource = (string) $oTicket->getResource();
+                if (isset($this->_aResources[$sResource]) === true) {
+                    $this->_aResources[$sResource]->addTicket($oTicket);
+                }
+            }
+            catch (\InvalidArgumentException $e) {
+                /* nop */
+            }
+
             $aTimes = $oTicket->getWorkedHours();
             if (empty($aTimes) !== true) {
                 foreach ($aTimes as $aTime) {
                     if (isset($this->_aResources[$aTime['user']]) === true) {
-                        $this->addTicket($oTicket, false);
+                        $this->addTicket($oTicket);
                     }
                 }
-            }
-        }
-        else {
-            $sResource = $oTicket->getAssignee();
-            if (isset($this->_aResources[$sResource]) === true) {
-                $this->_aResources[$sResource]->addTicket($oTicket);
             }
         }
 
@@ -116,7 +127,7 @@ class Manager {
      *
      * @return $this
      *
-     * @throws \Flightzilla\Model\Resource\Manager\Exception If there are no ressources available
+     * @throws \Flightzilla\Model\Resource\Manager\Exception If there are no resources available
      */
     public function addProject(\Flightzilla\Model\Project\Container $oProject) {
         if (empty($this->_aResources) === true) {
@@ -142,13 +153,51 @@ class Manager {
      *
      * @return \Flightzilla\Model\Resource\Human
      *
-     * @throws InvalidArgumentException
+     * @throws \InvalidArgumentException
      */
     public function getResource($sName) {
         if (isset($this->_aResources[$sName]) === true) {
             return $this->_aResources[$sName];
         }
 
-        throw new InvalidArgumentException('name "' . $sName . '" not known');
+        throw new \InvalidArgumentException('name "' . $sName . '" not known');
+    }
+
+    /**
+     * Check, if a resource is known
+     *
+     * @param  string $sName
+     *
+     * @return boolean
+     */
+    public function hasResource($sName) {
+        return (isset($this->_aResources[$sName]));
+    }
+
+    /**
+     * Get a resource by email
+     *
+     * @param  string $sMail
+     *
+     * @return string
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function getResourceByEmail($sMail) {
+        if (empty($this->_aLookup[$sMail]) === true) {
+            foreach ($this->_aResources as $oHuman) {
+                if ($oHuman->getEmail() === $sMail) {
+                    $this->_aLookup[$sMail] = $oHuman->getName();
+                    break;
+                }
+            }
+
+            if (empty($this->_aLookup[$sMail]) === true) {
+                $this->_aLookup[$sMail] = $sMail;
+            }
+        }
+
+
+        return $this->_aLookup[$sMail];
     }
 }
