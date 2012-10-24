@@ -75,6 +75,13 @@ class Invoker {
     protected $_sCliOutput;
 
     /**
+     * The logger
+     *
+     * @var \Zend\Log\Logger
+     */
+    protected $_oLogger;
+
+    /**
      * Mergy-Command to collect a list
      *
      * @var string
@@ -120,9 +127,11 @@ class Invoker {
      * Create the mergy-invoker
      *
      * @param \Flightzilla\Model\Command $oCommand
+     * @param \Zend\Log\Logger $oLogger
      */
-    public function __construct(\Flightzilla\Model\Command $oCommand) {
+    public function __construct(\Flightzilla\Model\Command $oCommand, \Zend\Log\Logger $oLogger) {
         $this->_oCommand = $oCommand;
+        $this->_oLogger = $oLogger;
     }
 
     /**
@@ -143,7 +152,7 @@ class Invoker {
             $this->_aStack[$oStack->getName()] = $oStack->setRaw($this->_sCliOutput);
         }
         else {
-            Zend_Registry::get('_Logger')->err($this->_oCommand->status() . ' ' . $this->_sCliOutput, __FILE__ . ':' . __LINE__);
+            $this->_oLogger->err($this->_oCommand->status() . ' ' . $this->_sCliOutput);
         }
 
         return $this;
@@ -164,7 +173,7 @@ class Invoker {
         $this->_sCliOutput = $sCommand . PHP_EOL . PHP_EOL . trim($this->_oCommand->execute($sCommand)->get());
 
         if ($this->_oCommand->isSuccess() !== true) {
-            Zend_Registry::get('_Logger')->err($this->_oCommand->status() . ' ' . $this->_sCliOutput, __FILE__ . ':' . __LINE__);
+            $this->_oLogger->err($this->_oCommand->status() . ' ' . $this->_sCliOutput);
         }
 
         return $this;

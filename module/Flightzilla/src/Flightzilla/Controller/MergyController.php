@@ -78,8 +78,10 @@ class MergyController extends AbstractActionController {
 
         $oParams = $this->params();
         $sRepository = $oParams->fromPost('repo');
+
         $oConfig = $this->getServiceLocator()->get('_serviceConfig')->mergy;
-        $oMergy = new \Flightzilla\Model\Mergy\Invoker(new \Flightzilla\Model\Command());
+        $oLogger = $this->getServiceLocator()->get('_log');
+        $oMergy = new \Flightzilla\Model\Mergy\Invoker(new \Flightzilla\Model\Command(), $oLogger);
 
         $sTickets = $oParams->fromPost('tickets');
         $bCommit = (bool) $oParams->fromPost('commit', false);
@@ -91,8 +93,9 @@ class MergyController extends AbstractActionController {
                 $oViewModel->bSuccess = $oMergy->isSuccess();
             }
         }
-        catch (Exception $e) {
-            $this->getResponse()->setHttpResponseCode(400);
+        catch (\Exception $e) {
+            $oLogger->info($e);
+            $this->getResponse()->setStatusCode(\Zend\Http\Response::STATUS_CODE_400);
         }
 
         return $oViewModel;
@@ -107,7 +110,8 @@ class MergyController extends AbstractActionController {
         $oViewModel->mode = 'mergy';
 
         $oConfig = $this->getServiceLocator()->get('_serviceConfig')->mergy;
-        $oMergy = new \Flightzilla\Model\Mergy\Invoker(new \Flightzilla\Model\Command());
+        $oLogger = $this->getServiceLocator()->get('_log');
+        $oMergy = new \Flightzilla\Model\Mergy\Invoker(new \Flightzilla\Model\Command(), $oLogger);
 
         $sTickets = $this->params()->fromPost('tickets');
         try {
@@ -121,8 +125,9 @@ class MergyController extends AbstractActionController {
             $oViewModel->aMergyStack = $oMergy->getStack();
             unset($oConfig, $oMergy);
         }
-        catch (Exception $e) {
-            $this->getResponse()->setHttpResponseCode(400);
+        catch (\Exception $e) {
+            $oLogger->info($e);
+            $this->getResponse()->setStatusCode(\Zend\Http\Response::STATUS_CODE_400);
         }
 
         return $oViewModel;

@@ -1,4 +1,8 @@
 <?php
+if (empty($this->aMergyStack) === true) {
+    $this->aMergyStack = array();
+}
+
 foreach ($this->aMergyStack as $oStack):
     if ($oStack->isEmpty() !== true):
 ?>
