@@ -51,7 +51,7 @@ return array(
             },
             '_log' => function(\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
                 $oLogger = new Zend\Log\Logger;
-                $oLogger->addWriter(new Zend\Log\Writer\Stream(sprintf('./data/log/%s-error.log', date('Y-m-d'))));
+                $oLogger->addWriter(new Zend\Log\Writer\Stream(sprintf('./log/%s-error.log', date('Y-m-d'))));
 
                 return $oLogger;
             },

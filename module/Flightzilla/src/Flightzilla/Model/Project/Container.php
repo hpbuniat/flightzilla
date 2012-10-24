@@ -244,7 +244,7 @@ class Container {
                         'label'       => $oTask->title(),
                         'customClass' => $color,
                         'desc'        => '<b>' . $oTask->title() . '</b><br />'
-                            . '<b>Assignee:</b> ' . (string) $oTask->getAssignee() . '<br />'
+                            . '<b>Assignee:</b> ' . (string) $oTask->getResource() . '<br />'
                             . '<b>Start:</b> ' . date('d.m.Y H:i', $oTask->getStartDate()) . '<br />'
                             . '<b>Ende:</b> ' . date('d.m.Y H:i', $oTask->getEndDate()) . '<br />'
                             . (string) $oTask->long_desc->thetext

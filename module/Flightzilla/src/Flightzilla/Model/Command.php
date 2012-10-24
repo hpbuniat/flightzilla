@@ -41,7 +41,6 @@
  */
 namespace Flightzilla\Model;
 
-
 /**
  * Base class to execute commands as process
  *

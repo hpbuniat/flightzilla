@@ -84,7 +84,7 @@ class Stack {
     /**
      * The raw xml from mergy
      *
-     * @var SimpleXMLElement
+     * @var \SimpleXMLElement
      */
     protected $_oXml;
 
@@ -106,9 +106,9 @@ class Stack {
      * Create a Stack
      *
      * @param string $sName
-     * @param Zend_Config $oSource
+     * @param \Zend\Config\Config $oSource
      */
-    public function __construct($sName, Zend_Config $oSource) {
+    public function __construct($sName, \Zend\Config\Config $oSource) {
         $this->_sName = $sName;
         $this->_sRemote = $oSource->feature;
         $this->_sStable = $oSource->stable;
@@ -165,7 +165,7 @@ class Stack {
     /**
      * Get the raw xml
      *
-     * @return SimpleXMLElement
+     * @return \SimpleXMLElement
      */
     public function getRaw() {
         return $this->_oXml;

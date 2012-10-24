@@ -104,6 +104,24 @@ class Human {
     }
 
     /**
+     * Get the email
+     *
+     * @return string
+     */
+    public function getEmail() {
+        return $this->_aData['mail'];
+    }
+
+    /**
+     * Get the gravatar-image
+     *
+     * @return string
+     */
+    public function getGravatar() {
+        return (empty($this->_aData['gravatar']) === true) ? $this->getEmail() : $this->_aData['gravatar'];
+    }
+
+    /**
      * Add the all resource corresponding tickets
      *
      * @param  \Flightzilla\Model\Ticket\Type\Bug $oTicket
@@ -125,7 +143,7 @@ class Human {
      *
      * @param \Flightzilla\Model\Ticket\Type\Bug $oTicket
      *
-     * @return \\Flightzilla\Model\Ticket\Type\Bug
+     * @return \Flightzilla\Model\Ticket\Type\Bug
      */
     public function getNextHigherPriorityTicket(\Flightzilla\Model\Ticket\Type\Bug $oTicket) {
 
@@ -152,6 +170,15 @@ class Human {
         }
 
         return $nextPrioTicket;
+    }
+
+    /**
+     * Return the name, when used in a string context
+     *
+     * @return string
+     */
+    public function __toString() {
+        return $this->getName();
     }
 
 }

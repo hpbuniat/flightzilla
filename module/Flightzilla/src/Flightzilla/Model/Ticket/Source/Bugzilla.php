@@ -233,6 +233,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     */
     public function __construct(\Flightzilla\Model\Resource\Manager $oResource, \Zend\Http\Client $oHttpClient, \Zend\Config\Config $oConfig) {
         $this->_config = $oConfig;
+        $this->_oResource = $oResource;
         $this->_client = $oHttpClient;
         $this->_client->setEncType(\Zend\Http\Client::ENC_FORMDATA);
         $this->_sCookie = $this->_config->bugzilla->http->cookiePath . 'cookieBugzilla';
@@ -255,6 +256,15 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         ));
 
         $this->user($this->_config->bugzilla->login);
+    }
+
+    /**
+     * Get the resource-manager
+     *
+     * @return \Flightzilla\Model\Resource\Manager
+     */
+    public function getResourceManager() {
+        return $this->_oResource;
     }
 
     /**
@@ -664,9 +674,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         }
 
         // prepare bug models
-        $oResource = new \Flightzilla\Model\Resource\Manager();
         foreach ($this->_aTeam as $aMember) {
-            $oResource->registerResource(\Flightzilla\Model\Resource\Builder::build($aMember));
+            $this->_oResource->registerResource(\Flightzilla\Model\Resource\Builder::build($aMember));
         }
 
         $oDate = new \Flightzilla\Model\Timeline\Date();
@@ -697,8 +706,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             }
 
             if ($bAdd === true) {
-                $oResource->addTicket($oBug, false);
-                $oBug->inject($this, $oResource,$oDate);
+                $oBug->inject($this, $this->_oResource, $oDate);
+                $this->_oResource->addTicket($oBug);
 
                 $aReturn[$iId] = $oBug;
                 if ($oBug->isClosed() !== true and $oBug->isTheme() !== true) {
@@ -1171,11 +1180,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     public function getTeamBugs($aMemberBugs) {
         $aTeam = array();
         foreach ($aMemberBugs as $sName => $aBugs) {
-            foreach ($this->_aTeam as $aMember) {
-                if (stripos($sName, $aMember['mail']) !== false) {
-                    $aTeam[$sName] = $aBugs;
-                    break;
-                }
+            if ($this->_oResource->hasResource($sName) === true) {
+                $aTeam[$sName] = $aBugs;
             }
         }
 
@@ -1193,7 +1199,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         foreach ($aOpenBugs as $oBug) {
             /* @var $oBug \Flightzilla\Model\Ticket\Type\Bug */
             if ($oBug->isTheme() !== true) {
-                $sName = $oBug->getAssignee();
+                $sName = (string) $oBug->getResource();
                 $aMember[$sName][] = $oBug;
             }
         }
@@ -1219,9 +1225,10 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     public function getThemedOpenBugs() {
         $openBugs = $this->getOpenBugs();
         $aOpen = array();
-        foreach ($openBugs as $bug) {
-            if ($bug->doesBlock() === true and $bug->isTheme() !== true) {
-                $aOpen[$bug->id()] = $bug;
+        foreach ($openBugs as $oBug) {
+            /* @var $oBug \Flightzilla\Model\Ticket\Type\Bug */
+            if ($oBug->doesBlock() === true and $oBug->isTheme() !== true) {
+                $aOpen[$oBug->id()] = $oBug;
             }
         }
 
@@ -1277,7 +1284,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     /**
      * Find bugs which are not yet assigned to a theme
      *
-     * @return array
+     * @return $this
      */
     private function _findUnthemedBugs() {
         $openBugs = $this->getOpenBugs();
@@ -1345,7 +1352,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      *
      * @return \Flightzilla\Model\Ticket\Type\Bug
      *
-     * @throws Exception if a bug is not found
+     * @throws \Exception if a bug is not found
      */
     public function getBugById($iBug) {
         if (isset($this->_allBugs[$iBug]) !== true) {

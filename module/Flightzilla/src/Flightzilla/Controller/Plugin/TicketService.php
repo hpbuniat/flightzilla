@@ -39,7 +39,6 @@
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
-
 namespace Flightzilla\Controller\Plugin;
 
 use Zend\Mvc\Controller\Plugin\AbstractPlugin,
@@ -55,6 +54,7 @@ use Zend\Mvc\Controller\Plugin\AbstractPlugin,
  * @link https://github.com/hpbuniat/flightzilla
  */
 class TicketService extends AbstractPlugin {
+
     /**
      * Name of the plugin
      *
@@ -108,6 +108,7 @@ class TicketService extends AbstractPlugin {
 
         $oTicketService->getBugsChangedToday();
 
+        // gather the ticket-information
         $oView->bugsReopened = $oTicketService->getReopenedBugs();
         $oView->bugsTestserver = $oTicketService->getUpdateTestserver();
         $oView->bugsBranch = $oTicketService->getFixedBugsInBranch();
@@ -146,6 +147,10 @@ class TicketService extends AbstractPlugin {
         $oView->aSeverities = $oTicketService->getSeverities();
         $oView->sChuck = $oTicketService->getChuckStatus();
         $oView->aThemes = $oTicketService->getThemesAsStack();
+
+        // expose some those objects to the view
+        $oView->oTicketService = $oTicketService;
+        $oView->oResourceManager = $oTicketService->getResourceManager();
 
         return $this;
     }
