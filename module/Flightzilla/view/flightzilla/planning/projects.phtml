@@ -7,7 +7,8 @@
 
     <script type="text/javascript">
         $(function() {
-            $("#ganttGraph").gantt({
+            var $gantt = $("#ganttGraph");
+            $gantt.gantt({
                 source: <?php echo $this->sProjects; ?>,
                 navigate: "scroll",
                 scale: "days",
@@ -17,6 +18,8 @@
                 itemsPerPage: 25,
                 scrollToToday: true
             });
+
+            $gantt.removeClass('hidden');
         });
     </script>
 
