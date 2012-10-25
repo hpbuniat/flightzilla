@@ -59,93 +59,95 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @var string
      */
     const BUG_LIST = 'buglist.cgi';
-
     const BUG_SHOW = 'show_bug.cgi';
-
     const BUG_PROCESS = 'process_bug.cgi';
-
     const BUG_SUMMARY = 'summarize_time.cgi';
-
     const BUG_PARAM_PRODUCT = 'product';
-
     const BUG_PARAM_COMPONENT = 'component';
-
     const BUG_PARAM_STATUS = 'bug_status';
-
     const BUG_PARAM_RESOLUTION = 'resolution';
-
     const BUG_PARAM_VERSION = 'version';
-
     const BUG_PARAM_CTYPE = 'ctype';
-
     const BUG_PARAM_EXCLUDEFIELD = 'excludefield';
-
     const BUG_PARAM_ASSIGNEE = 'email';
-
     const BUG_PARAM_CMDTYPE = 'cmdtype';
-
     const BUG_PARAM_REMACTION = 'remaction';
-
     const BUG_PARAM_NAMEDCMD = 'namedcmd';
-
     const BUG_PARAM_SHARER = 'sharer_id';
-
     const BUG_PARAM_DETAILED = 'detailed';
-
     const BUG_PARAM_GROUP = 'group_by';
-
     const BUG_PARAM_REPORT = 'do_report';
-
     const BUG_PARAM_BUG_IDS = 'id';
-
     const BUG_PARAM_START_DATE = 'start_date';
-
     const BUG_PARAM_END_DATE = 'end_date';
-
     const BUG_PARAM_CHANGE_DATE_FROM = 'chfieldfrom';
-
     const BUG_PARAM_CHANGE_DATE_TO = 'chfieldto';
-
     const BUG_PARAM_FIELD_ASSIGNED_TO = 'assigned_to';
-
     const BUG_PARAM_FIELD_BLOCKED = 'blocked';
-
     const BUG_PARAM_FIELD_DEADLINE = 'deadline';
-
     const BUG_PARAM_FIELD_FLAGTYPE_NAME = 'flagtypes.name';
-
     const BUG_PARAM_FIELD_RELEASE_WEEK = 'cf_release_week';
-
     const BUG_PARAM_FIELD_REPORTER = 'reporter';
-
     const BUG_FLAG_REQUEST = '?';
     const BUG_FLAG_GRANTED = '+';
     const BUG_FLAG_DENIED  = '-';
     const BUG_FLAG_CANCELLED = 'X';
 
-    private $_sCookie = null;
-
-    private $_config = null;
-
-    private $_client = null;
-
+    /**
+     * Products to use
+     *
+     * @var array
+     */
     private $_product = array();
 
+    /**
+     * Users to use
+     *
+     * @var array
+     */
     private $_user = array();
 
+    /**
+     * List of all open tickets
+     *
+     * @var \Flightzilla\Model\Ticket\Type\Bug[]
+     */
     private $_openBugs = null;
 
+    /**
+     * List of all reopened tickets
+     *
+     * @var \Flightzilla\Model\Ticket\Type\Bug[]
+     */
     private $_reopenedBugs = null;
 
+    /**
+     * List of all fixed tickets
+     *
+     * @var \Flightzilla\Model\Ticket\Type\Bug[]
+     */
     private $_fixedBugs = null;
 
+    /**
+     * List of all tickets, which are already in the stable-branch
+     *
+     * @var \Flightzilla\Model\Ticket\Type\Bug[]
+     */
     private $_aFixedTrunk = array();
 
+    /**
+     * List of all tickets, which can be merged
+     *
+     * @var \Flightzilla\Model\Ticket\Type\Bug[]
+     */
     private $_aFixedToMerge = array();
 
+    /**
+     * The list of all tickets
+     *
+     * @var \Flightzilla\Model\Ticket\Type\Bug[]
+     */
     private $_aFixed = array();
-
-    private $_summary = null;
 
     /**
      * The list of all tickets
@@ -164,8 +166,18 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      */
     private $_aProjects = array();
 
+    /**
+     * The list of all tickets, which are not assigned to a theme
+     *
+     * @var \Flightzilla\Model\Ticket\Type\Bug[]
+     */
     private $_aUnthemed = array();
 
+    /**
+     * Get-parameter for the next request
+     *
+     * @var string
+     */
     private $_getParameter = "";
 
     /**
@@ -174,6 +186,13 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @var array
      */
     private $_aBugsListCache;
+
+    /**
+     * The summary-request result
+     *
+     * @var array
+     */
+    private $_summary = null;
 
     /**
      * Stats
@@ -236,24 +255,6 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $this->_oResource = $oResource;
         $this->_client = $oHttpClient;
         $this->_client->setEncType(\Zend\Http\Client::ENC_FORMDATA);
-        $this->_sCookie = $this->_config->bugzilla->http->cookiePath . 'cookieBugzilla';
-
-        $aCurlOptions = array(
-            CURLOPT_COOKIEFILE => $this->_sCookie,
-            CURLOPT_COOKIEJAR => $this->_sCookie,
-            CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_SSL_VERIFYPEER => false
-        );
-
-        if (isset($this->_config->bugzilla->http->proxy) === true) {
-            $aCurlOptions[CURLOPT_PROXY] = $this->_config->bugzilla->http->proxy;
-        }
-
-        $this->_client->setOptions(array(
-            'timeout' => 30,
-            'adapter' => 'Zend\Http\Client\Adapter\Curl',
-            'curloptions' => $aCurlOptions
-        ));
 
         $this->user($this->_config->bugzilla->login);
     }

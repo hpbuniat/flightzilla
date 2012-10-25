@@ -67,6 +67,27 @@ abstract class AbstractSource {
     protected $_oAuth = null;
 
     /**
+     * The cookie-path
+     *
+     * @var string
+     */
+    protected $_sCookie = null;
+
+    /**
+     * The configuration
+     *
+     * @var \Zend\Config\Config
+     */
+    protected $_config = null;
+
+    /**
+     * The http-client
+     *
+     * @var \Zend\Http\Client
+     */
+    protected $_client = null;
+
+    /**
      * Set the cache
      *
      * @param  \Zend\Cache\Storage\StorageInterface $oCache
@@ -83,10 +104,38 @@ abstract class AbstractSource {
      *
      * @param  \Flightzilla\Authentication\Adapter $oAuth
      *
-     * @return $this;
+     * @return $this
      */
     public function setAuth(\Flightzilla\Authentication\Adapter $oAuth) {
         $this->_oAuth = $oAuth;
+        return $this;
+    }
+
+    /**
+     * Init the curl-client
+     *
+     * @return $this
+     */
+    public function initHttpClient() {
+        $this->_sCookie = sprintf('%sflightzilla%s', $this->_config->bugzilla->http->cookiePath, md5($this->_oAuth->getLogin()));
+
+        $aCurlOptions = array(
+            CURLOPT_COOKIEFILE => $this->_sCookie,
+            CURLOPT_COOKIEJAR => $this->_sCookie,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_SSL_VERIFYPEER => false
+        );
+
+        if (isset($this->_config->bugzilla->http->proxy) === true) {
+            $aCurlOptions[CURLOPT_PROXY] = $this->_config->bugzilla->http->proxy;
+        }
+
+        $this->_client->setOptions(array(
+            'timeout' => 30,
+            'adapter' => 'Zend\Http\Client\Adapter\Curl',
+            'curloptions' => $aCurlOptions
+        ));
+
         return $this;
     }
 }
