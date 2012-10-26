@@ -494,12 +494,15 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     private function _loginToBugzilla() {
         if (file_exists($this->_sCookie) !== true) {
             $this->_client->setMethod(\Zend\Http\Request::METHOD_POST);
-            $this->_client->setParameterPost(array(
+
+            $aPost = $this->_client->getRequest()->getPost()->toArray();
+            $aPost = array_merge(array(
                 'Bugzilla_login' => $this->_oAuth->getLogin(),
                 'Bugzilla_password' => $this->_oAuth->getPassword(),
                 'GoAheadAndLogIn' => 'Log in',
                 'Bugzilla_restrictlogin' => true
-            ));
+            ), $aPost);
+            $this->_client->setParameterPost($aPost);
         }
     }
 
@@ -565,19 +568,26 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      *
      * @return void
      *
-     * @throws \Flightzilla\Model\Ticket\Type\Source\Writer\Exception
+     * @throws \Flightzilla\Model\Ticket\Source\Writer\Exception
      */
     public function updateTicket(\Flightzilla\Model\Ticket\Source\AbstractWriter $oWriter) {
-        $this->_client->setMethod(\Zend\Http\Request::METHOD_POST);
-        $this->_client->setParameterPost($oWriter->getPayload());
+        $this->_client->setEncType(\Zend\Http\Client::ENC_URLENCODED);
         $this->_client->setUri($this->_config->bugzilla->baseUrl . '/' . self::BUG_PROCESS);
+        $this->_client->setParameterPost($oWriter->getPayload());
+        $this->_client->setMethod(\Zend\Http\Request::METHOD_POST);
+
+        $this->_loginToBugzilla();
+
         $sResult = $this->_client->send()->getBody();
 
         $sException = '';
         $aMatches = array();
-        if (preg_match('/\<td bgcolor="#ff0000"\>([\s\S]*)\<\/td\>/', $sResult, $aMatches) > 0 or preg_match('/\<td id="error_msg" class="throw_error"\>([\s\S]*)\<\/td\>/', $sResult, $aMatches) > 0) {
+        if (preg_match('/\<td bgcolor="#ff0000"\>([\s\S]*)\<\/td\>/', $sResult, $aMatches) > 0
+            or preg_match('/\<td id="error_msg" class="throw_error"\>([\s\S]*)\<\/td\>/', $sResult, $aMatches) > 0
+            or preg_match('/I need a legitimate login and password to continue./i', $sResult, $aMatches) > 0)
+        {
             $sException = sprintf('Bugzilla Exception while updating: %s', trim(strip_tags($aMatches[1])));
-            throw new \Flightzilla\Model\Ticket\Type\Source\Writer\Exception($sException);
+            throw new \Flightzilla\Model\Ticket\Source\Writer\Exception($sException);
         }
 
         $this->_resetAllParameter();

@@ -81,26 +81,26 @@ class TicketController extends AbstractActionController {
 
         $aModify = $this->params()->fromPost('modify');
 
-        $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->getService();
+        $oTicketService = $this->getPluginManager()->get(TicketService::NAME)->getService();
         $aTickets = array();
         if (empty($aModify) !== true) {
             foreach ($aModify as $iTicket => $aActions) {
-                $oTicketWriter = new \Flightzilla\Model\Ticket\Source\Writer\Bugzilla($oServiceModel);
-                $oTicket = $oServiceModel->getBugById($iTicket);
+                $oTicketWriter = new \Flightzilla\Model\Ticket\Source\Writer\Bugzilla($oTicketService);
+                $oTicket = $oTicketService->getBugById($iTicket);
                 foreach ($aActions as $sAction) {
                     if (method_exists($oTicketWriter, $sAction) === true) {
                         $oTicketWriter->$sAction($oTicket);
                     }
                 }
 
-                $oServiceModel->updateTicket($oTicketWriter);
+                $oTicketService->updateTicket($oTicketWriter);
                 unset($oTicketWriter);
 
                 $aTickets[] = $oTicket->id();
             }
         }
 
-        $oViewModel->aTickets = $oServiceModel->getBugListByIds($aTickets, false);
+        $oViewModel->aTickets = $oTicketService->getBugListByIds($aTickets, false);
         return $oViewModel;
     }
 }

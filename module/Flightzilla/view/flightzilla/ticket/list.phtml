@@ -39,7 +39,7 @@
             </li>
             <?php endif;?>
 
-            <?php if ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTSERVER, '+') !== true): ?>
+            <?php if ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTSERVER, '?') === true): ?>
             <li>
                 <label class="checkbox">
                     <input type="checkbox" value="setStaged" name="modify[<?php echo $oTicket->id();?>][]" />
