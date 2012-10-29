@@ -154,6 +154,7 @@ div.modal {
     position: absolute;
     color: #aaa;
     text-align: center;
+    cursor: pointer;
 }
 .relative-box {
     position: relative;

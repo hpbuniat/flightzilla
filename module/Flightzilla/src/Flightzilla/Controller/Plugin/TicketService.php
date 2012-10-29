@@ -128,7 +128,7 @@ class TicketService extends AbstractPlugin {
             // testing
             $oView->allBugsTesting = $oTicketService->getBugsWithFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '?');
 
-            // developtment wating, wip
+            // development waiting, wip
             $oView->openWaiting = $oTicketService->getWaiting();
             $oView->bugsWip = $oTicketService->getInprogress();
 

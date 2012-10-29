@@ -82,6 +82,17 @@ class CollectionTime extends AbstractHelper {
         $aTimes['days'] = round($aTimes['left'] / \Flightzilla\Model\Timeline\Date::AMOUNT, 1);
         $aTimes['future'] = round(($aTimes['left'] / (\Flightzilla\Model\Timeline\Date::FUTURE * \Flightzilla\Model\Timeline\Date::AMOUNT)) * 100, 1);
 
+        $aTimes['color'] = 'success';
+        if ($aTimes['future'] < 20) {
+            $aTimes['color'] = 'danger';
+        }
+        elseif ($aTimes['future'] < 50) {
+            $aTimes['color'] = 'warning';
+        }
+        elseif ($aTimes['future'] < 80) {
+            $aTimes['color'] = 'info';
+        }
+
         return $aTimes;
     }
 }

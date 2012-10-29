@@ -692,6 +692,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $oDate = new \Flightzilla\Model\Timeline\Date();
 
         foreach ($aTemp as $oBug) {
+            /* @var $oBug \Flightzilla\Model\Ticket\Type\Bug */
             $iId = $oBug->id();
 
             $bAdd = true;
@@ -721,15 +722,17 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                 $this->_oResource->addTicket($oBug);
 
                 $aReturn[$iId] = $oBug;
-                if ($oBug->isClosed() !== true and $oBug->isTheme() !== true) {
-                    $this->_allBugs[$iId] = $oBug;
-                }
-                elseif ($oBug->isTheme() === true) {
-                    $this->_aThemes[$iId] = $oBug;
-                }
+                if ($oBug->isClosed() !== true) {
+                    if ($oBug->isTheme() !== true) {
+                        $this->_allBugs[$iId] = $oBug;
+                    }
+                    elseif ($oBug->isTheme() === true) {
+                        $this->_aThemes[$iId] = $oBug;
+                    }
 
-                if ($oBug->isProject() === true) {
-                    $this->_aProjects[$iId] = $oBug;
+                    if ($oBug->isProject() === true) {
+                        $this->_aProjects[$iId] = $oBug;
+                    }
                 }
 
             }
@@ -1195,6 +1198,13 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                 $aTeam[$sName] = $aBugs;
             }
         }
+
+        $oSorting = new \Flightzilla\Model\Project\Sorting($this);
+        foreach ($aTeam as $sName => $aBugs) {
+            $aTeam[$sName] = $oSorting->setStack($aBugs)->getSortedBugs();
+        }
+
+        unset($oSorting);
 
         return $aTeam;
     }

@@ -104,12 +104,28 @@ class Sorting {
      *
      * @param  \Flightzilla\Model\Ticket\Type\Bug $oBug
      *
-     * @return Sorting
+     * @return $this
      */
     public function add(\Flightzilla\Model\Ticket\Type\Bug $oBug) {
 
         $this->_aStack[$oBug->id()] = $oBug;
         $this->_bSorted = false;
+        return $this;
+    }
+
+    /**
+     * Set the ticket-stack
+     *
+     * @param  array $aStack
+     *
+     * @return $this
+     */
+    public function setStack($aStack) {
+        $this->_aStack = array();
+        foreach ($aStack as $oBug) {
+            $this->add($oBug);
+        }
+
         return $this;
     }
 
@@ -133,7 +149,15 @@ class Sorting {
     protected function _sort() {
 
         if ($this->_bSorted !== true) {
+            $this->_sortByPriority();
             $this->_sortByStartDate();
+
+            $bSorted = false;
+            do {
+                $bSorted = $this->_sortByDependency();
+            }
+            while($bSorted);
+
             $this->_bSorted = true;
         }
 
@@ -160,9 +184,10 @@ class Sorting {
             foreach ($aDepends as $iBug) {
                 if (isset($aSorted[$iBug]) !== true) {
                     $oDepends = $this->_oBugzilla->getBugById($iBug);
-                    $aSorted[$iBug] = $oDepends;
-
-                    $bShiftedABug = true;
+                    if ($oDepends->isClosed() !== true) {
+                        $aSorted[$iBug] = $oDepends;
+                        $bShiftedABug = true;
+                    }
                 }
             }
 
@@ -173,7 +198,7 @@ class Sorting {
 
         foreach ($this->_aSorted as $oBug) {
             if (isset($this->_aNotSortedStack[$oBug->id()]) === true) {
-                Zend_Debug::dump($oBug->id(), __FILE__ . ':' . __LINE__);
+                \Zend\Debug\Debug::dump($oBug->id(), __FILE__ . ':' . __LINE__);
                 unset($this->_aNotSortedStack[$oBug->id()]);
             }
         }
@@ -185,14 +210,14 @@ class Sorting {
     /**
      * Sort the bugs by start-date
      *
-     * @return array
+     * @return $this
      */
     protected function _sortByStartDate() {
 
         $this->_aNotSortedStack = array();
 
         $aSort = array();
-        foreach ($this->_aStack as $oBug) {
+        foreach ($this->_aSorted as $oBug) {
             $iStartDate = $oBug->getStartDate();
             if (empty($iStartDate) === true) {
                 $this->_aNotSortedStack[$oBug->id()] = $oBug;
@@ -203,6 +228,28 @@ class Sorting {
         }
 
         asort($aSort);
+        $this->_aSorted = array();
+        foreach ($aSort as $iBug => $mStuff) {
+            $this->_aSorted[$iBug] = $this->_aStack[$iBug];
+        }
+
+        unset($aSort);
+
+        return $this;
+    }
+
+    /**
+     * Sort the bugs by priority
+     *
+     * @return $this
+     */
+    protected function _sortByPriority() {
+        $aSort = array();
+        foreach ($this->_aStack as $oBug) {
+            $aSort[$oBug->id()] = $oBug->getPriority(true);
+        }
+
+        arsort($aSort);
         $this->_aSorted = array();
         foreach ($aSort as $iBug => $mStuff) {
             $this->_aSorted[$iBug] = $this->_aStack[$iBug];

@@ -396,6 +396,10 @@
         e.preventDefault();
     });
 
+    $('.largeGray').click(function() {
+        $(this).parents('.memberBox').find('.allTickets').toggleClass('hidden');
+    });
+
     $('.bugzilla-link').click(function() {
         $('#buglist-form').submit();
     });
