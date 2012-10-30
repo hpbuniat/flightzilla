@@ -336,9 +336,11 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             'P5' => 0,
         );
 
-        $iCount = count($this->_allBugs);
+        $iCount = $this->getCount();
         foreach ($this->_allBugs as $oBug) {
-            $aPriorities[(string) $oBug->priority]++;
+            if ($oBug->isClosed() !== true) {
+                $aPriorities[(string) $oBug->priority]++;
+            }
         }
 
         $this->_percentify($aPriorities, $iCount);
@@ -353,14 +355,16 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     public function getSeverities() {
         $aSeverities = array();
 
-        $iCount = count($this->_allBugs);
+        $iCount = $this->getCount();
         foreach ($this->_allBugs as $oBug) {
-            $sSeverity = (string) $oBug->bug_severity;
-            if (empty($aSeverities[$sSeverity]) === true) {
-                $aSeverities[$sSeverity] = 0;
-            }
+            if ($oBug->isClosed() !== true) {
+                $sSeverity = (string) $oBug->bug_severity;
+                if (empty($aSeverities[$sSeverity]) === true) {
+                    $aSeverities[$sSeverity] = 0;
+                }
 
-            $aSeverities[$sSeverity]++;
+                $aSeverities[$sSeverity]++;
+            }
         }
 
         $this->_percentify($aSeverities, $iCount);
@@ -375,7 +379,14 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return int
      */
     public function getCount() {
-        return count($this->_allBugs);
+        $iCount = 0;
+        foreach ($this->_allBugs as $oBug) {
+            if ($oBug->isClosed() !== true) {
+                $iCount++;
+            }
+        }
+
+        return $iCount;
     }
 
     /**
@@ -1440,7 +1451,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      */
     public function getStats() {
         if (empty($this->_aStats) === true) {
-            $iCount = count($this->_allBugs);
+            $iCount = $this->getCount();
             $this->_aStats = array(
                 \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ESTIMATED => 0,
                 \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ORGA => 0,
@@ -1463,61 +1474,63 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             foreach ($this->_allBugs as $oBug) {
                 /* @var $oBug \Flightzilla\Model\Ticket\Type\Bug */
 
-                $bShouldHaveEstimation = true;
-                if ($oBug->isOrga()) {
-                    $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ORGA]++;
-                    $bShouldHaveEstimation = false;
-                }
+                if ($oBug->isClosed() !== true) {
+                    $bShouldHaveEstimation = true;
+                    if ($oBug->isOrga()) {
+                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ORGA]++;
+                        $bShouldHaveEstimation = false;
+                    }
 
-                if ($oBug->isEstimated()) {
-                    $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ESTIMATED]++;
-                }
-                elseif ($bShouldHaveEstimation === true) {
-                    $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_UNESTIMATED]++;
-                }
+                    if ($oBug->isEstimated()) {
+                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ESTIMATED]++;
+                    }
+                    elseif ($bShouldHaveEstimation === true) {
+                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_UNESTIMATED]++;
+                    }
 
-                if ($oBug->isWorkedOn()) {
-                    $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_INPROGRESS]++;
-                }
+                    if ($oBug->isWorkedOn()) {
+                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_INPROGRESS]++;
+                    }
 
-                if ($oBug->isActive()) {
-                    $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ACTIVE]++;
-                }
+                    if ($oBug->isActive()) {
+                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ACTIVE]++;
+                    }
 
-                if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING,'?')) {
-                    $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_TESTING]++;
-                }
+                    if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING,'?')) {
+                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_TESTING]++;
+                    }
 
-                if ($oBug->isFailed()) {
-                    $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_FAILED]++;
-                }
+                    if ($oBug->isFailed()) {
+                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_FAILED]++;
+                    }
 
-                if ($oBug->isMergeable()) {
-                    $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_MERGE]++;
-                }
+                    if ($oBug->isMergeable()) {
+                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_MERGE]++;
+                    }
 
-                if ($oBug->deadlineStatus()) {
-                    $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_DEADLINE]++;
-                }
+                    if ($oBug->deadlineStatus()) {
+                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_DEADLINE]++;
+                    }
 
-                if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '?')) {
-                    $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_SCREEN]++;
-                }
+                    if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '?')) {
+                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_SCREEN]++;
+                    }
 
-                if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_COMMENT, '?')) {
-                    $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_COMMENT]++;
-                }
+                    if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_COMMENT, '?')) {
+                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_COMMENT]++;
+                    }
 
-                if ($oBug->isQuickOne()) {
-                    $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_QUICK]++;
-                }
+                    if ($oBug->isQuickOne()) {
+                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_QUICK]++;
+                    }
 
-                if ($oBug->isOnlyTranslation()) {
-                    $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_TRANSLATION]++;
-                }
+                    if ($oBug->isOnlyTranslation()) {
+                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_TRANSLATION]++;
+                    }
 
-                if ($oBug->isChangedWithinLimit($iTimeoutLimit) !== true) {
-                    $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_TIMEDOUT]++;
+                    if ($oBug->isChangedWithinLimit($iTimeoutLimit) !== true) {
+                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_TIMEDOUT]++;
+                    }
                 }
             }
 
@@ -1545,9 +1558,11 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                 \Flightzilla\Model\Ticket\Type\Bug::STATUS_CLOSED => 0
             );
 
-            $iCount = count($this->_allBugs);
+            $iCount = $this->getCount();
             foreach ($this->_allBugs as $oBug) {
-                $this->_aStatuses[$oBug->getStatus()]++;
+                if ($oBug->isClosed() !== true) {
+                    $this->_aStatuses[$oBug->getStatus()]++;
+                }
             }
 
             $this->_percentify($this->_aStatuses, $iCount);
