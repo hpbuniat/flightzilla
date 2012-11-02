@@ -82,7 +82,20 @@ return array(
                               ->initHttpClient();
 
                 return $oTicketSource;
-            }
+            },
+            '_analytics' => function(\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
+                $oGdataHttpClient = new \ZendGData\HttpClient();
+                $oGdataHttpClient->setOptions(array(
+                    'sslverifypeer' => false
+                ));
+                $oConfig = $oServiceManager->get('_serviceConfig');
+
+                $oAnalytics = new \Flightzilla\Model\Analytics($oGdataHttpClient, $oConfig);
+                $oAnalytics->setCache($oServiceManager->get('_cache'))
+                           ->setAuth($oServiceManager->get('_auth'));
+
+                return $oAnalytics;
+            },
         ),
     ),
     'controllers' => array(

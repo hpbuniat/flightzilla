@@ -95,7 +95,7 @@ class MergyController extends AbstractActionController {
         }
         catch (\Exception $e) {
             $oLogger->info($e);
-            $this->getResponse()->setStatusCode(\Zend\Http\Response::STATUS_CODE_400);
+            $this->getResponse()->setStatusCode(\Zend\Http\Response::STATUS_CODE_404);
         }
 
         return $oViewModel;
