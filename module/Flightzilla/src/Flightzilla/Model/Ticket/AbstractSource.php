@@ -52,6 +52,7 @@ namespace Flightzilla\Model\Ticket;
  * @link https://github.com/hpbuniat/flightzilla
  */
 abstract class AbstractSource {
+
     /**
      * The cache-instance
      *

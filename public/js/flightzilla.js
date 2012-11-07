@@ -127,7 +127,7 @@
                 var dataType = ($this.data('mode') === 'campaign') ? 'html' : 'script';
                 $.ajax({
                     type: 'POST',
-                    url: BASE_URL + '/flightzilla/analytics/data/',
+                    url: BASE_URL + '/flightzilla/analytics/data',
                     dataType: dataType,
                     data: {
                         portal: target,
