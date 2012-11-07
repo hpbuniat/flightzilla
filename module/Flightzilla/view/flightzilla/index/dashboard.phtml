@@ -1,0 +1,10 @@
+<?php echo $this->render('flightzilla/index/partial/header.phtml'); ?>
+
+<div class="row-fluid kanban">
+<?php
+    $this->sMemberName = $this->oResourceManager->getResourceByLogin($this->layout()->sCurrentUser);
+    $this->aStack = (isset($this->aTeamBugs[$this->sMemberName]) === true) ? $this->aTeamBugs[$this->sMemberName] : array();
+
+    echo $this->render('flightzilla/index/partial/member.phtml');
+?>
+</div>

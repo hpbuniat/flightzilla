@@ -696,8 +696,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         }
 
         // prepare bug models
-        foreach ($this->_aTeam as $aMember) {
-            $this->_oResource->registerResource(\Flightzilla\Model\Resource\Builder::build($aMember));
+        foreach ($this->_aTeam as $sLogin => $aMember) {
+            $this->_oResource->registerResource(\Flightzilla\Model\Resource\Builder::build($sLogin, $aMember));
         }
 
         $oDate = new \Flightzilla\Model\Timeline\Date();

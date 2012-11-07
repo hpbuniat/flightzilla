@@ -83,12 +83,14 @@ class Human {
     /**
      * Create the human
      *
+     * @param string $sLogin
      * @param array $aMember
      * @param \Flightzilla\Model\Resource\Human\Timecard $oTimecard
      */
-    public function __construct($aMember, \Flightzilla\Model\Resource\Human\Timecard $oTimecard) {
+    public function __construct($sLogin, $aMember, \Flightzilla\Model\Resource\Human\Timecard $oTimecard) {
 
         $this->_oTimecard = $oTimecard;
+        $aMember['login'] = $sLogin;
         $this->_sName = $aMember['name'];
         $this->_aData = $aMember;
     }
@@ -110,6 +112,15 @@ class Human {
      */
     public function getEmail() {
         return $this->_aData['mail'];
+    }
+
+    /**
+     * Get the login
+     *
+     * @return string
+     */
+    public function getLogin() {
+        return $this->_aData['login'];
     }
 
     /**

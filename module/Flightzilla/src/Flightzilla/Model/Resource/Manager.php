@@ -180,12 +180,11 @@ class Manager {
      * @param  string $sMail
      *
      * @return string
-     *
-     * @throws \InvalidArgumentException
      */
     public function getResourceByEmail($sMail) {
         if (empty($this->_aLookup[$sMail]) === true) {
             foreach ($this->_aResources as $oHuman) {
+                /* @var $oHuman \Flightzilla\Model\Resource\Human */
                 if ($oHuman->getEmail() === $sMail) {
                     $this->_aLookup[$sMail] = $oHuman->getName();
                     break;
@@ -197,7 +196,31 @@ class Manager {
             }
         }
 
-
         return $this->_aLookup[$sMail];
+    }
+
+    /**
+     * Get a resource by login
+     *
+     * @param  string $sLogin
+     *
+     * @return string
+     */
+    public function getResourceByLogin($sLogin) {
+        if (empty($this->_aLookup[$sLogin]) === true) {
+            foreach ($this->_aResources as $oHuman) {
+                /* @var $oHuman \Flightzilla\Model\Resource\Human */
+                if ($oHuman->getLogin() === $sLogin) {
+                    $this->_aLookup[$sLogin] = $oHuman->getName();
+                    break;
+                }
+            }
+
+            if (empty($this->_aLookup[$sLogin]) === true) {
+                $this->_aLookup[$sLogin] = $sLogin;
+            }
+        }
+
+        return $this->_aLookup[$sLogin];
     }
 }
