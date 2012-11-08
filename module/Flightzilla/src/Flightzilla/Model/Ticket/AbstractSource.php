@@ -75,6 +75,27 @@ abstract class AbstractSource {
     protected $_sCookie = null;
 
     /**
+     * The current user
+     *
+     * @var \Flightzilla\Model\Resource\Human
+     */
+    protected $_oUser = null;
+
+    /**
+     * The resource-manager
+     *
+     * @var \Flightzilla\Model\Resource\Manager
+     */
+    protected $_oResource = null;
+
+    /**
+     * The current project
+     *
+     * @var array
+     */
+    protected $_aProject = null;
+
+    /**
      * The configuration
      *
      * @var \Zend\Config\Config
@@ -110,6 +131,20 @@ abstract class AbstractSource {
     public function setAuth(\Flightzilla\Authentication\Adapter $oAuth) {
         $this->_oAuth = $oAuth;
         return $this;
+    }
+
+    /**
+     * Get the current user
+     *
+     * @return \Flightzilla\Model\Resource\Human
+     */
+    public function getCurrentUser() {
+        $sUser = $this->_oResource->getResourceByLogin($this->_oAuth->getLogin());
+        if ($this->_oResource->hasResource($sUser)) {
+            $this->_oUser = $this->_oResource->getResource($sUser);
+        }
+
+        return (empty($this->_oUser) === true) ? null : $this->_oUser;
     }
 
     /**

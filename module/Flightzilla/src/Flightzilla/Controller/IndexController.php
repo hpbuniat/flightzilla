@@ -117,7 +117,10 @@ class IndexController extends AbstractActionController {
         $oViewModel = new ViewModel;
         $oViewModel->mode = 'dashboard';
 
-        $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
+        $oTicketService = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel)->getService();
+
+        $oTasks = new \Flightzilla\Model\Ticket\Task\Manager($oTicketService);
+        $oViewModel->aTasks = $oTasks->check($oTicketService->getAllBugs());
 
         $oViewModel->setTemplate('flightzilla/index/dashboard.phtml');
         return $oViewModel;

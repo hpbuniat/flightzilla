@@ -230,20 +230,6 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     protected $_aFindThemeCache = array();
 
     /**
-     * The resource-manager
-     *
-     * @var \Flightzilla\Model\Resource\Manager
-     */
-    protected $_oResource;
-
-    /**
-     * The current project
-     *
-     * @var array
-     */
-    protected $_aProject = null;
-
-    /**
      * Do all Bug-related action
      *
      * @param \Flightzilla\Model\Resource\Manager $oResource

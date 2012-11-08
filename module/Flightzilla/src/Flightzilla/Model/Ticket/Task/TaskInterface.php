@@ -39,10 +39,14 @@
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
-namespace Flightzilla\Model\Ticket\Integrity;
+namespace Flightzilla\Model\Ticket\Task;
+
+use \Flightzilla\Model\Ticket\Type\Bug;
+use \Flightzilla\Model\Ticket\Source\Bugzilla;
+use \Flightzilla\Model\Resource\Human;
 
 /**
- * Handle the integrity of tickets & their workflow
+ * Interface for tasks
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -50,62 +54,16 @@ namespace Flightzilla\Model\Ticket\Integrity;
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class Manager {
+interface TaskInterface {
 
     /**
-     * The active constraints
+     * Check, if the Ticket has a certain open task
      *
-     * @var array
+     * @param  Bug $oTicket
+     * @param  Bugzilla $oTicketSource
+     * @param  Human $oUser
+     *
+     * @return boolean If true, the ticket passes
      */
-    protected $_aConstraints = array(
-        \Flightzilla\Model\Ticket\Integrity\Constraint\ResolvedTestFailed::NAME
-    );
-
-    /**
-     * The ticket-source
-     *
-     * @var \Flightzilla\Model\Ticket\AbstractSource
-     */
-    protected $_oTicketSource = null;
-
-    /**
-     * Create the integrity-manager
-     *
-     * @param \Flightzilla\Model\Ticket\AbstractSource $oTicketService
-     */
-    public function __construct(\Flightzilla\Model\Ticket\AbstractSource $oTicketService) {
-        $this->_oTicketSource = $oTicketService;
-    }
-
-    /**
-     * Check a list of tickets, if they pass all constraints
-     *
-     * @param  array $aTickets
-     *
-     * @return array
-     */
-    public function check(array $aTickets = array()) {
-        $aStack = array();
-
-        foreach ($aTickets as $oTicket) {
-            foreach ($this->_aConstraints as $sConstraint) {
-                $aCallback = array(__NAMESPACE__ . sprintf('\Constraint\%s', $sConstraint), 'check');
-                if (empty($aStack[$sConstraint]) === true) {
-                    $aStack[$sConstraint] = array(
-                        'description' => '',
-                        'stack' => array()
-                    );
-                }
-
-                $bPass = call_user_func_array($aCallback, array($oTicket, $this->_oTicketSource));
-                if ($bPass === false) {
-                    $aStack[$sConstraint]['stack'][] = $oTicket;
-                    break;
-                }
-            }
-        }
-
-        return $aStack;
-    }
-
+    public static function check(Bug $oTicket, Bugzilla $oTicketSource, Human $oUser);
 }

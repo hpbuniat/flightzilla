@@ -1,0 +1,8 @@
+<div class="span6">
+    <h3><?php echo $this->aTask['description']; ?></h3>
+    <?php
+    foreach ($this->aTask['stack'] as $oTicket):
+        echo $oTicket->title();
+    endforeach;
+    ?>
+</div>
