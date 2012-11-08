@@ -39,7 +39,7 @@
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
-namespace Flightzilla\Model\Ticket\Integrity;
+namespace Flightzilla\Model\Ticket\Task;
 
 /**
  * Handle the integrity of tickets & their workflow
@@ -57,8 +57,8 @@ class Manager {
      *
      * @var array
      */
-    protected $_aConstraints = array(
-        \Flightzilla\Model\Ticket\Integrity\Constraint\ResolvedTestFailed::NAME
+    protected $_aTasks = array(
+        \Flightzilla\Model\Ticket\Task\Comment::NAME
     );
 
     /**
@@ -86,21 +86,24 @@ class Manager {
      */
     public function check(array $aTickets = array()) {
         $aStack = array();
+        $oUser = $this->_oTicketSource->getCurrentUser();
 
-        foreach ($aTickets as $oTicket) {
-            foreach ($this->_aConstraints as $sConstraint) {
-                $aCallback = array(__NAMESPACE__ . sprintf('\Constraint\%s', $sConstraint), 'check');
-                if (empty($aStack[$sConstraint]) === true) {
-                    $aStack[$sConstraint] = array(
-                        'description' => '',
-                        'stack' => array()
-                    );
-                }
+        if ($oUser instanceof \Flightzilla\Model\Resource\Human) {
+            foreach ($aTickets as $oTicket) {
+                foreach ($this->_aTasks as $sTask) {
+                    $aCallback = array(__NAMESPACE__ . sprintf('\%s', $sTask), 'check');
+                    if (empty($aStack[$sTask]) === true) {
+                        $aStack[$sTask] = array(
+                            'description' => '',
+                            'stack' => array()
+                        );
+                    }
 
-                $bPass = call_user_func_array($aCallback, array($oTicket, $this->_oTicketSource));
-                if ($bPass === false) {
-                    $aStack[$sConstraint]['stack'][] = $oTicket;
-                    break;
+                    $bHasTask = call_user_func_array($aCallback, array($oTicket, $this->_oTicketSource, $oUser));
+                    if ($bHasTask === true) {
+                        $aStack[$sTask]['stack'][] = $oTicket;
+                        break;
+                    }
                 }
             }
         }

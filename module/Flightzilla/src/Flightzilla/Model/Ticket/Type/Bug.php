@@ -1021,6 +1021,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
                     $aName = explode('.', strtoupper($sUser));
                     $this->_data->{strtolower($sName) . '_user'} = $aName[0]{0} . ((isset($aName[1]) === true) ? $aName[1]{0} : '');
                     $aFlag['requestee'] = $sUser;
+                    $aFlag['requestee_mail'] = $flag['requestee'];
                     $aFlag['requestee_short'] = $this->_data->{strtolower($sName) . '_user'};
                 }
 
@@ -1074,30 +1075,40 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
-     * Check, if a flag exists, optionally compare the value with $value
+     * Check, if a flag exists
+     * - optionally compare the value with $value
+     * - optionally compare the assignee with $sRequestee
      *
      * @param  string $key
      * @param  string $value
+     * @param  string $sRequestee
      *
      * @return boolean
      */
-    public function hasFlag($key = null, $value = null) {
+    public function hasFlag($key = null, $value = null, $sRequestee = null) {
         if (empty($this->_flags) === true) {
             return false;
         }
 
-        $sHash = $key . $value;
+        $sHash = md5($key . $value . $sRequestee);
         if (isset($this->_aFlagCache[$sHash]) === true) {
             return $this->_aFlagCache[$sHash];
         }
 
         $return = false;
         foreach ($this->_flags as $aFlag) {
-            if (isset($value) and $aFlag['name'] == $key and $aFlag['status'] == $value) {
-                $return = true;
+            if (isset($sAssignee) === true) {
+                if ($aFlag['requestee_mail'] === $sRequestee and $aFlag['name'] == $key and $aFlag['status'] == $value) {
+                    $return = true;
+                }
             }
-            elseif (isset($value) == false and $aFlag['name'] == $key) {
-                $return = true;
+            else {
+                if (isset($value) === true and $aFlag['name'] == $key and $aFlag['status'] == $value) {
+                    $return = true;
+                }
+                elseif (isset($value) === false and $aFlag['name'] == $key) {
+                    $return = true;
+                }
             }
         }
 

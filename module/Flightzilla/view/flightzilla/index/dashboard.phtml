@@ -8,3 +8,11 @@
     echo $this->render('flightzilla/index/partial/member.phtml');
 ?>
 </div>
+
+<div class="row-fluid">
+<?php
+    foreach ($this->aTasks as $this->aTask) {
+        echo $this->render('flightzilla/index/partial/changelist.phtml');
+    }
+?>
+</div>
