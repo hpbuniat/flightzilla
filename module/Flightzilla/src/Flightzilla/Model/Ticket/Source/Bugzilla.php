@@ -86,7 +86,6 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     const BUG_PARAM_FIELD_BLOCKED = 'blocked';
     const BUG_PARAM_FIELD_DEADLINE = 'deadline';
     const BUG_PARAM_FIELD_FLAGTYPE_NAME = 'flagtypes.name';
-    const BUG_PARAM_FIELD_RELEASE_WEEK = 'cf_release_week';
     const BUG_PARAM_FIELD_REPORTER = 'reporter';
     const BUG_FLAG_REQUEST = '?';
     const BUG_FLAG_GRANTED = '+';
@@ -1198,7 +1197,13 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         $oSorting = new \Flightzilla\Model\Project\Sorting($this);
         foreach ($aTeam as $sName => $aBugs) {
-            $aTeam[$sName] = $oSorting->setStack($aBugs)->getSortedBugs();
+            $aStack = $oSorting->setStack($aBugs)->getSortedBugs();
+            $aTeam[$sName] = array();
+            foreach ($aStack as $oTicket) {
+                if ((string) $oTicket->getResource() === $sName) {
+                    $aTeam[$sName][] = $oTicket;
+                }
+            }
         }
 
         unset($oSorting);
