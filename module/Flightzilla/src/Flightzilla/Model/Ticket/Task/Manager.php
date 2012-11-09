@@ -41,6 +41,8 @@
  */
 namespace Flightzilla\Model\Ticket\Task;
 
+use Flightzilla\Model\Reflector;
+
 /**
  * Handle the integrity of tickets & their workflow
  *
@@ -58,7 +60,8 @@ class Manager {
      * @var array
      */
     protected $_aTasks = array(
-        \Flightzilla\Model\Ticket\Task\Comment::NAME
+        \Flightzilla\Model\Ticket\Task\Comment::NAME,
+        \Flightzilla\Model\Ticket\Task\Testing::NAME
     );
 
     /**
@@ -94,7 +97,7 @@ class Manager {
                     $aCallback = array(__NAMESPACE__ . sprintf('\%s', $sTask), 'check');
                     if (empty($aStack[$sTask]) === true) {
                         $aStack[$sTask] = array(
-                            'description' => '',
+                            'description' => Reflector::getClassComment($aCallback[0]),
                             'stack' => array()
                         );
                     }

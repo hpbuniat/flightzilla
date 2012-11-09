@@ -39,15 +39,10 @@
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
-namespace Flightzilla\Model\Ticket\Task;
-
-use \Flightzilla\Model\Ticket\Type\Bug;
-use \Flightzilla\Model\Ticket\Source\Bugzilla;
-use \Flightzilla\Model\Resource\Human;
-
+namespace Flightzilla\Model;
 
 /**
- * Unanswered comment-requests
+ * Helper for php-reflection
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -55,20 +50,36 @@ use \Flightzilla\Model\Resource\Human;
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class Comment implements TaskInterface {
+class Reflector {
 
     /**
-     * Name of the task
+     * Get the first-line of a class' doc-block
      *
-     * @var string
+     * @param  string|object $mClass
+     *
+     * @return string
      */
-    const NAME = 'Comment';
+    public static function getClassComment($mClass) {
+        $oReflection = new \ReflectionClass($mClass);
+        return self::_parseComment($oReflection->getDocComment());
+    }
 
     /**
-     * (non-PHPdoc)
-     * @see TaskInterface::check()
+     * Parse the first-comment line, which should be the short-description, of a doc-block
+     *
+     * @param  string $sComment
+     *
+     * @return string
      */
-    public static function check(Bug $oTicket, Bugzilla $oTicketSource, Human $oUser) {
-        return $oTicket->hasFlag(Bug::FLAG_COMMENT, Bugzilla::BUG_FLAG_REQUEST, $oUser->getEmail());
+    protected static function _parseComment($sComment) {
+        if (empty($sComment) !== true) {
+            $aLines = array();
+            preg_match_all('#^\s*\*(.*)#m', $sComment, $aLines);
+            if (empty($aLines) !== true) {
+                $sComment = trim($aLines[1][0]);
+            }
+        }
+
+        return $sComment;
     }
 }

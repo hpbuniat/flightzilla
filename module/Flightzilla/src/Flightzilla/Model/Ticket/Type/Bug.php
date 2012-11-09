@@ -1030,8 +1030,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
                     $aName = explode('.', strtoupper($sUser));
                     $this->_data->{strtolower($sName) . '_user'} = $aName[0]{0} . ((isset($aName[1]) === true) ? $aName[1]{0} : '');
                     $aFlag['requestee'] = $sUser;
-                    $aFlag['requestee_mail'] = $flag['requestee'];
-                    $aFlag['requestee_short'] = $this->_data->{strtolower($sName) . '_user'};
+                    $aFlag['requestee_mail'] = (string) $flag['requestee'];
+                    $aFlag['requestee_short'] = (string) $this->_data->{strtolower($sName) . '_user'};
                 }
 
                 $flags[] = $aFlag;
@@ -1106,8 +1106,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
 
         $return = false;
         foreach ($this->_flags as $aFlag) {
-            if (isset($sAssignee) === true) {
-                if ($aFlag['requestee_mail'] === $sRequestee and $aFlag['name'] == $key and $aFlag['status'] == $value) {
+            if (isset($sRequestee) === true) {
+                if (isset($aFlag['requestee_mail']) === true and $aFlag['requestee_mail'] === $sRequestee and $aFlag['name'] === $key and $aFlag['status'] === $value) {
                     $return = true;
                 }
             }

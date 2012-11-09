@@ -47,7 +47,7 @@ use \Flightzilla\Model\Resource\Human;
 
 
 /**
- * Unanswered comment-requests
+ * Open Testing-Requests
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -55,20 +55,20 @@ use \Flightzilla\Model\Resource\Human;
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class Comment implements TaskInterface {
+class Testing implements TaskInterface {
 
     /**
      * Name of the task
      *
      * @var string
      */
-    const NAME = 'Comment';
+    const NAME = 'Testing';
 
     /**
      * (non-PHPdoc)
      * @see TaskInterface::check()
      */
     public static function check(Bug $oTicket, Bugzilla $oTicketSource, Human $oUser) {
-        return $oTicket->hasFlag(Bug::FLAG_COMMENT, Bugzilla::BUG_FLAG_REQUEST, $oUser->getEmail());
+        return $oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST, $oUser->getEmail());
     }
 }
