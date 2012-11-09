@@ -641,6 +641,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * Get the release-note
+     *
+     * @return string
+     */
+    public function getReleaseNote() {
+        return (empty($this->_data->cf_releasenote) !== true) ? (string) $this->_data->cf_releasenote : $this->title();
+    }
+
+    /**
      * Get the bug-id
      *
      * @return int

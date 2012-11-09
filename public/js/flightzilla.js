@@ -318,7 +318,7 @@
 
             bugs[type][component].push({
                 nr: bug.text(),
-                text: $this.find('.bugDesc').text() + ' (' + $.trim($this.find('.bugProd').text()) + ')'
+                text: $this.find('.bugDesc').data('release') + ' (' + $.trim($this.find('.bugProd').text()) + ')'
             });
         });
 
