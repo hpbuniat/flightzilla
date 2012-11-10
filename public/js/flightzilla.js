@@ -396,6 +396,9 @@
         e.preventDefault();
     });
 
+    /**
+     * Toggle tickets in team-dash view
+     */
     $('.largeGray').click(function() {
         $(this).parents('.memberBox').find('.allTickets').toggleClass('hidden');
     });
@@ -412,11 +415,32 @@
         $(this).toggleClass('btn-primary').parents('.nav-list').find('a.toggleChart').trigger('click');
     });
 
+    /**
+     * Hide the content on reload
+     */
+    $('.refresh-button').on('click', function() {
+        f.modalDiv.modal('hide');
+        $('#loading').css({
+            top:'20px'
+        }).show();
+        $('div.wrapper > *:not(:first)').hide();
+    });
+
+    /**
+     * Add all selected tickets to the quick-list
+     */
     $('input:checkbox').on('click', function() {
         f.quickList();
     });
 
+    /**
+     * Hover-Info for kanban-pins
+     */
     $('div.description a, span.theme a').tooltip();
 
+    /**
+     * Init the table-sorter
+     */
     $('.tablesorter').tablesorter();
+
 }); }(jQuery));
