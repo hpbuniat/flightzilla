@@ -56,6 +56,12 @@ img {
     text-align: right;
 }
 
+div.row-fluid div.center.chuck {
+    float: none;
+    margin: 0 auto;
+    text-align: center;
+}
+
 .red {
     color: red;
 }
@@ -157,6 +163,7 @@ div.modal {
     text-align: center;
     cursor: pointer;
 }
+
 .relative-box {
     position: relative;
     height: 90px;

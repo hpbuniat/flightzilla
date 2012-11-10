@@ -1,0 +1,18 @@
+<div class="span6">
+    <h3><?php echo $this->aItems['description']; ?></h3>
+    <?php
+    if (empty($this->aItems['stack']) === true) {
+        ?>
+        <div class="alert alert-success">
+          <strong>Well done!</strong> Nothing to do here.
+        </div>
+<?php
+    }
+    else {
+        foreach ($this->aItems['stack'] as $oTicket) {
+            $this->oTask = $oTicket;
+            echo sprintf('<p>%s</p>', $this->render('flightzilla/index/partial/bug-line.phtml'));
+        }
+    }
+    ?>
+</div>

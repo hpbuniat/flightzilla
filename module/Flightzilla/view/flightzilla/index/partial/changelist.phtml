@@ -1,9 +1,0 @@
-<div class="span6">
-    <h3><?php echo $this->aTask['description']; ?></h3>
-    <?php
-    foreach ($this->aTask['stack'] as $oTicket) {
-        $this->oTask = $oTicket;
-        echo sprintf('<p>%s</p>', $this->render('flightzilla/index/partial/bug-line.phtml'));
-    }
-    ?>
-</div>

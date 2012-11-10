@@ -41,6 +41,8 @@
  */
 namespace Flightzilla\Model\Ticket\Integrity;
 
+use Flightzilla\Model\Reflector;
+
 /**
  * Handle the integrity of tickets & their workflow
  *
@@ -69,6 +71,13 @@ class Manager {
     protected $_oTicketSource = null;
 
     /**
+     * Number of stack-entries
+     *
+     * @var int
+     */
+    protected $_iEntries;
+
+    /**
      * Create the integrity-manager
      *
      * @param \Flightzilla\Model\Ticket\AbstractSource $oTicketService
@@ -86,19 +95,21 @@ class Manager {
      */
     public function check(array $aTickets = array()) {
         $aStack = array();
+        $this->_iEntries = 0;
 
         foreach ($aTickets as $oTicket) {
             foreach ($this->_aConstraints as $sConstraint) {
                 $aCallback = array(__NAMESPACE__ . sprintf('\Constraint\%s', $sConstraint), 'check');
                 if (empty($aStack[$sConstraint]) === true) {
                     $aStack[$sConstraint] = array(
-                        'description' => '',
+                        'description' => Reflector::getClassComment($aCallback[0]),
                         'stack' => array()
                     );
                 }
 
                 $bPass = call_user_func_array($aCallback, array($oTicket, $this->_oTicketSource));
                 if ($bPass === false) {
+                    $this->_iEntries++;
                     $aStack[$sConstraint]['stack'][] = $oTicket;
                     break;
                 }
@@ -108,4 +119,12 @@ class Manager {
         return $aStack;
     }
 
+    /**
+     * Get the number of entries
+     *
+     * @return int
+     */
+    public function getEntryCount() {
+        return $this->_iEntries;
+    }
 }

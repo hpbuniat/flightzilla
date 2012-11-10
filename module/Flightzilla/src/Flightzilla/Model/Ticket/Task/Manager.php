@@ -72,6 +72,13 @@ class Manager {
     protected $_oTicketSource = null;
 
     /**
+     * Number of stack-entries
+     *
+     * @var int
+     */
+    protected $_iEntries;
+
+    /**
      * Create the integrity-manager
      *
      * @param \Flightzilla\Model\Ticket\AbstractSource $oTicketService
@@ -90,6 +97,7 @@ class Manager {
     public function check(array $aTickets = array()) {
         $aStack = array();
         $oUser = $this->_oTicketSource->getCurrentUser();
+        $this->_iEntries = 0;
 
         if ($oUser instanceof \Flightzilla\Model\Resource\Human) {
             foreach ($aTickets as $oTicket) {
@@ -104,6 +112,7 @@ class Manager {
 
                     $bHasTask = call_user_func_array($aCallback, array($oTicket, $this->_oTicketSource, $oUser));
                     if ($bHasTask === true) {
+                        $this->_iEntries++;
                         $aStack[$sTask]['stack'][] = $oTicket;
                         break;
                     }
@@ -114,4 +123,12 @@ class Manager {
         return $aStack;
     }
 
+    /**
+     * Get the number of entries
+     *
+     * @return int
+     */
+    public function getEntryCount() {
+        return $this->_iEntries;
+    }
 }
