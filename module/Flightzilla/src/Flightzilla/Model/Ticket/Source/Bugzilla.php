@@ -757,6 +757,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED);
         $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED);
         $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED);
+        $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_CLOSED);
         $this->_setGetParameter(self::BUG_PARAM_CHANGE_DATE_FROM, '0d');
         $this->_setGetParameter(self::BUG_PARAM_CHANGE_DATE_TO, 'Now');
         $page = $this->_request(self::BUG_LIST);
@@ -872,6 +873,27 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $aStack = array();
         foreach ($this->_openBugs as $oTicket) {
             if ($oTicket->isTheme() === false and $oTicket->isOrga() === false and $oTicket->isWorkedOn() !== true) {
+                $aStack[$oTicket->id()] = $oTicket;
+            }
+        }
+
+        ksort($aStack);
+        return $aStack;
+    }
+
+    /**
+     * Get all untouched tickets
+     *
+     * @return array
+     */
+    public function getUntouched() {
+        if (empty($this->_openBugs) === true) {
+            $this->getOpenBugs();
+        }
+
+        $aStack = array();
+        foreach ($this->_openBugs as $oTicket) {
+            if ($oTicket->isTheme() === false and $oTicket->isOrga() === false and $oTicket->isWorkedOn() !== true and $oTicket->isStatusAtMost(\Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED) === true) {
                 $aStack[$oTicket->id()] = $oTicket;
             }
         }

@@ -28,3 +28,18 @@
     }
 ?>
 </div>
+
+<blockquote>
+    <h3>Untouched Tickets</h3>
+</blockquote>
+<form id="buglist-form" method="get" target="_blank" action="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'go-bugzilla')); ?>">
+<?php
+echo $this->partial('flightzilla/index/partial/table.phtml', array(
+    'caption' => 'Untouched Tickets',
+    'sBugzilla' => $this->layout()->sBugzilla,
+    'bugs' => $this->aUntouched,
+    'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_REVIEWED
+));
+?>
+</form>
+<h4 id="quickList" class="bugCount" style="display:none"></h4>

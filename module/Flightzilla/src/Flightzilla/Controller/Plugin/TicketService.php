@@ -136,6 +136,9 @@ class TicketService extends AbstractPlugin {
             $aFixedWithoutTesting = $oTicketService->getFilteredList($oView->bugsFixed, $oView->allBugsTesting);
             $oView->bugsFixedWithoutTesting = $oTicketService->getFilteredList($aFixedWithoutTesting, $oView->allScreenApproved);
         }
+        else {
+            $oView->aUntouched = $oTicketService->getUntouched();
+        }
 
         $oView->aMemberBugs = $oTicketService->getMemberBugs();
         $oView->aTeamBugs = $oTicketService->getTeamBugs($oView->aMemberBugs);

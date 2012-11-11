@@ -1,5 +1,7 @@
 <div class="span6">
-    <h3><?php echo $this->aItems['description']; ?></h3>
+    <blockquote>
+        <h3><?php echo $this->aItems['description']; ?></h3>
+    </blockquote>
     <?php
     if (empty($this->aItems['stack']) === true) {
         ?>
@@ -16,3 +18,13 @@
     }
     ?>
 </div>
+<?php
+    if (isset($this->iColumnCount) === true and $this->iColumnCount == 1) {
+        $this->iColumnCount = 0;
+        echo '</div><div class="row-fluid">';
+    }
+    else {
+        $this->iColumnCount = 1;
+    }
+?>
+

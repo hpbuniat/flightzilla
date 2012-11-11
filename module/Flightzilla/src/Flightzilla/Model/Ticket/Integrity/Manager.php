@@ -60,9 +60,10 @@ class Manager {
      * @var array
      */
     protected $_aConstraints = array(
-        \Flightzilla\Model\Ticket\Integrity\Constraint\ResolvedTestFailed::NAME,
         \Flightzilla\Model\Ticket\Integrity\Constraint\TicketAge::NAME,
-        \Flightzilla\Model\Ticket\Integrity\Constraint\FlagAge::NAME
+        \Flightzilla\Model\Ticket\Integrity\Constraint\FlagAge::NAME,
+        \Flightzilla\Model\Ticket\Integrity\Constraint\WorkedWithoutEstimation::NAME,
+        \Flightzilla\Model\Ticket\Integrity\Constraint\ResolvedTestFailed::NAME
     );
 
     /**

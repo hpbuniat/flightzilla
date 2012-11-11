@@ -821,6 +821,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * Check if a tickets has been worked on (only time)
+     *
+     * @return bool
+     */
+    public function hasWorkedHours() {
+        return (bool) ($this->actual_time > 0);
+    }
+
+    /**
      * Check, if the bug is active & wip
      *
      * @return boolean

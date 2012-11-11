@@ -45,7 +45,7 @@ use \Flightzilla\Model\Ticket\Type\Bug;
 use \Flightzilla\Model\Ticket\Source\Bugzilla;
 
 /**
- * Tickets which are most likely timed-out
+ * Tickets without estimation, but worked hours
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -53,20 +53,20 @@ use \Flightzilla\Model\Ticket\Source\Bugzilla;
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class TicketAge implements ConstraintInterface {
+class WorkedWithoutEstimation implements ConstraintInterface {
 
     /**
      * Name of the constraint
      *
      * @var string
      */
-    const NAME = 'TicketAge';
+    const NAME = 'WorkedWithoutEstimation';
 
     /**
      * (non-PHPdoc)
      * @see ConstraintInterface::check()
      */
     public static function check(Bug $oTicket, Bugzilla $oTicketSource) {
-        return (($oTicket->getStatus() !== Bug::STATUS_CLOSED and $oTicket->isChangedWithinLimit($oTicketSource->getConfig()->tickets->workflow->timeout) === false) === false);
+        return (($oTicket->getStatus() !== Bug::STATUS_CLOSED and $oTicket->isOrga() === false and $oTicket->hasWorkedHours() === true and $oTicket->isEstimated() === false) === false);
     }
 }
