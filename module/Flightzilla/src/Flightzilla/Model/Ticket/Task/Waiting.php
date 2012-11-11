@@ -47,7 +47,7 @@ use \Flightzilla\Model\Resource\Human;
 
 
 /**
- * Your comment is needed
+ * You're waiting for others
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -55,20 +55,25 @@ use \Flightzilla\Model\Resource\Human;
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class Comment implements TaskInterface {
+class Waiting implements TaskInterface {
 
     /**
      * Name of the task
      *
      * @var string
      */
-    const NAME = 'Comment';
+    const NAME = 'Waiting';
 
     /**
      * (non-PHPdoc)
      * @see TaskInterface::check()
      */
     public static function check(Bug $oTicket, Bugzilla $oTicketSource, Human $oUser) {
-        return $oTicket->hasFlag(Bug::FLAG_COMMENT, Bugzilla::BUG_FLAG_REQUEST, $oUser->getEmail());
+        return ($oTicket->hasFlag(Bug::FLAG_COMMENT, Bugzilla::BUG_FLAG_REQUEST, $oUser->getEmail(), Bug::FLAG_USER_SETTER)
+                or $oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST, $oUser->getEmail(), Bug::FLAG_USER_SETTER)
+                or $oTicket->hasFlag(Bug::FLAG_DBCHANGE, Bugzilla::BUG_FLAG_REQUEST, $oUser->getEmail(), Bug::FLAG_USER_SETTER)
+                or $oTicket->hasFlag(Bug::FLAG_SCREEN, Bugzilla::BUG_FLAG_REQUEST, $oUser->getEmail(), Bug::FLAG_USER_SETTER)
+                or $oTicket->hasFlag(Bug::FLAG_MERGE, Bugzilla::BUG_FLAG_REQUEST, $oUser->getEmail(), Bug::FLAG_USER_SETTER)
+                or $oTicket->hasFlag(Bug::FLAG_TESTSERVER, Bugzilla::BUG_FLAG_REQUEST, $oUser->getEmail(), Bug::FLAG_USER_SETTER));
     }
 }

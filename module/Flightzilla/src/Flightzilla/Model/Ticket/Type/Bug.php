@@ -83,6 +83,12 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     );
 
     /**
+     * Flag user-fields
+     */
+    const FLAG_USER_SETTER = 'setter';
+    const FLAG_USER_REQUESTEE = 'requestee_mail';
+
+    /**
      * Bugzilla status
      *
      * @var string
@@ -1086,28 +1092,29 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     /**
      * Check, if a flag exists
      * - optionally compare the value with $value
-     * - optionally compare the assignee with $sRequestee
+     * - optionally compare the a requestee or setter with $sUser
      *
      * @param  string $key
      * @param  string $value
-     * @param  string $sRequestee
+     * @param  string $sUser
+     * @param  string $sType
      *
      * @return boolean
      */
-    public function hasFlag($key = null, $value = null, $sRequestee = null) {
+    public function hasFlag($key = null, $value = null, $sUser = null, $sType = self::FLAG_USER_REQUESTEE) {
         if (empty($this->_flags) === true) {
             return false;
         }
 
-        $sHash = md5($key . $value . $sRequestee);
+        $sHash = md5($key . $value . $sUser . $sType);
         if (isset($this->_aFlagCache[$sHash]) === true) {
             return $this->_aFlagCache[$sHash];
         }
 
         $return = false;
         foreach ($this->_flags as $aFlag) {
-            if (isset($sRequestee) === true) {
-                if (isset($aFlag['requestee_mail']) === true and $aFlag['requestee_mail'] === $sRequestee and $aFlag['name'] === $key and $aFlag['status'] === $value) {
+            if (isset($sUser) === true) {
+                if (isset($aFlag[$sType]) === true and $aFlag[$sType] === $sUser and $aFlag['name'] === $key and $aFlag['status'] === $value) {
                     $return = true;
                 }
             }
