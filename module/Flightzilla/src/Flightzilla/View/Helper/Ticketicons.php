@@ -83,9 +83,11 @@ class Ticketicons extends AbstractHelper {
             $sClasses .= '&nbsp;<span class="ui-silk ui-silk-database-refresh" title="' . \Flightzilla\Model\Ticket\Type\Bug::FLAG_DBCHANGE . '">&nbsp;</span>';
         }
 
-        if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '?') and strlen($oBug->testingrequest_user) > 0) {
+        if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '?') === true) {
             $sClasses .= '&nbsp;<span class="ui-silk ui-silk-magnifier" title="' . \Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING . '">&nbsp;</span>';
-            $sClasses .= '<span class="red"> ' . $oBug->testingrequest_user . '</span>';
+            if (strlen($oBug->testingrequest_user) > 0) {
+                $sClasses .= '<span class="red"> ' . $oBug->testingrequest_user . '</span>';
+            }
         }
 
         if ($oBug->isType(\Flightzilla\Model\Ticket\Type\Bug::TYPE_BUG) === true) {
