@@ -1028,7 +1028,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
                     'id' =>  (int) $flag['id'],
                     'type_id' => (int) $flag['type_id'],
                     'status' => (string) $flag['status'],
-                    'setter' => (string) $flag['setter']
+                    'setter' => (string) $flag['setter'],
+                    'mtime' => strtotime((string) $flag['modification_date'])
                 );
 
                 if (isset($flag['requestee']) === true) {
@@ -1119,7 +1120,10 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
                 }
             }
             else {
-                if (isset($value) === true and $aFlag['name'] == $key and $aFlag['status'] == $value) {
+                if (isset($value) === true and isset($key) === false and $aFlag['status'] === $value) {
+                    $return = true;
+                }
+                elseif (isset($value) === true and $aFlag['name'] === $key and $aFlag['status'] === $value) {
                     $return = true;
                 }
                 elseif (isset($value) === false and $aFlag['name'] == $key) {
@@ -1130,6 +1134,22 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
 
         $this->_aFlagCache[$sHash] = $return;
         return $return;
+    }
+
+    /**
+     * Get all requested flags
+     *
+     * @return array
+     */
+    public function getRequestedFlags() {
+        $aFlags = array();
+        foreach ($this->_flags as $aFlag) {
+            if ($aFlag['status'] === \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST) {
+                $aFlags[] = $aFlag;
+            }
+        }
+
+        return $aFlags;
     }
 
     /**

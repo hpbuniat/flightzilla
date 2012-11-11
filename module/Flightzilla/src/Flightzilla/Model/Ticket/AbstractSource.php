@@ -174,4 +174,13 @@ abstract class AbstractSource {
 
         return $this;
     }
+
+    /**
+     * Get the config
+     *
+     * @return \Zend\Config\Config
+     */
+    public function getConfig() {
+        return $this->_config;
+    }
 }

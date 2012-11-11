@@ -7,6 +7,9 @@ return array(
                 // after 4 months of inactivity, the ticket has timed-out
                 'timeout' => 10368000,
 
+                // a flag should be worked within 5 days
+                'flagage' => 432000,
+
                 // the board should only contain tickets which have been changed within this time-limit
                 'board' => 604800
             )

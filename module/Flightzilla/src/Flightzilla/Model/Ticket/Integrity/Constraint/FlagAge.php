@@ -39,12 +39,13 @@
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
-namespace Flightzilla\Model\Ticket\Integrity;
+namespace Flightzilla\Model\Ticket\Integrity\Constraint;
 
-use Flightzilla\Model\Reflector;
+use \Flightzilla\Model\Ticket\Type\Bug;
+use \Flightzilla\Model\Ticket\Source\Bugzilla;
 
 /**
- * Handle the integrity of tickets & their workflow
+ * Tickets with too-long pending flag-requests
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -52,81 +53,33 @@ use Flightzilla\Model\Reflector;
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class Manager {
+class FlagAge implements ConstraintInterface {
 
     /**
-     * The active constraints
+     * Name of the constraint
      *
-     * @var array
+     * @var string
      */
-    protected $_aConstraints = array(
-        \Flightzilla\Model\Ticket\Integrity\Constraint\ResolvedTestFailed::NAME,
-        \Flightzilla\Model\Ticket\Integrity\Constraint\TicketAge::NAME,
-        \Flightzilla\Model\Ticket\Integrity\Constraint\FlagAge::NAME
-    );
+    const NAME = 'FlagAge';
 
     /**
-     * The ticket-source
-     *
-     * @var \Flightzilla\Model\Ticket\AbstractSource
+     * (non-PHPdoc)
+     * @see ConstraintInterface::check()
      */
-    protected $_oTicketSource = null;
+    public static function check(Bug $oTicket, Bugzilla $oTicketSource) {
+        $aFlags = $oTicket->getRequestedFlags();
 
-    /**
-     * Number of stack-entries
-     *
-     * @var int
-     */
-    protected $_iEntries;
-
-    /**
-     * Create the integrity-manager
-     *
-     * @param \Flightzilla\Model\Ticket\AbstractSource $oTicketService
-     */
-    public function __construct(\Flightzilla\Model\Ticket\AbstractSource $oTicketService) {
-        $this->_oTicketSource = $oTicketService;
-    }
-
-    /**
-     * Check a list of tickets, if they pass all constraints
-     *
-     * @param  array $aTickets
-     *
-     * @return array
-     */
-    public function check(array $aTickets = array()) {
-        $aStack = array();
-        $this->_iEntries = 0;
-
-        foreach ($aTickets as $oTicket) {
-            foreach ($this->_aConstraints as $sConstraint) {
-                $aCallback = array(__NAMESPACE__ . sprintf('\Constraint\%s', $sConstraint), 'check');
-                if (empty($aStack[$sConstraint]) === true) {
-                    $aStack[$sConstraint] = array(
-                        'description' => Reflector::getClassComment($aCallback[0]),
-                        'stack' => array()
-                    );
-                }
-
-                $bPass = call_user_func_array($aCallback, array($oTicket, $this->_oTicketSource));
-                if ($bPass === false) {
-                    $this->_iEntries++;
-                    $aStack[$sConstraint]['stack'][] = $oTicket;
+        $bPass = true;
+        if (empty($aFlags) !== true) {
+            $iTime = time();
+            foreach ($aFlags as $aFlag) {
+                if (($iTime - $aFlag['mtime']) > $oTicketSource->getConfig()->tickets->workflow->flagage) {
+                    $bPass = false;
                     break;
                 }
             }
         }
 
-        return $aStack;
-    }
-
-    /**
-     * Get the number of entries
-     *
-     * @return int
-     */
-    public function getEntryCount() {
-        return $this->_iEntries;
+        return $bPass;
     }
 }
