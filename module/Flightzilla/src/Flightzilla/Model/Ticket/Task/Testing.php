@@ -39,9 +39,15 @@
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
+namespace Flightzilla\Model\Ticket\Task;
+
+use \Flightzilla\Model\Ticket\Type\Bug;
+use \Flightzilla\Model\Ticket\Source\Bugzilla;
+use \Flightzilla\Model\Resource\Human;
+
 
 /**
- * View-Helper to get the summarized times of a ticket-collection
+ * Open Testing-Requests
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -49,50 +55,20 @@
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-namespace Flightzilla\View\Helper;
-use Zend\View\Helper\AbstractHelper;
-
-class CollectionTime extends AbstractHelper {
+class Testing implements TaskInterface {
 
     /**
-     * Get the summarzied times
+     * Name of the task
      *
-     * @param  array $aTickets
-     *
-     * @return string
+     * @var string
      */
-    public function __invoke(array $aTickets) {
-        $aTimes = array(
-            'spent' => 0,
-            'esti' => 0,
-            'left' => 0
-        );
+    const NAME = 'Testing';
 
-        foreach($aTickets as $oTicket) {
-            if ($oTicket->isEstimated()) {
-                $fSpent = (float) $oTicket->actual_time;
-                $fEsti = (float) $oTicket->estimated_time;
-                $fLeft = ($fEsti > $fSpent) ? ($fEsti - $fSpent) : 0;
-                $aTimes['spent'] += $fSpent;
-                $aTimes['esti'] += $fEsti;
-                $aTimes['left'] += $fLeft;
-            }
-        }
-
-        $aTimes['days'] = round($aTimes['left'] / \Flightzilla\Model\Timeline\Date::AMOUNT, 1);
-        $aTimes['future'] = round(($aTimes['left'] / (\Flightzilla\Model\Timeline\Date::FUTURE * \Flightzilla\Model\Timeline\Date::AMOUNT)) * 100, 1);
-
-        $aTimes['color'] = 'success';
-        if ($aTimes['future'] < 20) {
-            $aTimes['color'] = 'danger';
-        }
-        elseif ($aTimes['future'] < 50) {
-            $aTimes['color'] = 'warning';
-        }
-        elseif ($aTimes['future'] < 80) {
-            $aTimes['color'] = 'info';
-        }
-
-        return $aTimes;
+    /**
+     * (non-PHPdoc)
+     * @see TaskInterface::check()
+     */
+    public static function check(Bug $oTicket, Bugzilla $oTicketSource, Human $oUser) {
+        return $oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST, $oUser->getEmail());
     }
 }

@@ -78,10 +78,24 @@ return array(
                 $oTicketSource = new \Flightzilla\Model\Ticket\Source\Bugzilla($oResource, $oHttpClient, $oConfig);
                 $oTicketSource->setCache($oServiceManager->get('_cache'))
                               ->setAuth($oServiceManager->get('_auth'))
-                              ->setProject($oSession->sCurrentProduct);
+                              ->setProject($oSession->sCurrentProduct)
+                              ->initHttpClient();
 
                 return $oTicketSource;
-            }
+            },
+            '_analytics' => function(\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
+                $oGdataHttpClient = new \ZendGData\HttpClient();
+                $oGdataHttpClient->setOptions(array(
+                    'sslverifypeer' => false
+                ));
+                $oConfig = $oServiceManager->get('_serviceConfig');
+
+                $oAnalytics = new \Flightzilla\Model\Analytics($oGdataHttpClient, $oConfig);
+                $oAnalytics->setCache($oServiceManager->get('_cache'))
+                           ->setAuth($oServiceManager->get('_auth'));
+
+                return $oAnalytics;
+            },
         ),
     ),
     'controllers' => array(

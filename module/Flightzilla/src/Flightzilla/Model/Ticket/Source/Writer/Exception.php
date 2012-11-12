@@ -39,7 +39,7 @@
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
-namespace Flightzilla\Model\Ticket\Type\Source\Writer;
+namespace Flightzilla\Model\Ticket\Source\Writer;
 
 /**
  * Source_Writer related exception

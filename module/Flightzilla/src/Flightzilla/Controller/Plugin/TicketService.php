@@ -128,13 +128,16 @@ class TicketService extends AbstractPlugin {
             // testing
             $oView->allBugsTesting = $oTicketService->getBugsWithFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '?');
 
-            // developtment wating, wip
+            // development waiting, wip
             $oView->openWaiting = $oTicketService->getWaiting();
             $oView->bugsWip = $oTicketService->getInprogress();
 
             // development - ready
             $aFixedWithoutTesting = $oTicketService->getFilteredList($oView->bugsFixed, $oView->allBugsTesting);
             $oView->bugsFixedWithoutTesting = $oTicketService->getFilteredList($aFixedWithoutTesting, $oView->allScreenApproved);
+        }
+        else {
+            $oView->aUntouched = $oTicketService->getUntouched();
         }
 
         $oView->aMemberBugs = $oTicketService->getMemberBugs();

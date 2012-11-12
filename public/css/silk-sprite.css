@@ -1,4 +1,4 @@
-.ui-silk { width: 16px; height: 16px; background: transparent url(../images/silk-sprite.png) no-repeat; text-indent: 99999px; overflow: hidden; }
+.ui-silk { width: 16px; height: 16px; background: transparent url(../img/silk-sprite.png) no-repeat; text-indent: 99999px; overflow: hidden; }
 a.ui-silk, input.ui-silk, span.ui-silk{ display: inline-block; vertical-align: middle; border: 0; outline: 0; }
 .ui-silk-accept { background-position: -0px -0px }
 .ui-silk-add { background-position: -16px -0px }

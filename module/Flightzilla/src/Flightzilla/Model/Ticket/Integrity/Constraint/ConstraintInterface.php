@@ -45,7 +45,7 @@ use \Flightzilla\Model\Ticket\Type\Bug;
 use \Flightzilla\Model\Ticket\Source\Bugzilla;
 
 /**
- * A resolved ticket must not have failed testing-requests only
+ * Interface for integrity-constraints
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>

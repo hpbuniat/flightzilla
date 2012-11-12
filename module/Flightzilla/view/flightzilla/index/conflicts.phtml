@@ -1,0 +1,21 @@
+<?php echo $this->render('flightzilla/index/partial/header.phtml'); ?>
+
+<div class="row-fluid">
+    <?php
+    if ($this->iEntries > 0) {
+        foreach ($this->aStack as $this->aItems) {
+            echo $this->render('flightzilla/index/partial/tickets-half-width.phtml');
+        }
+    }
+    else {
+?>
+    <div class="center chuck span4">
+        <div class="alert alert-success">
+            <strong>Chuck likes this!</strong> Nothing to do here.
+        </div>
+        <img class="chuck" src="<?php echo sprintf('%s/img/chuck/%s', $this->basePath(), \Flightzilla\Model\Chuck::OK); ?>" />
+    </div>
+<?php
+    }
+    ?>
+</div>

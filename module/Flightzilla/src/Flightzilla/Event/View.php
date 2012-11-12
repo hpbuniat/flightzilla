@@ -64,7 +64,12 @@ class View {
      */
     public static function setup(MvcEvent $oEvent) {
         $oServiceManager = $oEvent->getApplication()->getServiceManager();
+
+        /* @var $oConfig \Zend\Config\Config */
         $oConfig = $oServiceManager->get('_serviceConfig');
+
+        /* @var $oAuth \Flightzilla\Authentication\Adapter */
+        $oAuth = $oServiceManager->get('_auth');
 
         $oViewModel = $oEvent->getViewModel();
         $oViewModel->sController = $oEvent->getController();
@@ -72,6 +77,8 @@ class View {
         $oViewModel->sBugzilla = $oConfig->bugzilla->baseUrl;
         $oViewModel->sName = $oConfig->name;
         $oViewModel->oConfig = $oConfig->bugzilla;
+
+        $oViewModel->sCurrentUser = $oAuth->getLogin();
 
         $aProducts = $oConfig->bugzilla->projects->toArray();
         $oSession = $oServiceManager->get('_session');

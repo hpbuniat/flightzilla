@@ -56,13 +56,14 @@ abstract class Builder {
     /**
      * Create a human resource
      *
+     * @param  string $sLogin
      * @param  array $aMember
      *
      * @return \Flightzilla\Model\Resource\Human
      */
-    public static function build($aMember) {
+    public static function build($sLogin, $aMember) {
         $oTimecard = new \Flightzilla\Model\Resource\Human\Timecard();
-        $oResource = new \Flightzilla\Model\Resource\Human($aMember, $oTimecard);
+        $oResource = new \Flightzilla\Model\Resource\Human($sLogin, $aMember, $oTimecard);
 
         return $oResource;
     }

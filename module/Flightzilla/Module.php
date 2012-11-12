@@ -67,15 +67,16 @@ class Module {
         $oSharedManager = $oModuleManager->getEventManager()->getSharedManager();
         $oSharedManager->attach(
             __NAMESPACE__, MvcEvent::EVENT_DISPATCH, array(
-                 '\Flightzilla\Event\View',
-                 'setup'
-            ), 200
-        );
-        $oSharedManager->attach(
-            __NAMESPACE__, MvcEvent::EVENT_DISPATCH, array(
                   '\Flightzilla\Event\Authenticate',
                   'authenticate'
-             ), 100
+             ), 200
+        );
+
+        $oSharedManager->attach(
+            __NAMESPACE__, MvcEvent::EVENT_DISPATCH, array(
+                 '\Flightzilla\Event\View',
+                 'setup'
+            ), 100
         );
     }
 

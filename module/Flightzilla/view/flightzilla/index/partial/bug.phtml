@@ -25,7 +25,7 @@
     <td width="8%">
         <?php echo $this->estimation($this->bug); ?>
     </td>
-    <td class="bugDesc" width="50%"><?php echo $this->escapeHtml($this->bug->title())?></td>
+    <td class="bugDesc" data-release="<?php echo $this->escapeHtml($this->bug->getReleaseNote()); ?>" width="50%"><?php echo $this->escapeHtml($this->bug->title()); ?></td>
     <td width="2%">
         <input class="<?php echo $this->workflow($this->bug); ?>" type="checkbox" name="id[]" value="<?php echo $this->bug->id(); ?>"/>
     </td>

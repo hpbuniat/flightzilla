@@ -100,13 +100,29 @@ class IndexController extends AbstractActionController {
     /**
      *
      */
-    public function dashboardAction() {
+    public function myticketsAction() {
         $oViewModel = new ViewModel;
         $oViewModel->mode = 'dashboard';
 
         $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
 
         $oViewModel->setTemplate('flightzilla/index/index.phtml');
+        return $oViewModel;
+    }
+
+    /**
+     *
+     */
+    public function dashboardAction() {
+        $oViewModel = new ViewModel;
+        $oViewModel->mode = 'dashboard';
+
+        $oTicketService = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel)->getService();
+
+        $oTasks = new \Flightzilla\Model\Ticket\Task\Manager($oTicketService);
+        $oViewModel->aTasks = $oTasks->check($oTicketService->getAllBugs());
+        $oViewModel->iEntries = $oTasks->getEntryCount();
+
         return $oViewModel;
     }
 
@@ -135,14 +151,15 @@ class IndexController extends AbstractActionController {
     /**
      *
      */
-    public function conflictAction() {
+    public function conflictsAction() {
         $oViewModel = new ViewModel;
         $oViewModel->mode = 'dashboard';
 
         $oTicketService = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel)->getService();
-        $aTickets = $oTicketService->getAllBugs();
+
         $oConstraintManager = new \Flightzilla\Model\Ticket\Integrity\Manager($oTicketService);
-        $oViewModel->aStack = $oConstraintManager->check($aTickets);
+        $oViewModel->aStack = $oConstraintManager->check($oTicketService->getAllBugs());
+        $oViewModel->iEntries = $oConstraintManager->getEntryCount();
 
         return $oViewModel;
     }

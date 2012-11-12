@@ -20,8 +20,16 @@
                             <?php endforeach; ?>
                         </ul>
                     </li>
-                    <li><a href="javascript:window.location.reload(); "><i class="icon-refresh icon-white"></i> Refresh</a></li>
-                    <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'logout')); ?>"><i class="icon-off icon-white"></i> Sign Out</a></li>
+                    <li><a class="refresh-button" href="javascript:window.location.reload(); "><i class="icon-refresh icon-white"></i> Refresh</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="icon-user icon-white"></i> <?php echo $this->layout()->sCurrentUser; ?>
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'logout')); ?>"><i class="icon-off"></i> Sign Out</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
             <div class="nav-collapse">
@@ -32,7 +40,8 @@
                             <b class="caret"></b>
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'dashboard')); ?>">My Tickets</a></li>
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'dashboard')); ?>">My Dashboard</a></li>
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'mytickets')); ?>">My Tickets</a></li>
                             <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'conflicts')); ?>">Conflicts</a></li>
                         </ul>
                     </li>

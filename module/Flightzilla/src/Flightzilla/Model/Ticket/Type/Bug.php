@@ -83,6 +83,12 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     );
 
     /**
+     * Flag user-fields
+     */
+    const FLAG_USER_SETTER = 'setter';
+    const FLAG_USER_REQUESTEE = 'requestee_mail';
+
+    /**
      * Bugzilla status
      *
      * @var string
@@ -641,6 +647,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * Get the release-note
+     *
+     * @return string
+     */
+    public function getReleaseNote() {
+        return (empty($this->_data->cf_releasenote) !== true) ? (string) $this->_data->cf_releasenote : $this->title();
+    }
+
+    /**
      * Get the bug-id
      *
      * @return int
@@ -803,6 +818,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function isWorkedOn($sStatusFilter = Bug::STATUS_ASSIGNED) {
         return ($this->isEstimated() and (bool) ($this->actual_time > 0) and $this->isStatusAtMost($sStatusFilter) === true);
+    }
+
+    /**
+     * Check if a tickets has been worked on (only time)
+     *
+     * @return bool
+     */
+    public function hasWorkedHours() {
+        return (bool) ($this->actual_time > 0);
     }
 
     /**
@@ -1013,7 +1037,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
                     'id' =>  (int) $flag['id'],
                     'type_id' => (int) $flag['type_id'],
                     'status' => (string) $flag['status'],
-                    'setter' => (string) $flag['setter']
+                    'setter' => (string) $flag['setter'],
+                    'mtime' => strtotime((string) $flag['modification_date'])
                 );
 
                 if (isset($flag['requestee']) === true) {
@@ -1021,7 +1046,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
                     $aName = explode('.', strtoupper($sUser));
                     $this->_data->{strtolower($sName) . '_user'} = $aName[0]{0} . ((isset($aName[1]) === true) ? $aName[1]{0} : '');
                     $aFlag['requestee'] = $sUser;
-                    $aFlag['requestee_short'] = $this->_data->{strtolower($sName) . '_user'};
+                    $aFlag['requestee_mail'] = (string) $flag['requestee'];
+                    $aFlag['requestee_short'] = (string) $this->_data->{strtolower($sName) . '_user'};
                 }
 
                 $flags[] = $aFlag;
@@ -1074,35 +1100,65 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
-     * Check, if a flag exists, optionally compare the value with $value
+     * Check, if a flag exists
+     * - optionally compare the value with $value
+     * - optionally compare the a requestee or setter with $sUser
      *
      * @param  string $key
      * @param  string $value
+     * @param  string $sUser
+     * @param  string $sType
      *
      * @return boolean
      */
-    public function hasFlag($key = null, $value = null) {
+    public function hasFlag($key = null, $value = null, $sUser = null, $sType = self::FLAG_USER_REQUESTEE) {
         if (empty($this->_flags) === true) {
             return false;
         }
 
-        $sHash = $key . $value;
+        $sHash = md5($key . $value . $sUser . $sType);
         if (isset($this->_aFlagCache[$sHash]) === true) {
             return $this->_aFlagCache[$sHash];
         }
 
         $return = false;
         foreach ($this->_flags as $aFlag) {
-            if (isset($value) and $aFlag['name'] == $key and $aFlag['status'] == $value) {
-                $return = true;
+            if (isset($sUser) === true) {
+                if (isset($aFlag[$sType]) === true and $aFlag[$sType] === $sUser and $aFlag['name'] === $key and $aFlag['status'] === $value) {
+                    $return = true;
+                }
             }
-            elseif (isset($value) == false and $aFlag['name'] == $key) {
-                $return = true;
+            else {
+                if (isset($value) === true and isset($key) === false and $aFlag['status'] === $value) {
+                    $return = true;
+                }
+                elseif (isset($value) === true and $aFlag['name'] === $key and $aFlag['status'] === $value) {
+                    $return = true;
+                }
+                elseif (isset($value) === false and $aFlag['name'] == $key) {
+                    $return = true;
+                }
             }
         }
 
         $this->_aFlagCache[$sHash] = $return;
         return $return;
+    }
+
+    /**
+     * Get all requested flags
+     *
+     * @return array
+     */
+    public function getRequestedFlags() {
+        $aFlags = array();
+        foreach ($this->_flags as $aFlag) {
+            if ($aFlag['status'] === \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST) {
+                $aFlags[] = $aFlag;
+            }
+        }
+
+        return $aFlags;
     }
 
     /**

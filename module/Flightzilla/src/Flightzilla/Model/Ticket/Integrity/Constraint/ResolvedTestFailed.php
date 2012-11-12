@@ -69,6 +69,7 @@ class ResolvedTestFailed implements ConstraintInterface {
     public static function check(Bug $oTicket, Bugzilla $oTicketSource) {
         return (($oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_DENIED) === true
                 and $oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST) === false
-                and $oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED) === false) === false);
+                and $oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED) === false
+                and ($oTicket->getStatus() === Bug::STATUS_RESOLVED or $oTicket->getStatus() === Bug::STATUS_REVIEWED)) === false);
     }
 }

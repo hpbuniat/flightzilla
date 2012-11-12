@@ -57,84 +57,75 @@ use Zend\Mvc\Controller\AbstractActionController,
 class AnalyticsController extends AbstractActionController {
 
     /**
-     * @var \Flightzilla\Model\Analytics
-     */
-    private $_oAnalytics;
-
-    /**
-     *
-     */
-    public function init() {
-        if (Zend_Auth::getInstance()->hasIdentity() === true) {
-            $this->_oAnalytics = new \Flightzilla\Model\Analytics(Zend_Registry::get('_Auth'));
-        }
-    }
-
-    /**
      *
      */
     public function indexAction() {
-        if (Zend_Auth::getInstance()->hasIdentity() === true and $this->_oAnalytics instanceof \Flightzilla\Model\Analytics) {
-            $this->view->mode = 'analytics';
-            $this->view->aPortals = $this->_oAnalytics->getPortals();
-        }
-        else {
-            $this->_redirect('/index/login');
-        }
+        $oAnalytics = $this->getServiceLocator()->get('_analytics');
+
+        $oViewModel = new ViewModel;
+        $oViewModel->mode = 'analytics';
+        $oViewModel->aPortals = $oAnalytics->getPortals();
+        return $oViewModel;
     }
 
     /**
      *
      */
     public function dataAction() {
-        $this->_helper->layout()->disableLayout();
+        $oViewModel = new ViewModel;
+        $oViewModel->setTerminal(true);
+
+        $oAnalytics = $this->getServiceLocator()->get('_analytics');
 
         $sMode = 'data';
-        $sPortal = $this->_getParam('portal');
-        if (empty($sPortal) !== true and $this->_oAnalytics instanceof \Flightzilla\Model\Analytics) {
-            $this->view->mode = $this->_getParam('mode');
-            $this->view->which = $this->_getParam('which');
+        $sPortal = $this->params()->fromPost('portal');
+        if (empty($sPortal) !== true and $oAnalytics instanceof \Flightzilla\Model\Analytics) {
+            $oViewModel->mode = $this->params()->fromPost('mode');
+            $oViewModel->which = $this->params()->fromPost('which');
             $bPaid = \Flightzilla\Model\Analytics::ALL_TRAFFIC;
-            if ($this->view->which === 'sem') {
+            if ($oViewModel->which === 'sem') {
                 $bPaid = \Flightzilla\Model\Analytics::ONLY_PAID_TRAFFIC;
             }
 
-            switch ($this->view->mode) {
+            switch ($oViewModel->mode) {
                 case 'conversion':
-                    $this->view->aData = $this->_oAnalytics->getPortalData($sPortal, $bPaid);
-                    $this->view->aSeries = $this->_oAnalytics->getSeries($this->view->aData);
+                    $oViewModel->aData = $oAnalytics->getPortalData($sPortal, $bPaid);
+                    $oViewModel->aSeries = $oAnalytics->getSeries($oViewModel->aData);
                     break;
 
                 case 'campaign':
-                    $sMode = $this->view->mode;
-                    $this->view->aData = $this->_oAnalytics->getPortalData($sPortal, $bPaid);
+                    $sMode = $oViewModel->mode;
+                    $oViewModel->aData = $oAnalytics->getPortalData($sPortal, $bPaid);
                     break;
             }
 
-            $this->view->oPortal = $this->_oAnalytics->getPortalInfo($sPortal);
-            $this->view->sTarget = $this->_getParam('container');
+            $oViewModel->oPortal = $oAnalytics->getPortalInfo($sPortal);
+            $oViewModel->sTarget = $this->params()->fromPost('container');
 
-            $this->getResponse()->setHeader('Content-Type', 'application/javascript');
-            $this->render($sMode);
+            $this->getResponse()->getHeaders()->addHeaders(array(
+                'Content-Type' => 'application/javascript'
+            ));
+            $oViewModel->setTemplate(sprintf('flightzilla/analytics/%s', $sMode));
         }
         else {
-            $this->getResponse()->setRawHeader('HTTP/1.1 404 Not Found');
+            $this->getResponse()->setStatusCode(\Zend\Http\Response::STATUS_CODE_404);
         }
+
+        return $oViewModel;
     }
 
     /**
      * Create a save-to-store password for the flightzilla.ini, AES-Encrypted with the ldap-password
      */
     public function cryptAction() {
-        if (Zend_Auth::getInstance()->hasIdentity() === true and $this->_oAnalytics instanceof \Flightzilla\Model\Analytics) {
-            $this->_helper->viewRenderer->setNoRender(true);
+        $oViewModel = new ViewModel;
+        $oViewModel->setTerminal(true);
 
-            $sKey = $this->_oAnalytics->getCipherKey();
-            Zend_Debug::dump($this->_oAnalytics->getAuth()->encrypt($sKey, Zend_Registry::get('_Config')->model->analytics->unsecurepassword), __FILE__ . ':' . __LINE__);
-        }
-        else {
-            throw new Exception('you will need do be logged in, to create your save password');
-        }
+        $oAnalytics = $this->getServiceLocator()->get('_analytics');
+        $sKey = $oAnalytics->getCipherKey();
+        \Zend\Debug\Debug::dump($oAnalytics->getAuth()->encrypt($sKey, Zend_Registry::get('_Config')->model->analytics->unsecurepassword), 'Duration:' . (microtime(true) - STARTTIME) .  ' - ' . __FILE__ . ':' . __LINE__ . PHP_EOL);
+
+        return $oViewModel;
     }
 }
 
