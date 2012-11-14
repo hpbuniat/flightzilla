@@ -54,6 +54,7 @@ $aTimes = $this->collectiontime($this->aStack);
                 }
                 ?>
                 <div class="span2">
+                    <img alt="lazy" src="<?php echo $this->basePath() . '/img/lazy.png'; ?>" class="<?php echo (empty($aPins['active']) === true) ? '' : 'hidden'; ?>" />
                     <?php echo $aPins['active']; ?>
                 </div>
                 <div class="span1 relative-box">
