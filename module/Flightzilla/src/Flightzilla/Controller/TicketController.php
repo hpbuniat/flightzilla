@@ -66,7 +66,7 @@ class TicketController extends AbstractActionController {
 
         $sTickets = $this->params()->fromPost('tickets');
         if (empty($sTickets) !== true) {
-            $oViewModel->aTickets = $this->getPluginManager()->get(TicketService::NAME)->getService()->getBugListByIds($sTickets);
+            $oViewModel->aTickets = $this->getPluginManager()->get(TicketService::NAME)->getService()->getBugListByIds($sTickets, false);
         }
 
         return $oViewModel;

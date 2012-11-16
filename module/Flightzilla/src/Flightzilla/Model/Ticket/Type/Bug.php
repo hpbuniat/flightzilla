@@ -1176,7 +1176,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return string
      */
     public function getReporter() {
-        return $this->_data->reporter;
+        return (string) $this->_data->reporter;
     }
 
     /**

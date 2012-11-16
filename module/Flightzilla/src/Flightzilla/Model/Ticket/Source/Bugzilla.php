@@ -34,22 +34,21 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- * @package flightzilla
- * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @package   flightzilla
+ * @author    Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @license http://opensource.org/licenses/BSD-3-Clause
+ * @license   http://opensource.org/licenses/BSD-3-Clause
  */
 namespace Flightzilla\Model\Ticket\Source;
-
 
 /**
  * Query Bugzilla as ticket-source
  *
- * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @author    Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @license http://opensource.org/licenses/BSD-3-Clause
- * @version Release: @package_version@
- * @link https://github.com/hpbuniat/flightzilla
+ * @license   http://opensource.org/licenses/BSD-3-Clause
+ * @version   Release: @package_version@
+ * @link      https://github.com/hpbuniat/flightzilla
  */
 class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
@@ -59,37 +58,69 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @var string
      */
     const BUG_LIST = 'buglist.cgi';
+
     const BUG_SHOW = 'show_bug.cgi';
+
     const BUG_PROCESS = 'process_bug.cgi';
+
     const BUG_SUMMARY = 'summarize_time.cgi';
+
     const BUG_PARAM_PRODUCT = 'product';
+
     const BUG_PARAM_COMPONENT = 'component';
+
     const BUG_PARAM_STATUS = 'bug_status';
+
     const BUG_PARAM_RESOLUTION = 'resolution';
+
     const BUG_PARAM_VERSION = 'version';
+
     const BUG_PARAM_CTYPE = 'ctype';
+
     const BUG_PARAM_EXCLUDEFIELD = 'excludefield';
+
     const BUG_PARAM_ASSIGNEE = 'email';
+
     const BUG_PARAM_CMDTYPE = 'cmdtype';
+
     const BUG_PARAM_REMACTION = 'remaction';
+
     const BUG_PARAM_NAMEDCMD = 'namedcmd';
+
     const BUG_PARAM_SHARER = 'sharer_id';
+
     const BUG_PARAM_DETAILED = 'detailed';
+
     const BUG_PARAM_GROUP = 'group_by';
+
     const BUG_PARAM_REPORT = 'do_report';
+
     const BUG_PARAM_BUG_IDS = 'id';
+
     const BUG_PARAM_START_DATE = 'start_date';
+
     const BUG_PARAM_END_DATE = 'end_date';
+
     const BUG_PARAM_CHANGE_DATE_FROM = 'chfieldfrom';
+
     const BUG_PARAM_CHANGE_DATE_TO = 'chfieldto';
+
     const BUG_PARAM_FIELD_ASSIGNED_TO = 'assigned_to';
+
     const BUG_PARAM_FIELD_BLOCKED = 'blocked';
+
     const BUG_PARAM_FIELD_DEADLINE = 'deadline';
+
     const BUG_PARAM_FIELD_FLAGTYPE_NAME = 'flagtypes.name';
+
     const BUG_PARAM_FIELD_REPORTER = 'reporter';
+
     const BUG_FLAG_REQUEST = '?';
+
     const BUG_FLAG_GRANTED = '+';
-    const BUG_FLAG_DENIED  = '-';
+
+    const BUG_FLAG_DENIED = '-';
+
     const BUG_FLAG_CANCELLED = 'X';
 
     /**
@@ -204,7 +235,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * All available Bugzilla statuses
      *
      * @var array
-    */
+     */
     private $_aStatuses = array();
 
     /**
@@ -225,20 +256,21 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * Cache for _findTheme
      *
      * @var array
-    */
+     */
     protected $_aFindThemeCache = array();
 
     /**
      * Do all Bug-related action
      *
      * @param \Flightzilla\Model\Resource\Manager $oResource
-     * @param \Zend\Http\Client $oHttpClient
-     * @param \Zend\Config\Config $oConfig
-    */
+     * @param \Zend\Http\Client                   $oHttpClient
+     * @param \Zend\Config\Config                 $oConfig
+     */
     public function __construct(\Flightzilla\Model\Resource\Manager $oResource, \Zend\Http\Client $oHttpClient, \Zend\Config\Config $oConfig) {
-        $this->_config = $oConfig;
+
+        $this->_config    = $oConfig;
         $this->_oResource = $oResource;
-        $this->_client = $oHttpClient;
+        $this->_client    = $oHttpClient;
         $this->_client->setEncType(\Zend\Http\Client::ENC_FORMDATA);
 
         $this->user($this->_config->bugzilla->login);
@@ -250,6 +282,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return \Flightzilla\Model\Resource\Manager
      */
     public function getResourceManager() {
+
         return $this->_oResource;
     }
 
@@ -261,9 +294,10 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return $this
      */
     public function setProject($sProject) {
+
         $aProjects = $this->_config->bugzilla->projects->$sProject->toArray();
 
-        $this->_aTeam =$aProjects['team'];
+        $this->_aTeam    = $aProjects['team'];
         $this->_aProject = $aProjects['products'];
         foreach ($this->_aProject as $aPortal) {
             $this->product($aPortal['name']);
@@ -278,6 +312,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return string
      */
     public function getChuckStatus() {
+
         $sStatus = \Flightzilla\Model\Chuck::OK;
         if ($this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_INPROGRESS]['num'] === 0) {
             $this->getStats();
@@ -313,6 +348,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getPriorities() {
+
         $aPriorities = array(
             'P1' => 0,
             'P2' => 0,
@@ -338,6 +374,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getSeverities() {
+
         $aSeverities = array();
 
         $iCount = $this->getCount();
@@ -364,6 +401,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return int
      */
     public function getCount() {
+
         $iCount = 0;
         foreach ($this->_allBugs as $oBug) {
             if ($oBug->isClosed() !== true) {
@@ -382,6 +420,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getSummary($sDate) {
+
         if ($this->_summary) {
             return $this->_summary;
         }
@@ -389,7 +428,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $this->_summary = array();
         $this->_setGetParameter(self::BUG_PARAM_CMDTYPE, 'runnamed');
         $this->_setGetParameter(self::BUG_PARAM_NAMEDCMD, 'wochenbericht_fluege');
-        $page = $this->_request(self::BUG_LIST);
+        $page   = $this->_request(self::BUG_LIST);
         $bugIds = $this->_getBugIdsFromPage($page);
 
         $this->_setGetParameter(self::BUG_PARAM_CTYPE, 'html');
@@ -400,8 +439,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         $this->_setGetParameter(self::BUG_PARAM_START_DATE, $sDate);
         $this->_setGetParameter(self::BUG_PARAM_END_DATE, $sDate);
-        $page = $this->_request(self::BUG_SUMMARY);
-        $oDom = new \Zend\Dom\Query($page);
+        $page    = $this->_request(self::BUG_SUMMARY);
+        $oDom    = new \Zend\Dom\Query($page);
         $oTables = $oDom->execute('table.owner tr');
         foreach ($oTables as $oTable) {
             $oDocument = new \DomDocument();
@@ -431,12 +470,13 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return Bugzilla
      */
     public function product($sProduct = '') {
+
         if ($sProduct == '') {
             return $this;
         }
 
         $this->_product[] = $sProduct;
-        $this->_product = array_unique($this->_product);
+        $this->_product   = array_unique($this->_product);
         return $this;
     }
 
@@ -448,12 +488,13 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return Bugzilla
      */
     public function user($sUser = '') {
+
         if ($sUser == '') {
             return $this;
         }
 
         $this->_user[] = $sUser;
-        $this->_user = array_unique($this->_user);
+        $this->_user   = array_unique($this->_user);
         return $this;
     }
 
@@ -463,6 +504,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return Bugzilla
      */
     private function _addParams() {
+
         $this->_resetAllParameter();
         foreach ($this->_product as $product) {
             $this->_setGetParameter(self::BUG_PARAM_PRODUCT, $product);
@@ -488,14 +530,15 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @throws \InvalidArgumentException If no login-parameters are set
      */
     private function _loginToBugzilla() {
+
         if (file_exists($this->_sCookie) !== true) {
             $this->_client->setMethod(\Zend\Http\Request::METHOD_POST);
 
             $aPost = $this->_client->getRequest()->getPost()->toArray();
             $aPost = array_merge(array(
-                'Bugzilla_login' => $this->_oAuth->getLogin(),
-                'Bugzilla_password' => $this->_oAuth->getPassword(),
-                'GoAheadAndLogIn' => 'Log in',
+                'Bugzilla_login'         => $this->_oAuth->getLogin(),
+                'Bugzilla_password'      => $this->_oAuth->getPassword(),
+                'GoAheadAndLogIn'        => 'Log in',
                 'Bugzilla_restrictlogin' => true
             ), $aPost);
             $this->_client->setParameterPost($aPost);
@@ -510,6 +553,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return string
      */
     private function _search($params) {
+
         $idQueryString = "";
         foreach ($params as $key => $value) {
             $idQueryString .= urlencode($key) . "=" . urlencode($value) . "&";
@@ -524,9 +568,10 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * Set a get parameter
      *
      * @param string $key
-     * @param mixed $value
+     * @param mixed  $value
      */
     private function _setGetParameter($key, $value) {
+
         if (is_array($value) === true) {
             foreach ($value as $v) {
                 $this->_setGetParameter($key, $v);
@@ -545,6 +590,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return string
      */
     private function _request($option) {
+
         $this->_iCount++;
 
         $queryString = rtrim($this->_getParameter, '&');
@@ -567,6 +613,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @throws \Flightzilla\Model\Ticket\Source\Writer\Exception
      */
     public function updateTicket(\Flightzilla\Model\Ticket\Source\AbstractWriter $oWriter) {
+
         $this->_client->setEncType(\Zend\Http\Client::ENC_URLENCODED);
         $this->_client->setUri($this->_config->bugzilla->baseUrl . '/' . self::BUG_PROCESS);
         $this->_client->setParameterPost($oWriter->getPayload());
@@ -577,11 +624,11 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $sResult = $this->_client->send()->getBody();
 
         $sException = '';
-        $aMatches = array();
+        $aMatches   = array();
         if (preg_match('/\<td bgcolor="#ff0000"\>([\s\S]*)\<\/td\>/', $sResult, $aMatches) > 0
             or preg_match('/\<td id="error_msg" class="throw_error"\>([\s\S]*)\<\/td\>/', $sResult, $aMatches) > 0
-            or preg_match('/I need a legitimate login and password to continue./i', $sResult, $aMatches) > 0)
-        {
+            or preg_match('/I need a legitimate login and password to continue./i', $sResult, $aMatches) > 0
+        ) {
             $sException = sprintf('Bugzilla Exception while updating: %s', trim(strip_tags($aMatches[1])));
             throw new \Flightzilla\Model\Ticket\Source\Writer\Exception($sException);
         }
@@ -595,6 +642,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return void
      */
     private function _resetAllParameter() {
+
         $this->_client->resetParameters(true);
         $this->_getParameter = "";
     }
@@ -607,6 +655,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     private function _getBugIdsFromPage($page) {
+
         $matches = array();
         preg_match_all('#<form method="post" action="show_bug\.cgi">\s*<input type="hidden" name="ctype" value="xml">\s*(.*?)\s*</form>#s', $page, $matches);
         if (empty($matches[1]) === true) {
@@ -626,28 +675,30 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return string
      */
     protected function _getBugHash($iBugId) {
+
         return md5(date('dm') . (string) $iBugId);
     }
 
     /**
      * Request bug-detail from bugzilla
      *
-     * @param  array $aBugIds
+     * @param  array   $aBugIds
      * @param  boolean $bCache
      *
      * @return array<\Flightzilla\Model\Ticket\Type\Bug>
      */
     private function _getXmlFromBugIds(array $aBugIds, $bCache = true) {
+
         $aCacheHits = $aReturn = $aTemp = $aRequest = array();
         foreach ($aBugIds as $iBugId) {
             if ($bCache === true and empty($this->_allBugs[$iBugId]) !== true) {
-                $aTemp[] = $this->_allBugs[$iBugId];
+                $aTemp[]             = $this->_allBugs[$iBugId];
                 $aCacheHits[$iBugId] = $iBugId;
             }
             else {
                 $oBug = $this->_oCache->getItem($this->_getBugHash($iBugId));
                 if ($oBug instanceof \Flightzilla\Model\Ticket\AbstractType and $bCache === true) {
-                    $aTemp[] = $oBug;
+                    $aTemp[]             = $oBug;
                     $aCacheHits[$iBugId] = $iBugId;
                 }
                 else {
@@ -666,7 +717,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             if (strpos($sResponse, '<title>Invalid Username Or Password</title>') === false) {
                 $xml = simplexml_load_string($sResponse);
                 foreach ($xml as $bug) {
-                    $oBug = \Flightzilla\Model\Ticket\Type::factory($bug);
+                    $oBug    = \Flightzilla\Model\Ticket\Type::factory($bug);
                     $aTemp[] = $oBug;
                 }
 
@@ -695,7 +746,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             foreach ($this->_aProject as $aProduct) {
                 if (strtolower($aProduct['name']) === strtolower($oBug->product)) {
                     if (isset($aProduct['theme'])) {
-                        $bAdd = false;
+                        $bAdd     = false;
                         $aBlocked = $oBug->blocks();
                         if (is_array($aBlocked) === true) {
                             foreach ($aBlocked as $sBlocks) {
@@ -730,7 +781,6 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                         $this->_aProjects[$iId] = $oBug;
                     }
                 }
-
             }
 
             if (empty($aCacheHits[$iId]) === true) {
@@ -742,13 +792,13 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         return $aReturn;
     }
 
-
     /**
      * Refresh the cached bugs, which have been changed today
      *
      * @return Bugzilla
      */
     public function getBugsChangedToday() {
+
         $this->_addParams();
         $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED);
         $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED);
@@ -760,9 +810,9 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_CLOSED);
         $this->_setGetParameter(self::BUG_PARAM_CHANGE_DATE_FROM, '0d');
         $this->_setGetParameter(self::BUG_PARAM_CHANGE_DATE_TO, 'Now');
-        $page = $this->_request(self::BUG_LIST);
+        $page   = $this->_request(self::BUG_LIST);
         $bugIds = $this->_getBugIdsFromPage($page);
-        $bugs = $this->getBugListByIds($bugIds, false);
+        $bugs   = $this->getBugListByIds($bugIds, false);
         unset($page, $bugIds, $bugs);
 
         return $this;
@@ -774,6 +824,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return Bugzilla
      */
     public function getBugList() {
+
         $this->_addParams();
         $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED);
         $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED);
@@ -782,9 +833,9 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED);
         $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED);
         $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED);
-        $page = $this->_request(self::BUG_LIST);
+        $page   = $this->_request(self::BUG_LIST);
         $bugIds = $this->_getBugIdsFromPage($page);
-        $bugs = $this->getBugListByIds($bugIds, true);
+        $bugs   = $this->getBugListByIds($bugIds, true);
 
         $this->_openBugs = $this->_fixedBugs = $this->_reopenedBugs = array();
         foreach ($bugs as $bug) {
@@ -792,7 +843,6 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                 case \Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED:
                     $this->_reopenedBugs[$bug->id()] = $bug;
                     break;
-
 
                 case \Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED:
                 case \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED:
@@ -818,6 +868,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getAllBugs() {
+
         return $this->_allBugs;
     }
 
@@ -827,6 +878,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getOpenBugs() {
+
         if (is_null($this->_openBugs) === true) {
             $this->getBugList();
         }
@@ -840,6 +892,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getFixedBugs() {
+
         if (is_null($this->_fixedBugs) === true) {
             $this->getBugList();
         }
@@ -853,6 +906,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getReopenedBugs() {
+
         if (is_null($this->_reopenedBugs) === true) {
             $this->getBugList();
         }
@@ -866,6 +920,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getUnworkedWithoutOrganization() {
+
         if (empty($this->_openBugs) === true) {
             $this->getOpenBugs();
         }
@@ -887,6 +942,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getUntouched() {
+
         if (empty($this->_openBugs) === true) {
             $this->getOpenBugs();
         }
@@ -908,6 +964,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getWaiting() {
+
         if (empty($this->_openBugs) === true) {
             $this->getOpenBugs();
         }
@@ -916,7 +973,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         foreach ($this->_openBugs as $oTicket) {
             /* @var $oTicket \Flightzilla\Model\Ticket\Type\Bug */
             if ($oTicket->isTheme() === false and $oTicket->isOrga() === false and $oTicket->isConcept() === false and $oTicket->isStatusAtLeast(\Flightzilla\Model\Ticket\Type\Bug::STATUS_CONFIRMED)
-                and ($oTicket->isWorkedOn() === true or $oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_COMMENT, '?') === true)) {
+                and ($oTicket->isWorkedOn() === true or $oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_COMMENT, '?') === true)
+            ) {
                 $aStack[$oTicket->id()] = $oTicket;
             }
         }
@@ -931,6 +989,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getInprogress() {
+
         if (empty($this->_openBugs) === true) {
             $this->getOpenBugs();
         }
@@ -952,6 +1011,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getOpenConcepts() {
+
         if (empty($this->_openBugs) === true) {
             $this->getOpenBugs();
         }
@@ -971,11 +1031,12 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * Get a list of bugs by id
      *
      * @param  array|string $mIds
-     * @param  boolean $bCache Allow cache
+     * @param  boolean      $bCache Allow cache
      *
      * @return array
      */
     public function getBugListByIds($mIds, $bCache = true) {
+
         if (is_array($mIds) === false) {
             $aMatch = array();
             preg_match_all('!\d+!', $mIds, $aMatch);
@@ -999,20 +1060,21 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getFixedBugsInBranch() {
+
         if ($this->_aFixedToMerge) {
             return $this->_aFixedToMerge;
         }
 
-        $fixedBugs = $this->getFixedBugs();
+        $fixedBugs            = $this->getFixedBugs();
         $this->_aFixedToMerge = array();
         foreach ($fixedBugs as $bug) {
             /* @var $bug \Flightzilla\Model\Ticket\Type\Bug */
             if ($bug->isMerged()) {
                 $this->_aFixedTrunk[$bug->id()] = $bug;
             }
-            elseif($bug->couldBeInTrunk() === true) {
-                $aBlocked = $this->getBugListByIds($bug->blocks());
-                $bTrunk = (empty($aBlocked) === true and $bug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '+') === true) ? false : true;
+            elseif ($bug->couldBeInTrunk() === true) {
+                $aBlocked                 = $this->getBugListByIds($bug->blocks());
+                $bTrunk                   = (empty($aBlocked) === true and $bug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '+') === true) ? false : true;
                 $bOnlyOrganizationTickets = (empty($aBlocked) === true) ? false : true;
                 foreach ($aBlocked as $oBlocked) {
                     if ($oBlocked->isTheme() !== true and $oBlocked->isConcept() !== true) {
@@ -1032,7 +1094,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             if (empty($this->_aFixedTrunk[$bug->id()]) === true) {
                 if ($bug->isMergeable() === true or ($bug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_MERGE, '+') !== true and $bug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_DBCHANGE, '?') === true)) {
                     $aDepends = $this->getBugListByIds($bug->getDepends($this));
-                    $bFixed = true;
+                    $bFixed   = true;
                     foreach ($aDepends as $oDependBug) {
                         if ($oDependBug->isMergeable() !== true and $oDependBug->couldBeInTrunk() !== true) {
                             $bFixed = false;
@@ -1058,7 +1120,6 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         return $this->_aFixedToMerge;
     }
 
-
     /**
      * Get all fixed-tickets which are already in the stable-branch
      *
@@ -1068,6 +1129,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getFixedBugsInTrunk($sFlag = '', $sStatus = null) {
+
         if (empty($this->_aFixedTrunk) === true) {
             $this->getFixedBugsInBranch();
         }
@@ -1084,6 +1146,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getFixedBugsUnknown($sFlag = '', $sStatus = null) {
+
         if (empty($this->_aFixed) === true) {
             $this->getFixedBugsInBranch();
         }
@@ -1096,11 +1159,12 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      *
      * @param  string $sFlag
      * @param  string $sStatus
-     * @param  array $aStack
+     * @param  array  $aStack
      *
      * @return array
      */
     public function getBugsWithFlag($sFlag = '', $sStatus = null, $aStack = array()) {
+
         $aResult = array();
         if (empty($aStack) === true) {
             $aStack = $this->_allBugs;
@@ -1125,6 +1189,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getFilteredList(array $aStack, array $aFilter) {
+
         foreach ($aFilter as $oTicket) {
             $iIndex = $oTicket->id();
             if (isset($aStack[$iIndex]) === true) {
@@ -1142,6 +1207,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getThemes() {
+
         return $this->_aThemes;
     }
 
@@ -1151,9 +1217,9 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return \Flightzilla\Model\Ticket\Type\Project[]
      */
     public function getProjects() {
+
         return $this->_aProjects;
     }
-
 
     /**
      * Get the themes as stack
@@ -1161,6 +1227,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getThemesAsStack() {
+
         $aStack = array();
         foreach ($this->_aThemes as $oTheme) {
             $aStack[$oTheme->id()] = $oTheme->title();
@@ -1172,9 +1239,11 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
     /**
      * Get projects as stack
+     *
      * @return array
      */
     public function getProjectsAsStack() {
+
         $aStack = array();
         foreach ($this->_aProjects as $oTheme) {
             $aStack[$oTheme->id()] = $oTheme->title();
@@ -1190,8 +1259,9 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getUpdateTestserver() {
+
         $aBugs = array_merge($this->getFixedBugs(), $this->getOpenBugs());
-        $back = array();
+        $back  = array();
         foreach ($aBugs as $bug) {
             if ($bug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTSERVER, '?')) {
                 $back[$bug->id()] = $bug;
@@ -1210,6 +1280,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getTeamBugs($aMemberBugs) {
+
         $aTeam = array();
         foreach ($aMemberBugs as $sName => $aBugs) {
             if ($this->_oResource->hasResource($sName) === true) {
@@ -1219,7 +1290,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         $oSorting = new \Flightzilla\Model\Project\Sorting($this);
         foreach ($aTeam as $sName => $aBugs) {
-            $aStack = $oSorting->setStack($aBugs)->getSortedBugs();
+            $aStack        = $oSorting->setStack($aBugs)->getSortedBugs();
             $aTeam[$sName] = array();
             foreach ($aStack as $oTicket) {
                 if ((string) $oTicket->getResource() === $sName) {
@@ -1239,12 +1310,13 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getMemberBugs() {
+
         $aOpenBugs = $this->getOpenBugs();
-        $aMember = array();
+        $aMember   = array();
         foreach ($aOpenBugs as $oBug) {
             /* @var $oBug \Flightzilla\Model\Ticket\Type\Bug */
             if ($oBug->isTheme() !== true) {
-                $sName = (string) $oBug->getResource();
+                $sName             = (string) $oBug->getResource();
                 $aMember[$sName][] = $oBug;
             }
         }
@@ -1259,6 +1331,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getUnthemedBugs() {
+
         return $this->_aUnthemed;
     }
 
@@ -1268,8 +1341,9 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getThemedOpenBugs() {
+
         $openBugs = $this->getOpenBugs();
-        $aOpen = array();
+        $aOpen    = array();
         foreach ($openBugs as $oBug) {
             /* @var $oBug \Flightzilla\Model\Ticket\Type\Bug */
             if ($oBug->doesBlock() === true and $oBug->isTheme() !== true) {
@@ -1289,13 +1363,14 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     private function _sortBugsToThemes($aBugs) {
+
         $aThemes = array();
         foreach ($aBugs as $bug) {
             $aThemes = array_merge($aThemes, $bug->blocks());
         }
 
         $aThemeBugs = $this->getBugListByIds(array_unique($aThemes));
-        $aThemes = array();
+        $aThemes    = array();
         foreach ($aThemeBugs as $oTheme) {
             if ($oTheme->isTheme()) {
                 $aThemes[$oTheme->id()] = $oTheme;
@@ -1306,9 +1381,9 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         foreach ($aBugs as $oBug) {
             $mTheme = $this->_findTheme($oBug);
             if ($mTheme !== false) {
-                $oTheme = $aThemes[$mTheme];
-                $sTheme = $oTheme->id() . ' ' . $oTheme->title();
-                $aThemed[$sTheme][] = $oBug;
+                $oTheme                      = $aThemes[$mTheme];
+                $sTheme                      = $oTheme->id() . ' ' . $oTheme->title();
+                $aThemed[$sTheme][]          = $oBug;
                 $this->_allBugs[$oBug->id()] = $oBug;
                 unset($oTheme, $sTheme);
             }
@@ -1318,7 +1393,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         natsort($aKeys);
 
         $aFinal = array();
-        foreach($aKeys as $sKey) {
+        foreach ($aKeys as $sKey) {
             $aFinal[$sKey] = $aThemed[$sKey];
         }
 
@@ -1332,7 +1407,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return $this
      */
     private function _findUnthemedBugs() {
-        $openBugs = $this->getOpenBugs();
+
+        $openBugs         = $this->getOpenBugs();
         $this->_aUnthemed = array();
         foreach ($openBugs as $bug) {
             if ($bug->isTheme() !== true) {
@@ -1359,6 +1435,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return int
      */
     private function _findTheme($oBug) {
+
         $mReturn = false;
         if ($oBug instanceof \Flightzilla\Model\Ticket\Type\Bug) {
             $iBug = $oBug->id();
@@ -1400,8 +1477,9 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @throws \Exception if a bug is not found
      */
     public function getBugById($iBug) {
+
         if (isset($this->_allBugs[$iBug]) !== true) {
-            $aList = $this->getBugListByIds(array($iBug));
+            $aList                 = $this->getBugListByIds(array($iBug));
             $this->_allBugs[$iBug] = $aList[$iBug];
             unset($aList);
         }
@@ -1414,9 +1492,10 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      *
      * @return bool|\Flightzilla\Model\Ticket\Type\Project
      */
-    public function getProject(\Flightzilla\Model\Ticket\Type\Bug $oBug){
+    public function getProject(\Flightzilla\Model\Ticket\Type\Bug $oBug) {
+
         foreach ($this->_aProjects as $oTicket) {
-            if ($oTicket->isProject() and $oTicket->doesDependOn($oBug, $this)){
+            if ($oTicket->isProject() and $oTicket->doesDependOn($oBug, $this)) {
                 return $oTicket;
             }
         }
@@ -1430,6 +1509,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getTeam() {
+
         return $this->_aTeam;
     }
 
@@ -1441,6 +1521,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @throws \Exception
      */
     public function getFirstWorkedDate() {
+
         $iTimestamp = PHP_INT_MAX;
         foreach ($this->_allBugs as $oBug) {
             $iTemp = $oBug->getFirstWorkDate();
@@ -1456,30 +1537,30 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         return $iTimestamp;
     }
 
-
     /**
      * Get the bug-stats
      *
      * @return array
      */
     public function getStats() {
+
         if (empty($this->_aStats) === true) {
-            $iCount = $this->getCount();
+            $iCount        = $this->getCount();
             $this->_aStats = array(
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ESTIMATED => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ORGA => 0,
+                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ESTIMATED   => 0,
+                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ORGA        => 0,
                 \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_UNESTIMATED => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_INPROGRESS => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ACTIVE => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_TESTING => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_MERGE => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_DEADLINE => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_SCREEN => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_COMMENT => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_FAILED => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_QUICK => 0,
+                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_INPROGRESS  => 0,
+                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ACTIVE      => 0,
+                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_TESTING     => 0,
+                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_MERGE       => 0,
+                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_DEADLINE    => 0,
+                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_SCREEN      => 0,
+                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_COMMENT     => 0,
+                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_FAILED      => 0,
+                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_QUICK       => 0,
                 \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_TRANSLATION => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_TIMEDOUT => 0,
+                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_TIMEDOUT    => 0,
             );
 
             $iTimeoutLimit = $this->_config->tickets->workflow->timeout;
@@ -1509,7 +1590,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                         $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ACTIVE]++;
                     }
 
-                    if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING,'?')) {
+                    if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '?')) {
                         $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_TESTING]++;
                     }
 
@@ -1559,16 +1640,17 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getStatuses() {
+
         if (empty($this->_aStatuses) === true) {
             $this->_aStatuses = array(
                 \Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::STATUS_NEW => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::STATUS_CONFIRMED => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::STATUS_CLOSED => 0
+                \Flightzilla\Model\Ticket\Type\Bug::STATUS_NEW         => 0,
+                \Flightzilla\Model\Ticket\Type\Bug::STATUS_CONFIRMED   => 0,
+                \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED    => 0,
+                \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED    => 0,
+                \Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED    => 0,
+                \Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED    => 0,
+                \Flightzilla\Model\Ticket\Type\Bug::STATUS_CLOSED      => 0
             );
 
             $iCount = $this->getCount();
@@ -1588,11 +1670,12 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * Get the percentage of each type in the stack
      *
      * @param  array $aStack
-     * @param  int $iCount
+     * @param  int   $iCount
      *
      * @return Bugzilla
      */
     protected function _percentify(array &$aStack, $iCount) {
+
         $mStat = null;
         foreach ($aStack as &$mStat) {
             $mStat = array(
