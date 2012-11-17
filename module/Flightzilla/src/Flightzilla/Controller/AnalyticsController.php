@@ -43,7 +43,8 @@ namespace Flightzilla\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController,
     Zend\View\Model\ViewModel,
-    Flightzilla\Controller\Plugin\Authenticate;
+    Flightzilla\Controller\Plugin\Authenticate,
+    Flightzilla\Controller\Plugin\AnalyticsService as Analytics;
 
 /**
  * Access google-analytics
@@ -59,7 +60,19 @@ class AnalyticsController extends AbstractActionController {
     /**
      *
      */
-    public function indexAction() {
+    public function campaignAction() {
+        $oAnalytics = $this->getServiceLocator()->get('_analytics');
+
+        $oViewModel = new ViewModel;
+        $oViewModel->mode = 'analytics';
+        $oViewModel->aPortals = $oAnalytics->getPortals();
+        return $oViewModel;
+    }
+
+    /**
+     *
+     */
+    public function browserAction() {
         $oAnalytics = $this->getServiceLocator()->get('_analytics');
 
         $oViewModel = new ViewModel;
@@ -75,37 +88,17 @@ class AnalyticsController extends AbstractActionController {
         $oViewModel = new ViewModel;
         $oViewModel->setTerminal(true);
 
-        $oAnalytics = $this->getServiceLocator()->get('_analytics');
-
-        $sMode = 'data';
         $sPortal = $this->params()->fromPost('portal');
-        if (empty($sPortal) !== true and $oAnalytics instanceof \Flightzilla\Model\Analytics) {
+        if (empty($sPortal) !== true) {
             $oViewModel->mode = $this->params()->fromPost('mode');
             $oViewModel->which = $this->params()->fromPost('which');
-            $bPaid = \Flightzilla\Model\Analytics::ALL_TRAFFIC;
-            if ($oViewModel->which === 'sem') {
-                $bPaid = \Flightzilla\Model\Analytics::ONLY_PAID_TRAFFIC;
-            }
-
-            switch ($oViewModel->mode) {
-                case 'conversion':
-                    $oViewModel->aData = $oAnalytics->getPortalData($sPortal, $bPaid);
-                    $oViewModel->aSeries = $oAnalytics->getSeries($oViewModel->aData);
-                    break;
-
-                case 'campaign':
-                    $sMode = $oViewModel->mode;
-                    $oViewModel->aData = $oAnalytics->getPortalData($sPortal, $bPaid);
-                    break;
-            }
-
-            $oViewModel->oPortal = $oAnalytics->getPortalInfo($sPortal);
             $oViewModel->sTarget = $this->params()->fromPost('container');
 
+            $oService = $this->getPluginManager()->get(Analytics::NAME)->init($oViewModel, $sPortal);
+
             $this->getResponse()->getHeaders()->addHeaders(array(
-                'Content-Type' => 'application/javascript'
+                'Content-Type' => $oService->getContentType()
             ));
-            $oViewModel->setTemplate(sprintf('flightzilla/analytics/%s', $sMode));
         }
         else {
             $this->getResponse()->setStatusCode(\Zend\Http\Response::STATUS_CODE_404);

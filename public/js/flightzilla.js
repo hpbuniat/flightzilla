@@ -124,7 +124,7 @@
 
             if ($this.data('mode')) {
                 $('#loading').clone().show().appendTo(tabContent);
-                var dataType = ($this.data('mode') === 'campaign') ? 'html' : 'script';
+                var dataType = ($this.data('mode') === 'conversion') ? 'script' : 'html';
                 $.ajax({
                     type: 'POST',
                     url: BASE_URL + '/flightzilla/analytics/data',

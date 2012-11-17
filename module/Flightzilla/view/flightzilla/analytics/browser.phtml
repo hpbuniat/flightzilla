@@ -1,0 +1,31 @@
+<?php echo $this->render('flightzilla/index/partial/header.phtml'); ?>
+
+<div class="row-fluid">
+<div class="span2">
+  <div class="well sidebar-nav">
+    <ul class="nav nav-list">
+      <li class="nav-header">
+          Portale
+          <a href="javascript:;" class="pull-right btn toggleNav">Alle</a>
+      </li>
+      <?php foreach ($this->aPortals as $iId => $sPortal): ?>
+          <li><a href="javascript:;" data-tab="<?php echo 't' . $iId;?>" data-container="<?php echo 't' . $iId;?>" data-mode="browser" data-target="<?php echo $sPortal?>" class="toggleChart">
+            <?php echo $sPortal ?>
+          </a></li>
+      <?php endforeach; ?>
+    </ul>
+  </div>
+</div>
+<div class="span10">
+<?php foreach ($this->aPortals as $iId => $sPortal): ?>
+    <div class="hidden" id="t<?php echo $iId; ?>"></div>
+<?php endforeach; ?>
+
+<script type="text/javascript">
+$(function() {
+    $('.toggleChart').eq(0).trigger('click');
+});
+</script>
+
+</div>
+</div>

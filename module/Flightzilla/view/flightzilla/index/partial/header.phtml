@@ -69,7 +69,16 @@
                         </ul>
                     </li>
                     <li class="<?php echo ($this->mode === 'mergy') ? 'active' : ''; ?>"><a href="<?php echo $this->url('flightzilla', array('controller' => 'mergy', 'action' => 'index')); ?>">Mergy</a></li>
-                    <li class="<?php echo ($this->mode === 'analytics') ? 'active' : ''; ?>"><a href="<?php echo $this->url('flightzilla', array('controller' => 'analytics', 'action' => 'index')); ?>">Analytics</a></li>
+                    <li class="dropdown <?php echo ($this->mode === 'analytics') ? 'active' : ''; ?>">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Analytics
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'analytics', 'action' => 'campaign')); ?>">Campaigns</a></li>
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'analytics', 'action' => 'browser')); ?>">Browser</a></li>
+                        </ul>
+                    </li>
                     <li class="divider"></li>
                 </ul>
                 <form class="navbar-search">
