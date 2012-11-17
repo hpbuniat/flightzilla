@@ -18,7 +18,7 @@ foreach($this->aData as $sBrowser => $aBrowser) {
              'fConversion' => sprintf('<strong>%01.2f%%</strong>', $aBrowser['conversion']),
         ));
         foreach ($aBrowser['versions'] as $sVersion => $aVersion) {
-            if ($aVersion['totalshare'] > 0.5) {
+            if (count($aBrowser['versions']) === 1 or $aVersion['totalshare'] > 0.5) {
                 echo $this->partial('flightzilla/analytics/partial/browser.phtml', array(
                     'sName' => '',
                     'sVersion' => $sVersion,
