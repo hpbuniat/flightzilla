@@ -338,7 +338,7 @@
     /**
      * Show the details of a ticket
      */
-    f.bugTable.on('click', 'a.ticket-detail', function() {
+    $('body').on('click', 'a.ticket-detail', function() {
         var iTicket = $(this).data('ticket');
 
         f.modal('Loading ticket #' + iTicket, $('#loading').clone().removeAttr('id').css({top:0}).show());

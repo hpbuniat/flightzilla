@@ -129,8 +129,9 @@ div.row-fluid div.center.chuck {
 
 .kanban div.pin div.top, .kanban div.pin div.bottom {
     width: 100%;
-    line-height: 12px;
-    height: 12px;
+    line-height: 13px;
+    height: 13px;
+    padding-top: 0;
 }
 
 .kanban div.pin div.bottom {

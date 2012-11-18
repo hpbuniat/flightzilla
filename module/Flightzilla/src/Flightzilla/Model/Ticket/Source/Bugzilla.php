@@ -972,8 +972,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $aStack = array();
         foreach ($this->_openBugs as $oTicket) {
             /* @var $oTicket \Flightzilla\Model\Ticket\Type\Bug */
-            if ($oTicket->isTheme() === false and $oTicket->isOrga() === false and $oTicket->isConcept() === false and $oTicket->isStatusAtLeast(\Flightzilla\Model\Ticket\Type\Bug::STATUS_CONFIRMED)
-                and ($oTicket->isWorkedOn() === true or $oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_COMMENT, '?') === true)
+            if ($oTicket->isTheme() === false and $oTicket->isOrga() === false and $oTicket->isConcept() === false and $oTicket->isWorkedOn() === true
+                and ($oTicket->isStatusAtLeast(\Flightzilla\Model\Ticket\Type\Bug::STATUS_CONFIRMED) or $oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_COMMENT, '?') === true)
             ) {
                 $aStack[$oTicket->id()] = $oTicket;
             }
