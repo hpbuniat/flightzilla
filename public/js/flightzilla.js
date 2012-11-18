@@ -443,4 +443,18 @@
      */
     $('.tablesorter').tablesorter();
 
+    /**
+     * Init drag- & dropables
+     */
+    $(function() {
+        $('.draggable').draggable({ revert: 'invalid' });
+        $('.droppable').droppable({
+            hoverClass: "ui-state-active",
+            activeClass: "ui-state-hover",
+            drop: function( event, ui ) {
+                alert('dropped');
+            }
+        });
+    });
+
 }); }(jQuery));
