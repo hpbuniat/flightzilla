@@ -158,13 +158,16 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     CONST TYPE_STRING_BUG = 'MTB';
     CONST TYPE_STRING_THEME = 'Theme,Thema,Projekt';
+    CONST TYPE_STRING_PROJECT = 'Projekt';
     CONST TYPE_STRING_FEATURE = '';
     CONST TYPE_STRING_CONCEPT = 'Screen';
 
     CONST TYPE_BUG = 'bug';
     CONST TYPE_THEME = 'theme';
+    CONST TYPE_PROJECT = 'project';
     CONST TYPE_FEATURE = 'feature';
     CONST TYPE_CONCEPT = 'screen';
+
     /**
      * The bug-types
      *
@@ -377,6 +380,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         $this->_oBugzilla = $oBugzilla;
         $this->_oResource = $oResource;
         $this->_oDate = $oDate;
+    }
+
+    /**
+     * Get the ticket-service
+     *
+     * @return \Flightzilla\Model\Ticket\Source\Bugzilla
+     */
+    public function getTicketService() {
+        return $this->_oBugzilla;
     }
 
     /**
@@ -797,7 +809,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function isProject() {
-        return $this->hasKeyword('Projekt');
+        return $this->hasKeyword(self::TYPE_STRING_PROJECT);
     }
 
     /**
@@ -903,7 +915,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         if ($this->hasDependencies()) {
 
             $aEndDates = array();
-            $dependencies = $this->getDepends($this->_oBugzilla);
+            $dependencies = $this->getDepends();
 
             if (count($dependencies) > 1) {
                 foreach ($dependencies as $dependency) {

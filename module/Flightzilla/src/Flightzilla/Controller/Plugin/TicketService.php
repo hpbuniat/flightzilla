@@ -118,23 +118,8 @@ class TicketService extends AbstractPlugin {
         $oView->bugsUnthemed = $oTicketService->getUnthemedBugs();
         if ($sMode === 'board') {
 
-            // concepts
-            $oView->allScreenWip = $oTicketService->getOpenConcepts();
-            $oView->allScreenApproved = $oTicketService->getBugsWithFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '+');
-
-            // stack
-            $oView->allBugsOpen = $oTicketService->getFilteredList($oTicketService->getUnworkedWithoutOrganization(), $oView->allScreenWip);
-
-            // testing
-            $oView->allBugsTesting = $oTicketService->getBugsWithFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '?');
-
-            // development waiting, wip
-            $oView->openWaiting = $oTicketService->getWaiting();
-            $oView->bugsWip = $oTicketService->getInprogress();
-
-            // development - ready
-            $aFixedWithoutTesting = $oTicketService->getFilteredList($oView->bugsFixed, $oView->allBugsTesting);
-            $oView->bugsFixedWithoutTesting = $oTicketService->getFilteredList($aFixedWithoutTesting, $oView->allScreenApproved);
+            $oKanbanStatus = new \Flightzilla\Model\Kanban\Status($oTicketService->getAllBugs(), $oTicketService);
+            $oView->aKanban = $oKanbanStatus->setType(\Flightzilla\Model\Ticket\Type\Bug::TYPE_BUG)->process()->get();
         }
         else {
             $oView->aUntouched = $oTicketService->getUntouched();
