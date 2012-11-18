@@ -176,6 +176,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     protected $_aTypes = array(
         self::TYPE_STRING_BUG => self::TYPE_BUG,
         self::TYPE_STRING_THEME  => self::TYPE_THEME,
+        self::TYPE_STRING_PROJECT  => self::TYPE_PROJECT,
         self::TYPE_STRING_FEATURE  => self::TYPE_FEATURE,
         self::TYPE_STRING_CONCEPT  => self::TYPE_CONCEPT,
     );
@@ -891,6 +892,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * Get the expected revenue
+     *
+     * @return float
+     */
+    public function getRevenue() {
+        return (float) $this->_data->cf_expected_revenue;
+    }
+
+    /**
      * Get the depend-bugs
      *
      * @return array
@@ -901,6 +911,21 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         }
 
         return $this->_aDepends;
+    }
+
+    /**
+     * Get all dependencies as stack of tickets
+     *
+     * @return array
+     */
+    public function getDependsAsStack() {
+        $this->getDepends();
+        $aStack = array();
+        foreach ($this->_aDepends as $iTicket) {
+            $aStack[] = $this->_oBugzilla->getBugById($iTicket);
+        }
+
+        return $aStack;
     }
 
     /**

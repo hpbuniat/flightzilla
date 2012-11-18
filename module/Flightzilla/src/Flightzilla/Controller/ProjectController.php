@@ -64,6 +64,7 @@ class ProjectController extends AbstractActionController {
         $oViewModel->mode = 'project';
 
         $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'project')->getService();
+        $oViewModel->aProjects = $oServiceModel->getProjects();
 
         return $oViewModel;
     }

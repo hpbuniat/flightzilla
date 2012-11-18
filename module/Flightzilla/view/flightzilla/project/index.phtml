@@ -1,1 +1,36 @@
-<?php echo $this->render('flightzilla/index/partial/header.phtml'); ?>
+<?php
+    echo $this->render('flightzilla/index/partial/header.phtml');
+    foreach ($this->aProjects as $oProject) {
+        if ($oProject->isType(\Flightzilla\Model\Ticket\Type\Bug::TYPE_PROJECT) === true) {
+            $this->aStack = $oProject->getDependsAsStack();
+            $aTimes = $this->collectiontime($this->aStack);
+?>
+            <div class="row-fluid memberBox kanban">
+                <div class="span12 well">
+                    <div class="span2">
+                        <?php echo sprintf('<h5><strong>%s</strong></h5>', $oProject->title()); ?>
+                        <blockquote>
+                            <p><?php echo $aTimes['spent'];?>h (<?php echo $aTimes['esti']; ?>h est.) <i class="icon-time"></i> <?php echo $aTimes['left']; ?>h (<?php echo $aTimes['days']; ?>d)</p>
+                        </blockquote>
+                        <blockquote>
+                            <p><?php echo $oProject->getRevenue(); ?></p>
+                        </blockquote>
+                    </div>
+                    <div class="span10">
+                        <div class="row-fluid">
+                            <div class="span12">
+                                <div class="progress progress-<?php echo $aTimes['color'];?> progress-striped">
+                                    <div class="bar" style="width: <?php echo $aTimes['future']; ?>%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <?php
+                        $this->iSplit = 6;
+                        echo $this->render('flightzilla/index/partial/pin-row.phtml');
+                        ?>
+                    </div>
+                </div>
+            </div>
+        <?php
+        }
+    }

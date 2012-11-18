@@ -173,3 +173,8 @@ div.modal {
 .dash .progress {
     margin: 0 20px 0 0;
 }
+
+img.lazy {
+    width: 170px;
+    height: 90px;
+}
