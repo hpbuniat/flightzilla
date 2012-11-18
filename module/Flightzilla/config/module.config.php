@@ -102,7 +102,7 @@ return array(
         'invokables' => array(
             'index' => 'Flightzilla\Controller\IndexController',
             'kanban' => 'Flightzilla\Controller\KanbanController',
-            'planning' => 'Flightzilla\Controller\PlanningController',
+            'project' => 'Flightzilla\Controller\ProjectController',
             'mergy' => 'Flightzilla\Controller\MergyController',
             'ticket' => 'Flightzilla\Controller\TicketController',
             'analytics' => 'Flightzilla\Controller\AnalyticsController',

@@ -58,8 +58,8 @@
             <blockquote>
                 <h4>
                     <?php
-                        $this->oTask = $oTask;
-                        echo $this->render('flightzilla/index/partial/bug-line.phtml');
+                    $this->oTask = $oTask;
+                    echo $this->render('flightzilla/index/partial/bug-line.phtml');
                     ?>
                     <small><?php echo date('d.m.Y H:i', $oTask->getStartDate()); ?> - <?php echo date('d.m.Y H:i', $oTask->getEndDate()); ?></small>
                 </h4>
