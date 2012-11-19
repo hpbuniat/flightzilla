@@ -1369,7 +1369,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     public function isStatusAtLeast($sComparisonStatus) {
 
         if (isset($this->_mappedStatus[$sComparisonStatus]) === false){
-            throw new BugException(sprintf(BugException::INVALID_STATUS, $sComparisonStatus));
+            throw new BugException(sprintf(BugException::INVALID_STATUS, $this->id(), $sComparisonStatus));
         }
 
         return ($this->_mappedStatus[$this->getStatus()] >= $this->_mappedStatus[$sComparisonStatus]);
@@ -1384,10 +1384,14 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      *
      * @return bool
      */
-    public function isStatusAtMost($sComparisonStatus){
+    public function isStatusAtMost($sComparisonStatus) {
 
-        if (isset($this->_mappedStatus[$sComparisonStatus]) === false){
-            throw new BugException(sprintf(BugException::INVALID_STATUS, $sComparisonStatus));
+        $sStatus = $this->getStatus();
+        if (isset($this->_mappedStatus[$sComparisonStatus]) === false) {
+            throw new BugException(sprintf(BugException::INVALID_STATUS, $this->id(), $sComparisonStatus));
+        }
+        elseif (empty($sStatus) === true) {
+            throw new BugException(sprintf(BugException::INVALID_STATUS, $this->id(), ''));
         }
 
         return ($this->_mappedStatus[$this->getStatus()] <= $this->_mappedStatus[$sComparisonStatus]);
