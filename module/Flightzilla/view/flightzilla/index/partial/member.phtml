@@ -1,5 +1,6 @@
 <?php
 $aTimes = $this->collectiontime($this->aStack);
+$sEstimationString = sprintf('%sh (%sh est.) <i class="icon-time"></i> %sh (%sd)', $aTimes['spent'], $aTimes['esti'] , $aTimes['left'] ,$aTimes['days']);
 ?>
 <div class="row-fluid memberBox">
     <div class="span12 well">
@@ -22,11 +23,11 @@ $aTimes = $this->collectiontime($this->aStack);
             <div class="row-fluid">
                 <div class="span3">
                     <blockquote>
-                        <p><?php echo $aTimes['spent'];?>h (<?php echo $aTimes['esti']; ?>h est.) <i class="icon-time"></i> <?php echo $aTimes['left']; ?>h (<?php echo $aTimes['days']; ?>d)</p>
+                        <p><?php echo $sEstimationString; ?></p>
                     </blockquote>
                 </div>
                 <div class="span9">
-                    <div class="progress progress-<?php echo $aTimes['color'];?> progress-striped">
+                    <div title="<?php echo $sEstimationString; ?>" class="progress progress-<?php echo $aTimes['color'];?> progress-striped">
                         <div class="bar" style="width: <?php echo $aTimes['future']; ?>%"></div>
                     </div>
                 </div>

@@ -1,36 +1,62 @@
 <?php
     echo $this->render('flightzilla/index/partial/header.phtml');
     foreach ($this->aProjects as $oProject) {
-        if ($oProject->isType(\Flightzilla\Model\Ticket\Type\Bug::TYPE_PROJECT) === true) {
+        if ($oProject->isType(\Flightzilla\Model\Ticket\Type\Bug::TYPE_PROJECT) === true and $oProject->hasUnclosedBugs() === true) {
             $this->aStack = $oProject->getDependsAsStack();
-            $aTimes = $this->collectiontime($this->aStack);
+            $aTimes = $this->collectiontime($this->aStack, true);
+            $sEstimationString = sprintf('%sd (%sd est.) <i class="icon-time"></i> %sd', $aTimes['spent_days'], $aTimes['esti_days'] , $aTimes['days']);
 ?>
-            <div class="row-fluid memberBox kanban">
-                <div class="span12 well">
-                    <div class="span2">
-                        <?php echo sprintf('<h5><strong>%s</strong></h5>', $oProject->title()); ?>
-                        <blockquote>
-                            <p><?php echo $aTimes['spent'];?>h (<?php echo $aTimes['esti']; ?>h est.) <i class="icon-time"></i> <?php echo $aTimes['left']; ?>h (<?php echo $aTimes['days']; ?>d)</p>
-                        </blockquote>
-                        <blockquote>
-                            <p><?php echo $oProject->getRevenue(); ?></p>
-                        </blockquote>
-                    </div>
-                    <div class="span10">
-                        <div class="row-fluid">
-                            <div class="span12">
-                                <div class="progress progress-<?php echo $aTimes['color'];?> progress-striped">
-                                    <div class="bar" style="width: <?php echo $aTimes['future']; ?>%"></div>
+            <div class="memberBox kanban">
+                <div class="row-fluid">
+                    <div class="span12 well">
+                        <div class="span2">
+                            <?php echo sprintf('<h5><strong><a target="_blank" href="%s/show_bug.cgi?id=%s">%s</a></strong></h5>', $this->sBugzilla, $oProject->id(), $oProject->title()); ?>
+                            <blockquote>
+                                <p><?php echo $sEstimationString; ?></p>
+                            </blockquote>
+                            <blockquote>
+                                <?php if ($oProject->getRevenue() > 0):?>
+                                <p><?php echo $oProject->getRevenue(); ?></p>
+                                <?php else:?>
+                                <div class="alert">
+                                    Missing revenue expectation!
+                                </div>
+                                <?php endif;?>
+                            </blockquote>
+                            <blockquote>
+                                <i class="icon-user"></i> <?php echo $oProject->getReporter(); ?>
+                                <a class="detail-toggle icon-list" href="javascript:;"></a>
+                            </blockquote>
+                        </div>
+                        <div class="span10">
+                            <div class="row-fluid">
+                                <div class="span12">
+                                    <div class="progress progress-<?php echo $aTimes['color'];?> progress-striped">
+                                        <div class="bar" style="width: <?php echo $aTimes['percent']; ?>%"></div>
+                                    </div>
                                 </div>
                             </div>
+                            <?php
+                            $this->iSplit = 6;
+                            echo $this->render('flightzilla/index/partial/pin-row.phtml');
+                            ?>
                         </div>
-                        <?php
-                        $this->iSplit = 6;
-                        echo $this->render('flightzilla/index/partial/pin-row.phtml');
-                        ?>
+                    </div>
+                </div>
+                <div class="row-fluid hidden project-detail">
+                    <div class="span12 well">
+                        <?php foreach ($oProject->long_desc as $oLongDesc):
+                            if (strlen($oLongDesc->thetext) > 0) : ?>
+                        <blockquote>
+                            <pre><?php echo (string) $oLongDesc->thetext ?></pre>
+                            <small><?php echo (string) $oLongDesc->who ?> @ <?php echo (string) $oLongDesc->bug_when ?></small>
+                        </blockquote>
+                        <?php endif;
+                        endforeach; ?>
                     </div>
                 </div>
             </div>
+
         <?php
         }
     }

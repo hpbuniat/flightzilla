@@ -11,6 +11,7 @@
         searchable: {},
         modalDiv: null,
         searchTimeout: 0,
+        wrapper: null,
         init: function() {
             this.headerRows = $('.tableHeader td[colspan="6"], .campaignName');
             this.bugs = $('tr');
@@ -21,6 +22,7 @@
             this.charts = {};
             this.modalDiv = $('#flightzillaModal');
             this.searchable = $('.tableHeader td[colspan="6"], .campaignName, tr').find('span, td.bugDesc, a.bugLink');
+            this.wrapper = $('div.wrapper');
         },
         hideBugs: function() {
             this.bugTable.each(function() {
@@ -338,7 +340,7 @@
     /**
      * Show the details of a ticket
      */
-    $('body').on('click', 'a.ticket-detail', function() {
+    f.wrapper.on('click', 'a.ticket-detail', function() {
         var iTicket = $(this).data('ticket');
 
         f.modal('Loading ticket #' + iTicket, $('#loading').clone().removeAttr('id').css({top:0}).show());
@@ -401,6 +403,13 @@
      */
     $('.largeGray').click(function() {
         $(this).parents('.memberBox').find('.allTickets').toggleClass('hidden');
+    });
+
+    /**
+     * Toggle Project-Details/Comments
+     */
+    f.wrapper.on('click', 'a.detail-toggle', function() {
+        $(this).parents('.memberBox').find('.project-detail').toggleClass('hidden');
     });
 
     $('.bugzilla-link').click(function() {
