@@ -922,7 +922,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         $this->getDepends();
         $aStack = array();
         foreach ($this->_aDepends as $iTicket) {
-            $aStack[] = $this->_oBugzilla->getBugById($iTicket);
+            $aStack[$iTicket] = $this->_oBugzilla->getBugById($iTicket);
         }
 
         return $aStack;
