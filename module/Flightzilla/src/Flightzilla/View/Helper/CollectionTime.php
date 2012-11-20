@@ -87,7 +87,7 @@ class CollectionTime extends AbstractHelper {
 
         $aTimes['percent'] = 0;
         if ($aTimes['esti'] > 0) {
-            $aTimes['percent'] = round(($aTimes['left'] / ($aTimes['esti'] * \Flightzilla\Model\Timeline\Date::AMOUNT)) * 100, 1);
+            $aTimes['percent'] = round((1 - ($aTimes['left'] / $aTimes['esti'])) * 100, 1);
         }
 
         if ($bProject === true) {

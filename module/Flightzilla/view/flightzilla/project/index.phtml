@@ -24,8 +24,13 @@
                                 <?php endif;?>
                             </blockquote>
                             <blockquote>
-                                <i class="icon-user"></i> <?php echo $oProject->getAssignee(); ?>
-                                <a class="detail-toggle icon-list" href="javascript:;"></a>
+                                <p>
+                                    <i class="icon-user"></i> <?php echo $oProject->getAssignee(true); ?>
+                                </p>
+                                <p>
+                                    <a class="detail-toggle icon-list" href="javascript:;"></a>
+                                    <i class="icon-time"></i> <?php echo date('Y-m-d', $oProject->getEndDate()); ?>
+                                </p>
                             </blockquote>
                         </div>
                         <div class="span10">

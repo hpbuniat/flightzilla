@@ -64,22 +64,25 @@ class Ticketicons extends AbstractHelper {
     public function __invoke(\Flightzilla\Model\Ticket\Type\Bug $oBug) {
 
         $sClasses = '';
-        if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_COMMENT, '?')) {
+        if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_COMMENT, '?') === true) {
             $sClasses .= '&nbsp;<span class="ui-silk ui-silk-comment" title="' . \Flightzilla\Model\Ticket\Type\Bug::FLAG_COMMENT . '">&nbsp;</span>';
             if (strlen($oBug->commentrequest_user) > 0) {
                 $sClasses .= '<span class="red"> ' . $oBug->commentrequest_user . '</span>';
             }
         }
 
-        if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TRANSLATION, '+')) {
+        if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TRANSLATION, '+') === true) {
             $sClasses .= '&nbsp;<span class="red">i18n</span>';
         }
 
-        if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '+')) {
+        if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '+') === true and $oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '?') === false) {
             $sClasses .= '&nbsp;<span class="ui-silk ui-silk-thumb-up" title="' . \Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN . '">&nbsp;</span>';
         }
+        elseif ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '?') === true) {
+            $sClasses .= '&nbsp;<span class="ui-silk ui-silk-magnifier" title="' . \Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN . '">&nbsp;</span>';
+        }
 
-        if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_DBCHANGE, '+')) {
+        if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_DBCHANGE, '+') === true) {
             $sClasses .= '&nbsp;<span class="ui-silk ui-silk-database-refresh" title="' . \Flightzilla\Model\Ticket\Type\Bug::FLAG_DBCHANGE . '">&nbsp;</span>';
         }
 

@@ -1302,12 +1302,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
-     * Get the assignee (parsed)
+     * Get the assignee
+     *
+     * @param  boolean $bTok Apply strtok('@') before returning
      *
      * @return string
      */
-    public function getAssignee(){
-        return (string) $this->_data->assigned_to;
+    public function getAssignee($bTok = false) {
+        $sAssignee = (string) $this->_data->assigned_to;
+        return ($bTok === true) ? strtok($sAssignee, '@') : $sAssignee;
     }
 
     /**
