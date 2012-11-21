@@ -46,7 +46,7 @@
                         </ul>
                     </li>
                     <li class="<?php echo ($this->mode === 'board') ? 'active' : ''; ?>"><a href="<?php echo $this->url('flightzilla', array('controller' => 'kanban', 'action' => 'board')); ?>">Board</a></li>
-                    <li class="<?php echo ($this->mode === 'list') ? 'active' : ''; ?>"><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'index')); ?>">Bugs</a></li>
+                    <li class="<?php echo ($this->mode === 'list') ? 'active' : ''; ?>"><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'index')); ?>">Tickets</a></li>
                     <li class="dropdown <?php echo ($this->mode === 'team') ? 'active' : ''; ?>">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                             Team
@@ -54,7 +54,7 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'teamdash')); ?>">Dashboard</a></li>
-                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'team')); ?>">List</a></li>
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'team')); ?>">Ticket-List</a></li>
                             <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'summary')); ?>">Summary</a></li>
                         </ul>
                     </li>
