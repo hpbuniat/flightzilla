@@ -1075,7 +1075,6 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
                     'type_id' => (int) $flag['type_id'],
                     'status' => (string) $flag['status'],
                     'setter' => (string) $flag['setter'],
-                    'mtime' => strtotime((string) $flag['modification_date'])
                 );
 
                 if (isset($flag['requestee']) === true) {
