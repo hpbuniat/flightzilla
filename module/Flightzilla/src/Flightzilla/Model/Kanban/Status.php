@@ -76,8 +76,8 @@ class Status  {
      * @var array
      */
     protected $_aStatusOrder = array(
-        self::WAITING => 1,
-        self::SCREEN_WIP => 2,
+        self::SCREEN_WIP => 1,
+        self::WAITING => 2,
         self::DEV_WAITING => 3,
         self::DEV_WIP => 4,
         self::DEV_READY => 5,
