@@ -22,7 +22,7 @@ Features:
 
 flightzilla offers a variety of features, which are split into several categories.
 
-- Personal Dashboards
+- Personal Dashboard
     - My Dashboard (Tickets which are assigned to you, including several task-lists (testing, commenting, ...))
     - My Tickets (A list of your tickets - comparable to the "My Bugs"-List)
     - Conflicts (Several listings to check the integrity of ticket-status (e.g., a RESOLVED-Tickets must not have only failed- or rejected testings))
