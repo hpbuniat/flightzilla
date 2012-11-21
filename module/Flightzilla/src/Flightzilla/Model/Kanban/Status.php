@@ -78,12 +78,12 @@ class Status  {
     protected $_aStatusOrder = array(
         self::WAITING => 1,
         self::SCREEN_WIP => 2,
-        self::SCREEN_APPROVED => 3,
-        self::DEV_WAITING => 4,
-        self::DEV_WIP => 5,
-        self::DEV_READY => 6,
-        self::TEST_WAITING => 7,
-        self::TEST_READY => 8,
+        self::DEV_WAITING => 3,
+        self::DEV_WIP => 4,
+        self::DEV_READY => 5,
+        self::TEST_WAITING => 6,
+        self::TEST_READY => 7,
+        self::SCREEN_APPROVED => 8,
         self::RELEASE => 9,
     );
 
@@ -167,6 +167,7 @@ class Status  {
             $sStatus = self::RELEASE;
             if ($this->_sType === Bug::TYPE_PROJECT) {
                 $aStack = $oTicket->getDepends();
+
                 foreach ($aStack as $iTicket) {
                     $sStackStatus = $this->_getStatus($iTicket);
                     if ($this->_aStatusOrder[$sStackStatus] < $this->_aStatusOrder[$sStatus]) {
@@ -238,6 +239,13 @@ class Status  {
             if (isset($this->_aStatus[$sStatus][$iTicket]) === true) {
                 $sReturnStatus = $sStatus;
                 break;
+            }
+        }
+
+        if ($sReturnStatus === self::WAITING) {
+            $oTicket = $this->_oTicketService->getBugById($iTicket);
+            if ($oTicket->isClosed() === true) {
+                $sReturnStatus = self::RELEASE;
             }
         }
 
