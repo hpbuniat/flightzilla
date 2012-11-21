@@ -36,11 +36,11 @@ flightzilla offers a variety of features, which are split into several categorie
     - Dashboard (Similar to the "My Dashboard"-View, but including all configured team-members)
     - Ticket-List (A list of all tickets, grouped by their assignee)
     - Summary (Beta!)
-    - Review (Gantt-View of worked hours per resource)
+    - Review (WIP!, Gantt-View of worked hours per resource)
 - Project
-    - List (A list of projects, visualized like a dashboard)
+    - List (WIP!, A list of projects, visualized like a dashboard)
     - Board (A kanban-style board, with tickets grouped to a project)
-    - Planning (Gantt-View of projects)
+    - Planning (WIP!, Gantt-View of projects)
     - Resource (WIP!, Gantt-View of resources)
 - Mergy (Access to mergy directly from flightzilla. Mergy is a tool to execute merges)
 - Analytics
