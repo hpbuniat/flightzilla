@@ -150,7 +150,6 @@ class Sorting {
 
         if ($this->_bSorted !== true) {
             $this->_sortByPriority();
-            $this->_sortByStartDate();
 
             $bSorted = false;
             do {
@@ -250,12 +249,27 @@ class Sorting {
         }
 
         arsort($aSort);
-        $this->_aSorted = array();
+        $aStack = array();
         foreach ($aSort as $iBug => $mStuff) {
-            $this->_aSorted[$iBug] = $this->_aStack[$iBug];
+            $sPriority = $this->_aStack[$iBug]->getPriority();
+            if (empty($aStack[$sPriority]) === true) {
+                $aStack[$sPriority] = array();
+            }
+
+            $aStack[$sPriority][$iBug] = $this->_aStack[$iBug];
         }
 
-        unset($aSort);
+        $aSorted = array();
+        $aSort = array();
+        foreach ($aStack as $iPriority => $aSort) {
+            $this->_aSorted = $aSort;
+            $this->_sortByStartDate();
+
+            $aSorted = array_merge($aSorted, $this->_aSorted);
+        }
+
+        $this->_aSorted = $aSorted;
+        unset($aSort, $aStack);
 
         return $this;
     }
