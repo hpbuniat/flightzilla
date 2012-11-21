@@ -64,6 +64,7 @@ class TicketController extends AbstractActionController {
         $oViewModel = new ViewModel;
         $oViewModel->setTerminal(true);
 
+        $oViewModel->dropAction = $this->params()->fromPost('drop');
         $sTickets = $this->params()->fromPost('tickets');
         if (empty($sTickets) !== true) {
             $oViewModel->aTickets = $this->getPluginManager()->get(TicketService::NAME)->getService()->getBugListByIds($sTickets, false);
@@ -80,6 +81,24 @@ class TicketController extends AbstractActionController {
         $oViewModel->setTerminal(true);
 
         $aModify = $this->params()->fromPost('modify');
+        $aSpecial = array(
+            'estimation',
+            'worked'
+        );
+        foreach ($aSpecial as $sSpecial) {
+            $aTemp = $this->params()->fromPost($sSpecial);
+            if (empty($aTemp) !== true) {
+                foreach ($aTemp as $iTicket => $aActions) {
+                    foreach ($aActions as $mValue) {
+                        $aModify[$iTicket][] = array(
+                            'action' => sprintf('set%s', ucfirst($sSpecial)),
+                            'value' => $mValue,
+                        );
+                    }
+                }
+            }
+        }
+
 
         $oTicketService = $this->getPluginManager()->get(TicketService::NAME)->getService();
         $aTickets = array();
@@ -87,9 +106,12 @@ class TicketController extends AbstractActionController {
             foreach ($aModify as $iTicket => $aActions) {
                 $oTicketWriter = new \Flightzilla\Model\Ticket\Source\Writer\Bugzilla($oTicketService);
                 $oTicket = $oTicketService->getBugById($iTicket);
-                foreach ($aActions as $sAction) {
+                foreach ($aActions as $mAction) {
+                    $sAction = (is_scalar($mAction) === true) ? $mAction : $mAction['action'];
+                    $mValue = (is_scalar($mAction) === true) ? false : $mAction['value'];
+
                     if (method_exists($oTicketWriter, $sAction) === true) {
-                        $oTicketWriter->$sAction($oTicket);
+                        $oTicketWriter->$sAction($oTicket, $mValue);
                     }
                 }
 

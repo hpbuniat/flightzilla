@@ -453,15 +453,35 @@
     $('.tablesorter').tablesorter();
 
     /**
-     * Init drag- & dropables
+     * Init dragg- & droppables
      */
     $(function() {
-        $('.draggable').draggable({ revert: 'invalid' });
+        $('.draggable').draggable({ revert: true });
         $('.droppable').droppable({
-            hoverClass: "ui-state-active",
-            activeClass: "ui-state-hover",
+            activeClass: "btn-success",
+            tolerance: "pointer",
             drop: function( event, ui ) {
-                alert('dropped');
+                var data = {
+                        tickets: ui.draggable.data('ticket'),
+                        drop: $(this).data('drop')
+                    };
+
+                f.modal('Loading tickets', $('#loading').clone().removeAttr('id').css({top:0}).show());
+                $.ajax({
+                    type: 'POST',
+                    url: BASE_URL + '/flightzilla/ticket/list',
+                    data: data
+                }).done(function(msg) {
+                    f.modal('Modify Tickets', msg);
+                }).fail(function(jqXHR, textStatus) {
+                    alert( "Request failed: " + textStatus);
+                });
+            },
+            over: function(event, ui) {
+                $(this).toggleClass('btn-success').addClass('btn-danger');
+            },
+            out: function(event, ui) {
+                $(this).toggleClass('btn-success').removeClass('btn-danger');
             }
         });
     });

@@ -18,6 +18,16 @@ $sEstimationString = sprintf('%sh (%sh est.) <i class="icon-time"></i> %sh (%sd)
                 ?>
             </a>
             <?php echo sprintf('<h5><strong>%s</strong></h5>', $this->sMemberName); ?>
+            <blockquote>
+                <div class="btn-toolbar">
+                    <div class="btn-group">
+                        <a href="#" class="btn disabled droppable" data-drop="assign"><i class="icon-play-circle"></i></a>
+                    </div>
+                    <div class="btn-group">
+                        <a href="#" class="btn disabled droppable" data-drop="resolve"><i class="icon-check"></i></a>
+                    </div>
+                </div>
+            </blockquote>
         </div>
         <div class="span10">
             <div class="row-fluid">

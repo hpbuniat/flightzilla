@@ -834,6 +834,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * Get the estimation
+     *
+     * @return float
+     */
+    public function getEstimation() {
+        return (float) $this->estimated_time;
+    }
+
+    /**
      * Check if the bug has been worked on
      *
      * @param  string $sStatusFilter
@@ -1276,6 +1285,21 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function getLastActivity() {
         return strtotime($this->_data->delta_ts);
+    }
+
+    /**
+     * Get the time since last modification
+     *
+     * @return float
+     */
+    public function getTimeSinceLastActivity() {
+        $fTime = 0;
+        $iLastActivity = $this->getLastActivity();
+        if ($iLastActivity > 0) {
+            $fTime = round(((time() - $iLastActivity) / 3600), 2);
+        }
+
+        return $fTime;
     }
 
     /**
