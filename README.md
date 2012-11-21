@@ -26,13 +26,17 @@ flightzilla offers a variety of features, which are split into several categorie
     - My Dashboard (Tickets which are assigned to you, including several task-lists (testing, commenting, ...))
     - My Tickets (A list of your tickets - comparable to the "My Bugs"-List)
     - Conflicts (Several listings to check the integrity of ticket-status (e.g., a RESOLVED-Tickets must not have only failed- or rejected testings))
-
 - Kanban Board (A kanban-style-board, based on the current ticket-status)
-- Tickets (A list of all tickets, grouped by workflow-status & assigned project. Provides a very detailed overview over all tickets - the status is indicated by many icons & colors)
+- Tickets (A list of all tickets, grouped by workflow-status & assigned project)
+    - Provides a very detailed overview over all tickets - the status is indicated by many icons & colors
+    - Quick & Easy filtering, sorting, ..
+    - Allows to modify tickets within predefined workflows (e.g. request testing)
+    - Create Release-Log-Entries
 - Team
     - Dashboard (Similar to the "My Dashboard"-View, but including all configured team-members)
     - Ticket-List (A list of all tickets, grouped by their assignee)
     - Summary (Beta!)
+    - Review (Gantt-View of worked hours per resource)
 - Project
     - List (A list of projects, visualized like a dashboard)
     - Board (A kanban-style board, with tickets grouped to a project)
