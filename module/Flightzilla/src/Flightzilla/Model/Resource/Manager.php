@@ -81,7 +81,11 @@ class Manager {
      * @return $this
      */
     public function registerResource(\Flightzilla\Model\Resource\Human $oHuman) {
-        $this->_aResources[$oHuman->getName()] = $oHuman;
+        $sName = $oHuman->getName();
+        if (empty($this->_aResources[$sName]) === true) {
+            $this->_aResources[$sName] = $oHuman;
+        }
+
         return $this;
     }
 
@@ -144,6 +148,25 @@ class Manager {
      */
     public function getResources() {
         return $this->_aResources;
+    }
+
+    /**
+     * Get the activity of all resources
+     *
+     * @param  int $iDays
+     *
+     * @return array
+     */
+    public function getActivities($iDays = 7) {
+        $aActivities = array();
+        foreach ($this->_aResources as $oResource) {
+            $aActivity = $oResource->getTimecard()->getTimesAsGantt($iDays);
+            if (empty($aActivity) !== true) {
+                $aActivities = array_merge($aActivities, $aActivity);
+            }
+        }
+
+        return $aActivities;
     }
 
     /**

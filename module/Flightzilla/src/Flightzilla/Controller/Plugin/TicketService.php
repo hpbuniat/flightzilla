@@ -99,14 +99,15 @@ class TicketService extends AbstractPlugin {
      *
      * @param  \Zend\View\Model\ViewModel $oView
      * @param  string $sMode
+     * @param  int $iRefreshDays
      *
      * @return $this
      */
-    public function init(\Zend\View\Model\ViewModel $oView, $sMode = 'list') {
+    public function init(\Zend\View\Model\ViewModel $oView, $sMode = 'list', $iRefreshDays = 0) {
         $oTicketService = $this->getService();
         /* @var $oTicketService \Flightzilla\Model\Ticket\Source\Bugzilla */
 
-        $oTicketService->getBugsChangedToday();
+        $oTicketService->getChangedTicketsWithinDays($iRefreshDays);
 
         // gather the ticket-information
         $oView->bugsReopened = $oTicketService->getReopenedBugs();

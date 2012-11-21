@@ -793,12 +793,13 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     }
 
     /**
-     * Refresh the cached bugs, which have been changed today
+     * Refresh Tickets, which have been changed within a number of days
      *
-     * @return Bugzilla
+     * @param  int $iDays
+     *
+     * @return $this
      */
-    public function getBugsChangedToday() {
-
+    public function getChangedTicketsWithinDays($iDays = 0) {
         $this->_addParams();
         $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED);
         $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED);
@@ -808,7 +809,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED);
         $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED);
         $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_CLOSED);
-        $this->_setGetParameter(self::BUG_PARAM_CHANGE_DATE_FROM, '0d');
+        $this->_setGetParameter(self::BUG_PARAM_CHANGE_DATE_FROM, sprintf('%dd', $iDays));
         $this->_setGetParameter(self::BUG_PARAM_CHANGE_DATE_TO, 'Now');
         $page   = $this->_request(self::BUG_LIST);
         $bugIds = $this->_getBugIdsFromPage($page);
@@ -821,7 +822,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     /**
      * Get all bugs
      *
-     * @return Bugzilla
+     * @return $this
      */
     public function getBugList() {
 

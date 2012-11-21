@@ -39,10 +39,13 @@
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
-namespace Flightzilla\Model\Resource;
+namespace Flightzilla\Model\Ticket\Integrity\Constraint;
+
+use \Flightzilla\Model\Ticket\Type\Bug;
+use \Flightzilla\Model\Ticket\Source\Bugzilla;
 
 /**
- * Create a human-resource model
+ * Organization-Tickets must have a due-date
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -50,20 +53,21 @@ namespace Flightzilla\Model\Resource;
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-abstract class Builder {
+class OrganizationWithoutDue implements ConstraintInterface {
 
     /**
-     * Create a human resource
+     * Name of the constraint
      *
-     * @param  string $sLogin
-     * @param  array $aMember
-     *
-     * @return \Flightzilla\Model\Resource\Human
+     * @var string
      */
-    public static function build($sLogin, $aMember) {
-        $oTimecard = new \Flightzilla\Model\Resource\Human\Timecard();
-        $oResource = new \Flightzilla\Model\Resource\Human($sLogin, $aMember, $oTimecard);
+    const NAME = 'OrganizationWithoutDue';
 
-        return $oResource;
+    /**
+     * (non-PHPdoc)
+     * @see ConstraintInterface::check()
+     */
+    public static function check(Bug $oTicket, Bugzilla $oTicketSource) {
+        $sDeadline = $oTicket->getDeadline();
+        return (($oTicket->isOrga() === true and empty($sDeadline) === true) === false);
     }
 }

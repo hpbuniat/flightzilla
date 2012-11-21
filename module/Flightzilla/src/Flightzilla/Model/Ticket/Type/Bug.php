@@ -334,6 +334,13 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     protected $_sStatus;
 
     /**
+     * The active predecessor-ticket-number
+     *
+     * @var int
+     */
+    protected $_iPredecessor;
+
+    /**
      * Create the bug
      *
      * @param \SimpleXMLElement $data
@@ -565,7 +572,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             }
 
             $sTime = sprintf('-%d day %s %s%d minutes', $iDays, $sStartHour, $sSign, $fMinutes);
-            $this->_iStartDate =  strtotime($sTime, $aWorked[0]['date']);
+            $this->_iStartDate =  strtotime($sTime, $aWorked[0]['datetime']);
         }
         // has the human resource other tickets?
         else {
@@ -623,7 +630,11 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             $aWorked = $this->getWorkedHours();
             $aLast = end($aWorked);
 
-            $this->_iEndDate = $aLast['date'];
+            $this->_iEndDate = $aLast['datetime'];
+        }
+        elseif($this->isOrga() === true) {
+            // if the ticket is of type 'organization', then it is finished right now --> @see \Flightzilla\Model\Ticket\Integrity\Constraint\OrganizationWithoutDue
+            $this->_iEndDate = time();
         }
         else {
             // Start date + estimated
@@ -937,29 +948,30 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return int
      */
     public function getActivePredecessor() {
-        if ($this->hasDependencies()) {
+        if (is_null($this->_iPredecessor) !== true) {
+            return $this->_iPredecessor;
+        }
 
+        $this->_iPredecessor = 0;
+        if ($this->hasDependencies() === true) {
             $aEndDates = array();
             $dependencies = $this->getDepends();
 
             if (count($dependencies) > 1) {
                 foreach ($dependencies as $dependency) {
                     $oTicket = $this->_oBugzilla->getBugById($dependency);
-                    if (($oTicket->isStatusAtMost(Bug::STATUS_REOPENED)
-                            and $oTicket->isTheme() === false
-                            and $oTicket->isProject() === false)
-                    ) {
-
+                    if (($oTicket->isStatusAtMost(Bug::STATUS_REOPENED) and $oTicket->isTheme() === false and $oTicket->isProject() === false)) {
                         $aEndDates[$oTicket->id()] = $oTicket->getEndDate();
                     }
                 }
 
                 if (empty($aEndDates) === true) {
-                    return 0;
+                    $this->_iPredecessor = 0;
+                    return $this->_iPredecessor;
                 }
 
                 arsort($aEndDates);
-                return key($aEndDates);
+                $this->_iPredecessor = key($aEndDates);
             }
             else {
                 $iDepends = (int) reset($dependencies);
@@ -969,12 +981,12 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
                     and $oTicket->isStatusAtMost(Bug::STATUS_REOPENED)
                 ) {
 
-                    return $iDepends;
+                    $this->_iPredecessor = $iDepends;
                 }
             }
         }
 
-        return 0;
+        return $this->_iPredecessor;
     }
 
     /**
@@ -1227,9 +1239,11 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             if (isset($oItem->work_time) === true) {
                 $sResource = $this->_oResource->getResourceByEmail((string) $oItem->who);
                 $aTimes[] = array(
-                    'date' => strtotime((string) $oItem->bug_when),
+                    'date' => date('Y-m-d', strtotime((string) $oItem->bug_when)),
+                    'datetime' => strtotime((string) $oItem->bug_when),
                     'duration' => (float) $oItem->work_time,
                     'user' => $sResource,
+                    'user_mail' => (string) $oItem->who,
                     'ticket' => $this->id()
                 );
             }
@@ -1249,7 +1263,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         $iTimestamp = null;
         $aTimes = $this->getWorkedHours();
         if (empty($aTimes) !== true) {
-            $iTimestamp = $aTimes[0]['date'];
+            $iTimestamp = $aTimes[0]['datetime'];
         }
 
         return $iTimestamp;
