@@ -1,13 +1,24 @@
 <?php echo $this->render('flightzilla/index/partial/header.phtml'); ?>
 
 <div class="row-fluid kanban">
-    <div class="span1 border-right">
+    <div class="span2 border-right">
         <h4>Concept</h4>
-        <?php
-        $this->aStack =  $this->aKanban[\Flightzilla\Model\Kanban\Status::SCREEN_WIP];
-        $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
-        echo sprintf('<h5>wip (%d)</h5>%s', $this->iRendered, $sRender);
-        ?>
+        <div class="row-fluid">
+            <div class="span6">
+                <?php
+                $this->aStack =  $this->aKanban[\Flightzilla\Model\Kanban\Status::SCREEN_WIP];
+                $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
+                echo sprintf('<h5>wip (%d)</h5>%s', $this->iRendered, $sRender);
+                ?>
+            </div>
+            <div class="span6">
+                <?php
+                $this->aStack =  $this->aKanban[\Flightzilla\Model\Kanban\Status::SCREEN_APPROVED];
+                $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
+                echo sprintf('<h5>ready (%d)</h5>%s', $this->iRendered, $sRender);
+                ?>
+            </div>
+        </div>
     </div>
     <div class="span2 border-right">
         <h4>Stack</h4>
@@ -15,14 +26,6 @@
             $this->aStack = $this->aKanban[\Flightzilla\Model\Kanban\Status::WAITING];
             $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
             echo sprintf('<h5>waiting (%d)</h5>%s', $this->iRendered, $sRender);
-        ?>
-    </div>
-    <div class="span1 border-right">
-        <h4>Concept</h4>
-        <?php
-            $this->aStack =  $this->aKanban[\Flightzilla\Model\Kanban\Status::SCREEN_APPROVED];
-            $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
-            echo sprintf('<h5>ready (%d)</h5>%s', $this->iRendered, $sRender);
         ?>
     </div>
     <div class="span4 border-right">

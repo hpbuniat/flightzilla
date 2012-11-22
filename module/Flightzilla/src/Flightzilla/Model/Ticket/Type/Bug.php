@@ -868,7 +868,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function isWip() {
-        return ($this->isTheme() === false and $this->isOrga() === false and $this->isConcept() === false and $this->getStatus() === Bug::STATUS_ASSIGNED);
+        return ($this->isTheme() === false and $this->getStatus() === Bug::STATUS_ASSIGNED);
     }
 
     /**

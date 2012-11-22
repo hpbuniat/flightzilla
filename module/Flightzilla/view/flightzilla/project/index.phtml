@@ -10,7 +10,7 @@
                 <div class="row-fluid">
                     <div class="span12 well">
                         <div class="span2">
-                            <?php echo sprintf('<h5><strong><a target="_blank" href="%s/show_bug.cgi?id=%s">%s</a></strong></h5>', $this->sBugzilla, $oProject->id(), $oProject->title()); ?>
+                            <?php echo sprintf('<h5><strong><a target="_blank" href="%s/show_bug.cgi?id=%s">%s</a></strong></h5>', $this->layout()->sBugzilla, $oProject->id(), $oProject->title()); ?>
                             <blockquote>
                                 <p><?php echo $sEstimationString; ?></p>
                             </blockquote>
