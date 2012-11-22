@@ -11,6 +11,7 @@
         searchable: {},
         modalDiv: null,
         searchTimeout: 0,
+        wrapper: null,
         init: function() {
             this.headerRows = $('.tableHeader td[colspan="6"], .campaignName');
             this.bugs = $('tr');
@@ -21,6 +22,7 @@
             this.charts = {};
             this.modalDiv = $('#flightzillaModal');
             this.searchable = $('.tableHeader td[colspan="6"], .campaignName, tr').find('span, td.bugDesc, a.bugLink');
+            this.wrapper = $('div.wrapper');
         },
         hideBugs: function() {
             this.bugTable.each(function() {
@@ -124,7 +126,7 @@
 
             if ($this.data('mode')) {
                 $('#loading').clone().show().appendTo(tabContent);
-                var dataType = ($this.data('mode') === 'campaign') ? 'html' : 'script';
+                var dataType = ($this.data('mode') === 'conversion') ? 'script' : 'html';
                 $.ajax({
                     type: 'POST',
                     url: BASE_URL + '/flightzilla/analytics/data',
@@ -338,7 +340,7 @@
     /**
      * Show the details of a ticket
      */
-    f.bugTable.on('click', 'a.ticket-detail', function() {
+    f.wrapper.on('click', 'a.ticket-detail', function() {
         var iTicket = $(this).data('ticket');
 
         f.modal('Loading ticket #' + iTicket, $('#loading').clone().removeAttr('id').css({top:0}).show());
@@ -403,6 +405,13 @@
         $(this).parents('.memberBox').find('.allTickets').toggleClass('hidden');
     });
 
+    /**
+     * Toggle Project-Details/Comments
+     */
+    f.wrapper.on('click', 'a.detail-toggle', function() {
+        $(this).parents('.memberBox').find('.project-detail').toggleClass('hidden');
+    });
+
     $('.bugzilla-link').click(function() {
         $('#buglist-form').submit();
     });
@@ -442,5 +451,39 @@
      * Init the table-sorter
      */
     $('.tablesorter').tablesorter();
+
+    /**
+     * Init dragg- & droppables
+     */
+    $(function() {
+        $('.draggable').draggable({ revert: true });
+        $('.droppable').droppable({
+            activeClass: "btn-success",
+            tolerance: "pointer",
+            drop: function( event, ui ) {
+                var data = {
+                        tickets: ui.draggable.data('ticket'),
+                        drop: $(this).data('drop')
+                    };
+
+                f.modal('Loading tickets', $('#loading').clone().removeAttr('id').css({top:0}).show());
+                $.ajax({
+                    type: 'POST',
+                    url: BASE_URL + '/flightzilla/ticket/list',
+                    data: data
+                }).done(function(msg) {
+                    f.modal('Modify Tickets', msg);
+                }).fail(function(jqXHR, textStatus) {
+                    alert( "Request failed: " + textStatus);
+                });
+            },
+            over: function(event, ui) {
+                $(this).toggleClass('btn-success').addClass('btn-danger');
+            },
+            out: function(event, ui) {
+                $(this).toggleClass('btn-success').removeClass('btn-danger');
+            }
+        });
+    });
 
 }); }(jQuery));

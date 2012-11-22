@@ -10,7 +10,8 @@
                     ->appendStylesheet($this->basePath() . '/css/bootstrap.min.css')
                     ->appendStylesheet($this->basePath() . '/css/flightzilla.css')
                     ->appendStylesheet($this->basePath() . '/css/gantt.css')
-                    ->appendStylesheet($this->basePath() . '/css/silk-sprite.css');
+                    ->appendStylesheet($this->basePath() . '/css/silk-sprite.css')
+                    ->appendStylesheet($this->basePath() . '/css/jquery-ui-1.9.1.custom.min.css');
     ?>
 
     <style type="text/css">
@@ -33,6 +34,7 @@
                                   ->appendFile($this->basePath() . '/js/jquery.fn.gantt.js')
                                   ->appendFile($this->basePath() . '/js/jquery.tablesorter.js')
                                   ->appendFile($this->basePath() . '/js/jquery.metadata.js')
+                                  ->appendFile($this->basePath() . '/js/jquery-ui-1.9.1.custom.min.js');
     ?>
 </head>
 <body class="">

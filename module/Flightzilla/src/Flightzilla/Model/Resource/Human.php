@@ -93,6 +93,17 @@ class Human {
         $aMember['login'] = $sLogin;
         $this->_sName = $aMember['name'];
         $this->_aData = $aMember;
+
+        $this->_oTimecard->setResource($this->getEmail());
+    }
+
+    /**
+     * Get the timecard
+     *
+     * @return \Flightzilla\Model\Resource\Human\Timecard
+     */
+    public function getTimecard() {
+        return $this->_oTimecard;
     }
 
     /**

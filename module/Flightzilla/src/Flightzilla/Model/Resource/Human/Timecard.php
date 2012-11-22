@@ -41,9 +41,8 @@
  */
 namespace Flightzilla\Model\Resource\Human;
 
-
 /**
- * The available times of a resource
+ * The work-times of a resource
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -54,9 +53,115 @@ namespace Flightzilla\Model\Resource\Human;
 class Timecard {
 
     /**
+     * Dates with worked hours
      *
+     * @var array
+     */
+    protected $_aDates = array();
+
+    /**
+     * The resource of this timecard
+     *
+     * @var string
+     */
+    protected $_sResource;
+
+    /**
+     * Set the resource
+     *
+     * @param  string $sResource
+     *
+     * @return $this
+     */
+    public function setResource($sResource) {
+        $this->_sResource = (string) $sResource;
+        return $this;
+    }
+
+    /**
+     * Handle a ticket
+     *
+     * @param  \Flightzilla\Model\Ticket\Type\Bug $oTicket
+     *
+     * @return $this
      */
     public function handle(\Flightzilla\Model\Ticket\Type\Bug $oTicket) {
+        $aHours = $oTicket->getWorkedHours();
 
+        foreach ($aHours as $aTime) {
+            if ($aTime['user_mail'] === $this->_sResource) {
+                if (isset($this->_aDates[$aTime['date']]) !== true) {
+                    $this->_aDates[$aTime['date']] = array();
+                }
+
+                $this->_aDates[$aTime['date']][] = array(
+                    'time' => $aTime['duration'],
+                    'ticket' => $oTicket
+                );
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get the times
+     *
+     * @return array
+     */
+    public function getTimes() {
+        ksort($this->_aDates);
+        foreach ($this->_aDates as $sDate => $aDate) {
+            ksort($this->_aDates[$sDate]);
+        }
+
+        return $this->_aDates;
+    }
+
+    /**
+     * Get the times for a gantt-graph
+     *
+     * @param  int $iDays
+     *
+     * @return array
+     */
+    public function getTimesAsGantt($iDays) {
+        $aTimes = $this->getTimes();
+
+        $iCompare = strtotime(sprintf('-%d days', $iDays));
+
+        $aGantt = array();
+        foreach ($this->_aDates as $sDate => $aDate) {
+            if (strtotime($sDate) >= $iCompare) {
+                $aGanttAdd = array(
+                    'name' => (count($aGantt) === 0 ? $this->_sResource : ''),
+                    'values' => array()
+                );
+
+                $fHours = 0;
+                $iStart = strtotime(sprintf('%s %s', $sDate, \Flightzilla\Model\Timeline\Date::START));
+                foreach ($aDate as $aTime) {
+                    $fHours += $aTime['time'];
+                    $iEnd = $iStart + ($aTime['time'] * 3600);
+                    $aGanttAdd['values'][] = array(
+                        'from'        => '/Date(' . $iStart * 1000 . ')/',
+                        'to'          => '/Date(' . $iEnd * 1000 . ')/',
+                        'label'       => $aTime['ticket']->title(),
+                        'desc'        => '<b>' . $aTime['ticket']->title() . '</b><br />'
+                            . '<b>Assignee:</b> ' . (string) $aTime['ticket']->getResource() . '<br />'
+                            . '<b>Start:</b> ' . date('d.m.Y H:i', $aTime['ticket']->getStartDate()) . '<br />'
+                            . '<b>Ende:</b> ' . date('d.m.Y H:i', $aTime['ticket']->getEndDate()) . '<br />'
+                            . (string) $aTime['ticket']->long_desc->thetext
+                    );
+
+                    $iStart = $iEnd + 300;
+                }
+
+                $aGanttAdd['desc'] = sprintf('%s (%.2fh)', $sDate, $fHours);
+                $aGantt[] = $aGanttAdd;
+            }
+        }
+
+        return $aGantt;
     }
 }

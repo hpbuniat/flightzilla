@@ -38,8 +38,11 @@ return array(
                         )*/
                     ),
                     'team' => array(
-                        "Hans Peter Buniat",
-                    )
+                        'hp.buniat' => array(                       // the login to bugzilla
+                            'name' => 'Hans-Peter Buniat',          // the full-name
+                            'mail' => 'hans-peter.buniat@mail',     // the mail (which is set in bugzilla)
+                            'gravatar' => 'hpbuniat@mail'           // optional: a gravatar-image
+                        ),
                 )
             )
         ),

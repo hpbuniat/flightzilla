@@ -72,8 +72,9 @@ class FlagAge implements ConstraintInterface {
         $bPass = true;
         if (empty($aFlags) !== true) {
             $iTime = time();
+
             foreach ($aFlags as $aFlag) {
-                if (($iTime - $aFlag['mtime']) > $oTicketSource->getConfig()->tickets->workflow->flagage) {
+                if ($oTicket->isChangedWithinLimit($oTicketSource->getConfig()->tickets->workflow->flagage) !== true) {
                     $bPass = false;
                     break;
                 }

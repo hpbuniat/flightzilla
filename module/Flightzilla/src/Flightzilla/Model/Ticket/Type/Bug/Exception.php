@@ -53,7 +53,7 @@ namespace Flightzilla\Model\Ticket\Type\Bug;
  */
 class Exception extends \Exception {
 
-    const INVALID_STATUS = '%s is not a valid bug status!';
+    const INVALID_STATUS = '(id: %d) %s is not a valid bug status !';
 
     const INVALID_START_DATE = 'Start date must not be zero! Please edit ticket %s.';
 }

@@ -39,8 +39,7 @@
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
-namespace Flightzilla\Model;
-
+namespace Flightzilla\Model\Analytics;
 
 /**
  * Query Google-Analytics
@@ -51,7 +50,7 @@ namespace Flightzilla\Model;
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class Analytics {
+class Service {
 
     /**
      * Modifier for _fetch to select only paid-traffic
@@ -80,20 +79,6 @@ class Analytics {
      * @var int
      */
     const NUMBER_OF_WEEKS = 4;
-
-    /**
-     * The metrics for each portal
-     *
-     * @var array
-     */
-    protected $_aMetrics = array();
-
-    /**
-     * The days to analyze
-     *
-     * @var array
-     */
-    protected $_aDays = array();
 
     /**
      * The authenticated http-client
@@ -132,9 +117,6 @@ class Analytics {
 
     /**
      * Create the analytics-model
-     */
-    /**
-     * Do all Bug-related action
      *
      * @param \ZendGData\HttpClient $oHttpClient
      * @param \Zend\Config\Config $oConfig
@@ -142,8 +124,6 @@ class Analytics {
     public function __construct(\ZendGData\HttpClient $oHttpClient, \Zend\Config\Config $oConfig) {
         $this->_config = $oConfig->analytics;
         $this->_oHttp = $oHttpClient;
-
-        $this->_getDays();
     }
 
     /**
@@ -156,6 +136,33 @@ class Analytics {
     public function setCache(\Zend\Cache\Storage\StorageInterface $oCache) {
         $this->_oCache = $oCache;
         return $this;
+    }
+
+    /**
+     * Get the cache
+     *
+     * @return \Zend\Cache\Storage\StorageInterface
+     */
+    public function getCache() {
+        return $this->_oCache;
+    }
+
+    /**
+     * Get the config
+     *
+     * @return \Zend\Config\Config
+     */
+    public function getConfig() {
+        return $this->_config;
+    }
+
+    /**
+     * Get the http-client
+     *
+     * @return \ZendGData\HttpClient
+     */
+    public function getHttpClient() {
+        return $this->_oHttp;
     }
 
     /**
@@ -180,16 +187,7 @@ class Analytics {
     }
 
     /**
-     * Get the ciper key, to decyper the login
-     *
-     * @return string
-     */
-    public function getCipherKey() {
-        return md5($this->_config->login . $this->_oAuth->getLogin() . $this->_oAuth->getPassword());
-    }
-
-    /**
-     * Get the auth-compontent
+     * Get the auth-component
      *
      * @return \Flightzilla\Authentication\Adapter
      */
@@ -198,16 +196,12 @@ class Analytics {
     }
 
     /**
-     * Get the metrics for all portals
+     * Get the cipher key, to decipher the login
      *
-     * @return array
+     * @return string
      */
-    public function get() {
-        foreach ($this->_config->portal as $oPortal) {
-            $this->_collect($this->_oHttp, $oPortal);
-        }
-
-        return $this->_aMetrics;
+    public function getCipherKey() {
+        return md5($this->_config->login . $this->_oAuth->getLogin() . $this->_oAuth->getPassword());
     }
 
     /**
@@ -227,24 +221,6 @@ class Analytics {
         }
 
         throw new \InvalidArgumentException('unknown portal');
-    }
-
-    /**
-     * Get the metrics for a single portal
-     *
-     * @param  string $sPortal
-     * @param  boolean $bPaid
-     *
-     * @return array
-     */
-    public function getPortalData($sPortal, $bPaid = false) {
-        foreach ($this->_config->portal as $oPortal) {
-            if ($oPortal->name === $sPortal) {
-                $this->_collect($this->_oHttp, $oPortal, $bPaid);
-            }
-        }
-
-        return $this->_aMetrics[$sPortal];
     }
 
     /**
@@ -300,7 +276,7 @@ class Analytics {
 
         $iCount = count($aSeries);
         $iValues = count($aSeries[0]['data']);
-        for ($i=0;$i<$iValues;$i++) {
+        for ($i=0; $i < $iValues; $i++) {
             $fSum = 0;
             foreach ($aSeries as $iNumber => $aData) {
                 $fSum += $aData['data'][$i];
@@ -324,122 +300,5 @@ class Analytics {
         }
 
         return $aPortals;
-    }
-
-    /**
-     * Get the days to compare
-     *
-     * @return Analytics
-     */
-    protected function _getDays() {
-        $this->_aDays = array();
-        for ($iDay = 1; $iDay <= self::NUMBER_OF_DAYS; $iDay++) {
-            $iDate = strtotime(sprintf('-%d days', $iDay));
-            $sDay = date('Y-m-d', $iDate);
-            $this->_aDays[$sDay] = array();
-            for ($iWeek = 1; $iWeek <= self::NUMBER_OF_WEEKS; $iWeek++) {
-                $this->_aDays[$sDay][] = date('Y-m-d', strtotime(sprintf('-%d weeks', $iWeek), $iDate));
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Collect data for a portal
-     *
-     * @param  \Zend\Http\Client $oHttp
-     * @param  \Zend\Config\Config $oPortal
-     * @param  boolean $bPaid
-     *
-     * @return Analytics
-     */
-    protected function _collect(\Zend\Http\Client $oHttp, \Zend\Config\Config $oPortal, $bPaid = false) {
-        $aMetric = array();
-        foreach ($this->_aDays as $sFirst => $aCompare) {
-            $aMetric[$sFirst]['base'] = $this->_process($this->_fetch($oHttp, $oPortal->id, $sFirst, $sFirst, $bPaid));
-            foreach ($aCompare as $sCompare) {
-                $aMetric[$sFirst]['compare'][$sCompare] = $this->_process($this->_fetch($oHttp, $oPortal->id, $sCompare, $sCompare, $bPaid));
-            }
-        }
-
-        $this->_aMetrics[$oPortal->name] = $aMetric;
-        return $this;
-    }
-
-    /**
-     * Process a result-data-feed
-     *
-     * @param  \ZendGData\Analytics\DataFeed $oResult
-     *
-     * @return array
-     */
-    protected function _process(\ZendGData\Analytics\DataFeed $oResult) {
-        $aMetric = array(
-            'total' => array(),
-            'campaigns' => array()
-        );
-
-        $iTotalVisits = $iTotalTransactions = 0;
-        foreach ($oResult as $oRow) {
-            $sCampaign = $oRow->getDimension(\ZendGData\Analytics\DataQuery::DIMENSION_CAMPAIGN)->getValue();
-            $iVisits = $oRow->getValue(\ZendGData\Analytics\DataQuery::METRIC_VISITS)->getValue();
-            $iTotalVisits += $iVisits;
-
-            $iTransactions = $oRow->getValue(\ZendGData\Analytics\DataQuery::METRIC_TRANSACTIONS)->getValue();
-            $iTotalTransactions += $iTransactions;
-
-            $aMetric['campaigns'][$sCampaign] = array(
-                'visits' => $iVisits,
-                'transactions' => $iTransactions,
-            );
-
-            $aMetric['campaigns'][$sCampaign]['conversion'] = ($iVisits > 0) ? round(($iTransactions/$iVisits)*100, 2) : 0;
-        }
-
-        $aMetric['total'] = array(
-            'visits' => $iTotalVisits,
-            'transactions' => $iTotalTransactions
-        );
-
-        $aMetric['total']['conversion'] = ($iTotalVisits > 0) ? round(($iTotalTransactions/$iTotalVisits)*100, 2) : 0;
-        return $aMetric;
-    }
-
-    /**
-     * Fetch data from analytics
-     *
-     * @param  \Zend\Http\Client $oHttp
-     * @param  int $iProfile
-     * @param  string $sStartDate
-     * @param  string $sEndDate
-     * @param  string $bPaid
-     *
-     * @return \ZendGData\Analytics\DataFeed
-     */
-    protected function _fetch(\Zend\Http\Client $oHttp, $iProfile, $sStartDate, $sEndDate, $bPaid = false) {
-        $oService = new \ZendGData\Analytics($oHttp);
-        $oQuery = $oService->newDataQuery()->setProfileId($iProfile)
-                           ->addDimension(\ZendGData\Analytics\DataQuery::DIMENSION_CAMPAIGN)
-                           ->addMetric(\ZendGData\Analytics\DataQuery::METRIC_VISITS)
-                           ->addMetric(\ZendGData\Analytics\DataQuery::METRIC_TRANSACTIONS)
-                           ->setStartDate($sStartDate)
-                           ->setEndDate($sEndDate)
-                           ->addSort(\ZendGData\Analytics\DataQuery::METRIC_VISITS, true)
-                           ->setMaxResults(500);
-
-        if ($bPaid === true) {
-            $oQuery->addFilter('ga:medium==cpa,ga:medium==cpc,ga:medium==cpm,ga:medium==cpp,ga:medium==cpv,ga:medium==ppc');
-        }
-
-        $sUrl = $oQuery->getQueryUrl();
-        $sHash = md5($sUrl);
-        $oResult = $this->_oCache->getItem($sHash);
-        if (empty($oResult) === true) {
-            $oResult = $oService->getDataFeed($sUrl);
-            $this->_oCache->setItem($sHash, $oResult);
-        }
-
-        return $oResult;
     }
 }

@@ -13,6 +13,32 @@
         echo sprintf('<p>%s</p>', $this->render('flightzilla/index/partial/bug-line.phtml'));
     ?>
         <ul>
+            <?php
+            if (empty($this->dropAction) !== true):
+                if ($this->dropAction === 'assign'): ?>
+            <li>
+                <div class="control-group">
+                    <label class="control-label" for="timeEstimation">Estimation</label>
+                    <div class="controls">
+                        <input type="text" id="timeEstimation" value="<?php echo $oTicket->getEstimation(); ?>" name="estimation[<?php echo $oTicket->id();?>][]" />
+                        <input type="hidden" value="setAssigned" name="modify[<?php echo $oTicket->id();?>][]" />
+                    </div>
+                </div>
+            </li>
+            <?php elseif ($this->dropAction === 'resolve'): ?>
+            <li>
+                <div class="control-group">
+                    <label class="control-label" for="timeWorked">Worked</label>
+                    <div class="controls">
+                        <input type="text" id="timeWorked" value="<?php echo $oTicket->getTimeSinceLastActivity(); ?>" name="worked[<?php echo $oTicket->id();?>][]" />
+                        <input type="hidden" value="setResolved" name="modify[<?php echo $oTicket->id();?>][]" />
+                    </div>
+                </div>
+            </li>
+            <?php
+                endif;
+            endif;
+            ?>
 
             <?php if ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING) === false): ?>
             <li>

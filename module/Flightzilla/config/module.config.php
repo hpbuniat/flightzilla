@@ -90,7 +90,7 @@ return array(
                 ));
                 $oConfig = $oServiceManager->get('_serviceConfig');
 
-                $oAnalytics = new \Flightzilla\Model\Analytics($oGdataHttpClient, $oConfig);
+                $oAnalytics = new \Flightzilla\Model\Analytics\Service($oGdataHttpClient, $oConfig);
                 $oAnalytics->setCache($oServiceManager->get('_cache'))
                            ->setAuth($oServiceManager->get('_auth'));
 
@@ -102,7 +102,7 @@ return array(
         'invokables' => array(
             'index' => 'Flightzilla\Controller\IndexController',
             'kanban' => 'Flightzilla\Controller\KanbanController',
-            'planning' => 'Flightzilla\Controller\PlanningController',
+            'project' => 'Flightzilla\Controller\ProjectController',
             'mergy' => 'Flightzilla\Controller\MergyController',
             'ticket' => 'Flightzilla\Controller\TicketController',
             'analytics' => 'Flightzilla\Controller\AnalyticsController',
@@ -110,8 +110,9 @@ return array(
     ),
     'controller_plugins' => array(
         'invokables' => array(
-            'authenticate' => 'Flightzilla\Controller\Plugin\Authenticate',
-            'ticketservice' => 'Flightzilla\Controller\Plugin\TicketService',
+            \Flightzilla\Controller\Plugin\Authenticate::NAME => 'Flightzilla\Controller\Plugin\Authenticate',
+            \Flightzilla\Controller\Plugin\TicketService::NAME => 'Flightzilla\Controller\Plugin\TicketService',
+            \Flightzilla\Controller\Plugin\AnalyticsService::NAME => 'Flightzilla\Controller\Plugin\AnalyticsService',
         ),
     ),
     'view_helpers' => array(

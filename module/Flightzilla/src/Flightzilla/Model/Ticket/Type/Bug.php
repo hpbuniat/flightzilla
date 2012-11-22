@@ -158,13 +158,16 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     CONST TYPE_STRING_BUG = 'MTB';
     CONST TYPE_STRING_THEME = 'Theme,Thema,Projekt';
+    CONST TYPE_STRING_PROJECT = 'Projekt';
     CONST TYPE_STRING_FEATURE = '';
     CONST TYPE_STRING_CONCEPT = 'Screen';
 
     CONST TYPE_BUG = 'bug';
     CONST TYPE_THEME = 'theme';
+    CONST TYPE_PROJECT = 'project';
     CONST TYPE_FEATURE = 'feature';
     CONST TYPE_CONCEPT = 'screen';
+
     /**
      * The bug-types
      *
@@ -173,6 +176,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     protected $_aTypes = array(
         self::TYPE_STRING_BUG => self::TYPE_BUG,
         self::TYPE_STRING_THEME  => self::TYPE_THEME,
+        self::TYPE_STRING_PROJECT  => self::TYPE_PROJECT,
         self::TYPE_STRING_FEATURE  => self::TYPE_FEATURE,
         self::TYPE_STRING_CONCEPT  => self::TYPE_CONCEPT,
     );
@@ -330,6 +334,13 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     protected $_sStatus;
 
     /**
+     * The active predecessor-ticket-number
+     *
+     * @var int
+     */
+    protected $_iPredecessor;
+
+    /**
      * Create the bug
      *
      * @param \SimpleXMLElement $data
@@ -377,6 +388,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         $this->_oBugzilla = $oBugzilla;
         $this->_oResource = $oResource;
         $this->_oDate = $oDate;
+    }
+
+    /**
+     * Get the ticket-service
+     *
+     * @return \Flightzilla\Model\Ticket\Source\Bugzilla
+     */
+    public function getTicketService() {
+        return $this->_oBugzilla;
     }
 
     /**
@@ -552,7 +572,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             }
 
             $sTime = sprintf('-%d day %s %s%d minutes', $iDays, $sStartHour, $sSign, $fMinutes);
-            $this->_iStartDate =  strtotime($sTime, $aWorked[0]['date']);
+            $this->_iStartDate =  strtotime($sTime, $aWorked[0]['datetime']);
         }
         // has the human resource other tickets?
         else {
@@ -610,7 +630,11 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             $aWorked = $this->getWorkedHours();
             $aLast = end($aWorked);
 
-            $this->_iEndDate = $aLast['date'];
+            $this->_iEndDate = $aLast['datetime'];
+        }
+        elseif($this->isOrga() === true) {
+            // if the ticket is of type 'organization', then it is finished right now --> @see \Flightzilla\Model\Ticket\Integrity\Constraint\OrganizationWithoutDue
+            $this->_iEndDate = time();
         }
         else {
             // Start date + estimated
@@ -797,7 +821,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function isProject() {
-        return $this->hasKeyword('Projekt');
+        return $this->hasKeyword(self::TYPE_STRING_PROJECT);
     }
 
     /**
@@ -807,6 +831,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function isEstimated() {
         return (bool) ($this->estimated_time > 0);
+    }
+
+    /**
+     * Get the estimation
+     *
+     * @return float
+     */
+    public function getEstimation() {
+        return (float) $this->estimated_time;
     }
 
     /**
@@ -879,6 +912,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * Get the expected revenue
+     *
+     * @return float
+     */
+    public function getRevenue() {
+        return (float) $this->_data->cf_expected_revenue;
+    }
+
+    /**
      * Get the depend-bugs
      *
      * @return array
@@ -892,6 +934,21 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * Get all dependencies as stack of tickets
+     *
+     * @return array
+     */
+    public function getDependsAsStack() {
+        $this->getDepends();
+        $aStack = array();
+        foreach ($this->_aDepends as $iTicket) {
+            $aStack[$iTicket] = $this->_oBugzilla->getBugById($iTicket);
+        }
+
+        return $aStack;
+    }
+
+    /**
      * Return the ticket number of the tickets predecessor or 0 if there isn't one.
      *
      * A valid predecessor has the status unconfirmed, confirmed or assigned, and is not a project or theme.
@@ -900,29 +957,30 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return int
      */
     public function getActivePredecessor() {
-        if ($this->hasDependencies()) {
+        if (is_null($this->_iPredecessor) !== true) {
+            return $this->_iPredecessor;
+        }
 
+        $this->_iPredecessor = 0;
+        if ($this->hasDependencies() === true) {
             $aEndDates = array();
-            $dependencies = $this->getDepends($this->_oBugzilla);
+            $dependencies = $this->getDepends();
 
             if (count($dependencies) > 1) {
                 foreach ($dependencies as $dependency) {
                     $oTicket = $this->_oBugzilla->getBugById($dependency);
-                    if (($oTicket->isStatusAtMost(Bug::STATUS_REOPENED)
-                            and $oTicket->isTheme() === false
-                            and $oTicket->isProject() === false)
-                    ) {
-
+                    if (($oTicket->isStatusAtMost(Bug::STATUS_REOPENED) and $oTicket->isTheme() === false and $oTicket->isProject() === false)) {
                         $aEndDates[$oTicket->id()] = $oTicket->getEndDate();
                     }
                 }
 
                 if (empty($aEndDates) === true) {
-                    return 0;
+                    $this->_iPredecessor = 0;
+                    return $this->_iPredecessor;
                 }
 
                 arsort($aEndDates);
-                return key($aEndDates);
+                $this->_iPredecessor = key($aEndDates);
             }
             else {
                 $iDepends = (int) reset($dependencies);
@@ -932,12 +990,12 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
                     and $oTicket->isStatusAtMost(Bug::STATUS_REOPENED)
                 ) {
 
-                    return $iDepends;
+                    $this->_iPredecessor = $iDepends;
                 }
             }
         }
 
-        return 0;
+        return $this->_iPredecessor;
     }
 
     /**
@@ -1038,7 +1096,6 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
                     'type_id' => (int) $flag['type_id'],
                     'status' => (string) $flag['status'],
                     'setter' => (string) $flag['setter'],
-                    'mtime' => strtotime((string) $flag['modification_date'])
                 );
 
                 if (isset($flag['requestee']) === true) {
@@ -1176,7 +1233,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return string
      */
     public function getReporter() {
-        return $this->_data->reporter;
+        return (string) $this->_data->reporter;
     }
 
     /**
@@ -1191,9 +1248,11 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             if (isset($oItem->work_time) === true) {
                 $sResource = $this->_oResource->getResourceByEmail((string) $oItem->who);
                 $aTimes[] = array(
-                    'date' => strtotime((string) $oItem->bug_when),
+                    'date' => date('Y-m-d', strtotime((string) $oItem->bug_when)),
+                    'datetime' => strtotime((string) $oItem->bug_when),
                     'duration' => (float) $oItem->work_time,
                     'user' => $sResource,
+                    'user_mail' => (string) $oItem->who,
                     'ticket' => $this->id()
                 );
             }
@@ -1213,7 +1272,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         $iTimestamp = null;
         $aTimes = $this->getWorkedHours();
         if (empty($aTimes) !== true) {
-            $iTimestamp = $aTimes[0]['date'];
+            $iTimestamp = $aTimes[0]['datetime'];
         }
 
         return $iTimestamp;
@@ -1226,6 +1285,21 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function getLastActivity() {
         return strtotime($this->_data->delta_ts);
+    }
+
+    /**
+     * Get the time since last modification
+     *
+     * @return float
+     */
+    public function getTimeSinceLastActivity() {
+        $fTime = 0;
+        $iLastActivity = $this->getLastActivity();
+        if ($iLastActivity > 0) {
+            $fTime = round(((time() - $iLastActivity) / 3600), 2);
+        }
+
+        return $fTime;
     }
 
     /**
@@ -1265,12 +1339,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
-     * Get the assignee (parsed)
+     * Get the assignee
+     *
+     * @param  boolean $bTok Apply strtok('@') before returning
      *
      * @return string
      */
-    public function getAssignee(){
-        return (string) $this->_data->assigned_to;
+    public function getAssignee($bTok = false) {
+        $sAssignee = (string) $this->_data->assigned_to;
+        return ($bTok === true) ? strtok($sAssignee, '@') : $sAssignee;
     }
 
     /**
@@ -1332,7 +1409,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     public function isStatusAtLeast($sComparisonStatus) {
 
         if (isset($this->_mappedStatus[$sComparisonStatus]) === false){
-            throw new BugException(sprintf(BugException::INVALID_STATUS, $sComparisonStatus));
+            throw new BugException(sprintf(BugException::INVALID_STATUS, $this->id(), $sComparisonStatus));
         }
 
         return ($this->_mappedStatus[$this->getStatus()] >= $this->_mappedStatus[$sComparisonStatus]);
@@ -1347,10 +1424,14 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      *
      * @return bool
      */
-    public function isStatusAtMost($sComparisonStatus){
+    public function isStatusAtMost($sComparisonStatus) {
 
-        if (isset($this->_mappedStatus[$sComparisonStatus]) === false){
-            throw new BugException(sprintf(BugException::INVALID_STATUS, $sComparisonStatus));
+        $sStatus = $this->getStatus();
+        if (isset($this->_mappedStatus[$sComparisonStatus]) === false) {
+            throw new BugException(sprintf(BugException::INVALID_STATUS, $this->id(), $sComparisonStatus));
+        }
+        elseif (empty($sStatus) === true) {
+            throw new BugException(sprintf(BugException::INVALID_STATUS, $this->id(), ''));
         }
 
         return ($this->_mappedStatus[$this->getStatus()] <= $this->_mappedStatus[$sComparisonStatus]);

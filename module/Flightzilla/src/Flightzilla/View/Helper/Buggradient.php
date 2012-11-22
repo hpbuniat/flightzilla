@@ -57,17 +57,17 @@ class Buggradient extends AbstractHelper {
     /**
      * Get the gradient-color for a bug
      *
-     * @param  \Flightzilla\Model\Ticket\Type\Bug $oBug
+     * @param  \Flightzilla\Model\Ticket\Type\Bug $oTicket
      * @param  boolean $bReady
      * @param  boolean $bTransparent
      *
      * @return string
      */
-    public function __invoke(\Flightzilla\Model\Ticket\Type\Bug $oBug, $bReady = false, $bTransparent = true) {
+    public function __invoke(\Flightzilla\Model\Ticket\Type\Bug $oTicket, $bReady = false, $bTransparent = true) {
 
         $aColors = array();
-        $bTestingOpen = $oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '?');
-        $bTestingGranted = $oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '+');
+        $bTestingOpen = $oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '?');
+        $bTestingGranted = $oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '+');
         if ($bTestingOpen === true) {
             $aColors[] = 'yellow';
         }
@@ -80,26 +80,27 @@ class Buggradient extends AbstractHelper {
             $aColors[] = '#CCFF99';
         }
 
-        if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_DBCHANGE, '?') or $oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_DBCHANGE_TEST, '?')) {
+        if ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_DBCHANGE, '?') or $oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_DBCHANGE_TEST, '?')) {
             $aColors[] = 'orchid';
         }
 
-        if ($oBug->isFailed() === true and $bTestingGranted !== true) {
+        if ($oTicket->isFailed() === true and $bTestingGranted !== true) {
             $aColors[] = 'crimson';
         }
 
-        if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_MERGE, '?')) {
+        if ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_MERGE, '?')) {
             $aColors[] = '#9FB9FF';
         }
 
-        if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '?')) {
+        if ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '?')) {
             $aColors[] = '#9F9F9F';
         }
 
-        if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TRANSLATION, '?')) {
+        if ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TRANSLATION, '?')) {
             $aColors[] = 'orange';
         }
 
+        $sStyle = '';
         if (count($aColors) > 0) {
             $sColors = implode(', ', $aColors);
             $sColors .= (($bTransparent === true) ? ' 70%' : ' 100%') . ', transparent';
@@ -110,9 +111,13 @@ class Buggradient extends AbstractHelper {
                 'background-image: -webkit-linear-gradient(0deg, ' . $sColors . ');',
                 'background-image: -linear-gradient(0deg, ' . $sColors . ');',
             );
-            return implode($aBackgrounds);
+            $sStyle = implode($aBackgrounds);
         }
 
-        return '';
+        if ($oTicket->isClosed() === true) {
+            $sStyle .= ' opacity: 0.25;';
+        }
+
+        return $sStyle;
     }
 }

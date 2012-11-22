@@ -41,7 +41,6 @@
  */
 namespace Flightzilla\Model\Ticket\Type;
 
-
 /**
  * A Theme
  *
@@ -51,6 +50,6 @@ namespace Flightzilla\Model\Ticket\Type;
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class Theme extends \Flightzilla\Model\Ticket\Type\Bug {
+class Theme extends Project {
 
 }

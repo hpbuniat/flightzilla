@@ -1,5 +1,6 @@
 <?php
 $aTimes = $this->collectiontime($this->aStack);
+$sEstimationString = sprintf('%sh (%sh est.) <i class="icon-time"></i> %sh (%sd)', $aTimes['spent'], $aTimes['esti'] , $aTimes['left'] ,$aTimes['days']);
 ?>
 <div class="row-fluid memberBox">
     <div class="span12 well">
@@ -7,22 +8,32 @@ $aTimes = $this->collectiontime($this->aStack);
             <a href="#" class="thumbnail">
                 <?php
                     echo $this->gravatar($this->oResourceManager->getResource($this->sMemberName)->getGravatar(), array(
-                            'imgSize' => 90,
-                            'secure' => true
-                        ),
-                        array(
-                            'class' => 'avatar',
-                            'title' => $this->sMemberName
-                        ));
+                        'imgSize' => 90,
+                        'secure' => true
+                    ),
+                    array(
+                        'class' => 'avatar',
+                        'title' => $this->sMemberName
+                    ));
                 ?>
             </a>
             <?php echo sprintf('<h5><strong>%s</strong></h5>', $this->sMemberName); ?>
+            <blockquote>
+                <div class="btn-toolbar">
+                    <div class="btn-group">
+                        <a href="#" class="btn disabled droppable" data-drop="assign"><i class="icon-play-circle"></i></a>
+                    </div>
+                    <div class="btn-group">
+                        <a href="#" class="btn disabled droppable" data-drop="resolve"><i class="icon-check"></i></a>
+                    </div>
+                </div>
+            </blockquote>
         </div>
         <div class="span10">
             <div class="row-fluid">
                 <div class="span3">
                     <blockquote>
-                        <p><?php echo $aTimes['spent'];?>h (<?php echo $aTimes['esti']?>h est.) <i class="icon-time"></i> <?php echo $aTimes['left']; ?>h (<?php echo $aTimes['days']; ?>d)</p>
+                        <p><?php echo $sEstimationString; ?></p>
                     </blockquote>
                 </div>
                 <div class="span9">
@@ -31,41 +42,10 @@ $aTimes = $this->collectiontime($this->aStack);
                     </div>
                 </div>
             </div>
-            <div class="row-fluid">
-                <?php
-                $aPins = array(
-                    'active' => '',
-                    'pending' => '',
-                    'not' => ''
-                );
-
-                $iShowed = 0;
-                foreach ($this->aStack as $this->oTicket) {
-                    $sRender = $this->render('flightzilla/kanban/partial/pin.phtml');
-                    if ($this->oTicket->isWip() === true) {
-                        $aPins['active'] .= $sRender;
-                    }
-                    elseif ($iShowed++ < 9) {
-                        $aPins['pending'] .= $sRender;
-                    }
-                    else {
-                        $aPins['not'] .= $sRender;
-                    }
-                }
-                ?>
-                <div class="span2">
-                    <?php echo $aPins['active']; ?>
-                </div>
-                <div class="span1 relative-box">
-                    <strong class="largeGray"><?php echo count($this->aStack);?> <br/> ...</strong>
-                </div>
-                <div class="span9 pending">
-                    <?php echo $aPins['pending']; ?>
-                    <div class="hidden allTickets">
-                        <?php echo $aPins['not']; ?>
-                    </div>
-                </div>
-            </div>
+            <?php
+                $this->iSplit = 9;
+                echo $this->render('flightzilla/index/partial/pin-row.phtml');
+            ?>
         </div>
     </div>
 </div>

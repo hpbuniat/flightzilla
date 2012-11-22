@@ -54,25 +54,17 @@ use Zend\Mvc\Controller\AbstractActionController,
  * @version   Release: @package_version@
  * @link      https://github.com/hpbuniat/flightzilla
  */
-class PlanningController extends AbstractActionController {
+class ProjectController extends AbstractActionController {
 
     /**
      *
      */
-    public function dataAction() {
+    public function indexAction() {
         $oViewModel = new ViewModel;
-        $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'planning')->getService();
+        $oViewModel->mode = 'project';
 
-        $aTeam     = $oServiceModel->getTeam();
-        $oResource = new \Flightzilla\Model\Resource\Manager();
-        foreach ($aTeam as $sName) {
-            $oResource->registerResource(\Flightzilla\Model\Resource\Builder::build($sName));
-        }
-
-        $aTickets = $oServiceModel->getAllBugs();
-        foreach ($aTickets as $oTicket) {
-            $oResource->addTicket($oTicket);
-        }
+        $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'project')->getService();
+        $oViewModel->aProjects = $oServiceModel->getProjects();
 
         return $oViewModel;
     }
@@ -80,9 +72,28 @@ class PlanningController extends AbstractActionController {
     /**
      *
      */
-    public function projectsAction() {
+    public function boardAction() {
         $oViewModel = new ViewModel;
-        $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'planning')->getService();
+        $oViewModel->mode = 'project';
+        $oViewModel->oConfig = $this->getServiceLocator()->get('_serviceConfig');
+
+        $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'project')->getService();
+
+        $oKanbanStatus = new \Flightzilla\Model\Kanban\Status($oServiceModel->getProjects(), $oServiceModel);
+        $oViewModel->aKanban = $oKanbanStatus->setType(\Flightzilla\Model\Ticket\Type\Bug::TYPE_PROJECT)->process()->get();
+        $oViewModel->setTemplate('flightzilla/kanban/board');
+
+        return $oViewModel;
+    }
+
+    /**
+     *
+     */
+    public function planningAction() {
+        $oViewModel = new ViewModel;
+        $oViewModel->mode = 'project';
+
+        $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'project')->getService();
 
         $oProject = new \Flightzilla\Model\Project\Container($oServiceModel);
         $oProject->setup()->sortProjects();
@@ -98,10 +109,13 @@ class PlanningController extends AbstractActionController {
     /**
      *
      */
-    public function sprintAction() {
+    public function resourceAction() {
         $oViewModel = new ViewModel;
-        $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'planning')->getService();
+        $oViewModel->mode = 'project';
+
+        $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'project')->getService();
         $oViewModel->aStack = $oServiceModel->getTeam();
+
         return $oViewModel;
     }
 }

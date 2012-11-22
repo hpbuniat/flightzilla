@@ -96,7 +96,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
      * (non-PHPdoc)
      * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setTestingRequest()
      */
-    public function setTestingRequest(\Flightzilla\Model\Ticket\AbstractType $oTicket) {
+    public function setTestingRequest(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
         $this->_getCommon($oTicket);
 
         $sPayload = $oTicket->getFlagName(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING);
@@ -117,7 +117,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
      * (non-PHPdoc)
      * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::reTest()
      */
-    public function reTest(\Flightzilla\Model\Ticket\AbstractType $oTicket) {
+    public function reTest(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
         $this->_getCommon($oTicket);
 
         $sPayload = $oTicket->getFlagName(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_DENIED);
@@ -133,7 +133,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
      * (non-PHPdoc)
      * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setMerged()
      */
-    public function setMerged(\Flightzilla\Model\Ticket\AbstractType $oTicket) {
+    public function setMerged(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
         $this->_getCommon($oTicket);
 
         $sPayload = $oTicket->getFlagName(\Flightzilla\Model\Ticket\Type\Bug::FLAG_MERGE);
@@ -148,7 +148,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
      * (non-PHPdoc)
      * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setStaged()
      */
-    public function setStaged(\Flightzilla\Model\Ticket\AbstractType $oTicket) {
+    public function setStaged(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
         $this->_getCommon($oTicket);
 
         $sPayload = $oTicket->getFlagName(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTSERVER);
@@ -163,7 +163,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
      * (non-PHPdoc)
      * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setDbChanged()
      */
-    public function setDbChanged(\Flightzilla\Model\Ticket\AbstractType $oTicket) {
+    public function setDbChanged(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
         $this->_getCommon($oTicket);
 
         $sPayload = $oTicket->getFlagName(\Flightzilla\Model\Ticket\Type\Bug::FLAG_DBCHANGE, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST);
@@ -172,5 +172,66 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
         }
 
         return $this;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setEstimation()
+     */
+    public function setEstimation(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
+        $this->_getCommon($oTicket);
+        if (empty($mPayload) !== true) {
+            $this->_aPayload['estimated_time'] = $mPayload;
+        }
+
+        return $this;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setWorked()
+     */
+    public function setWorked(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
+        $this->_getCommon($oTicket);
+        if (empty($mPayload) !== true) {
+            $this->_aPayload['work_time'] = $mPayload;
+        }
+
+        return $this;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setStatus()
+     */
+    public function setStatus(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
+        $this->_getCommon($oTicket);
+
+        $this->_aPayload['bug_status'] = $mPayload;
+        return $this;
+    }
+
+    /**
+     * Set the status to assigned
+     *
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
+     *
+     * @return $this
+     */
+    public function setAssigned(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
+        return $this->setStatus($oTicket, \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED);
+    }
+
+    /**
+     * Set the status to resolved
+     *
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
+     *
+     * @return $this
+     */
+    public function setResolved(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
+        return $this->setStatus($oTicket, \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED);
     }
 }

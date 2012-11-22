@@ -99,14 +99,15 @@ class TicketService extends AbstractPlugin {
      *
      * @param  \Zend\View\Model\ViewModel $oView
      * @param  string $sMode
+     * @param  int $iRefreshDays
      *
      * @return $this
      */
-    public function init(\Zend\View\Model\ViewModel $oView, $sMode = 'list') {
+    public function init(\Zend\View\Model\ViewModel $oView, $sMode = 'list', $iRefreshDays = 0) {
         $oTicketService = $this->getService();
         /* @var $oTicketService \Flightzilla\Model\Ticket\Source\Bugzilla */
 
-        $oTicketService->getBugsChangedToday();
+        $oTicketService->getChangedTicketsWithinDays($iRefreshDays);
 
         // gather the ticket-information
         $oView->bugsReopened = $oTicketService->getReopenedBugs();
@@ -118,23 +119,8 @@ class TicketService extends AbstractPlugin {
         $oView->bugsUnthemed = $oTicketService->getUnthemedBugs();
         if ($sMode === 'board') {
 
-            // concepts
-            $oView->allScreenWip = $oTicketService->getOpenConcepts();
-            $oView->allScreenApproved = $oTicketService->getBugsWithFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '+');
-
-            // stack
-            $oView->allBugsOpen = $oTicketService->getFilteredList($oTicketService->getUnworkedWithoutOrganization(), $oView->allScreenWip);
-
-            // testing
-            $oView->allBugsTesting = $oTicketService->getBugsWithFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '?');
-
-            // development waiting, wip
-            $oView->openWaiting = $oTicketService->getWaiting();
-            $oView->bugsWip = $oTicketService->getInprogress();
-
-            // development - ready
-            $aFixedWithoutTesting = $oTicketService->getFilteredList($oView->bugsFixed, $oView->allBugsTesting);
-            $oView->bugsFixedWithoutTesting = $oTicketService->getFilteredList($aFixedWithoutTesting, $oView->allScreenApproved);
+            $oKanbanStatus = new \Flightzilla\Model\Kanban\Status($oTicketService->getAllBugs(), $oTicketService);
+            $oView->aKanban = $oKanbanStatus->setType(\Flightzilla\Model\Ticket\Type\Bug::TYPE_BUG)->process()->get();
         }
         else {
             $oView->aUntouched = $oTicketService->getUntouched();

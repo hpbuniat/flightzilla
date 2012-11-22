@@ -186,6 +186,20 @@ class IndexController extends AbstractActionController {
     }
 
     /**
+     *
+     */
+    public function reviewAction() {
+        $oViewModel = new ViewModel;
+        $oViewModel->mode = 'team';
+
+        $iDays = 7;
+        $oTicketService = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'list', $iDays)->getService();
+        $oViewModel->sResource = json_encode($oTicketService->getResourceManager()->getActivities($iDays));
+
+        return $oViewModel;
+    }
+
+    /**
      * Show ticket-details directly in flightzilla
      */
     public function detailAction() {

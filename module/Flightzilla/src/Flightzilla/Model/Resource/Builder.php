@@ -41,7 +41,6 @@
  */
 namespace Flightzilla\Model\Resource;
 
-
 /**
  * Create a human-resource model
  *

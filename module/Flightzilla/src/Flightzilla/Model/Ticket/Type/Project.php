@@ -41,7 +41,6 @@
  */
 namespace Flightzilla\Model\Ticket\Type;
 
-
 /**
  * A Project
  *
