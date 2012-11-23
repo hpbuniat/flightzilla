@@ -23,7 +23,7 @@ foreach($this->aData as $sBrowser => $aBrowser) {
                     'sName' => '',
                     'sVersion' => $sVersion,
                     'fShare' => sprintf("%01.2f%% (%01.2f%%)", $aVersion['share'], $aVersion['totalshare']),
-                    'fConversion' => sprintf("%01.2f%%", $aBrowser['conversion']),
+                    'fConversion' => sprintf("%01.2f%%", $aVersion['conversion']),
                 ));
             }
         }
