@@ -115,6 +115,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         self::STATUS_CLOSED      => 8
     );
 
+    const RESOLUTION_FIXED = 'FIXED';
+
     /**
      * Deadline status
      */
