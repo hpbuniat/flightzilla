@@ -239,8 +239,10 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
      * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setResolved()
      */
     public function setResolved(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
-        $this->_aPayload['comment'] = 'Finished!';
         $this->_aPayload['resolution'] = \Flightzilla\Model\Ticket\Type\Bug::RESOLUTION_FIXED;
+        if (empty($this->_aPayload['comment']) === true) {
+            $this->_aPayload['comment'] = 'Finished!';
+        }
 
         return $this->setStatus($oTicket, \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED);
     }
