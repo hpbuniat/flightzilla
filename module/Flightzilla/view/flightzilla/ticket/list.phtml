@@ -33,6 +33,10 @@
                         <input type="text" id="timeWorked" value="<?php echo $oTicket->getTimeSinceLastActivity(); ?>" name="worked[<?php echo $oTicket->id();?>][]" />
                         <input type="hidden" value="setResolved" name="modify[<?php echo $oTicket->id();?>][]" />
                     </div>
+
+                    <label for="comment">Enter a comment:</label>
+                    <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]">Finished!</textarea>
+                    <input type="hidden" value="setComment" name="modify[<?php echo $oTicket->id();?>][]" />
                 </div>
             </li>
             <?php
@@ -40,7 +44,7 @@
             endif;
             ?>
 
-            <?php if ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING) === false): ?>
+            <?php if ($this->dropAction !== 'assign' and $oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING) === false): ?>
             <li>
                 <label class="checkbox">
                     <input type="checkbox" value="setTestingRequest" name="modify[<?php echo $oTicket->id();?>][]" />
@@ -70,6 +74,13 @@
                 <label class="checkbox">
                     <input type="checkbox" value="setStaged" name="modify[<?php echo $oTicket->id();?>][]" />
                     Check, if the changes have been deployed to the test-system
+                </label>
+            </li>
+            <?php elseif (($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTSERVER) === false and empty($this->dropAction)) or $this->dropAction === 'resolve'): ?>
+            <li>
+                <label class="checkbox">
+                    <input type="checkbox" value="setUpdateTestserver" name="modify[<?php echo $oTicket->id();?>][]" />
+                    Check, if the changes should be deployed to the test-system
                 </label>
             </li>
             <?php endif;?>

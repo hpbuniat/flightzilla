@@ -123,6 +123,16 @@ abstract class AbstractWriter {
     abstract public function setStaged(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
 
     /**
+     * The changes should be updated to the test-server
+     *
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
+     *
+     * @return $this
+     */
+    abstract public function setUpdateTestserver(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
+
+    /**
      * The db-changes of a ticket are now deployed
      *
      * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
@@ -161,4 +171,14 @@ abstract class AbstractWriter {
      * @return $this
      */
     abstract public function setWorked(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
+
+    /**
+     * Set a comment
+     *
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
+     *
+     * @return $this
+     */
+    abstract public function setComment(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
 }

@@ -1048,7 +1048,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         sort($mIds);
         $sHash = md5(serialize($mIds));
-        if (empty($this->_aBugsListCache[$sHash]) === true) {
+        if ($bCache !== true or empty($this->_aBugsListCache[$sHash]) === true) {
             $this->_aBugsListCache[$sHash] = $this->_getXmlFromBugIds($mIds, $bCache);
         }
 
@@ -1313,6 +1313,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     public function getMemberBugs() {
 
         $aOpenBugs = $this->getOpenBugs();
+        $aOpenBugs = array_merge($aOpenBugs, $this->getReopenedBugs());
+
         $aMember   = array();
         foreach ($aOpenBugs as $oBug) {
             /* @var $oBug \Flightzilla\Model\Ticket\Type\Bug */

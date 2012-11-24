@@ -64,8 +64,17 @@ class Ticketicons extends AbstractHelper {
     public function __invoke(\Flightzilla\Model\Ticket\Type\Bug $oBug) {
 
         $sClasses = '';
+        if ($oBug->isStatusAtLeast(\Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED) === true) {
+            if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '+') === true) {
+                $sClasses .= '&nbsp;<i class="icon-thumbs-up"></i>';
+            }
+            else {
+                $sClasses .= '&nbsp;<i class="icon-ok-circle"></i>';
+            }
+        }
+
         if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_COMMENT, '?') === true) {
-            $sClasses .= '&nbsp;<span class="ui-silk ui-silk-comment" title="' . \Flightzilla\Model\Ticket\Type\Bug::FLAG_COMMENT . '">&nbsp;</span>';
+            $sClasses .= '&nbsp;<i class="icon-comment" title="Awaiting ' . \Flightzilla\Model\Ticket\Type\Bug::FLAG_COMMENT . '">&nbsp;</i>';
             if (strlen($oBug->commentrequest_user) > 0) {
                 $sClasses .= '<span class="red"> ' . $oBug->commentrequest_user . '</span>';
             }
@@ -76,10 +85,10 @@ class Ticketicons extends AbstractHelper {
         }
 
         if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '+') === true and $oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '?') === false) {
-            $sClasses .= '&nbsp;<span class="ui-silk ui-silk-thumb-up" title="' . \Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN . '">&nbsp;</span>';
+            $sClasses .= '&nbsp;<i class="icon-thumbs-up" title="' . \Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN . '">&nbsp;</i>';
         }
         elseif ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '?') === true) {
-            $sClasses .= '&nbsp;<span class="ui-silk ui-silk-magnifier" title="' . \Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN . '">&nbsp;</span>';
+            $sClasses .= '&nbsp;<i class="icon-eye-open" title="Awaiting ' . \Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN . '">&nbsp;</i>';
         }
 
         if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_DBCHANGE, '+') === true) {
@@ -87,7 +96,7 @@ class Ticketicons extends AbstractHelper {
         }
 
         if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '?') === true) {
-            $sClasses .= '&nbsp;<span class="ui-silk ui-silk-magnifier" title="' . \Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING . '">&nbsp;</span>';
+            $sClasses .= '&nbsp;<i class="icon-eye-open" title="Awaiting ' . \Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING . '">&nbsp;</i>';
             if (strlen($oBug->testingrequest_user) > 0) {
                 $sClasses .= '<span class="red"> ' . $oBug->testingrequest_user . '</span>';
             }

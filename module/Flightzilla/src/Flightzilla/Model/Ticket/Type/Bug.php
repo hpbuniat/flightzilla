@@ -1035,11 +1035,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function isClosed() {
-        if ($this->getStatus() !== Bug::STATUS_CLOSED) {
-            return false;
-        }
-
-        return true;
+        return ($this->getStatus() === Bug::STATUS_CLOSED);
     }
 
     /**
