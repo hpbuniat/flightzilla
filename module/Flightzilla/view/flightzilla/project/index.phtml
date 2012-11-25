@@ -1,8 +1,9 @@
 <?php
     echo $this->render('flightzilla/index/partial/header.phtml');
-    foreach ($this->aProjects as $oProject) {
-        if ($oProject->isType(\Flightzilla\Model\Ticket\Type\Bug::TYPE_PROJECT) === true and $oProject->hasUnclosedBugs() === true) {
-            $this->aStack = $oProject->getDependsAsStack();
+    foreach ($this->aProjects as $this->oProject) {
+        /* @var $this->oProject \Flightzilla\Model\Ticket\Type\Bug */
+        if ($this->oProject->isType(\Flightzilla\Model\Ticket\Type\Bug::TYPE_PROJECT) === true and $this->oProject->hasUnclosedBugs() === true) {
+            $this->aStack = $this->oProject->getDependsAsStack();
             $aTimes = $this->collectiontime($this->aStack, true);
             $sEstimationString = sprintf('%sd (%sd est.) <i class="icon-time"></i> %sd', $aTimes['spent_days'], $aTimes['esti_days'] , $aTimes['days']);
 ?>
@@ -10,26 +11,26 @@
                 <div class="row-fluid">
                     <div class="span12 well">
                         <div class="span2">
-                            <?php echo sprintf('<h5><strong><a target="_blank" href="%s/show_bug.cgi?id=%s">%s</a></strong></h5>', $this->layout()->sBugzilla, $oProject->id(), $oProject->title()); ?>
+                            <?php echo sprintf('<h5><strong><a target="_blank" href="%s/show_bug.cgi?id=%s">%s</a></strong></h5>', $this->layout()->sBugzilla, $this->oProject->id(), $this->oProject->title()); ?>
                             <blockquote>
                                 <p><?php echo $sEstimationString; ?></p>
                             </blockquote>
                             <blockquote>
-                                <?php if ($oProject->getRevenue() > 0):?>
-                                <p><?php echo $oProject->getRevenue(); ?></p>
-                                <?php else:?>
-                                <div class="alert">
-                                    Missing revenue expectation!
-                                </div>
-                                <?php endif;?>
-                            </blockquote>
-                            <blockquote>
                                 <p>
-                                    <i class="icon-user"></i> <?php echo $oProject->getAssignee(true); ?>
+                                    <?php if ($this->oProject->getRevenue() > 0):?>
+                                    <i class="icon-tags"></i><?php echo $this->oProject->getRevenue(); ?>
+                                    <?php else:?>
+                                    <div class="alert">
+                                        Missing revenue expectation!
+                                    </div>
+                                    <?php endif;?>
+                                </p>
+                                <p>
+                                    <i class="icon-user"></i> <?php echo $this->oProject->getAssignee(true); ?>
                                 </p>
                                 <p>
                                     <a class="detail-toggle icon-list" href="javascript:;"></a>
-                                    <i class="icon-time"></i> <?php echo date('Y-m-d', $oProject->getEndDate()); ?>
+                                    <i class="icon-time"></i> <?php echo date('Y-m-d', $this->oProject->getEndDate()); ?>
                                 </p>
                             </blockquote>
                         </div>
@@ -51,7 +52,7 @@
                 </div>
                 <div class="row-fluid hidden project-detail">
                     <div class="span12 well">
-                        <?php foreach ($oProject->long_desc as $oLongDesc):
+                        <?php foreach ($this->oProject->long_desc as $oLongDesc):
                             if (strlen($oLongDesc->thetext) > 0) : ?>
                         <blockquote>
                             <pre><?php echo (string) $oLongDesc->thetext ?></pre>

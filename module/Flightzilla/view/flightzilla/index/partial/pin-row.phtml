@@ -24,9 +24,20 @@
     ?>
     <div class="span<?php echo (11 - $this->iSplit); ?>">
         <?php if ($this->sRowMode ==  'project' and $iActive === 0 and $iShowed === 0): ?>
-            <div class="alert alert-success">
-                <strong>Well done!</strong> No tickets left!
-            </div>
+            <?php if ($this->oProject->hasDevelopment() === false): ?>
+                <div class="alert alert-error">
+                    There are no development-tickets for this project!
+                </div>
+            <?php else: ?>
+                <div class="alert alert-success">
+                    <strong>Well done!</strong> No tickets left!
+                </div>
+                <?php if ($this->oProject->isMerged() === true): ?>
+                    <div class="alert alert-success">
+                        This project will be part of the next release!
+                    </div>
+                <?php endif;?>
+            <?php endif;?>
         <?php else:?>
             <img alt="lazy" src="<?php echo $this->basePath() . '/img/lazy.png'; ?>" class="lazy <?php echo ($iActive === 0) ? '' : 'hidden'; ?>" />
             <?php echo $aPins['active']; ?>

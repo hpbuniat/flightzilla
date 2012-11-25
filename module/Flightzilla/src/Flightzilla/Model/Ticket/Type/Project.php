@@ -50,12 +50,21 @@ namespace Flightzilla\Model\Ticket\Type;
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class Project extends \Flightzilla\Model\Ticket\Type\Bug {
+class Project extends Bug {
 
     /**
+     * A list of projects, which this project depends on
+     *
      * @var array
      */
     protected $_aDependentProjects = array();
+
+    /**
+     * Are there only concept-tickets
+     *
+     * @var boolean
+     */
+    protected $_bOnlyConcepts = null;
 
     /**
      * Get start date as timestamp.
@@ -133,11 +142,9 @@ class Project extends \Flightzilla\Model\Ticket\Type\Bug {
             $dependencies = $this->getDependentProjects();
 
             $aEndDates = array();
-
             foreach ($dependencies as $dependency) {
-
                 $oTicket = $this->_oBugzilla->getBugById($dependency);
-                if ($oTicket->isStatusAtMost(\Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED)) {
+                if ($oTicket->isStatusAtMost(Bug::STATUS_REOPENED) === true) {
                     $aEndDates[$oTicket->id()] = $oTicket->getEndDate();
                 }
             }
@@ -164,21 +171,53 @@ class Project extends \Flightzilla\Model\Ticket\Type\Bug {
             return $this->_aDependentProjects;
         }
 
-        if (isset($this->dependson) === true) {
-            foreach ($this->dependson as $iBug) {
-                try {
-                    $iBug = (int) $iBug;
-                    $oBug = $this->_oBugzilla->getBugById($iBug);
-                    if ($oBug->isProject() === true and $oBug->isTheme() === true) {
-                        $this->_aDependentProjects[] = $iBug;
-                    }
+        foreach ($this->getDependsAsStack() as $oTicket) {
+            try {
+                if ($oTicket->isProject() === true and $oTicket->isTheme() === true) {
+                    $this->_aDependentProjects[] = $oTicket->id();
                 }
-                catch (Exception $e) {
-                    /* happens, if a bug is not found, which is ok for closed bugs */
-                }
+            }
+            catch (\Exception $e) {
+                /* happens, if a bug is not found, which is ok for closed bugs */
             }
         }
 
         return $this->_aDependentProjects;
+    }
+
+    /**
+     * Are all depending tickets merged?
+     *
+     * @return boolean
+     */
+    public function isMerged() {
+
+        $bReady = true;
+        foreach ($this->getDependsAsStack() as $oTicket) {
+            if ($oTicket->couldBeInTrunk() === false) {
+                $bReady = false;
+                break;
+            }
+        }
+
+        return ($this->hasDevelopment() === true and $bReady === true and empty($this->_aDepends) === false);
+    }
+
+    /**
+     * Does the project have any development-tickets?
+     *
+     * @return boolean
+     */
+    public function hasDevelopment() {
+        if (is_null($this->_bOnlyConcepts) === true) {
+            $this->_bOnlyConcepts = true;
+            foreach ($this->getDependsAsStack() as $oTicket) {
+                if ($oTicket->isConcept() === false) {
+                    $this->_bOnlyConcepts = false;
+                }
+            }
+        }
+
+        return ($this->_bOnlyConcepts === false);
     }
 }

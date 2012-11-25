@@ -941,9 +941,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return array
      */
     public function getDependsAsStack() {
-        $this->getDepends();
         $aStack = array();
-        foreach ($this->_aDepends as $iTicket) {
+        foreach ($this->getDepends() as $iTicket) {
             $aStack[$iTicket] = $this->_oBugzilla->getBugById($iTicket);
         }
 
@@ -971,7 +970,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             if (count($dependencies) > 1) {
                 foreach ($dependencies as $dependency) {
                     $oTicket = $this->_oBugzilla->getBugById($dependency);
-                    if (($oTicket->isStatusAtMost(Bug::STATUS_REOPENED) and $oTicket->isTheme() === false and $oTicket->isProject() === false)) {
+                    if (($oTicket->isStatusAtMost(Bug::STATUS_REOPENED) === true and $oTicket->isTheme() === false and $oTicket->isProject() === false)) {
                         $aEndDates[$oTicket->id()] = $oTicket->getEndDate();
                     }
                 }
