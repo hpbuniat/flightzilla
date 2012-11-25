@@ -21,10 +21,13 @@ $sEstimationString = sprintf('%sh (%sh est.) <i class="icon-time"></i> %sh (%sd)
             <blockquote>
                 <div class="btn-toolbar">
                     <div class="btn-group">
-                        <a href="#" class="btn disabled droppable" data-drop="assign"><i class="icon-wrench"></i></a>
+                        <a href="#" class="btn disabled droppable tooltip" data-title="Drop a pin, to set it to ASSIGNED" data-drop="assign"><i class="icon-wrench"></i></a>
                     </div>
                     <div class="btn-group">
-                        <a href="#" class="btn disabled droppable" data-drop="resolve"><i class="icon-ok-circle"></i></a>
+                        <a href="#" class="btn disabled droppable tooltip" data-title="Drop a pin, to set it to CONFIRMED" data-drop="confirmed"><i class="icon-pause"></i></a>
+                    </div>
+                    <div class="btn-group">
+                        <a href="#" class="btn disabled droppable tooltip" data-title="Drop a pin, to set it to RESOLVED" data-drop="resolve"><i class="icon-ok-circle"></i></a>
                     </div>
                 </div>
             </blockquote>

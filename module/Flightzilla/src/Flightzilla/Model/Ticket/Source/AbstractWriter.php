@@ -153,6 +153,36 @@ abstract class AbstractWriter {
     abstract public function setStatus(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
 
     /**
+     * Set the status to resolved
+     *
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
+     *
+     * @return $this
+     */
+    abstract public function setResolved(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
+
+    /**
+     * Set the status to assigned
+     *
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
+     *
+     * @return $this
+     */
+    abstract public function setAssigned(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
+
+    /**
+     * Set the status to confirmed
+     *
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
+     *
+     * @return $this
+     */
+    abstract public function setConfirmed(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
+
+    /**
      * Set the estimation
      *
      * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket

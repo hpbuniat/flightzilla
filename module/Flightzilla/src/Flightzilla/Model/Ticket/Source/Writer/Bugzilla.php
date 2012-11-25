@@ -249,9 +249,23 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
 
     /**
      * (non-PHPdoc)
+     * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setConfirmed()
+     */
+    public function setConfirmed(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
+        if (empty($this->_aPayload['comment']) === true) {
+            $this->_aPayload['comment'] = 'Paused!';
+        }
+
+        return $this->setStatus($oTicket, \Flightzilla\Model\Ticket\Type\Bug::STATUS_CONFIRMED);
+    }
+
+    /**
+     * (non-PHPdoc)
      * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setComment()
      */
     public function setComment(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
+        $this->_getCommon($oTicket);
+
         $this->_aPayload['comment'] = $mPayload;
         return $this;
     }
