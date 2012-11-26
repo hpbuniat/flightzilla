@@ -751,7 +751,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             if (empty($aKeywords) !== true) {
                 foreach ($aKeywords as $sKeyword) {
                     if (empty($sKeyword) !== true) {
-                        if (stristr($sTitle, $sKeyword) !== false or $this->hasKeyword($sKeyword) === true) {
+                        if (stristr($sTitle, sprintf('%s:', $sKeyword)) !== false or $this->hasKeyword($sKeyword) === true) {
                             $this->_sType = $sType;
                         }
                     }
@@ -796,7 +796,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function isTheme() {
-        return $this->hasKeyword('theme');
+        return $this->isType(self::TYPE_THEME);
     }
 
     /**
@@ -805,7 +805,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function isConcept() {
-        return (string) $this->component === self::COMPONENT_CONCEPT;
+        return ($this->getComponent() === self::COMPONENT_CONCEPT);
     }
 
     /**
@@ -823,7 +823,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function isProject() {
-        return $this->hasKeyword(self::TYPE_STRING_PROJECT);
+        return $this->isType(self::TYPE_PROJECT);
     }
 
     /**

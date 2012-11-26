@@ -1069,6 +1069,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $fixedBugs            = $this->getFixedBugs();
         $this->_aFixedToMerge = array();
         foreach ($fixedBugs as $bug) {
+
             /* @var $bug \Flightzilla\Model\Ticket\Type\Bug */
             if ($bug->isMerged()) {
                 $this->_aFixedTrunk[$bug->id()] = $bug;
