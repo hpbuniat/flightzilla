@@ -753,6 +753,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
                     if (empty($sKeyword) !== true) {
                         if (stristr($sTitle, sprintf('%s:', $sKeyword)) !== false or $this->hasKeyword($sKeyword) === true) {
                             $this->_sType = $sType;
+                            break 2;
                         }
                     }
                 }
