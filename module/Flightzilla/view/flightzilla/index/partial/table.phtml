@@ -9,17 +9,14 @@ if(count($this->bugs) > 0) {?>
 <table class="bugTable table-bordered table-condensed table tablesorter" style="width: 100%; margin-bottom: 10px;">
     <thead>
     <tr class="tableHeader">
-        <td colspan="6">
+        <td colspan="8">
             <span class="caption"<?php if ($aTimes['spent'] < 8):?>class="red"<?php endif;?>>
                 <b><?php echo $this->caption; ?> (<?php echo count($this->bugs); ?>)</b>
                 <?php echo $aTimes['spent'];?>h worked (<?php echo $aTimes['esti']?>h estimated) - Left: <?php echo $aTimes['left']; ?>h / <?php echo $aTimes['days']; ?>d
             </span>
-        </td>
-        <td colspan="2">
-            <span class="fll">
-                <a class="allBugs btn btn-small" href="javascript:;">All</a> &ndash; <a class="noBugs btn btn-small" href="javascript:;">None</a>
-            </span>
             <div class="btn-group pull-right">
+                <a class="allBugs btn btn-small" href="javascript:;">All</a>
+                <a class="noBugs btn btn-small" href="javascript:;">None</a>
                 <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
                     Ticket-List
                     <span class="caret"></span>
