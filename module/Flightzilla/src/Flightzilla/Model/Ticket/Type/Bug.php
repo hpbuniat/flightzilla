@@ -177,10 +177,10 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     protected $_aTypes = array(
         self::TYPE_STRING_BUG => self::TYPE_BUG,
-        self::TYPE_STRING_THEME  => self::TYPE_THEME,
         self::TYPE_STRING_PROJECT  => self::TYPE_PROJECT,
-        self::TYPE_STRING_FEATURE  => self::TYPE_FEATURE,
+        self::TYPE_STRING_THEME  => self::TYPE_THEME,
         self::TYPE_STRING_CONCEPT  => self::TYPE_CONCEPT,
+        self::TYPE_STRING_FEATURE  => self::TYPE_FEATURE,
     );
 
     /**
