@@ -1385,11 +1385,10 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         foreach ($aBugs as $oBug) {
             $mTheme = $this->_findTheme($oBug);
             if ($mTheme !== false) {
-                $oTheme                      = $aThemes[$mTheme];
-                $sTheme                      = $oTheme->id() . ' ' . $oTheme->title();
+                $sTheme                      = $aThemes[$mTheme]->id() . ' ' . $aThemes[$mTheme]->title();
                 $aThemed[$sTheme][]          = $oBug;
                 $this->_allBugs[$oBug->id()] = $oBug;
-                unset($oTheme, $sTheme);
+                unset($sTheme);
             }
         }
 
@@ -1451,7 +1450,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                 foreach ($aBlocks as $iBlock) {
                     $iBlock = trim($iBlock);
                     if ($iBlock != '0') {
-                        if (empty($this->_aThemes[$iBlock]) !== true) {
+                        if (empty($this->_aThemes[$iBlock]) !== true or empty($this->_aProjects[$iBlock]) !== true) {
                             $mReturn = $iBlock;
                             break;
                         }
