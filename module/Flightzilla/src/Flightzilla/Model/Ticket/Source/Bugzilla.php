@@ -928,7 +928,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         $aStack = array();
         foreach ($this->_openBugs as $oTicket) {
-            if ($oTicket->isTheme() === false and $oTicket->isOrga() === false and $oTicket->isWorkedOn() !== true) {
+            if ($oTicket->isContainer() === false and $oTicket->isOrga() === false and $oTicket->isWorkedOn() !== true) {
                 $aStack[$oTicket->id()] = $oTicket;
             }
         }
@@ -950,7 +950,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         $aStack = array();
         foreach ($this->_openBugs as $oTicket) {
-            if ($oTicket->isTheme() === false and $oTicket->isOrga() === false and $oTicket->isWorkedOn() !== true and $oTicket->isStatusAtMost(\Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED) === true) {
+            if ($oTicket->isContainer() === false and $oTicket->isOrga() === false and $oTicket->isWorkedOn() !== true and $oTicket->isStatusAtMost(\Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED) === true) {
                 $aStack[$oTicket->id()] = $oTicket;
             }
         }
@@ -973,7 +973,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $aStack = array();
         foreach ($this->_openBugs as $oTicket) {
             /* @var $oTicket \Flightzilla\Model\Ticket\Type\Bug */
-            if ($oTicket->isTheme() === false and $oTicket->isOrga() === false and $oTicket->isConcept() === false and $oTicket->isWorkedOn() === true
+            if ($oTicket->isContainer() === false and $oTicket->isOrga() === false and $oTicket->isConcept() === false and $oTicket->isWorkedOn() === true
                 and ($oTicket->isStatusAtLeast(\Flightzilla\Model\Ticket\Type\Bug::STATUS_CONFIRMED) or $oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_COMMENT, '?') === true)
             ) {
                 $aStack[$oTicket->id()] = $oTicket;
@@ -1079,7 +1079,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                 $bTrunk                   = (empty($aBlocked) === true and $bug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '+') === true) ? false : true;
                 $bOnlyOrganizationTickets = (empty($aBlocked) === true) ? false : true;
                 foreach ($aBlocked as $oBlocked) {
-                    if ($oBlocked->isTheme() !== true and $oBlocked->isConcept() !== true) {
+                    if ($oBlocked->isContainer() !== true and $oBlocked->isConcept() !== true) {
                         $bOnlyOrganizationTickets = false;
                     }
 
@@ -1319,7 +1319,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $aMember   = array();
         foreach ($aOpenBugs as $oBug) {
             /* @var $oBug \Flightzilla\Model\Ticket\Type\Bug */
-            if ($oBug->isTheme() !== true) {
+            if ($oBug->isContainer() !== true) {
                 $sName             = (string) $oBug->getResource();
                 $aMember[$sName][] = $oBug;
             }
@@ -1350,7 +1350,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $aOpen    = array();
         foreach ($openBugs as $oBug) {
             /* @var $oBug \Flightzilla\Model\Ticket\Type\Bug */
-            if ($oBug->doesBlock() === true and $oBug->isTheme() !== true) {
+            if ($oBug->doesBlock() === true and $oBug->isContainer() !== true) {
                 $aOpen[$oBug->id()] = $oBug;
             }
         }
@@ -1376,7 +1376,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $aThemeBugs = $this->getBugListByIds(array_unique($aThemes));
         $aThemes    = array();
         foreach ($aThemeBugs as $oTheme) {
-            if ($oTheme->isTheme()) {
+            if ($oTheme->isContainer() === true) {
                 $aThemes[$oTheme->id()] = $oTheme;
             }
         }
@@ -1415,7 +1415,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $openBugs         = $this->getOpenBugs();
         $this->_aUnthemed = array();
         foreach ($openBugs as $bug) {
-            if ($bug->isTheme() !== true) {
+            if ($bug->isContainer() !== true) {
                 if ($bug->doesBlock() !== true) {
                     $this->_aUnthemed[$bug->id()] = $bug;
                 }

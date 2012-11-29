@@ -174,8 +174,7 @@ class Human {
             if (($ticket->getStatus() !== \Flightzilla\Model\Ticket\Type\Bug::STATUS_CONFIRMED
                 and $ticket->getStatus() !== \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED
                     and $ticket->getStatus() !== \Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED)
-                or $ticket->isProject()
-                or $ticket->isTheme()
+                or $ticket->isContainer() === true
             ) {
 
                 continue;

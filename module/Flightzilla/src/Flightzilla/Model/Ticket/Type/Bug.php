@@ -801,6 +801,24 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * Check if a bug is a project
+     *
+     * @return boolean
+     */
+    public function isProject() {
+        return $this->isType(self::TYPE_PROJECT);
+    }
+
+    /**
+     * Is this ticket a ticket-container
+     *
+     * @return boolean
+     */
+    public function isContainer() {
+        return ($this->isTheme() or $this->isProject());
+    }
+
+    /**
      * Check if the bug is a theme
      *
      * @return boolean
@@ -816,15 +834,6 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function getComponent() {
         return (string) $this->component;
-    }
-
-    /**
-     * Check if a bug is a project
-     *
-     * @return boolean
-     */
-    public function isProject() {
-        return $this->isType(self::TYPE_PROJECT);
     }
 
     /**
@@ -871,7 +880,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function isWip() {
-        return ($this->isTheme() === false and $this->getStatus() === Bug::STATUS_ASSIGNED);
+        return ($this->isContainer() === false and $this->getStatus() === Bug::STATUS_ASSIGNED);
     }
 
     /**
@@ -971,7 +980,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             if (count($dependencies) > 1) {
                 foreach ($dependencies as $dependency) {
                     $oTicket = $this->_oBugzilla->getBugById($dependency);
-                    if (($oTicket->isStatusAtMost(Bug::STATUS_REOPENED) === true and $oTicket->isTheme() === false and $oTicket->isProject() === false)) {
+                    if ($oTicket->isStatusAtMost(Bug::STATUS_REOPENED) === true and $oTicket->isContainer() === false) {
                         $aEndDates[$oTicket->id()] = $oTicket->getEndDate();
                     }
                 }
@@ -987,11 +996,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             else {
                 $iDepends = (int) reset($dependencies);
                 $oTicket = $this->_oBugzilla->getBugById($iDepends);
-                if ($oTicket->isTheme() === false
-                    and $oTicket->isProject() === false
-                    and $oTicket->isStatusAtMost(Bug::STATUS_REOPENED)
-                ) {
-
+                if ($oTicket->isContainer() === false and $oTicket->isStatusAtMost(Bug::STATUS_REOPENED)) {
                     $this->_iPredecessor = $iDepends;
                 }
             }
@@ -1012,7 +1017,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
                 try {
                     $iBug = (int) $iBug;
                     $oBug = $this->_oBugzilla->getBugById($iBug);
-                    if ($oBug->isProject() === false and $oBug->isTheme() === false) {
+                    if ($oBug->isContainer() === false) {
                         if ($oBug->isClosed() !== true) {
                             $bReturn = true;
                         }
@@ -1044,7 +1049,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function isMerged() {
-        return ($this->isClosed() === true or $this->isTheme() === true or ($this->hasFlag(Bug::FLAG_MERGE, '+') === true and $this->hasFlag(Bug::FLAG_MERGE, '?') === false));
+        return ($this->isClosed() === true or $this->isContainer() === true or ($this->hasFlag(Bug::FLAG_MERGE, '+') === true and $this->hasFlag(Bug::FLAG_MERGE, '?') === false));
     }
 
     /**
