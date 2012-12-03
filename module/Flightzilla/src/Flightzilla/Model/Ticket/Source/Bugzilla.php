@@ -307,95 +307,6 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     }
 
     /**
-     * Get the chuck-status
-     *
-     * @return string
-     */
-    public function getChuckStatus() {
-
-        $sStatus = \Flightzilla\Model\Chuck::OK;
-        if ($this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_INPROGRESS]['num'] === 0) {
-            $this->getStats();
-            $this->getStatuses();
-        }
-
-        if ($this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_UNESTIMATED]['per'] > 10) {
-            $sStatus = \Flightzilla\Model\Chuck::WARN;
-        }
-        elseif ($this->_aStatuses[\Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED]['per'] > 10) {
-            $sStatus = \Flightzilla\Model\Chuck::WARN;
-        }
-
-        if ($this->_aStatuses[\Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED]['num'] > 1) {
-            $sStatus = \Flightzilla\Model\Chuck::ERROR;
-        }
-        elseif ($this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_FAILED]['per'] > 2) {
-            $sStatus = \Flightzilla\Model\Chuck::ERROR;
-        }
-        elseif ($this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_UNESTIMATED]['per'] > 15) {
-            $sStatus = \Flightzilla\Model\Chuck::WARN;
-        }
-        elseif ($this->_aStatuses[\Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED]['per'] > 15) {
-            $sStatus = \Flightzilla\Model\Chuck::WARN;
-        }
-
-        return $sStatus;
-    }
-
-    /**
-     * Get the priorities
-     *
-     * @return array
-     */
-    public function getPriorities() {
-
-        $aPriorities = array(
-            'P1' => 0,
-            'P2' => 0,
-            'P3' => 0,
-            'P4' => 0,
-            'P5' => 0,
-        );
-
-        $iCount = $this->getCount();
-        foreach ($this->_allBugs as $oBug) {
-            if ($oBug->isClosed() !== true) {
-                $aPriorities[(string) $oBug->priority]++;
-            }
-        }
-
-        $this->_percentify($aPriorities, $iCount);
-        return $aPriorities;
-    }
-
-    /**
-     * Get the priorities
-     *
-     * @return array
-     */
-    public function getSeverities() {
-
-        $aSeverities = array();
-
-        $iCount = $this->getCount();
-        foreach ($this->_allBugs as $oBug) {
-            if ($oBug->isClosed() !== true) {
-                $sSeverity = (string) $oBug->bug_severity;
-                if (empty($aSeverities[$sSeverity]) === true) {
-                    $aSeverities[$sSeverity] = 0;
-                }
-
-                $aSeverities[$sSeverity]++;
-            }
-        }
-
-        $this->_percentify($aSeverities, $iCount);
-        arsort($aSeverities);
-
-        return $aSeverities;
-    }
-
-    /**
      * Get the number of bugs
      *
      * @return int
@@ -404,7 +315,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         $iCount = 0;
         foreach ($this->_allBugs as $oBug) {
-            if ($oBug->isClosed() !== true) {
+            if ($oBug->isClosed() !== true and $oBug->isContainer() !== true) {
                 $iCount++;
             }
         }
@@ -773,7 +684,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                     if ($oBug->isTheme() !== true) {
                         $this->_allBugs[$iId] = $oBug;
                     }
-                    elseif ($oBug->isTheme() === true) {
+                    elseif ($oBug->isContainer() === true) {
                         $this->_aThemes[$iId] = $oBug;
                     }
 
@@ -1070,6 +981,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $this->_aFixedToMerge = array();
         foreach ($fixedBugs as $bug) {
 
+            $bLog = ($bug->id() == 139154);
+
             /* @var $bug \Flightzilla\Model\Ticket\Type\Bug */
             if ($bug->isMerged()) {
                 $this->_aFixedTrunk[$bug->id()] = $bug;
@@ -1078,6 +991,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                 $aBlocked                 = $this->getBugListByIds($bug->blocks());
                 $bTrunk                   = (empty($aBlocked) === true and $bug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '+') === true) ? false : true;
                 $bOnlyOrganizationTickets = (empty($aBlocked) === true) ? false : true;
+
                 foreach ($aBlocked as $oBlocked) {
                     if ($oBlocked->isContainer() !== true and $oBlocked->isConcept() !== true) {
                         $bOnlyOrganizationTickets = false;
@@ -1464,6 +1378,14 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         }
 
         if ($mReturn !== false) {
+            if (empty($this->_aThemes[$mReturn]) === true or empty($this->_aProjects[$mReturn]) === true) {
+                $oTheme = $this->getBugById($mReturn);
+                $this->_aThemes[$mReturn] = $oTheme;
+                if ($oTheme->isProject() === true) {
+                    $this->_aProjects[$mReturn] = $oTheme;
+                }
+            }
+
             $oBug->setTheme($mReturn);
         }
 
@@ -1571,9 +1493,9 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             foreach ($this->_allBugs as $oBug) {
                 /* @var $oBug \Flightzilla\Model\Ticket\Type\Bug */
 
-                if ($oBug->isClosed() !== true) {
+                if ($oBug->isClosed() !== true and $oBug->isContainer() !== true) {
                     $bShouldHaveEstimation = true;
-                    if ($oBug->isOrga()) {
+                    if ($oBug->isOrga() === true) {
                         $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ORGA]++;
                         $bShouldHaveEstimation = false;
                     }
@@ -1658,7 +1580,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
             $iCount = $this->getCount();
             foreach ($this->_allBugs as $oBug) {
-                if ($oBug->isClosed() !== true) {
+                if ($oBug->isClosed() !== true and $oBug->isContainer() !== true) {
                     $this->_aStatuses[$oBug->getStatus()]++;
                 }
             }
@@ -1667,6 +1589,96 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         }
 
         return $this->_aStatuses;
+    }
+
+
+    /**
+     * Get the chuck-status
+     *
+     * @return string
+     */
+    public function getChuckStatus() {
+
+        $sStatus = \Flightzilla\Model\Chuck::OK;
+        if ($this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_INPROGRESS]['num'] === 0) {
+            $this->getStats();
+            $this->getStatuses();
+        }
+
+        if ($this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_UNESTIMATED]['per'] > 10) {
+            $sStatus = \Flightzilla\Model\Chuck::WARN;
+        }
+        elseif ($this->_aStatuses[\Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED]['per'] > 10) {
+            $sStatus = \Flightzilla\Model\Chuck::WARN;
+        }
+
+        if ($this->_aStatuses[\Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED]['num'] > 1) {
+            $sStatus = \Flightzilla\Model\Chuck::ERROR;
+        }
+        elseif ($this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_FAILED]['per'] > 2) {
+            $sStatus = \Flightzilla\Model\Chuck::ERROR;
+        }
+        elseif ($this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_UNESTIMATED]['per'] > 15) {
+            $sStatus = \Flightzilla\Model\Chuck::WARN;
+        }
+        elseif ($this->_aStatuses[\Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED]['per'] > 15) {
+            $sStatus = \Flightzilla\Model\Chuck::WARN;
+        }
+
+        return $sStatus;
+    }
+
+    /**
+     * Get the priorities
+     *
+     * @return array
+     */
+    public function getPriorities() {
+
+        $aPriorities = array(
+            'P1' => 0,
+            'P2' => 0,
+            'P3' => 0,
+            'P4' => 0,
+            'P5' => 0,
+        );
+
+        $iCount = $this->getCount();
+        foreach ($this->_allBugs as $oBug) {
+            if ($oBug->isClosed() !== true and $oBug->isContainer() !== true) {
+                $aPriorities[(string) $oBug->priority]++;
+            }
+        }
+
+        $this->_percentify($aPriorities, $iCount);
+        return $aPriorities;
+    }
+
+    /**
+     * Get the priorities
+     *
+     * @return array
+     */
+    public function getSeverities() {
+
+        $aSeverities = array();
+
+        $iCount = $this->getCount();
+        foreach ($this->_allBugs as $oBug) {
+            if ($oBug->isClosed() !== true and $oBug->isContainer() !== true) {
+                $sSeverity = (string) $oBug->bug_severity;
+                if (empty($aSeverities[$sSeverity]) === true) {
+                    $aSeverities[$sSeverity] = 0;
+                }
+
+                $aSeverities[$sSeverity]++;
+            }
+        }
+
+        $this->_percentify($aSeverities, $iCount);
+        arsort($aSeverities);
+
+        return $aSeverities;
     }
 
     /**
