@@ -445,7 +445,7 @@
     /**
      * Hover-Info for kanban-pins
      */
-    $('div.description a, span.theme a, a.tooltip').tooltip();
+    $('div.description a, span.theme a, a.tooltip, span.tipper').tooltip();
 
     /**
      * Init the table-sorter

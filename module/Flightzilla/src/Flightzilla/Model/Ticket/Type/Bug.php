@@ -1101,7 +1101,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
                     'setter' => (string) $flag['setter'],
                 );
 
-                if (isset($flag['requestee']) === true) {
+                if (isset($flag['requestee']) === true and $aFlag['status'] === \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST) {
                     $sUser = strtok($flag['requestee'], '@');
                     $aName = explode('.', strtoupper($sUser));
                     $this->_data->{strtolower($sName) . '_user'} = $aName[0]{0} . ((isset($aName[1]) === true) ? $aName[1]{0} : '');

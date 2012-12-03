@@ -141,6 +141,10 @@ class TicketService extends AbstractPlugin {
         $oView->oTicketService = $oTicketService;
         $oView->oResourceManager = $oTicketService->getResourceManager();
 
+        $oTasks = new \Flightzilla\Model\Ticket\Task\Manager($oTicketService);
+        $oView->aTasks = $oTasks->check($oTicketService->getAllBugs());
+        $oView->iEntries = $oTasks->getEntryCount();
+
         return $this;
     }
 }
