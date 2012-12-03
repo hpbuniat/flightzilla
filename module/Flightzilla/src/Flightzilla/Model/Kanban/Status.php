@@ -65,7 +65,7 @@ class Status  {
     const SCREEN_APPROVED = 'screen_approved';
     const DEV_WAITING = 'dev_waiting';
     const DEV_WIP = 'dev_wip';
-    const DEV_READY = 'dev_wip';
+    const DEV_READY = 'dev_ready';
     const TEST_WAITING = 'test_waiting';
     const TEST_READY = 'test_ready';
     const RELEASE = 'release';
@@ -214,7 +214,7 @@ class Status  {
 
         // development waiting, wip
         $this->_aStatus[self::DEV_WAITING] = $this->_oTicketService->getWaiting();
-        $this->_aStatus[self::DEV_WIP] = $this->_oTicketService->getInprogress();
+        $this->_aStatus[self::DEV_WIP] = $this->_oTicketService->getFilteredList($this->_oTicketService->getInprogress(), $this->_aStatus[self::SCREEN_WIP]);
 
         // development - ready
         $aFixedWithoutTesting = $this->_oTicketService->getFilteredList($this->_oTicketService->getFixedBugsUnknown(), $this->_aStatus[self::TEST_WAITING]);

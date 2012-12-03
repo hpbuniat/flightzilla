@@ -115,6 +115,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         self::STATUS_CLOSED      => 8
     );
 
+    const RESOLUTION_FIXED = 'FIXED';
+
     /**
      * Deadline status
      */
@@ -175,10 +177,10 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     protected $_aTypes = array(
         self::TYPE_STRING_BUG => self::TYPE_BUG,
-        self::TYPE_STRING_THEME  => self::TYPE_THEME,
         self::TYPE_STRING_PROJECT  => self::TYPE_PROJECT,
-        self::TYPE_STRING_FEATURE  => self::TYPE_FEATURE,
+        self::TYPE_STRING_THEME  => self::TYPE_THEME,
         self::TYPE_STRING_CONCEPT  => self::TYPE_CONCEPT,
+        self::TYPE_STRING_FEATURE  => self::TYPE_FEATURE,
     );
 
     /**
@@ -749,8 +751,9 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             if (empty($aKeywords) !== true) {
                 foreach ($aKeywords as $sKeyword) {
                     if (empty($sKeyword) !== true) {
-                        if (stristr($sTitle, $sKeyword) !== false or $this->hasKeyword($sKeyword) === true) {
+                        if (stristr($sTitle, sprintf('%s:', $sKeyword)) !== false or $this->hasKeyword($sKeyword) === true) {
                             $this->_sType = $sType;
+                            break 2;
                         }
                     }
                 }
@@ -794,7 +797,25 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function isTheme() {
-        return $this->hasKeyword('theme');
+        return $this->isType(self::TYPE_THEME);
+    }
+
+    /**
+     * Check if a bug is a project
+     *
+     * @return boolean
+     */
+    public function isProject() {
+        return $this->isType(self::TYPE_PROJECT);
+    }
+
+    /**
+     * Is this ticket a ticket-container
+     *
+     * @return boolean
+     */
+    public function isContainer() {
+        return ($this->isTheme() or $this->isProject());
     }
 
     /**
@@ -803,7 +824,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function isConcept() {
-        return (string) $this->component === self::COMPONENT_CONCEPT;
+        return ($this->getComponent() === self::COMPONENT_CONCEPT);
     }
 
     /**
@@ -813,15 +834,6 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function getComponent() {
         return (string) $this->component;
-    }
-
-    /**
-     * Check if a bug is a project
-     *
-     * @return boolean
-     */
-    public function isProject() {
-        return $this->hasKeyword(self::TYPE_STRING_PROJECT);
     }
 
     /**
@@ -868,7 +880,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function isWip() {
-        return ($this->isTheme() === false and $this->isOrga() === false and $this->isConcept() === false and $this->getStatus() === Bug::STATUS_ASSIGNED);
+        return ($this->isContainer() === false and $this->getStatus() === Bug::STATUS_ASSIGNED);
     }
 
     /**
@@ -939,9 +951,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return array
      */
     public function getDependsAsStack() {
-        $this->getDepends();
         $aStack = array();
-        foreach ($this->_aDepends as $iTicket) {
+        foreach ($this->getDepends() as $iTicket) {
             $aStack[$iTicket] = $this->_oBugzilla->getBugById($iTicket);
         }
 
@@ -969,7 +980,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             if (count($dependencies) > 1) {
                 foreach ($dependencies as $dependency) {
                     $oTicket = $this->_oBugzilla->getBugById($dependency);
-                    if (($oTicket->isStatusAtMost(Bug::STATUS_REOPENED) and $oTicket->isTheme() === false and $oTicket->isProject() === false)) {
+                    if ($oTicket->isStatusAtMost(Bug::STATUS_REOPENED) === true and $oTicket->isContainer() === false) {
                         $aEndDates[$oTicket->id()] = $oTicket->getEndDate();
                     }
                 }
@@ -985,11 +996,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             else {
                 $iDepends = (int) reset($dependencies);
                 $oTicket = $this->_oBugzilla->getBugById($iDepends);
-                if ($oTicket->isTheme() === false
-                    and $oTicket->isProject() === false
-                    and $oTicket->isStatusAtMost(Bug::STATUS_REOPENED)
-                ) {
-
+                if ($oTicket->isContainer() === false and $oTicket->isStatusAtMost(Bug::STATUS_REOPENED)) {
                     $this->_iPredecessor = $iDepends;
                 }
             }
@@ -1010,7 +1017,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
                 try {
                     $iBug = (int) $iBug;
                     $oBug = $this->_oBugzilla->getBugById($iBug);
-                    if ($oBug->isProject() === false and $oBug->isTheme() === false) {
+                    if ($oBug->isContainer() === false) {
                         if ($oBug->isClosed() !== true) {
                             $bReturn = true;
                         }
@@ -1033,11 +1040,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function isClosed() {
-        if ($this->getStatus() !== Bug::STATUS_CLOSED) {
-            return false;
-        }
-
-        return true;
+        return ($this->getStatus() === Bug::STATUS_CLOSED);
     }
 
     /**
@@ -1046,7 +1049,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function isMerged() {
-        return ($this->isClosed() === true or $this->isTheme() === true or ($this->hasFlag(Bug::FLAG_MERGE, '+') === true and $this->hasFlag(Bug::FLAG_MERGE, '?') === false));
+        return ($this->isClosed() === true or $this->isContainer() === true or ($this->hasFlag(Bug::FLAG_MERGE, '+') === true and $this->hasFlag(Bug::FLAG_MERGE, '?') === false));
     }
 
     /**
@@ -1098,7 +1101,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
                     'setter' => (string) $flag['setter'],
                 );
 
-                if (isset($flag['requestee']) === true) {
+                if (isset($flag['requestee']) === true and $aFlag['status'] === \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST) {
                     $sUser = strtok($flag['requestee'], '@');
                     $aName = explode('.', strtoupper($sUser));
                     $this->_data->{strtolower($sName) . '_user'} = $aName[0]{0} . ((isset($aName[1]) === true) ? $aName[1]{0} : '');

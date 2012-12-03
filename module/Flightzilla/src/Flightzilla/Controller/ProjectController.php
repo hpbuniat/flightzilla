@@ -109,7 +109,7 @@ class ProjectController extends AbstractActionController {
     /**
      *
      */
-    public function resourceAction() {
+    public function resourcesAction() {
         $oViewModel = new ViewModel;
         $oViewModel->mode = 'project';
 

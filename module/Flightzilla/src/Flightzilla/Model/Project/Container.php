@@ -92,7 +92,6 @@ class Container {
         'ganttOrange',
     );
 
-
     /**
      * Create the container
      *
@@ -108,10 +107,10 @@ class Container {
      * @return $this
      */
     public function setup() {
-        $aThemes = $this->_oBugzilla->getThemes();
-        foreach ($aThemes as $oTheme) {
-            if ($oTheme->isProject() === true and $oTheme->hasUnclosedBugs($this->_oBugzilla) === true) {
-                $this->_aProjects[$oTheme->id()] = $oTheme;
+        $aProjects = $this->_oBugzilla->getProjects();
+        foreach ($aProjects as $oProject) {
+            if ($oProject->hasUnclosedBugs($this->_oBugzilla) === true) {
+                $this->_aProjects[$oProject->id()] = $oProject;
             }
         }
 
@@ -141,7 +140,7 @@ class Container {
 
                 unset($oSort);
             }
-            catch (Exception $e) {
+            catch (\Exception $e) {
                 $this->_aErrors[] = $e->getMessage();
             }
         }
@@ -167,7 +166,7 @@ class Container {
                 $this->_aOrderedProjects[$oProject->id()]['tasks'] = $oSort->getSortedBugs();
                 unset($oSort);
             }
-            catch (Exception $e) {
+            catch (\Exception $e) {
                 $this->_aErrors[] = sprintf('%s (Project: %d)', $e->getMessage(), $oProject->id());
             }
         }

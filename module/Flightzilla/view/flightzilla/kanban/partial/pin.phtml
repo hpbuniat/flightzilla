@@ -14,7 +14,7 @@
         </span>
     </div>
     <div class="description">
-        <a class="bugLink" target="_blank" data-title="<?php echo $this->escapeHtml($this->oTicket->title())?>" href="<?php echo $this->layout()->sBugzilla; ?>/show_bug.cgi?id=<?php echo $this->oTicket->bug_id?>"><?php echo $this->escapeHtml($this->oTicket->title())?></a>
+        <a class="bugLink" target="_blank" data-title="<?php echo $this->escapeHtml($this->oTicket->title()); ?>" href="<?php echo $this->layout()->sBugzilla; ?>/show_bug.cgi?id=<?php echo $this->oTicket->bug_id; ?>"><?php echo $this->escapeHtml($this->oTicket->title())?></a>
     </div>
     <div class="bottom">
         <?php

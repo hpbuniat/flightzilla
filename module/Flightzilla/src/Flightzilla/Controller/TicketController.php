@@ -83,7 +83,8 @@ class TicketController extends AbstractActionController {
         $aModify = $this->params()->fromPost('modify');
         $aSpecial = array(
             'estimation',
-            'worked'
+            'worked',
+            'comment'
         );
         foreach ($aSpecial as $sSpecial) {
             $aTemp = $this->params()->fromPost($sSpecial);

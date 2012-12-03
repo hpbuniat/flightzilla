@@ -62,7 +62,8 @@ class Manager {
     protected $_aTasks = array(
         \Flightzilla\Model\Ticket\Task\Waiting::NAME,
         \Flightzilla\Model\Ticket\Task\Comment::NAME,
-        \Flightzilla\Model\Ticket\Task\Testing::NAME
+        \Flightzilla\Model\Ticket\Task\Testing::NAME,
+        \Flightzilla\Model\Ticket\Task\Review::NAME
     );
 
     /**

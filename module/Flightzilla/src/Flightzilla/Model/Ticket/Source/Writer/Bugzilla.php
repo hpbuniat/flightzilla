@@ -161,6 +161,21 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
 
     /**
      * (non-PHPdoc)
+     * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setUpdateTestserver()
+     */
+    public function setUpdateTestserver(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
+        $this->_getCommon($oTicket);
+
+        $sPayload = $oTicket->getFlagName(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTSERVER);
+        if (empty($sPayload) !== true) {
+            $this->_aPayload[$sPayload] = \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST;
+        }
+
+        return $this;
+    }
+
+    /**
+     * (non-PHPdoc)
      * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setDbChanged()
      */
     public function setDbChanged(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
@@ -212,26 +227,46 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
     }
 
     /**
-     * Set the status to assigned
-     *
-     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
-     * @param  mixed $mPayload
-     *
-     * @return $this
+     * (non-PHPdoc)
+     * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setAssigned()
      */
     public function setAssigned(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
         return $this->setStatus($oTicket, \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED);
     }
 
     /**
-     * Set the status to resolved
-     *
-     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
-     * @param  mixed $mPayload
-     *
-     * @return $this
+     * (non-PHPdoc)
+     * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setResolved()
      */
     public function setResolved(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
+        $this->_aPayload['resolution'] = \Flightzilla\Model\Ticket\Type\Bug::RESOLUTION_FIXED;
+        if (empty($this->_aPayload['comment']) === true) {
+            $this->_aPayload['comment'] = 'Finished!';
+        }
+
         return $this->setStatus($oTicket, \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED);
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setConfirmed()
+     */
+    public function setConfirmed(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
+        if (empty($this->_aPayload['comment']) === true) {
+            $this->_aPayload['comment'] = 'Paused!';
+        }
+
+        return $this->setStatus($oTicket, \Flightzilla\Model\Ticket\Type\Bug::STATUS_CONFIRMED);
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setComment()
+     */
+    public function setComment(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
+        $this->_getCommon($oTicket);
+
+        $this->_aPayload['comment'] = $mPayload;
+        return $this;
     }
 }

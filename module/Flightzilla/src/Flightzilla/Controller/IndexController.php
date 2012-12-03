@@ -119,10 +119,6 @@ class IndexController extends AbstractActionController {
 
         $oTicketService = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel)->getService();
 
-        $oTasks = new \Flightzilla\Model\Ticket\Task\Manager($oTicketService);
-        $oViewModel->aTasks = $oTasks->check($oTicketService->getAllBugs());
-        $oViewModel->iEntries = $oTasks->getEntryCount();
-
         return $oViewModel;
     }
 

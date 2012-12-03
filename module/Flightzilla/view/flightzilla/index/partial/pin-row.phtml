@@ -6,13 +6,15 @@
         'not' => ''
     );
 
-    $iShowed = 0;
+    $iActive = $iShowed = 0;
     foreach ($this->aStack as $this->oTicket) {
         $sRender = $this->render('flightzilla/kanban/partial/pin.phtml');
         if ($this->oTicket->isWip() === true) {
+            $iActive++;
             $aPins['active'] .= $sRender;
         }
-        elseif ($iShowed++ < $this->iSplit and $this->oTicket->isStatusAtLeast(\Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED) !== true) {
+        elseif ($iShowed < $this->iSplit and $this->oTicket->isStatusAtLeast(\Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED) !== true) {
+            $iShowed++;
             $aPins['pending'] .= $sRender;
         }
         else {
@@ -21,8 +23,25 @@
     }
     ?>
     <div class="span<?php echo (11 - $this->iSplit); ?>">
-        <img alt="lazy" src="<?php echo $this->basePath() . '/img/lazy.png'; ?>" class="lazy <?php echo (empty($aPins['active']) === true) ? '' : 'hidden'; ?>" />
-        <?php echo $aPins['active']; ?>
+        <?php if ($this->sRowMode ==  'project' and $iActive === 0 and $iShowed === 0): ?>
+            <?php if ($this->oProject->hasDevelopment() === false): ?>
+                <div class="alert alert-error">
+                    There are no development-tickets for this project!
+                </div>
+            <?php else: ?>
+                <div class="alert alert-success">
+                    <strong>Well done!</strong> No tickets left!
+                </div>
+                <?php if ($this->oProject->isMerged() === true): ?>
+                    <div class="alert alert-success">
+                        This project will be part of the next release!
+                    </div>
+                <?php endif;?>
+            <?php endif;?>
+        <?php else:?>
+            <img alt="lazy" src="<?php echo $this->basePath() . '/img/lazy.png'; ?>" class="lazy <?php echo ($iActive === 0) ? '' : 'hidden'; ?>" />
+            <?php echo $aPins['active']; ?>
+        <?php endif;?>
     </div>
     <div class="span1 relative-box">
         <strong class="largeGray"><?php echo count($this->aStack);?> <br/> ...</strong>
