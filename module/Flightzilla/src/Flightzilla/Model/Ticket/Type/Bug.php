@@ -380,6 +380,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * Check, if there was an error retrieving the ticket
+     *
+     * @return boolean
+     */
+    public function isError() {
+        return (empty($this->_data['error']) === false);
+    }
+
+    /**
      * Inject some necessary objects
      *
      * @param \Flightzilla\Model\Ticket\Source\Bugzilla $oBugzilla
@@ -542,7 +551,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
 
         // is there a predecessor?
         $iPredecessor = $this->getActivePredecessor();
-        if ($iPredecessor > 0) {
+        if (empty($iPredecessor) !== true) {
             $iEndDate = $this->_oBugzilla->getBugById($iPredecessor)->getEndDate();
             $this->_iStartDate = strtotime('+1 day ' . \Flightzilla\Model\Timeline\Date::START, $iEndDate);
         }
@@ -709,7 +718,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return bool
      */
     public function hasDependencies(){
-        return (isset($this->dependson) === true);
+        $aDepends = $this->getDepends();
+        return (empty($aDepends) === false);
     }
 
     /**
@@ -979,9 +989,14 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
 
             if (count($dependencies) > 1) {
                 foreach ($dependencies as $dependency) {
-                    $oTicket = $this->_oBugzilla->getBugById($dependency);
-                    if ($oTicket->isStatusAtMost(Bug::STATUS_REOPENED) === true and $oTicket->isContainer() === false) {
-                        $aEndDates[$oTicket->id()] = $oTicket->getEndDate();
+                    try {
+                        $oTicket = $this->_oBugzilla->getBugById($dependency);
+                        if ($oTicket->isStatusAtMost(Bug::STATUS_REOPENED) === true and $oTicket->isContainer() === false) {
+                            $aEndDates[$oTicket->id()] = $oTicket->getEndDate();
+                        }
+                    }
+                    catch (Bug\Exception $e) {
+                        $this->_oBugzilla->getLogger()->info($e->getTraceAsString());
                     }
                 }
 

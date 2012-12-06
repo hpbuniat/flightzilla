@@ -78,6 +78,7 @@ return array(
                 $oTicketSource = new \Flightzilla\Model\Ticket\Source\Bugzilla($oResource, $oHttpClient, $oConfig);
                 $oTicketSource->setCache($oServiceManager->get('_cache'))
                               ->setAuth($oServiceManager->get('_auth'))
+                              ->setLogger($oServiceManager->get('_log'))
                               ->setProject($oSession->sCurrentProduct)
                               ->initHttpClient();
 

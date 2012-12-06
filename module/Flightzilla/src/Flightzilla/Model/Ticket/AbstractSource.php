@@ -110,6 +110,13 @@ abstract class AbstractSource {
     protected $_client = null;
 
     /**
+     * The logger
+     *
+     * @var \Zend\Log\Logger
+     */
+    protected $_oLogger;
+
+    /**
      * Set the cache
      *
      * @param  \Zend\Cache\Storage\StorageInterface $oCache
@@ -131,6 +138,27 @@ abstract class AbstractSource {
     public function setAuth(\Flightzilla\Authentication\Adapter $oAuth) {
         $this->_oAuth = $oAuth;
         return $this;
+    }
+
+    /**
+     * Set the logger
+     *
+     * @param  \Zend\Log\Logger $oLogger
+     *
+     * @return $this
+     */
+    public function setLogger(\Zend\Log\Logger $oLogger) {
+        $this->_oLogger = $oLogger;
+        return $this;
+    }
+
+    /**
+     * Get the logger
+     *
+     * @return \Zend\Log\Logger
+     */
+    public function getLogger() {
+        return $this->_oLogger;
     }
 
     /**

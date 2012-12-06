@@ -1399,9 +1399,12 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      *
      * @return \Flightzilla\Model\Ticket\Type\Bug
      *
-     * @throws \Exception if a bug is not found
+     * @throws \Flightzilla\Model\Ticket\Type\Bug\Exception if a bug is not found
      */
     public function getBugById($iBug) {
+        if (empty($iBug) === true) {
+            throw new \Flightzilla\Model\Ticket\Type\Bug\Exception(\Flightzilla\Model\Ticket\Type\Bug\Exception::INSUFFICIENT_DATA);
+        }
 
         if (isset($this->_allBugs[$iBug]) !== true) {
             $aList                 = $this->getBugListByIds(array($iBug));
