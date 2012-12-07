@@ -126,20 +126,22 @@ class TicketService extends AbstractPlugin {
             $oView->aUntouched = $oTicketService->getUntouched();
         }
 
-        $oView->aMemberBugs = $oTicketService->getMemberBugs();
-        $oView->aTeamBugs = $oTicketService->getTeamBugs($oView->aMemberBugs);
+        if ($sMode !== 'status') {
+            $oView->aMemberBugs = $oTicketService->getMemberBugs();
+            $oView->aTeamBugs = $oTicketService->getTeamBugs($oView->aMemberBugs);
 
-        $oView->iTotal = $oTicketService->getCount();
-        $oView->aStats = $oTicketService->getStats();
-        $oView->aStatuses = $oTicketService->getStatuses();
-        $oView->aPriorities = $oTicketService->getPriorities();
-        $oView->aSeverities = $oTicketService->getSeverities();
-        $oView->sChuck = $oTicketService->getChuckStatus();
-        $oView->aThemes = $oTicketService->getThemesAsStack();
+            $oView->iTotal = $oTicketService->getCount();
+            $oView->aStats = $oTicketService->getStats();
+            $oView->aStatuses = $oTicketService->getStatuses();
+            $oView->aPriorities = $oTicketService->getPriorities();
+            $oView->aSeverities = $oTicketService->getSeverities();
+            $oView->sChuck = $oTicketService->getChuckStatus();
+            $oView->aThemes = $oTicketService->getThemesAsStack();
 
-        // expose some those objects to the view
-        $oView->oTicketService = $oTicketService;
-        $oView->oResourceManager = $oTicketService->getResourceManager();
+            // expose some those objects to the view
+            $oView->oTicketService = $oTicketService;
+            $oView->oResourceManager = $oTicketService->getResourceManager();
+        }
 
         $oTasks = new \Flightzilla\Model\Ticket\Task\Manager($oTicketService);
         $oView->aTasks = $oTasks->check($oTicketService->getAllBugs());

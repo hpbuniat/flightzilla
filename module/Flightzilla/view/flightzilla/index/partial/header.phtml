@@ -20,7 +20,7 @@
                             <?php endforeach; ?>
                         </ul>
                     </li>
-                    <li><a class="refresh-button" href="javascript:window.location.reload(); "><i class="icon-refresh icon-white"></i> Refresh</a></li>
+                    <li><a class="refresh-button" href="#"><i class="icon-refresh icon-white"></i> Refresh</a></li>
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                             <i class="icon-user icon-white"></i> <?php echo $this->layout()->sCurrentUser; ?>
@@ -30,21 +30,8 @@
                             <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'logout')); ?>"><i class="icon-off"></i> Sign Out</a></li>
                         </ul>
                     </li>
-                    <li>
-                        <a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'dashboard')); ?>">
-                            <span data-title="<?php $this->aTasks[\Flightzilla\Model\Ticket\Task\Comment::NAME]['description']; ?>" class="tipper badge">
-                                <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Comment::NAME]['stack']); ?>
-                            </span>
-                            <span data-title="<?php $this->aTasks[\Flightzilla\Model\Ticket\Task\Testing::NAME]['description']; ?>" class="tipper badge badge-warning">
-                                <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Testing::NAME]['stack']); ?>
-                            </span>
-                            <span data-title="<?php $this->aTasks[\Flightzilla\Model\Ticket\Task\Review::NAME]['description']; ?>" class="tipper badge badge-important">
-                                <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Review::NAME]['stack']); ?>
-                            </span>
-                            <span data-title="<?php $this->aTasks[\Flightzilla\Model\Ticket\Task\Waiting::NAME]['description']; ?>" class="tipper badge badge-info">
-                                <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Waiting::NAME]['stack']); ?>
-                            </span>
-                        </a>
+                    <li id="dStatus" data-data="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'status')); ?>">
+                        <?php echo $this->render('flightzilla/index/status.phtml'); ?>
                     </li>
                 </ul>
             </div>

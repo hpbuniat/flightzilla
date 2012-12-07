@@ -1265,9 +1265,10 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         foreach ($aHistory as $oItem) {
             if (isset($oItem->work_time) === true) {
                 $sResource = $this->_oResource->getResourceByEmail((string) $oItem->who);
+                $iTime = strtotime((string) $oItem->bug_when);
                 $aTimes[] = array(
-                    'date' => date('Y-m-d', strtotime((string) $oItem->bug_when)),
-                    'datetime' => strtotime((string) $oItem->bug_when),
+                    'date' => date('Y-m-d', $iTime),
+                    'datetime' => $iTime,
                     'duration' => (float) $oItem->work_time,
                     'user' => $sResource,
                     'user_mail' => (string) $oItem->who,

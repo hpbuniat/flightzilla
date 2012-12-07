@@ -92,7 +92,31 @@ class IndexController extends AbstractActionController {
         $oViewModel = new ViewModel;
         $oViewModel->mode = 'list';
 
+        return $oViewModel;
+    }
+
+    /**
+     *
+     */
+    public function listAction() {
+        $oViewModel = new ViewModel;
+        $oViewModel->mode = 'list';
+        $oViewModel->setTerminal(true);
+
         $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
+
+        return $oViewModel;
+    }
+
+    /**
+     *
+     */
+    public function statusAction() {
+        $oViewModel = new ViewModel;
+        $oViewModel->mode = 'status';
+        $oViewModel->setTerminal(true);
+
+        $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, $oViewModel->mode);
 
         return $oViewModel;
     }
