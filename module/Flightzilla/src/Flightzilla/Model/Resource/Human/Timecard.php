@@ -96,6 +96,8 @@ class Timecard {
 
                 $this->_aDates[$aTime['date']][] = array(
                     'time' => $aTime['duration'],
+                    'start' => ($aTime['datetime'] - (3600 * $aTime['duration'])),
+                    'end' => $aTime['datetime'],
                     'ticket' => $oTicket
                 );
             }
@@ -149,8 +151,8 @@ class Timecard {
                         'label'       => $aTime['ticket']->title(),
                         'desc'        => '<b>' . $aTime['ticket']->title() . '</b><br />'
                             . '<b>Assignee:</b> ' . (string) $aTime['ticket']->getResource() . '<br />'
-                            . '<b>Start:</b> ' . date('d.m.Y H:i', $aTime['ticket']->getStartDate()) . '<br />'
-                            . '<b>Ende:</b> ' . date('d.m.Y H:i', $aTime['ticket']->getEndDate()) . '<br />'
+                            . '<b>Start:</b> ' . date('d.m.Y H:i', $aTime['start']) . '<br />'
+                            . '<b>Ende:</b> ' . date('d.m.Y H:i', $aTime['end']) . '<br />'
                             . (string) $aTime['ticket']->long_desc->thetext
                     );
 
