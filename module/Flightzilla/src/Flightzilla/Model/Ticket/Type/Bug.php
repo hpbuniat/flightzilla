@@ -609,6 +609,10 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         }
 
         $this->_iStartDate = $this->_oDate->getNextWorkday($this->_iStartDate);
+        if ($this->getEndDate() < $this->_iStartDate) {
+            $this->_oBugzilla->getLogger()->info(sprintf('End-Date < Start-Date! -> Ticket: %s, Start: %s, End: %s', $this->id(), date('Y-m-d', $this->_iStartDate), date('Y-m-d', $this->getEndDate())));
+        }
+
         return $this->_iStartDate;
     }
 

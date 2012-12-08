@@ -153,7 +153,7 @@ class Timecard {
                             . '<b>Assignee:</b> ' . (string) $aTime['ticket']->getResource() . '<br />'
                             . '<b>Start:</b> ' . date('d.m.Y H:i', $aTime['start']) . '<br />'
                             . '<b>Ende:</b> ' . date('d.m.Y H:i', $aTime['end']) . '<br />'
-                            . (string) $aTime['ticket']->long_desc->thetext
+                            . substr((string) $aTime['ticket']->long_desc->thetext, 0, 120)
                     );
 
                     $iStart = $iEnd + 300;
