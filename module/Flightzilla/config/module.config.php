@@ -120,6 +120,7 @@ return array(
         'invokables' => array(
             'buggradient' => 'Flightzilla\View\Helper\Buggradient',
             'deadlinestatus' => 'Flightzilla\View\Helper\Deadlinestatus',
+            'finishstatus' => 'Flightzilla\View\Helper\Finishstatus',
             'estimation' => 'Flightzilla\View\Helper\Estimation',
             'prioritycolor' => 'Flightzilla\View\Helper\Prioritycolor',
             'ticketicons' => 'Flightzilla\View\Helper\Ticketicons',

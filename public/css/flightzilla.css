@@ -175,6 +175,22 @@ div.modal {
 }
 
 img.lazy {
+    margin-top: 20px;
     width: 170px;
     height: 90px;
+}
+
+.projectBox img.lazy {
+    height: 64px;
+    width: 120px;
+}
+
+div.progress-heading {
+    margin: 10px 15px;
+    width: 100px;
+}
+
+.progress-heading .bar {
+    background-color: #999;
+    background-repeat: repeat-x;
 }

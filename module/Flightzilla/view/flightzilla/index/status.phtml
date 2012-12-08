@@ -13,4 +13,8 @@
             <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Waiting::NAME]['stack']); ?>
         </span>
     </a>
+<?php else: ?>
+<div class="progress progress-striped progress-heading active">
+    <div class="bar" style="width: 100%;"></div>
+</div>
 <?php endif; ?>

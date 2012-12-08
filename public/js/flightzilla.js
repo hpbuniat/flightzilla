@@ -122,7 +122,7 @@
          * Hover-Info for kanban-pins
          */
         tooltips: function() {
-            $('div.description a, span.theme a, a.tooltip, span.tipper').tooltip();
+            $('div.description a, span.theme a, a.tooltip, .tipper').tooltip();
         },
         loadStatus: function() {
             var $dStatus = this.dStatus,
@@ -140,7 +140,7 @@
             var $dContent = this.dContent,
                 $loader = this.loader,
                 $hide = $('div.wrapper > *:not(:first)'),
-                aSema = this.aSemaphore;;
+                aSema = this.aSemaphore;
 
             /* Hide the content on reload */
             this.modalDiv.modal('hide');

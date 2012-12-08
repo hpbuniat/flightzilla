@@ -112,15 +112,14 @@ class Project extends Bug {
         else {
             // End date of the last ticket in current project
             $aEndDates = array();
-            $depends   = $this->getDepends($this->_oBugzilla);
-            foreach ($depends as $child) {
-                $aEndDates[] = (float) $this->_oBugzilla
-                    ->getBugById($child)
-                    ->getEndDate();
+            $aDepends   = $this->getDepends();
+            foreach ($aDepends as $iTicket) {
+                $aEndDates[$iTicket] = (float) $this->_oBugzilla->getBugById($iTicket)->getEndDate();
             }
 
-            arsort($aEndDates);
-            $this->_iEndDate = current($aEndDates);
+            error_log($this->id() . ': ' . print_r($aEndDates, true), 3, '/var/www/buglog.log');
+            asort($aEndDates);
+            $this->_iEndDate = end($aEndDates);
 
             $this->_iEndDate = $this->_oDate->getNextWorkday($this->_iEndDate);
         }

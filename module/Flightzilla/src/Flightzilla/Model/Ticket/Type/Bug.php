@@ -590,6 +590,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             $oResource = $this->getResource();
             if ($oResource instanceof \Flightzilla\Model\Resource\Human) {
                 $nextPrioBug = $oResource->getNextHigherPriorityTicket($this);
+
                 if ($nextPrioBug->id() !== $this->id()) {
                     $this->_iStartDate = $nextPrioBug->getEndDate();
                 }
@@ -649,8 +650,23 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         }
         else {
             // Start date + estimated
-            $iStartDate      = $this->getStartDate();
-            $iDays           = ceil($this->duration() / \Flightzilla\Model\Timeline\Date::AMOUNT);
+            if ($this->isWorkedOn(Bug::STATUS_CLOSED) === true) {
+                $iLeft = $this->duration() - $this->getEstimation();
+                if ($iLeft <= 0) {
+                    $iLeft = \Flightzilla\Model\Timeline\Date::AMOUNT;
+                }
+
+                $iStartDate = time();
+                if ($this->getStatus() !== self::STATUS_ASSIGNED) {
+                    $iStartDate = $this->_oDate->getNextWorkday($iStartDate);
+                }
+            }
+            else {
+                $iStartDate  = $this->getStartDate();
+                $iLeft       = $this->duration();
+            }
+
+            $iDays           = ceil($iLeft / \Flightzilla\Model\Timeline\Date::AMOUNT);
 
             $this->_iEndDate = strtotime(sprintf('+%d day ' . \Flightzilla\Model\Timeline\Date::END, $iDays), $iStartDate);
             $this->_iEndDate = $this->_oDate->getNextWorkday($this->_iEndDate);

@@ -41,7 +41,7 @@
  */
 
 /**
- * View-Helper to create a deadline-flag
+ * View-Helper to highlight the estimated finish-date of a project
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -52,43 +52,47 @@
 namespace Flightzilla\View\Helper;
 use Zend\View\Helper\AbstractHelper;
 
-class Deadlinestatus extends AbstractHelper {
+class Finishstatus extends AbstractHelper {
+
+    const ENDDATE = 'Estimation';
+    const DEADLINE = 'Expectation';
 
     /**
-     * Determine the deadline-status of a bug
+     * Colorize the finish-date of a project
      *
      * @param  \Flightzilla\Model\Ticket\Type\Bug $oTicket
+     * @param  string $sWhich
      *
      * @return string
      */
-    public function __invoke(\Flightzilla\Model\Ticket\Type\Bug $oTicket) {
+    public function __invoke(\Flightzilla\Model\Ticket\Type\Bug $oTicket, $sWhich = self::ENDDATE) {
 
-        if ($oTicket->deadlineStatus()) {
-            $sIcon = 'ui-silk-flag-green';
-            switch ($oTicket->deadlineStatus()) {
-                case \Flightzilla\Model\Ticket\Type\Bug::DEADLINE_PAST:
-                    $sIcon = 'ui-silk-flag-pink';
-                    break;
+        $sReturn = '';
 
-                case \Flightzilla\Model\Ticket\Type\Bug::DEADLINE_TODAY:
-                    $sIcon = 'ui-silk-flag-red';
-                    break;
+        $iEndDate = ($sWhich === self::ENDDATE) ? $oTicket->getEndDate() : strtotime($oTicket->getDeadline());
+        if (empty($iEndDate) !== true) {
+            $iTime = time();
 
-                case \Flightzilla\Model\Ticket\Type\Bug::DEADLINE_NEAR:
-                    $sIcon = 'ui-silk-flag-yellow';
-                    break;
-
-                case \Flightzilla\Model\Ticket\Type\Bug::DEADLINE_WEEK:
-                    $sIcon = 'ui-silk-flag-orange';
-                    break;
-
-                default:
-                    break;
+            $sClass = 'label-success';
+            if ($iEndDate < $iTime) {
+                $sClass = 'label-important';
+            }
+            elseif ($iEndDate < ($iTime + 172800)) {
+                // within the next 2 days
+                $sClass = 'label-warning';
+            }
+            elseif ($iEndDate < ($iTime + 604800)) {
+                // within the next week
+                $sClass = 'label-info';
             }
 
-            return sprintf('&nbsp;<span class="deadline ui-silk %s" title="%s">&nbsp;</span>', $sIcon, $oTicket->getDeadline());
+            $sDate = date('Y-m-d', $iEndDate);
+            $sReturn = sprintf('<i class="icon-time"></i>&nbsp;<span data-title="%s" class="tipper label %s">%s</span>', $sWhich, $sClass, $sDate, $sDate);
+        }
+        else {
+            $sReturn = sprintf('<span class="label label-important">%s missing!</span>', $sWhich);
         }
 
-        return '';
+        return $sReturn;
     }
 }
