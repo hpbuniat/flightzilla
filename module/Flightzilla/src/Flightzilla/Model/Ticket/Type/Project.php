@@ -117,7 +117,6 @@ class Project extends Bug {
                 $aEndDates[$iTicket] = (float) $this->_oBugzilla->getBugById($iTicket)->getEndDate();
             }
 
-            error_log($this->id() . ': ' . print_r($aEndDates, true), 3, '/var/www/buglog.log');
             asort($aEndDates);
             $this->_iEndDate = end($aEndDates);
 
@@ -125,6 +124,21 @@ class Project extends Bug {
         }
 
         return $this->_iEndDate;
+    }
+
+    /**
+     * Left hours of all dependencies
+     *
+     * @return float
+     */
+    public function getLeftTimeOfDependencies() {
+        $fLeft = 0;
+        $aDepends   = $this->getDepends();
+        foreach ($aDepends as $iTicket) {
+            $fLeft += (float) $this->_oBugzilla->getBugById($iTicket)->getLeftHours();
+        }
+
+        return $fLeft;
     }
 
     /**

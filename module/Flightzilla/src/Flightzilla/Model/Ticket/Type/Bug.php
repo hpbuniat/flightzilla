@@ -560,7 +560,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             $iEndDate = $this->getEndDate();
 
             if (empty($iEndDate) !== true) {
-                $this->_iStartDate = strtotime(sprintf('-%d day ' . \Flightzilla\Model\Timeline\Date::START, ceil($this->duration() / \Flightzilla\Model\Timeline\Date::AMOUNT)), $iEndDate);
+                $this->_iStartDate = strtotime(sprintf('-%d day ' . \Flightzilla\Model\Timeline\Date::START, ceil($this->getLeftHours() / \Flightzilla\Model\Timeline\Date::AMOUNT)), $iEndDate);
             }
         }
         // is someone currently working on this ticket?
@@ -651,7 +651,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         else {
             // Start date + estimated
             if ($this->isWorkedOn(Bug::STATUS_CLOSED) === true) {
-                $iLeft = $this->duration() - $this->getEstimation();
+                $iLeft = $this->getLeftHours();
                 if ($iLeft <= 0) {
                     $iLeft = \Flightzilla\Model\Timeline\Date::AMOUNT;
                 }
@@ -663,7 +663,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             }
             else {
                 $iStartDate  = $this->getStartDate();
-                $iLeft       = $this->duration();
+                $iLeft       = $this->getLeftHours();
             }
 
             $iDays           = ceil($iLeft / \Flightzilla\Model\Timeline\Date::AMOUNT);
@@ -672,20 +672,11 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             $this->_iEndDate = $this->_oDate->getNextWorkday($this->_iEndDate);
         }
 
-        return $this->_iEndDate;
-    }
-
-    /**
-     * Get the tickets duration
-     *
-     * @return float
-     */
-    public function duration() {
-        if ($this->isEstimated()) {
-            return (float) $this->estimated_time;
+        if ($this->_iEndDate < $this->getStartDate()) {
+            $this->_oBugzilla->getLogger()->info(sprintf('End-Date < Start-Date! -> Ticket: %s, Start: %s, End: %s', $this->id(), date('Y-m-d', $this->getStartDate()), date('Y-m-d', $this->_iEndDate)));
         }
 
-        return 0;
+        return $this->_iEndDate;
     }
 
     /**
@@ -860,6 +851,19 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function getComponent() {
         return (string) $this->component;
+    }
+
+    /**
+     * Get the remaining hours of a ticket
+     *
+     * @return string
+     */
+    public function getLeftHours() {
+        if ($this->isEstimated() === true) {
+            return (float) $this->remaining_time;
+        }
+
+        return 0;
     }
 
     /**

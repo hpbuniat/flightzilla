@@ -60,16 +60,16 @@ class Finishstatus extends AbstractHelper {
     /**
      * Colorize the finish-date of a project
      *
-     * @param  \Flightzilla\Model\Ticket\Type\Bug $oTicket
+     * @param  \Flightzilla\Model\Ticket\Type\Project $oProject
      * @param  string $sWhich
      *
      * @return string
      */
-    public function __invoke(\Flightzilla\Model\Ticket\Type\Bug $oTicket, $sWhich = self::ENDDATE) {
+    public function __invoke(\Flightzilla\Model\Ticket\Type\Project $oProject, $sWhich = self::ENDDATE) {
 
         $sReturn = '';
 
-        $iEndDate = ($sWhich === self::ENDDATE) ? $oTicket->getEndDate() : strtotime($oTicket->getDeadline());
+        $iEndDate = ($sWhich === self::ENDDATE) ? $oProject->getEndDate() : strtotime($oProject->getDeadline());
         if (empty($iEndDate) !== true) {
             $iTime = time();
 
@@ -84,6 +84,18 @@ class Finishstatus extends AbstractHelper {
             elseif ($iEndDate < ($iTime + 604800)) {
                 // within the next week
                 $sClass = 'label-info';
+            }
+
+            $sDate = date('Y-m-d', $iEndDate);
+            $iLeft = $oProject->getLeftTimeOfDependencies();
+            if ($sWhich === self::ENDDATE and $iLeft > 0) {
+                $iDays = ceil($iLeft / \Flightzilla\Model\Timeline\Date::AMOUNT);
+                $oDate = new \Flightzilla\Model\Timeline\Date();
+                if ($oDate->isGreater($iEndDate, $iDays) === false) {
+                    $sWhich = sprintf('%s, adjusted by %d days (was %s)', $sWhich, $iDays, $sDate);
+                    $iEndDate = strtotime(sprintf('+%d days', $iDays), $oDate->getNextWorkday(time()));
+                    $sClass = 'label-important';
+                }
             }
 
             $sDate = date('Y-m-d', $iEndDate);

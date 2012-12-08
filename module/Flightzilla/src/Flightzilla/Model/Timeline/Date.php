@@ -27,8 +27,8 @@
  * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
  * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-    * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-    * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
@@ -104,12 +104,6 @@ class Date {
     );
 
     /**
-     * Create a date
-     */
-    public function __construct() {
-    }
-
-    /**
      * Check if a day is a holiday or a dayy of the weekend.
      *
      * @param $iTimestamp
@@ -123,10 +117,10 @@ class Date {
         $year = date('Y', $iTimestamp);
 
         // Parameter in richtiges Format bringen
-        if(strlen($day) == 1) {
+        if (strlen($day) === 1) {
             $day = "0$day";
         }
-        if(strlen($month) == 1) {
+        if (strlen($month) === 1) {
             $month = "0$month";
         }
 
@@ -135,7 +129,7 @@ class Date {
         $weekday = $date['wday'];
 
         // Prüfen, ob Wochenende
-        if($weekday == 0 || $weekday == 6) {
+        if ($weekday == 0 or $weekday == 6) {
             return true;
         }
 
@@ -150,8 +144,8 @@ class Date {
         // Bewegliche Feiertage berechnen
         $days = 60 * 60 * 24;
         $easterSunday = easter_date($year);
-        $aHolidays[] = date("dm", $easterSunday - 2 * $days);  // Karfreitag
-        $aHolidays[] = date("dm", $easterSunday + 1 * $days);  // Ostermontag
+        $aHolidays[] = date("dm", $easterSunday - 2 * $days); // Karfreitag
+        $aHolidays[] = date("dm", $easterSunday + 1 * $days); // Ostermontag
         $aHolidays[] = date("dm", $easterSunday + 39 * $days); // Himmelfahrt
         $aHolidays[] = date("dm", $easterSunday + 50 * $days); // Pfingstmontag
 
@@ -162,12 +156,13 @@ class Date {
             $date = getdate($iDate);
             $weekday = $date['wday'];
 
-        } while ($weekday !== 3);
+        }
+        while ($weekday !== 3);
 
         $aHolidays[] = date('dm', $iDate); // Buß - und Bettag
 
         // Prüfen, ob Feiertag
-        $code = $day.$month;
+        $code = $day . $month;
         return (in_array($code, $aHolidays) === true) ? true : false;
     }
 
@@ -182,12 +177,24 @@ class Date {
 
         $d = 0;
         do {
-            $iNextWorkday   = strtotime('+' . $d . 'day', $iTimestamp);
+            $iNextWorkday = strtotime('+' . $d . 'day', $iTimestamp);
             $bNonWorkingDay = $this->isWorkFreeDay($iNextWorkday);
             $d++;
         }
         while ($bNonWorkingDay);
 
         return $iNextWorkday;
+    }
+
+    /**
+     * Check if the timestamp is greater than the current date + $iDays days
+     *
+     * @param  int $iTimestamp
+     * @param  int $iDays
+     *
+     * @return boolean
+     */
+    public function isGreater($iTimestamp, $iDays) {
+        return ($iTimestamp >= strtotime(sprintf('+%d days', $iDays)));
     }
 }

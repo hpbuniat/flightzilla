@@ -70,9 +70,10 @@ class CollectionTime extends AbstractHelper {
         );
 
         foreach($aTickets as $oTicket) {
+            /* @var $oTicket \Flightzilla\Model\Ticket\Type\Bug */
             if ($oTicket->isEstimated()) {
                 $fSpent = (float) $oTicket->actual_time;
-                $fEsti = (float) $oTicket->estimated_time;
+                $fEsti = (float) $oTicket->getEstimation();
                 $fLeft = ($fEsti > $fSpent and $oTicket->isStatusAtLeast(\Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED) !== true) ? ($fEsti - $fSpent) : 0;
                 $aTimes['spent'] += $fSpent;
                 $aTimes['esti'] += $fEsti;
