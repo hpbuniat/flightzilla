@@ -654,11 +654,14 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             return $this->_iEndDate;
         }
 
+        $iTime = time();
+        $bIsResolved = ($this->isStatusAtLeast(Bug::STATUS_RESOLVED) === true);
+
         if ($this->cf_due_date) {
             $sEndDate = (string) $this->cf_due_date;
             $this->_iEndDate = strtotime(str_replace('00:00:00', \Flightzilla\Model\Timeline\Date::END, $sEndDate));
         }
-        elseif ($this->isStatusAtLeast(Bug::STATUS_RESOLVED) === true) {
+        elseif ($bIsResolved) {
             $aWorked = $this->getWorkedHours();
             $aLast = end($aWorked);
 
@@ -666,9 +669,10 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         }
         elseif($this->isOrga() === true) {
             // if the ticket is of type 'organization', then it is finished right now --> @see \Flightzilla\Model\Ticket\Integrity\Constraint\OrganizationWithoutDue
-            $this->_iEndDate = time();
+            $this->_iEndDate = $iTime;
         }
-        else {
+
+        if ($bIsResolved === false and (empty($this->_iEndDate) === true or $this->_iEndDate < $iTime)) {
             // Start date + estimated
             if ($this->isWorkedOn(Bug::STATUS_CLOSED) === true) {
                 $iLeft = $this->getLeftHours();

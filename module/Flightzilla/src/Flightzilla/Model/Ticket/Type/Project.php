@@ -124,7 +124,8 @@ class Project extends Bug {
             $sEndDate = (string) $this->cf_due_date;
             $this->_iEndDate = strtotime(str_replace('00:00:00', \Flightzilla\Model\Timeline\Date::END, $sEndDate));
         }
-        else {
+
+        if (empty($this->_iEndDate) or $this->_iEndDate < time()) {
             // End date of the last ticket in current project
             $aEndDates = array();
             $aDepends   = $this->getDepends();
