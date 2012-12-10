@@ -88,13 +88,13 @@ class AnalyticsController extends AbstractActionController {
         $oViewModel = new ViewModel;
         $oViewModel->setTerminal(true);
 
-        $sPortal = $this->params()->fromPost('portal');
-        if (empty($sPortal) !== true) {
+        $oViewModel->sPortal = htmlentities($this->params()->fromPost('portal'));
+        if (empty($oViewModel->sPortal) !== true) {
             $oViewModel->mode = $this->params()->fromPost('mode');
             $oViewModel->which = $this->params()->fromPost('which');
             $oViewModel->sTarget = $this->params()->fromPost('container');
 
-            $oService = $this->getPluginManager()->get(Analytics::NAME)->init($oViewModel, $sPortal);
+            $oService = $this->getPluginManager()->get(Analytics::NAME)->init($oViewModel, $oViewModel->sPortal);
 
             $this->getResponse()->getHeaders()->addHeaders(array(
                 'Content-Type' => $oService->getContentType()

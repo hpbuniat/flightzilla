@@ -240,7 +240,6 @@
                         }).always(function() {
                             tab.find('.loading').remove();
                             $this.find('span').remove();
-                            f.init();
                         });
                     }
                 }
