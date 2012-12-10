@@ -170,6 +170,10 @@ div.modal {
     height: 90px;
 }
 
+.memberBox .alert {
+    margin: 5px;
+}
+
 .dash .progress {
     margin: 0 20px 0 0;
 }

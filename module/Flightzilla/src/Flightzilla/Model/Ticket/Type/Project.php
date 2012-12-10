@@ -68,12 +68,16 @@ class Project extends Bug {
 
     /**
      * Get start date as timestamp.
+     * Start date is
+     * - the end of its predecessor
+     * - the first start-date of a blocking ticket
+     * - or the next workday.
      *
-     * Start date is either the end of its predecessor or the next workday.
+     * @param  boolean|null $iCalled
      *
      * @return int
      */
-    public function getStartDate() {
+    public function getStartDate($iCalled = null) {
         if ($this->_iStartDate > 0){
             return $this->_iStartDate;
         }
@@ -84,9 +88,21 @@ class Project extends Bug {
             $iEndDate = $this->_oBugzilla->getBugById($iPredecessor)->getEndDate();
             $this->_iStartDate = strtotime('+1 day ' . \Flightzilla\Model\Timeline\Date::START, $iEndDate);
         }
+        else {
+            // start date of the first ticket in current project
+            $aStartDate = array();
+            $aDepends   = $this->getDepends();
+            foreach ($aDepends as $iTicket) {
+                $aStartDate[$iTicket] = (float) $this->_oBugzilla->getBugById($iTicket)->getStartDate($this->id());
+                error_log($iTicket . ': "' . $aStartDate[$iTicket] . '"' . PHP_EOL, 3, '/var/www/buglog.log');
+            }
 
-        if ($this->_iStartDate === 0){
-            $this->_iStartDate = strtotime('tomorrow ' . \Flightzilla\Model\Timeline\Date::START);
+            asort($aStartDate);
+            $this->_iStartDate = reset($aStartDate);
+        }
+
+        if (empty($this->_iStartDate) === true) {
+            $this->_iStartDate = strtotime('+1 day ' . \Flightzilla\Model\Timeline\Date::START);
         }
 
         $this->_iStartDate = $this->_oDate->getNextWorkday($this->_iStartDate);
@@ -186,7 +202,7 @@ class Project extends Bug {
 
         foreach ($this->getDependsAsStack() as $oTicket) {
             try {
-                if ($oTicket->isProject() === true and $oTicket->isTheme() === true) {
+                if ($oTicket->isProject() === true) {
                     $this->_aDependentProjects[] = $oTicket->id();
                 }
             }

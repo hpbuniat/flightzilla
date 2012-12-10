@@ -529,22 +529,24 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     /**
      * Get the deadline as human-readable string
      *
-     * @return string
+     * @return string|boolean
      */
     public function getDeadline() {
         if ($this->cf_due_date) {
             return date('d.m.Y', strtotime((string) $this->cf_due_date));
         }
 
-        return null;
+        return false;
     }
 
     /**
      * Get the start-date in seconds
      *
+     * @param  boolean|null $iCalled
+     *
      * @return int
      */
-    public function getStartDate() {
+    public function getStartDate($iCalled = null) {
         if ($this->_iStartDate > 0) {
             return $this->_iStartDate;
         }
@@ -556,7 +558,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             $this->_iStartDate = strtotime('+1 day ' . \Flightzilla\Model\Timeline\Date::START, $iEndDate);
         }
         // is there a deadline?
-        elseif ($this->isEstimated() === true and $this->cf_due_date) {
+        elseif ($this->isEstimated() === true and $this->getDeadline() !== false) {
             $iEndDate = $this->getEndDate();
 
             if (empty($iEndDate) !== true) {
@@ -577,7 +579,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             $sSign = '+';
             $sStartHour = sprintf('%s:00', \Flightzilla\Model\Timeline\Date::START);
             if ($this->isStatusAtLeast(Bug::STATUS_RESOLVED) === true) {
-                // when a ticket is already closed, we can substract the worked time from the date, when it was entered
+                // when a ticket is already closed, we can subtract the worked time from the date, when it was entered
                 $sSign = '-';
                 $sStartHour = '';
             }
@@ -597,15 +599,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             }
         }
 
-        if ($this->_iStartDate === 0) {
+        if (empty($this->_iStartDate) === true) {
             $oProject = $this->_oBugzilla->getProject($this);
-            if ($oProject instanceof \Flightzilla\Model\Ticket\Type\Project) {
+            if ($oProject instanceof \Flightzilla\Model\Ticket\Type\Project and $oProject->id() !== $iCalled) {
                 $this->_iStartDate = $oProject->getStartDate();
             }
         }
 
-        if ($this->_iStartDate === 0){
-            $this->_iStartDate = strtotime('tomorrow ' . \Flightzilla\Model\Timeline\Date::START);
+        if (empty($this->_iStartDate) === true) {
+            $this->_iStartDate = strtotime('+1 day ' . \Flightzilla\Model\Timeline\Date::START);
         }
 
         $this->_iStartDate = $this->_oDate->getNextWorkday($this->_iStartDate);
