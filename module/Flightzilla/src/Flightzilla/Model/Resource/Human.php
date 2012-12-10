@@ -179,19 +179,24 @@ class Human {
      */
     public function getNextHigherPriorityTicket(Bug $oTicket, $bOnlyActive = true) {
 
+        if (isset($this->_aNextHigherPrioTickets[$oTicket->id()]) === true) {
+            $this->_aTickets[$this->_aNextHigherPrioTickets[$oTicket->id()]];
+        }
+
         $nextPrioTicket = $oTicket;
         foreach ($this->_aTickets as $ticket) {
+            $sStatus = $ticket->getStatus();
             if (($bOnlyActive === true
-                and $ticket->getStatus() !== Bug::STATUS_CONFIRMED
-                and $ticket->getStatus() !== Bug::STATUS_ASSIGNED
-                and $ticket->getStatus() !== Bug::STATUS_REOPENED)
+                and $sStatus !== Bug::STATUS_CONFIRMED
+                and $sStatus !== Bug::STATUS_ASSIGNED
+                and $sStatus !== Bug::STATUS_REOPENED)
                     or $ticket->isContainer() === true
             ) {
 
                 continue;
             }
 
-            if (empty($this->_aNextHigherPrioTickets[$ticket->id()]) === true and $ticket->isStatusAtMost(Bug::STATUS_REOPENED) === true) {
+            if ($ticket->isStatusAtMost(Bug::STATUS_REOPENED) === true and in_array($ticket->id(), $this->_aNextHigherPrioTickets) !== true) {
                 if ($ticket->getPriority(true) > $nextPrioTicket->getPriority(true)) {
                     $nextPrioTicket = $ticket;
                 }
@@ -203,11 +208,11 @@ class Human {
             }
         }
 
-        if ($oTicket->id() === $nextPrioTicket->id() and $bOnlyActive === true) {
+        if ($bOnlyActive === true and $oTicket->id() === $nextPrioTicket->id()) {
             $nextPrioTicket = $this->getNextHigherPriorityTicket($oTicket, false);
         }
 
-        $this->_aNextHigherPrioTickets[$nextPrioTicket->id()] = true;
+        $this->_aNextHigherPrioTickets[$oTicket->id()] = $nextPrioTicket->id();
         return $nextPrioTicket;
     }
 

@@ -343,6 +343,20 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     protected $_iPredecessor;
 
     /**
+     * Is this ticket a container (project/theme)
+     *
+     * @var boolean
+     */
+    protected $_bContainer = false;
+
+    /**
+     * The worked-hours
+     *
+     * @var array
+     */
+    protected $_aWorked = array();
+
+    /**
      * Create the bug
      *
      * @param \SimpleXMLElement $data
@@ -791,6 +805,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             $this->_sType = ($this->isConcept() === true) ? self::TYPE_CONCEPT : self::TYPE_FEATURE;
         }
 
+        $this->_bContainer = ($this->isTheme() or $this->isProject());
+
         return $this;
     }
 
@@ -838,7 +854,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function isContainer() {
-        return ($this->isTheme() or $this->isProject());
+        return $this->_bContainer;
     }
 
     /**
@@ -1286,13 +1302,17 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return array
      */
     public function getWorkedHours() {
+        if (empty($this->_aWorked) !== true) {
+            return $this->_aWorked;
+        }
+
         $aHistory = $this->_data->xpath('long_desc');
-        $aTimes = array();
+        $this->_aWorked = array();
         foreach ($aHistory as $oItem) {
             if (isset($oItem->work_time) === true) {
                 $sResource = $this->_oResource->getResourceByEmail((string) $oItem->who);
                 $iTime = strtotime((string) $oItem->bug_when);
-                $aTimes[] = array(
+                $this->_aWorked[] = array(
                     'date' => date('Y-m-d', $iTime),
                     'datetime' => $iTime,
                     'duration' => (float) $oItem->work_time,
@@ -1305,7 +1325,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
 
         unset($aHistory);
 
-        return $aTimes;
+        return $this->_aWorked;
     }
 
     /**
@@ -1479,6 +1499,6 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             throw new BugException(sprintf(BugException::INVALID_STATUS, $this->id(), ''));
         }
 
-        return ($this->_mappedStatus[$this->getStatus()] <= $this->_mappedStatus[$sComparisonStatus]);
+        return ($this->_mappedStatus[$sStatus] <= $this->_mappedStatus[$sComparisonStatus]);
     }
 }
