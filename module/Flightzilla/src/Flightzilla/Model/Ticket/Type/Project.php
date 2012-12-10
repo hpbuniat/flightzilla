@@ -94,7 +94,6 @@ class Project extends Bug {
             $aDepends   = $this->getDepends();
             foreach ($aDepends as $iTicket) {
                 $aStartDate[$iTicket] = (float) $this->_oBugzilla->getBugById($iTicket)->getStartDate($this->id());
-                error_log($iTicket . ': "' . $aStartDate[$iTicket] . '"' . PHP_EOL, 3, '/var/www/buglog.log');
             }
 
             asort($aStartDate);
