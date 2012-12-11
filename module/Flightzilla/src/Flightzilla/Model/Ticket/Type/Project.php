@@ -134,6 +134,7 @@ class Project extends Bug {
             }
 
             asort($aEndDates);
+
             $this->_iEndDate = end($aEndDates);
 
             $this->_iEndDate = $this->_oDate->getNextWorkday($this->_iEndDate);

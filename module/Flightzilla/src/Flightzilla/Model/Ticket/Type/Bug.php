@@ -657,15 +657,16 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         $iTime = time();
         $bIsResolved = ($this->isStatusAtLeast(Bug::STATUS_RESOLVED) === true);
 
-        if ($this->cf_due_date) {
-            $sEndDate = (string) $this->cf_due_date;
-            $this->_iEndDate = strtotime(str_replace('00:00:00', \Flightzilla\Model\Timeline\Date::END, $sEndDate));
-        }
-        elseif ($bIsResolved) {
+        // if the ticket is resolved, try to get the last date of work
+        if ($bIsResolved === true) {
             $aWorked = $this->getWorkedHours();
             $aLast = end($aWorked);
 
             $this->_iEndDate = $aLast['datetime'];
+        }
+
+        if (empty($this->_iEndDate) === true and $this->cf_due_date) {
+            $this->_iEndDate = strtotime(str_replace('00:00:00', \Flightzilla\Model\Timeline\Date::END, (string) $this->cf_due_date));
         }
         elseif($this->isOrga() === true) {
             // if the ticket is of type 'organization', then it is finished right now --> @see \Flightzilla\Model\Ticket\Integrity\Constraint\OrganizationWithoutDue
