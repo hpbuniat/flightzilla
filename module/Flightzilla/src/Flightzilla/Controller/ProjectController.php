@@ -101,7 +101,7 @@ class ProjectController extends AbstractActionController {
         $oViewModel->aStack    = $oProject->getProjectsAsStack();
         $oViewModel->aErrors   = $oProject->getErrors();
         $oViewModel->aProjects = $oProject->getProjectsRaw();
-        $aProjects             = $oProject->getProjects();
+        $aProjects             = $oProject->getProjects($this->params()->fromQuery('detailed'));
         $oViewModel->sProjects = str_replace('\/', '/', json_encode($aProjects));
         return $oViewModel;
     }

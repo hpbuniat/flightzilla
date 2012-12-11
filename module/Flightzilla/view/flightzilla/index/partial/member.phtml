@@ -46,6 +46,7 @@ $sEstimationString = sprintf('%sh (%sh est.) <i class="icon-time"></i> %sh (%sd)
                 </div>
             </div>
             <?php
+                $this->iLimit = 9;
                 $this->iSplit = 9;
                 $this->sRowMode = 'resource';
                 echo $this->render('flightzilla/index/partial/pin-row.phtml');

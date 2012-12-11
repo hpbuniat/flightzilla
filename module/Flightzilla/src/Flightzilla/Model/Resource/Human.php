@@ -41,6 +41,8 @@
  */
 namespace Flightzilla\Model\Resource;
 
+use \Flightzilla\Model\Ticket\Type\Bug;
+
 /**
  * A human resource
  *
@@ -76,9 +78,16 @@ class Human {
     /**
      * Tickets which the resource is assigned to
      *
-     * @var \Flightzilla\Model\Ticket\Type\Bug[]
+     * @var Bug[]
      */
     protected $_aTickets = array();
+
+    /**
+     * Those tickets have already been the 'next' higher-ones
+     *
+     * @var int[]
+     */
+    protected $_aNextHigherPrioTickets = array();
 
     /**
      * Create the human
@@ -146,11 +155,11 @@ class Human {
     /**
      * Add the all resource corresponding tickets
      *
-     * @param  \Flightzilla\Model\Ticket\Type\Bug $oTicket
+     * @param  Bug $oTicket
      *
      * @return Human
      */
-    public function addTicket(\Flightzilla\Model\Ticket\Type\Bug $oTicket) {
+    public function addTicket(Bug $oTicket) {
 
         $this->_aTickets[$oTicket->id()] = $oTicket;
         $this->_oTimecard->handle($oTicket);
@@ -163,33 +172,47 @@ class Human {
      *
      * It must not be a theme or project.
      *
-     * @param \Flightzilla\Model\Ticket\Type\Bug $oTicket
+     * @param  Bug $oTicket
+     * @param  boolean $bOnlyActive
      *
-     * @return \Flightzilla\Model\Ticket\Type\Bug
+     * @return Bug
      */
-    public function getNextHigherPriorityTicket(\Flightzilla\Model\Ticket\Type\Bug $oTicket) {
+    public function getNextHigherPriorityTicket(Bug $oTicket, $bOnlyActive = true) {
+
+        if (isset($this->_aNextHigherPrioTickets[$oTicket->id()]) === true) {
+            $this->_aTickets[$this->_aNextHigherPrioTickets[$oTicket->id()]];
+        }
 
         $nextPrioTicket = $oTicket;
         foreach ($this->_aTickets as $ticket) {
-            if (($ticket->getStatus() !== \Flightzilla\Model\Ticket\Type\Bug::STATUS_CONFIRMED
-                and $ticket->getStatus() !== \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED
-                    and $ticket->getStatus() !== \Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED)
-                or $ticket->isContainer() === true
+            $sStatus = $ticket->getStatus();
+            if (($bOnlyActive === true
+                and $sStatus !== Bug::STATUS_CONFIRMED
+                and $sStatus !== Bug::STATUS_ASSIGNED
+                and $sStatus !== Bug::STATUS_REOPENED)
+                    or $ticket->isContainer() === true
             ) {
 
                 continue;
             }
 
-            if ($ticket->getPriority(true) > $nextPrioTicket->getPriority(true)) {
-                $nextPrioTicket = $ticket;
-            }
-            elseif ($ticket->getPriority(true) === $nextPrioTicket->getPriority(true)) {
-                if ($ticket->getSeverity(true) > $nextPrioTicket->getSeverity(true)) {
+            if ($ticket->isStatusAtMost(Bug::STATUS_REOPENED) === true and in_array($ticket->id(), $this->_aNextHigherPrioTickets) !== true) {
+                if ($ticket->getPriority(true) > $nextPrioTicket->getPriority(true)) {
                     $nextPrioTicket = $ticket;
+                }
+                elseif ($ticket->getPriority(true) === $nextPrioTicket->getPriority(true)) {
+                    if ($ticket->getSeverity(true) > $nextPrioTicket->getSeverity(true)) {
+                        $nextPrioTicket = $ticket;
+                    }
                 }
             }
         }
 
+        if ($bOnlyActive === true and $oTicket->id() === $nextPrioTicket->id()) {
+            $nextPrioTicket = $this->getNextHigherPriorityTicket($oTicket, false);
+        }
+
+        $this->_aNextHigherPrioTickets[$oTicket->id()] = $nextPrioTicket->id();
         return $nextPrioTicket;
     }
 

@@ -343,6 +343,20 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     protected $_iPredecessor;
 
     /**
+     * Is this ticket a container (project/theme)
+     *
+     * @var boolean
+     */
+    protected $_bContainer = false;
+
+    /**
+     * The worked-hours
+     *
+     * @var array
+     */
+    protected $_aWorked = array();
+
+    /**
      * Create the bug
      *
      * @param \SimpleXMLElement $data
@@ -377,6 +391,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         $this->_data = simplexml_load_string($this->_sleep);
         $this->_getFlags();
         $this->_getProperties();
+    }
+
+    /**
+     * Check, if there was an error retrieving the ticket
+     *
+     * @return boolean
+     */
+    public function isError() {
+        return (empty($this->_data['error']) === false);
     }
 
     /**
@@ -520,38 +543,40 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     /**
      * Get the deadline as human-readable string
      *
-     * @return string
+     * @return string|boolean
      */
     public function getDeadline() {
         if ($this->cf_due_date) {
             return date('d.m.Y', strtotime((string) $this->cf_due_date));
         }
 
-        return null;
+        return false;
     }
 
     /**
      * Get the start-date in seconds
      *
+     * @param  boolean|null $iCalled
+     *
      * @return int
      */
-    public function getStartDate() {
+    public function getStartDate($iCalled = null) {
         if ($this->_iStartDate > 0) {
             return $this->_iStartDate;
         }
 
         // is there a predecessor?
         $iPredecessor = $this->getActivePredecessor();
-        if ($iPredecessor > 0) {
+        if (empty($iPredecessor) !== true) {
             $iEndDate = $this->_oBugzilla->getBugById($iPredecessor)->getEndDate();
             $this->_iStartDate = strtotime('+1 day ' . \Flightzilla\Model\Timeline\Date::START, $iEndDate);
         }
         // is there a deadline?
-        elseif ($this->isEstimated() === true and $this->cf_due_date) {
+        elseif ($this->isEstimated() === true and $this->getDeadline() !== false) {
             $iEndDate = $this->getEndDate();
 
             if (empty($iEndDate) !== true) {
-                $this->_iStartDate = strtotime(sprintf('-%d day ' . \Flightzilla\Model\Timeline\Date::START, ceil($this->duration() / \Flightzilla\Model\Timeline\Date::AMOUNT)), $iEndDate);
+                $this->_iStartDate = strtotime(sprintf('-%d day ' . \Flightzilla\Model\Timeline\Date::START, ceil($this->getLeftHours() / \Flightzilla\Model\Timeline\Date::AMOUNT)), $iEndDate);
             }
         }
         // is someone currently working on this ticket?
@@ -568,7 +593,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             $sSign = '+';
             $sStartHour = sprintf('%s:00', \Flightzilla\Model\Timeline\Date::START);
             if ($this->isStatusAtLeast(Bug::STATUS_RESOLVED) === true) {
-                // when a ticket is already closed, we can substract the worked time from the date, when it was entered
+                // when a ticket is already closed, we can subtract the worked time from the date, when it was entered
                 $sSign = '-';
                 $sStartHour = '';
             }
@@ -581,24 +606,29 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             $oResource = $this->getResource();
             if ($oResource instanceof \Flightzilla\Model\Resource\Human) {
                 $nextPrioBug = $oResource->getNextHigherPriorityTicket($this);
+
                 if ($nextPrioBug->id() !== $this->id()) {
                     $this->_iStartDate = $nextPrioBug->getEndDate();
                 }
             }
         }
 
-        if ($this->_iStartDate === 0) {
+        if (empty($this->_iStartDate) === true) {
             $oProject = $this->_oBugzilla->getProject($this);
-            if ($oProject instanceof \Flightzilla\Model\Ticket\Type\Project) {
+            if ($oProject instanceof \Flightzilla\Model\Ticket\Type\Project and $oProject->id() !== $iCalled) {
                 $this->_iStartDate = $oProject->getStartDate();
             }
         }
 
-        if ($this->_iStartDate === 0){
-            $this->_iStartDate = strtotime('tomorrow ' . \Flightzilla\Model\Timeline\Date::START);
+        if (empty($this->_iStartDate) === true) {
+            $this->_iStartDate = strtotime('+1 day ' . \Flightzilla\Model\Timeline\Date::START);
         }
 
         $this->_iStartDate = $this->_oDate->getNextWorkday($this->_iStartDate);
+        if ($this->getEndDate() < $this->_iStartDate) {
+            $this->_oBugzilla->getLogger()->info(sprintf('End-Date < Start-Date! -> Ticket: %s, Start: %s, End: %s', $this->id(), date('Y-m-d', $this->_iStartDate), date('Y-m-d', $this->getEndDate())));
+        }
+
         return $this->_iStartDate;
     }
 
@@ -624,43 +654,54 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             return $this->_iEndDate;
         }
 
-        if ($this->cf_due_date) {
-            $sEndDate = (string) $this->cf_due_date;
-            $this->_iEndDate = strtotime(str_replace('00:00:00', \Flightzilla\Model\Timeline\Date::END, $sEndDate));
-        }
-        elseif ($this->isStatusAtLeast(Bug::STATUS_RESOLVED) === true) {
+        $iTime = time();
+        $bIsResolved = ($this->isStatusAtLeast(Bug::STATUS_RESOLVED) === true);
+
+        // if the ticket is resolved, try to get the last date of work
+        if ($bIsResolved === true) {
             $aWorked = $this->getWorkedHours();
             $aLast = end($aWorked);
 
             $this->_iEndDate = $aLast['datetime'];
         }
+
+        if (empty($this->_iEndDate) === true and $this->cf_due_date) {
+            $this->_iEndDate = strtotime(str_replace('00:00:00', \Flightzilla\Model\Timeline\Date::END, (string) $this->cf_due_date));
+        }
         elseif($this->isOrga() === true) {
             // if the ticket is of type 'organization', then it is finished right now --> @see \Flightzilla\Model\Ticket\Integrity\Constraint\OrganizationWithoutDue
-            $this->_iEndDate = time();
+            $this->_iEndDate = $iTime;
         }
-        else {
+
+        if ($bIsResolved === false and (empty($this->_iEndDate) === true or $this->_iEndDate < $iTime)) {
             // Start date + estimated
-            $iStartDate      = $this->getStartDate();
-            $iDays           = ceil($this->duration() / \Flightzilla\Model\Timeline\Date::AMOUNT);
+            if ($this->isWorkedOn(Bug::STATUS_CLOSED) === true) {
+                $iLeft = $this->getLeftHours();
+                if ($iLeft <= 0) {
+                    $iLeft = \Flightzilla\Model\Timeline\Date::AMOUNT;
+                }
+
+                $iStartDate = time();
+                if ($this->getStatus() !== self::STATUS_ASSIGNED) {
+                    $iStartDate = $this->_oDate->getNextWorkday($iStartDate);
+                }
+            }
+            else {
+                $iStartDate  = $this->getStartDate();
+                $iLeft       = $this->getLeftHours();
+            }
+
+            $iDays           = ceil($iLeft / \Flightzilla\Model\Timeline\Date::AMOUNT);
 
             $this->_iEndDate = strtotime(sprintf('+%d day ' . \Flightzilla\Model\Timeline\Date::END, $iDays), $iStartDate);
             $this->_iEndDate = $this->_oDate->getNextWorkday($this->_iEndDate);
         }
 
-        return $this->_iEndDate;
-    }
-
-    /**
-     * Get the tickets duration
-     *
-     * @return float
-     */
-    public function duration() {
-        if ($this->isEstimated()) {
-            return (float) $this->estimated_time;
+        if ($this->_iEndDate < $this->getStartDate()) {
+            $this->_oBugzilla->getLogger()->info(sprintf('End-Date < Start-Date! -> Ticket: %s, Start: %s, End: %s', $this->id(), date('Y-m-d', $this->getStartDate()), date('Y-m-d', $this->_iEndDate)));
         }
 
-        return 0;
+        return $this->_iEndDate;
     }
 
     /**
@@ -709,7 +750,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return bool
      */
     public function hasDependencies(){
-        return (isset($this->dependson) === true);
+        $aDepends = $this->getDepends();
+        return (empty($aDepends) === false);
     }
 
     /**
@@ -768,6 +810,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             $this->_sType = ($this->isConcept() === true) ? self::TYPE_CONCEPT : self::TYPE_FEATURE;
         }
 
+        $this->_bContainer = ($this->isTheme() or $this->isProject());
+
         return $this;
     }
 
@@ -815,7 +859,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function isContainer() {
-        return ($this->isTheme() or $this->isProject());
+        return $this->_bContainer;
     }
 
     /**
@@ -834,6 +878,19 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function getComponent() {
         return (string) $this->component;
+    }
+
+    /**
+     * Get the remaining hours of a ticket
+     *
+     * @return string
+     */
+    public function getLeftHours() {
+        if ($this->isEstimated() === true) {
+            return (float) $this->remaining_time;
+        }
+
+        return 0;
     }
 
     /**
@@ -979,9 +1036,14 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
 
             if (count($dependencies) > 1) {
                 foreach ($dependencies as $dependency) {
-                    $oTicket = $this->_oBugzilla->getBugById($dependency);
-                    if ($oTicket->isStatusAtMost(Bug::STATUS_REOPENED) === true and $oTicket->isContainer() === false) {
-                        $aEndDates[$oTicket->id()] = $oTicket->getEndDate();
+                    try {
+                        $oTicket = $this->_oBugzilla->getBugById($dependency);
+                        if ($oTicket->isStatusAtMost(Bug::STATUS_REOPENED) === true and $oTicket->isContainer() === false) {
+                            $aEndDates[$oTicket->id()] = $oTicket->getEndDate();
+                        }
+                    }
+                    catch (Bug\Exception $e) {
+                        $this->_oBugzilla->getLogger()->info($e->getTraceAsString());
                     }
                 }
 
@@ -1245,14 +1307,19 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return array
      */
     public function getWorkedHours() {
+        if (empty($this->_aWorked) !== true) {
+            return $this->_aWorked;
+        }
+
         $aHistory = $this->_data->xpath('long_desc');
-        $aTimes = array();
+        $this->_aWorked = array();
         foreach ($aHistory as $oItem) {
             if (isset($oItem->work_time) === true) {
                 $sResource = $this->_oResource->getResourceByEmail((string) $oItem->who);
-                $aTimes[] = array(
-                    'date' => date('Y-m-d', strtotime((string) $oItem->bug_when)),
-                    'datetime' => strtotime((string) $oItem->bug_when),
+                $iTime = strtotime((string) $oItem->bug_when);
+                $this->_aWorked[] = array(
+                    'date' => date('Y-m-d', $iTime),
+                    'datetime' => $iTime,
                     'duration' => (float) $oItem->work_time,
                     'user' => $sResource,
                     'user_mail' => (string) $oItem->who,
@@ -1263,7 +1330,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
 
         unset($aHistory);
 
-        return $aTimes;
+        return $this->_aWorked;
     }
 
     /**
@@ -1437,6 +1504,6 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             throw new BugException(sprintf(BugException::INVALID_STATUS, $this->id(), ''));
         }
 
-        return ($this->_mappedStatus[$this->getStatus()] <= $this->_mappedStatus[$sComparisonStatus]);
+        return ($this->_mappedStatus[$sStatus] <= $this->_mappedStatus[$sComparisonStatus]);
     }
 }

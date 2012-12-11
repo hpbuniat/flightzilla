@@ -706,26 +706,28 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     /**
      * Refresh Tickets, which have been changed within a number of days
      *
-     * @param  int $iDays
+     * @param  string $sDays
      *
      * @return $this
      */
-    public function getChangedTicketsWithinDays($iDays = 0) {
-        $this->_addParams();
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_CONFIRMED);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_NEW);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_CLOSED);
-        $this->_setGetParameter(self::BUG_PARAM_CHANGE_DATE_FROM, sprintf('%dd', $iDays));
-        $this->_setGetParameter(self::BUG_PARAM_CHANGE_DATE_TO, 'Now');
-        $page   = $this->_request(self::BUG_LIST);
-        $bugIds = $this->_getBugIdsFromPage($page);
-        $bugs   = $this->getBugListByIds($bugIds, false);
-        unset($page, $bugIds, $bugs);
+    public function getChangedTicketsWithinDays($sDays = '0d') {
+        if (empty($sDays) !== true) {
+            $this->_addParams();
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_CONFIRMED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_NEW);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_CLOSED);
+            $this->_setGetParameter(self::BUG_PARAM_CHANGE_DATE_FROM, $sDays);
+            $this->_setGetParameter(self::BUG_PARAM_CHANGE_DATE_TO, 'Now');
+            $page   = $this->_request(self::BUG_LIST);
+            $bugIds = $this->_getBugIdsFromPage($page);
+            $bugs   = $this->getBugListByIds($bugIds, false);
+            unset($page, $bugIds, $bugs);
+        }
 
         return $this;
     }
@@ -737,16 +739,23 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      */
     public function getBugList() {
 
-        $this->_addParams();
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_CONFIRMED);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_NEW);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED);
-        $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED);
-        $page   = $this->_request(self::BUG_LIST);
-        $bugIds = $this->_getBugIdsFromPage($page);
+        $sToken = md5('get-bug-list' . date('dmy'));
+        $bugIds = $this->_oCache->getItem($sToken);
+        if (empty($bugIds) === true) {
+            $this->_addParams();
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_CONFIRMED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_NEW);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED);
+            $page   = $this->_request(self::BUG_LIST);
+            $bugIds = $this->_getBugIdsFromPage($page);
+
+            $this->_oCache->setItem($sToken, $bugIds);
+        }
+
         $bugs   = $this->getBugListByIds($bugIds, true);
 
         $this->_openBugs = $this->_fixedBugs = $this->_reopenedBugs = array();
@@ -957,13 +966,18 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             }
         }
 
-        sort($mIds);
-        $sHash = md5(serialize($mIds));
-        if ($bCache !== true or empty($this->_aBugsListCache[$sHash]) === true) {
-            $this->_aBugsListCache[$sHash] = $this->_getXmlFromBugIds($mIds, $bCache);
+        $aReturn = array();
+        if (empty($mIds) !== true) {
+            sort($mIds);
+            $sHash = md5(serialize($mIds));
+            if ($bCache !== true or empty($this->_aBugsListCache[$sHash]) === true) {
+                $this->_aBugsListCache[$sHash] = $this->_getXmlFromBugIds($mIds, $bCache);
+            }
+
+            $aReturn = $this->_aBugsListCache[$sHash];
         }
 
-        return $this->_aBugsListCache[$sHash];
+        return $aReturn;
     }
 
     /**
@@ -1399,9 +1413,12 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      *
      * @return \Flightzilla\Model\Ticket\Type\Bug
      *
-     * @throws \Exception if a bug is not found
+     * @throws \Flightzilla\Model\Ticket\Type\Bug\Exception if a bug is not found
      */
     public function getBugById($iBug) {
+        if (empty($iBug) === true) {
+            throw new \Flightzilla\Model\Ticket\Type\Bug\Exception(\Flightzilla\Model\Ticket\Type\Bug\Exception::INSUFFICIENT_DATA);
+        }
 
         if (isset($this->_allBugs[$iBug]) !== true) {
             $aList                 = $this->getBugListByIds(array($iBug));

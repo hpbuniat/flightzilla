@@ -16,6 +16,7 @@ To install flightzilla execute:
     git clone
     php composer.phar install
     cp ./module/Flightzilla/config/flightzilla.local.php.dist ./config/autoload/flightzilla.local.php
+    cp ./vendor/zendframework/zend-developer-tools/config/zenddevelopertools.local.php.dist ./config/autoload/zenddevelopertools.local.php
 
 Features:
 -----

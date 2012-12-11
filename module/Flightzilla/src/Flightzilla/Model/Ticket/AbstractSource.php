@@ -54,6 +54,13 @@ namespace Flightzilla\Model\Ticket;
 abstract class AbstractSource {
 
     /**
+     * The source-request-token
+     *
+     * @var string
+     */
+    const REQUEST_TOKEN = 'source-request';
+
+    /**
      * The cache-instance
      *
      * @var \Zend\Cache\Storage\StorageInterface
@@ -110,6 +117,13 @@ abstract class AbstractSource {
     protected $_client = null;
 
     /**
+     * The logger
+     *
+     * @var \Zend\Log\Logger
+     */
+    protected $_oLogger;
+
+    /**
      * Set the cache
      *
      * @param  \Zend\Cache\Storage\StorageInterface $oCache
@@ -131,6 +145,27 @@ abstract class AbstractSource {
     public function setAuth(\Flightzilla\Authentication\Adapter $oAuth) {
         $this->_oAuth = $oAuth;
         return $this;
+    }
+
+    /**
+     * Set the logger
+     *
+     * @param  \Zend\Log\Logger $oLogger
+     *
+     * @return $this
+     */
+    public function setLogger(\Zend\Log\Logger $oLogger) {
+        $this->_oLogger = $oLogger;
+        return $this;
+    }
+
+    /**
+     * Get the logger
+     *
+     * @return \Zend\Log\Logger
+     */
+    public function getLogger() {
+        return $this->_oLogger;
     }
 
     /**
@@ -173,6 +208,50 @@ abstract class AbstractSource {
         ));
 
         return $this;
+    }
+
+    /**
+     * Get the time of the last request
+     *
+     * @param  string $mSalt
+     *
+     * @return int
+     */
+    public function getLastRequestTime($mSalt = '') {
+        $sToken = md5(self::REQUEST_TOKEN . $mSalt);
+
+        $iTime = $this->_oCache->getItem($sToken);
+        if (empty($iTime) === true) {
+            $this->_oCache->setItem($sToken, time());
+        }
+
+        return $iTime;
+    }
+
+    /**
+     * Get the search-time-modifier
+     *
+     * @param  int $iTime
+     * @param  int $iMax
+     *
+     * @return string
+     */
+    public function getSearchTimeModifier($iTime, $iMax = 0) {
+        $iTime = (int) $iTime;
+        $sToday = date('dmy');
+        $sRef = date('dmy', $iTime);
+
+        $sReturn = sprintf('%dd', $iMax);
+        if ($sToday === $sRef) {
+            if ((time() - $iTime) < 60) {
+                $sReturn = '';
+            }
+            else {
+                $sReturn = sprintf('%dh', ceil(($sRef - $sToday) / 3600));
+            }
+        }
+
+        return $sReturn;
     }
 
     /**

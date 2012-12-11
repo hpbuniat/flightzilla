@@ -73,8 +73,14 @@ class Authenticate {
             $oAuth = $oController->getPluginManager()->get(AuthenticatePlugin::NAME);
             /* @var $oAuth AuthenticatePlugin */
             if ($oEvent->getRouteMatch()->getMatchedRouteName() !== 'login' and $oAuth->performAuthentication($oController)->hasIdentity() !== true) {
-                $oController->redirect()->toRoute('login');
-                $oEvent->stopPropagation();
+                if ($oController->getEvent()->getRequest()->isXmlHttpRequest() === true) {
+                    $oController->notFoundAction();
+                }
+                else {
+                    $oController->redirect()->toRoute('login');
+                }
+
+                return false;
             }
 
             $oEvent->getApplication()->getServiceManager()->setService('_auth', $oAuth->getAuthAdapter());

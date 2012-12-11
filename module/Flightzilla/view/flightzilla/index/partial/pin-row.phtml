@@ -13,7 +13,7 @@
             $iActive++;
             $aPins['active'] .= $sRender;
         }
-        elseif ($iShowed < $this->iSplit and $this->oTicket->isStatusAtLeast(\Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED) !== true) {
+        elseif ($iShowed < $this->iLimit and $this->oTicket->isStatusAtLeast(\Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED) !== true) {
             $iShowed++;
             $aPins['pending'] .= $sRender;
         }

@@ -1,0 +1,64 @@
+<div class="row-fluid">
+<?php echo $this->render('flightzilla/index/partial/overview.phtml'); ?>
+
+<div class="span10">
+<form id="buglist-form" method="get" target="_blank" action="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'go-bugzilla')); ?>">
+<?php
+echo $this->partial('flightzilla/index/partial/table.phtml', array(
+    'caption' => 'Update-Testserver!',
+    'sBugzilla' => $this->layout()->sBugzilla,
+    'bugs' => $this->bugsTestserver,
+    'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_REVIEWED
+));
+
+echo $this->partial('flightzilla/index/partial/table.phtml', array(
+    'caption' => 'Reopened issues',
+    'sBugzilla' => $this->layout()->sBugzilla,
+    'bugs' => $this->bugsReopened,
+    'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_REVIEWED
+));
+
+echo $this->partial('flightzilla/index/partial/table.phtml', array(
+    'caption' => 'Mergeable issues',
+    'sBugzilla' => $this->layout()->sBugzilla,
+    'bugs' => $this->bugsBranch,
+    'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_REVIEWED
+));
+
+echo $this->partial('flightzilla/index/partial/table.phtml', array(
+    'caption' => 'Ready for release',
+    'sBugzilla' => $this->layout()->sBugzilla,
+    'bugs' => $this->bugsTrunk,
+    'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED
+));
+
+echo $this->partial('flightzilla/index/partial/table.phtml', array(
+    'caption' => 'Fixed without pending flags',
+    'sBugzilla' => $this->layout()->sBugzilla,
+    'bugs' => $this->bugsFixed,
+));
+
+echo $this->partial('flightzilla/index/partial/table.phtml', array(
+    'caption' => 'Issues w/o themes',
+    'sBugzilla' => $this->layout()->sBugzilla,
+    'bugs' => $this->bugsUnthemed,
+    'ready' => false
+));
+?>
+<h3>Bugs in Themes</h3>
+<?php
+    foreach($this->bugsOpen as $sTheme => $aBugs):
+        $iBug = preg_replace('/\D/', '', $sTheme);
+        echo $this->partial('flightzilla/index/partial/table.phtml', array(
+            'caption' => sprintf('%s - <a target="_blank" href="%s/show_bug.cgi?id=%s">%s</a>', $iBug, $this->layout()->sBugzilla, $iBug, trim(str_replace($iBug, '', $sTheme))),
+            'sBugzilla' => $this->layout()->sBugzilla,
+            'bugs' => $aBugs,
+            'ready' => false,
+        ));
+    endforeach;
+?>
+</form>
+</div>
+
+<h4 id="quickList" class="bugCount" style="display:none"></h4>
+</div>

@@ -56,4 +56,6 @@ class Exception extends \Exception {
     const INVALID_STATUS = '(id: %d) %s is not a valid bug status !';
 
     const INVALID_START_DATE = 'Start date must not be zero! Please edit ticket %s.';
+
+    const INSUFFICIENT_DATA = 'There was an error retrieving the ticket-data';
 }

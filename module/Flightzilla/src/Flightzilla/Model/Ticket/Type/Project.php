@@ -68,12 +68,16 @@ class Project extends Bug {
 
     /**
      * Get start date as timestamp.
+     * Start date is
+     * - the end of its predecessor
+     * - the first start-date of a blocking ticket
+     * - or the next workday.
      *
-     * Start date is either the end of its predecessor or the next workday.
+     * @param  boolean|null $iCalled
      *
      * @return int
      */
-    public function getStartDate() {
+    public function getStartDate($iCalled = null) {
         if ($this->_iStartDate > 0){
             return $this->_iStartDate;
         }
@@ -84,9 +88,20 @@ class Project extends Bug {
             $iEndDate = $this->_oBugzilla->getBugById($iPredecessor)->getEndDate();
             $this->_iStartDate = strtotime('+1 day ' . \Flightzilla\Model\Timeline\Date::START, $iEndDate);
         }
+        else {
+            // start date of the first ticket in current project
+            $aStartDate = array();
+            $aDepends   = $this->getDepends();
+            foreach ($aDepends as $iTicket) {
+                $aStartDate[$iTicket] = (float) $this->_oBugzilla->getBugById($iTicket)->getStartDate($this->id());
+            }
 
-        if ($this->_iStartDate === 0){
-            $this->_iStartDate = strtotime('tomorrow ' . \Flightzilla\Model\Timeline\Date::START);
+            asort($aStartDate);
+            $this->_iStartDate = reset($aStartDate);
+        }
+
+        if (empty($this->_iStartDate) === true) {
+            $this->_iStartDate = strtotime('+1 day ' . \Flightzilla\Model\Timeline\Date::START);
         }
 
         $this->_iStartDate = $this->_oDate->getNextWorkday($this->_iStartDate);
@@ -109,23 +124,38 @@ class Project extends Bug {
             $sEndDate = (string) $this->cf_due_date;
             $this->_iEndDate = strtotime(str_replace('00:00:00', \Flightzilla\Model\Timeline\Date::END, $sEndDate));
         }
-        else {
+
+        if (empty($this->_iEndDate) or $this->_iEndDate < time()) {
             // End date of the last ticket in current project
             $aEndDates = array();
-            $depends   = $this->getDepends($this->_oBugzilla);
-            foreach ($depends as $child) {
-                $aEndDates[] = (float) $this->_oBugzilla
-                    ->getBugById($child)
-                    ->getEndDate();
+            $aDepends   = $this->getDepends();
+            foreach ($aDepends as $iTicket) {
+                $aEndDates[$iTicket] = (float) $this->_oBugzilla->getBugById($iTicket)->getEndDate();
             }
 
-            arsort($aEndDates);
-            $this->_iEndDate = current($aEndDates);
+            asort($aEndDates);
+
+            $this->_iEndDate = end($aEndDates);
 
             $this->_iEndDate = $this->_oDate->getNextWorkday($this->_iEndDate);
         }
 
         return $this->_iEndDate;
+    }
+
+    /**
+     * Left hours of all dependencies
+     *
+     * @return float
+     */
+    public function getLeftTimeOfDependencies() {
+        $fLeft = 0;
+        $aDepends   = $this->getDepends();
+        foreach ($aDepends as $iTicket) {
+            $fLeft += (float) $this->_oBugzilla->getBugById($iTicket)->getLeftHours();
+        }
+
+        return $fLeft;
     }
 
     /**
@@ -173,7 +203,7 @@ class Project extends Bug {
 
         foreach ($this->getDependsAsStack() as $oTicket) {
             try {
-                if ($oTicket->isProject() === true and $oTicket->isTheme() === true) {
+                if ($oTicket->isProject() === true) {
                     $this->_aDependentProjects[] = $oTicket->id();
                 }
             }

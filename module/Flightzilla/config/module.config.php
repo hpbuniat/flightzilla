@@ -78,6 +78,7 @@ return array(
                 $oTicketSource = new \Flightzilla\Model\Ticket\Source\Bugzilla($oResource, $oHttpClient, $oConfig);
                 $oTicketSource->setCache($oServiceManager->get('_cache'))
                               ->setAuth($oServiceManager->get('_auth'))
+                              ->setLogger($oServiceManager->get('_log'))
                               ->setProject($oSession->sCurrentProduct)
                               ->initHttpClient();
 
@@ -119,6 +120,7 @@ return array(
         'invokables' => array(
             'buggradient' => 'Flightzilla\View\Helper\Buggradient',
             'deadlinestatus' => 'Flightzilla\View\Helper\Deadlinestatus',
+            'finishstatus' => 'Flightzilla\View\Helper\Finishstatus',
             'estimation' => 'Flightzilla\View\Helper\Estimation',
             'prioritycolor' => 'Flightzilla\View\Helper\Prioritycolor',
             'ticketicons' => 'Flightzilla\View\Helper\Ticketicons',
