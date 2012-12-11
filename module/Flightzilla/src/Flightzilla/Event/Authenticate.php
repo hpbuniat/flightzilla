@@ -80,7 +80,7 @@ class Authenticate {
                     $oController->redirect()->toRoute('login');
                 }
 
-                $oEvent->stopPropagation();
+                return false;
             }
 
             $oEvent->getApplication()->getServiceManager()->setService('_auth', $oAuth->getAuthAdapter());
