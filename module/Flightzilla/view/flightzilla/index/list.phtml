@@ -54,7 +54,9 @@ echo $this->partial('flightzilla/index/partial/table.phtml', array(
 <h3>Bugs in Themes</h3>
 <?php
     foreach($this->bugsOpen as $sTheme => $aBugs):
-        $iBug = preg_replace('/\D/', '', $sTheme);
+        $aMatches = array();
+        preg_match('/(\d+)/', $sTheme, $aMatches);
+        $iBug = $aMatches[0];
         echo $this->partial('flightzilla/index/partial/table.phtml', array(
             'caption' => sprintf('%s - <a target="_blank" href="%s/show_bug.cgi?id=%s">%s</a>', $iBug, $this->layout()->sBugzilla, $iBug, trim(str_replace($iBug, '', $sTheme))),
             'sBugzilla' => $this->layout()->sBugzilla,
