@@ -7,9 +7,6 @@
     );
 
     $iActive = $iShowed = 0;
-    $bHasDevelopment = $this->oProject->hasDevelopment();
-    $bIsMerged = $this->oProject->isMerged();
-
     foreach ($this->aStack as $this->oTicket) {
         $sRender = $this->render('flightzilla/kanban/partial/pin.phtml');
         if ($this->oTicket->isWip() === true) {
@@ -30,12 +27,12 @@
     ?>
     <div class="span<?php echo (11 - $this->iSplit); ?>">
         <?php if ($this->sRowMode ==  'project' and $iActive === 0 and $iShowed === 0): ?>
-            <?php if ($bHasDevelopment === false): ?>
+            <?php if ($this->oProject->hasDevelopment() === false): ?>
                 <div class="alert alert-error">
                     There are no development-tickets for this project!
                 </div>
             <?php else: ?>
-                <?php if ($bIsMerged === true): ?>
+                <?php if ($this->oProject->isMerged() === true): ?>
                     <div class="alert alert-success">
                         <i class="<?php echo \Flightzilla\View\Helper\Ticketicons::ICON_CHECKED; ?>"></i> This project will be part of the next release!
                     </div>
