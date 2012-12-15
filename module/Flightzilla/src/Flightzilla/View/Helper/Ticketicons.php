@@ -55,6 +55,16 @@ use Zend\View\Helper\AbstractHelper;
 class Ticketicons extends AbstractHelper {
 
     /**
+     * Constants for icons
+     *
+     * @var string
+     */
+    const ICON_CHECKED = 'icon-thumbs-up';
+    const ICON_RESOLVED = 'icon-ok-circle';
+    const ICON_TESTING = 'icon-eye-open';
+    const ICON_COMMENT = 'icon-comment';
+
+    /**
      * Get the workflow-stats of the bug
      *
      * @param  \Flightzilla\Model\Ticket\Type\Bug $oBug
@@ -66,15 +76,15 @@ class Ticketicons extends AbstractHelper {
         $sClasses = '';
         if ($oBug->isStatusAtLeast(\Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED) === true) {
             if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '+') === true) {
-                $sClasses .= '&nbsp;<i class="icon-thumbs-up"></i>';
+                $sClasses .= sprintf('&nbsp;<i class="%s"></i>', self::ICON_CHECKED);
             }
             else {
-                $sClasses .= '&nbsp;<i class="icon-ok-circle"></i>';
+                $sClasses .= sprintf('&nbsp;<i class="%s"></i>', self::ICON_RESOLVED);
             }
         }
 
         if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_COMMENT, '?') === true) {
-            $sClasses .= '&nbsp;<i class="icon-comment" title="Awaiting ' . \Flightzilla\Model\Ticket\Type\Bug::FLAG_COMMENT . '">&nbsp;</i>';
+            $sClasses .= sprintf('&nbsp;<i class="%s" title="Awaiting %s">&nbsp;</i>', self::ICON_COMMENT, \Flightzilla\Model\Ticket\Type\Bug::FLAG_COMMENT);
             if (strlen($oBug->commentrequest_user) > 0) {
                 $sClasses .= '<span class="red"> ' . $oBug->commentrequest_user . '</span>';
             }
@@ -85,10 +95,10 @@ class Ticketicons extends AbstractHelper {
         }
 
         if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '+') === true and $oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '?') === false) {
-            $sClasses .= '&nbsp;<i class="icon-thumbs-up" title="' . \Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN . '">&nbsp;</i>';
+            $sClasses .= sprintf('&nbsp;<i class="%s" title="%s">&nbsp;</i>', self::ICON_CHECKED, \Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN);
         }
         elseif ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '?') === true) {
-            $sClasses .= '&nbsp;<i class="icon-eye-open" title="Awaiting ' . \Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN . '">&nbsp;</i>';
+            $sClasses .= sprintf('&nbsp;<i class="%s" title="Awaiting %s">&nbsp;</i>', self::ICON_TESTING, \Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN);
         }
 
         if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_DBCHANGE, '+') === true) {
@@ -96,7 +106,7 @@ class Ticketicons extends AbstractHelper {
         }
 
         if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '?') === true) {
-            $sClasses .= '&nbsp;<i class="icon-eye-open" title="Awaiting ' . \Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING . '">&nbsp;</i>';
+            $sClasses .= sprintf('&nbsp;<i class="%s" title="Awaiting %s">&nbsp;</i>', self::ICON_TESTING, \Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING);
             if (strlen($oBug->testingrequest_user) > 0) {
                 $sClasses .= '<span class="red"> ' . $oBug->testingrequest_user . '</span>';
             }
