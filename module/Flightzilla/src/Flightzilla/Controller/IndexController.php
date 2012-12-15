@@ -124,6 +124,19 @@ class IndexController extends AbstractActionController {
     /**
      *
      */
+    public function historyAction() {
+        $oViewModel = new ViewModel;
+        $oViewModel->mode = 'history';
+        $oViewModel->setTerminal(true);
+
+        $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, $oViewModel->mode);
+
+        return $oViewModel;
+    }
+
+    /**
+     *
+     */
     public function myticketsAction() {
         $oViewModel = new ViewModel;
         $oViewModel->mode = 'dashboard';

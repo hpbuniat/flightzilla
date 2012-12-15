@@ -110,23 +110,26 @@ class TicketService extends AbstractPlugin {
         $oTicketService->getChangedTicketsWithinDays($oTicketService->getSearchTimeModifier($oTicketService->getLastRequestTime($iRefreshDays), $iRefreshDays));
 
         // gather the ticket-information
-        $oView->bugsReopened = $oTicketService->getReopenedBugs();
-        $oView->bugsTestserver = $oTicketService->getUpdateTestserver();
-        $oView->bugsBranch = $oTicketService->getFixedBugsInBranch();
-        $oView->bugsTrunk = $oTicketService->getFixedBugsInTrunk();
-        $oView->bugsFixed = $oTicketService->getFixedBugsUnknown();
-        $oView->bugsOpen = $oTicketService->getThemedOpenBugs();
-        $oView->bugsUnthemed = $oTicketService->getUnthemedBugs();
+        if ($sMode !== 'history') {
+            $oView->bugsReopened = $oTicketService->getReopenedBugs();
+            $oView->bugsTestserver = $oTicketService->getUpdateTestserver();
+            $oView->bugsBranch = $oTicketService->getFixedBugsInBranch();
+            $oView->bugsTrunk = $oTicketService->getFixedBugsInTrunk();
+            $oView->bugsFixed = $oTicketService->getFixedBugsUnknown();
+            $oView->bugsOpen = $oTicketService->getThemedOpenBugs();
+            $oView->bugsUnthemed = $oTicketService->getUnthemedBugs();
+        }
+
         if ($sMode === 'board') {
 
             $oKanbanStatus = new \Flightzilla\Model\Kanban\Status($oTicketService->getAllBugs(), $oTicketService);
             $oView->aKanban = $oKanbanStatus->setType(\Flightzilla\Model\Ticket\Type\Bug::TYPE_BUG)->process()->get();
         }
-        else {
+        elseif ($sMode !== 'history') {
             $oView->aUntouched = $oTicketService->getUntouched();
         }
 
-        if ($sMode !== 'status') {
+        if ($sMode !== 'status' and $sMode !== 'history') {
             $oView->aMemberBugs = $oTicketService->getMemberBugs();
             $oView->aTeamBugs = $oTicketService->getTeamBugs($oView->aMemberBugs);
 
