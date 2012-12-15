@@ -1,6 +1,6 @@
 <?php if (empty($this->aTasks) === false):?>
     <a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'dashboard')); ?>">
-        <span data-placement="bottom" data-title="<?php $this->aTasks[\Flightzilla\Model\Ticket\Task\Comment::NAME]['description']; ?>" class="tipper badge">
+        <span data-placement="bottom" data-title="<?php $this->aTasks[\Flightzilla\Model\Ticket\Task\Comment::NAME]['description']; ?>" class="tipper badge badge-inverse">
             <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Comment::NAME]['stack']); ?>
         </span>
         <span data-placement="bottom" data-title="<?php $this->aTasks[\Flightzilla\Model\Ticket\Task\Testing::NAME]['description']; ?>" class="tipper badge badge-warning">
@@ -11,6 +11,9 @@
         </span>
         <span data-placement="bottom" data-title="<?php $this->aTasks[\Flightzilla\Model\Ticket\Task\Waiting::NAME]['description']; ?>" class="tipper badge badge-info">
             <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Waiting::NAME]['stack']); ?>
+        </span>
+        <span data-placement="bottom" data-title="<?php $this->aTasks[\Flightzilla\Model\Ticket\Task\Testserver::NAME]['description']; ?>" class="tipper badge">
+            <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Testserver::NAME]['stack']); ?>
         </span>
     </a>
 <?php else: ?>
