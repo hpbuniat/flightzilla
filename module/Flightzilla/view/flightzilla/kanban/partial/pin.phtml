@@ -2,7 +2,7 @@
     $bReady = ($this->ready !== false and $this->oTicket->resolution === $this->ready);
 ?>
 <div data-ticket="<?php echo $this->oTicket->id(); ?>" class="pin draggable" style="<?php echo $this->buggradient($this->oTicket, $bReady, false); ?>">
-    <div class="top label <?php echo $this->prioritycolor($this->oTicket); ?>">
+    <div class="pin-top label <?php echo $this->prioritycolor($this->oTicket); ?>">
         <span class="pull-left">
         <?php
             echo $this->ticketicons($this->oTicket);
@@ -16,14 +16,9 @@
     <div class="description">
         <a class="bugLink" target="_blank" data-title="<?php echo $this->escapeHtml($this->oTicket->title()); ?>" href="<?php echo $this->layout()->sBugzilla; ?>/show_bug.cgi?id=<?php echo $this->oTicket->bug_id; ?>"><?php echo $this->escapeHtml($this->oTicket->title())?></a>
     </div>
-    <div class="bottom">
+    <div class="pin-bottom">
         <?php
         echo $this->estimation($this->oTicket, 'board');
-        if ($this->oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED or $this->oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_NEW):
-            ?>
-            <span class="pull-left status label label-success">NEW</span>
-            <?php
-        endif;
 
         $iTheme = $this->oTicket->getTheme();
         if (empty($iTheme) !== true):

@@ -114,6 +114,14 @@ div.row-fluid div.center.chuck {
     margin: 0 0 10px;
 }
 
+.kanban .pin .label {
+    padding: 2px 3px;
+}
+
+.label .tooltip {
+    white-space: normal;
+}
+
 .kanban div.pin {
     border: 1px solid grey;
     border-radius: 6px 6px 6px 6px;
@@ -121,26 +129,27 @@ div.row-fluid div.center.chuck {
     font-size: 11px;
     height: 90px;
     margin: 5px;
-    overflow: hidden;
     width: 90px;
     position: relative;
     line-height: 16px;
 }
 
-.kanban div.pin div.top, .kanban div.pin div.bottom {
+.kanban div.pin div.pin-top, .kanban div.pin div.pin-bottom {
     width: 100%;
     line-height: 13px;
     height: 13px;
     padding-top: 0;
 }
 
-.kanban div.pin div.bottom {
+.kanban div.pin div.pin-bottom {
     position: absolute;
     bottom: 5px;
 }
 
 .kanban div.description {
+    height: 60px;
     margin: 3px;
+    overflow: hidden;
 }
 
 .kanban .theme a {
