@@ -68,14 +68,16 @@
                     </div>
                     <div class="row-fluid hidden project-detail">
                         <div class="span12">
-                            <?php foreach ($this->oProject->long_desc as $oLongDesc):
-                            if (strlen($oLongDesc->thetext) > 0) : ?>
-                                <blockquote>
-                                    <pre><?php echo (string) $oLongDesc->thetext ?></pre>
-                                    <small><?php echo (string) $oLongDesc->who ?> @ <?php echo (string) $oLongDesc->bug_when ?></small>
-                                </blockquote>
-                                <?php endif;
-                        endforeach; ?>
+                            <?php
+                            $sText = '';
+                            foreach ($this->oProject->long_desc as $oLongDesc) {
+                                if (strlen($oLongDesc->thetext) > 0) {
+                                    $sText = sprintf('<blockquote><pre>%s</pre><small>%s @ %s</small></blockquote>', (string) $oLongDesc->thetext, (string) $oLongDesc->who, (string) $oLongDesc->bug_when) . $sText;
+                                }
+                            }
+
+                            echo $sText;
+                            ?>
                         </div>
                     </div>
                 </div>
