@@ -29,9 +29,9 @@
 
     <!-- Scripts -->
     <?php echo $this->headScript()->appendFile($this->basePath() . '/vendor/jquery.js')
+                                  ->appendFile($this->basePath() . '/vendor/jquery-ui.min.js')
                                   ->appendFile($this->basePath() . '/vendor/bootstrap.js')
                                   ->appendFile($this->basePath() . '/vendor/highcharts.js')
-                                  ->appendFile($this->basePath() . '/vendor/jquery-ui.min.js')
                                   ->appendFile($this->basePath() . '/js/flightzilla.js')
                                   ->appendFile($this->basePath() . '/js/jquery.fn.gantt.js')
                                   ->appendFile($this->basePath() . '/js/jquery.tablesorter.js')
