@@ -142,21 +142,21 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      *
      * @var \Flightzilla\Model\Ticket\Type\Bug[]
      */
-    private $_openBugs = null;
+    private $_openBugs = array();
 
     /**
      * List of all reopened tickets
      *
      * @var \Flightzilla\Model\Ticket\Type\Bug[]
      */
-    private $_reopenedBugs = null;
+    private $_reopenedBugs = array();
 
     /**
      * List of all fixed tickets
      *
      * @var \Flightzilla\Model\Ticket\Type\Bug[]
      */
-    private $_fixedBugs = null;
+    private $_fixedBugs = array();
 
     /**
      * List of all tickets, which are already in the stable-branch
@@ -608,7 +608,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             }
             else {
                 $oBug = $this->_oCache->getItem($this->_getBugHash($iBugId));
-                if ($oBug instanceof \Flightzilla\Model\Ticket\AbstractType and $bCache === true) {
+                if ($bCache === true and $oBug instanceof \Flightzilla\Model\Ticket\AbstractType) {
                     $aTemp[]             = $oBug;
                     $aCacheHits[$iBugId] = $iBugId;
                 }
@@ -725,7 +725,10 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             $this->_setGetParameter(self::BUG_PARAM_CHANGE_DATE_TO, 'Now');
             $page   = $this->_request(self::BUG_LIST);
             $bugIds = $this->_getBugIdsFromPage($page);
-            $bugs   = $this->getBugListByIds($bugIds, false);
+
+            $bugs = $this->getBugListByIds($bugIds, false);
+            $this->_preSort($bugs);
+
             unset($page, $bugIds, $bugs);
         }
 
@@ -738,9 +741,9 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return $this
      */
     public function getBugList() {
-
         $sToken = md5('get-bug-list' . date('dmy'));
         $bugIds = $this->_oCache->getItem($sToken);
+
         if (empty($bugIds) === true) {
             $this->_addParams();
             $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED);
@@ -756,27 +759,39 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             $this->_oCache->setItem($sToken, $bugIds);
         }
 
-        $bugs   = $this->getBugListByIds($bugIds, true);
+        $bugs = $this->getBugListByIds($bugIds, true);
+        $this->_preSort($bugs);
 
-        $this->_openBugs = $this->_fixedBugs = $this->_reopenedBugs = array();
-        foreach ($bugs as $bug) {
-            switch ($bug->getStatus()) {
+        unset($bugs, $page, $bugIds);
+        return $this;
+    }
+
+    /**
+     * Presort the tickets to groups, depending on the status
+     *
+     * @param  array $aTickets
+     *
+     * @return $this
+     */
+    protected function _preSort($aTickets) {
+        foreach ($aTickets as $oTicket) {
+            switch ($oTicket->getStatus()) {
                 case \Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED:
-                    $this->_reopenedBugs[$bug->id()] = $bug;
+                    $this->_reopenedBugs[$oTicket->id()] = $oTicket;
                     break;
 
                 case \Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED:
                 case \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED:
-                    $this->_fixedBugs[$bug->id()] = $bug;
+                    $this->_fixedBugs[$oTicket->id()] = $oTicket;
                     break;
 
                 default:
-                    $this->_openBugs[$bug->id()] = $bug;
+                    $this->_openBugs[$oTicket->id()] = $oTicket;
                     break;
             }
         }
 
-        unset($bugs, $page, $bugIds);
+
         ksort($this->_openBugs);
         ksort($this->_fixedBugs);
         ksort($this->_reopenedBugs);
@@ -799,8 +814,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getOpenBugs() {
-
-        if (is_null($this->_openBugs) === true) {
+        if (empty($this->_openBugs) === true) {
             $this->getBugList();
         }
 
@@ -814,7 +828,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      */
     public function getFixedBugs() {
 
-        if (is_null($this->_fixedBugs) === true) {
+        if (empty($this->_fixedBugs) === true) {
             $this->getBugList();
         }
 
@@ -828,7 +842,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      */
     public function getReopenedBugs() {
 
-        if (is_null($this->_reopenedBugs) === true) {
+        if (empty($this->_reopenedBugs) === true) {
             $this->getBugList();
         }
 

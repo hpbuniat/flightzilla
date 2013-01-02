@@ -9,7 +9,7 @@ flightzilla will assist in an environment where it is not possible to use enterp
 Usage:
 -----
 
-flightzilla is based on zend-framework 2 and many open-source libraries like jquery, twitter-bootstrap, etc.. flightzilla can use mergy (https://github.com/hpbuniat/mergy), to execute simple merges.
+flightzilla is based on zend-framework 2 and many open-source tools & libraries like jquery, twitter-bootstrap, etc.. flightzilla can use mergy (https://github.com/hpbuniat/mergy), to execute simple merges.
 
 To install flightzilla execute:
 
@@ -18,6 +18,12 @@ To install flightzilla execute:
     cp ./module/Flightzilla/config/flightzilla.local.php.dist ./config/autoload/flightzilla.local.php
     cp ./vendor/zendframework/zend-developer-tools/config/zenddevelopertools.local.php.dist ./config/autoload/zenddevelopertools.local.php
 
+To update the dependencies run:
+
+    php composer.phar update
+    bower update
+    bower-installer
+    
 Features:
 -----
 

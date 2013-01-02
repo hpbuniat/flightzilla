@@ -144,21 +144,6 @@ class Project extends Bug {
     }
 
     /**
-     * Left hours of all dependencies
-     *
-     * @return float
-     */
-    public function getLeftTimeOfDependencies() {
-        $fLeft = 0;
-        $aDepends   = $this->getDepends();
-        foreach ($aDepends as $iTicket) {
-            $fLeft += (float) $this->_oBugzilla->getBugById($iTicket)->getLeftHours();
-        }
-
-        return $fLeft;
-    }
-
-    /**
      * Return the ticket number of the projects predecessor or 0 if there isn't one.
      *
      * A valid predecessor has the status unconfirmed, confirmed or assigned, and is a project or theme.

@@ -1,4 +1,4 @@
-/*global jQuery */
+/*global jQuery, BASE_URL */
 (function($) { $(function() {
     var f = {
         bugs: {},
@@ -124,6 +124,10 @@
         tooltips: function() {
             $('div.description a, span.theme a, a.tooltip, .tipper').tooltip();
         },
+
+        /**
+         * Load & refresh the content of the status-bar
+         */
         loadStatus: function() {
             var $dStatus = this.dStatus,
                 aSema = this.aSemaphore;
@@ -136,6 +140,10 @@
                 });
             }
         },
+
+        /**
+         * Refresh the wrapper-content
+         */
         refresh: function() {
             var $dContent = this.dContent,
                 $loader = this.loader,
@@ -164,6 +172,33 @@
                 window.location.reload();
             }
         },
+
+        /**
+         * Execute the modify-submit
+         */
+        bindTicketModify: function() {
+
+            $('#change-form').off('submit').on('submit', function(e) {
+                var $this = $(this);
+                f.modal('Modifying tickets', $('#loading').clone().removeAttr('id').css({top:0}).show());
+
+                $.ajax({
+                    type: 'POST',
+                    url: BASE_URL + '/flightzilla/ticket/modify',
+                    data: $this.serializeArray()
+                }).done(function(msg) {
+                        f.modal('Modified Tickets', msg);
+                    }).fail(function(jqXHR, textStatus) {
+                        alert( "Request failed: " + textStatus);
+                    });
+
+                e.preventDefault();
+            });
+        },
+
+        /**
+         * Some common bindings, which should be attached during initialization
+         */
         functionStack: function() {
             f.bugTable.on('click', 'a.allBugs, a.noBugs', function() {
                 var v = $(this).hasClass('allBugs') ? 'checked' : false;
@@ -441,10 +476,10 @@
                         ticket: iTicket
                     }
                 }).done(function(msg) {
-                        f.modal('Details for Ticket #' + iTicket, msg);
-                    }).fail(function(jqXHR, textStatus) {
-                        alert( "Request failed: " + textStatus);
-                    });
+                    f.modal('Details for Ticket #' + iTicket, msg);
+                }).fail(function(jqXHR, textStatus) {
+                    alert( "Request failed: " + textStatus);
+                });
             });
 
             /**
@@ -462,30 +497,11 @@
                     url: BASE_URL + '/flightzilla/ticket/list',
                     data: data
                 }).done(function(msg) {
-                        f.modal('Modify Tickets', msg);
-                    }).fail(function(jqXHR, textStatus) {
-                        alert( "Request failed: " + textStatus);
-                    });
-            });
-
-            /**
-             * Execeute the modify-submit
-             */
-            $(document).on('submit', '#change-form', function(e) {
-                var $this = $(this);
-                f.modal('Modifying tickets', $('#loading').clone().removeAttr('id').css({top:0}).show());
-
-                $.ajax({
-                    type: 'POST',
-                    url: BASE_URL + '/flightzilla/ticket/modify',
-                    data: $this.serializeArray()
-                }).done(function(msg) {
-                        f.modal('Modified Tickets', msg);
-                    }).fail(function(jqXHR, textStatus) {
-                        alert( "Request failed: " + textStatus);
-                    });
-
-                e.preventDefault();
+                    f.modal('Modify Tickets', msg);
+                    f.bindTicketModify();
+                }).fail(function(jqXHR, textStatus) {
+                    alert( "Request failed: " + textStatus);
+                });
             });
 
             /**

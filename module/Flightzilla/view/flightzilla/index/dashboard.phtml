@@ -13,7 +13,9 @@
 <?php
     if ($this->iEntries > 0) {
         foreach ($this->aTasks as $this->aItems) {
-            echo $this->render('flightzilla/index/partial/tickets-half-width.phtml');
+            if (empty($this->aItems['stack']) !== true) {
+                echo $this->render('flightzilla/index/partial/tickets-half-width.phtml');
+            }
         }
     }
     else {

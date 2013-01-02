@@ -60,12 +60,12 @@ class Finishstatus extends AbstractHelper {
     /**
      * Colorize the finish-date of a project
      *
-     * @param  \Flightzilla\Model\Ticket\Type\Project $oProject
+     * @param  \Flightzilla\Model\Ticket\Type\Bug $oProject
      * @param  string $sWhich
      *
      * @return string
      */
-    public function __invoke(\Flightzilla\Model\Ticket\Type\Project $oProject, $sWhich = self::ENDDATE) {
+    public function __invoke(\Flightzilla\Model\Ticket\Type\Bug $oProject, $sWhich = self::ENDDATE) {
 
         $sReturn = '';
 

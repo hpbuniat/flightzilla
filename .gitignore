@@ -6,5 +6,6 @@ nbproject
 .idea
 .project
 .settings
+components/
 composer.lock
 config/autoload/flightzilla.local.php

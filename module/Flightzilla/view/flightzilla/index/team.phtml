@@ -13,7 +13,8 @@ foreach ($this->aMemberBugs as $sName => $aBugs) {
           'caption' => $sName,
           'sBugzilla' => $this->layout()->sBugzilla,
           'bugs' => $aBugs,
-          'ready' => 'REVIEWED'
+          'ready' => 'REVIEWED',
+          'mode' => $this->mode
      ));
 }
 ?>

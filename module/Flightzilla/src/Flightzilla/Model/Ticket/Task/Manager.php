@@ -63,7 +63,8 @@ class Manager {
         \Flightzilla\Model\Ticket\Task\Waiting::NAME,
         \Flightzilla\Model\Ticket\Task\Comment::NAME,
         \Flightzilla\Model\Ticket\Task\Testing::NAME,
-        \Flightzilla\Model\Ticket\Task\Review::NAME
+        \Flightzilla\Model\Ticket\Task\Review::NAME,
+        \Flightzilla\Model\Ticket\Task\Testserver::NAME,
     );
 
     /**

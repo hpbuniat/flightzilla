@@ -21,6 +21,9 @@
             $aPins['not'] .= $sRender;
         }
     }
+
+    $this->iSplit = ($this->sRowMode ==  'project' and $iActive === 0 and $iShowed === 0) ? 6 : $this->iSplit;
+
     ?>
     <div class="span<?php echo (11 - $this->iSplit); ?>">
         <?php if ($this->sRowMode ==  'project' and $iActive === 0 and $iShowed === 0): ?>
@@ -29,12 +32,13 @@
                     There are no development-tickets for this project!
                 </div>
             <?php else: ?>
-                <div class="alert alert-success">
-                    <strong>Well done!</strong> No tickets left!
-                </div>
                 <?php if ($this->oProject->isMerged() === true): ?>
                     <div class="alert alert-success">
-                        This project will be part of the next release!
+                        <i class="<?php echo \Flightzilla\View\Helper\Ticketicons::ICON_CHECKED; ?>"></i> This project will be part of the next release!
+                    </div>
+                <?php else: ?>
+                    <div class="alert alert-success">
+                        <strong>Well done!</strong> No tickets left!
                     </div>
                 <?php endif;?>
             <?php endif;?>
