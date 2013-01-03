@@ -601,6 +601,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     private function _getXmlFromBugIds(array $aBugIds, $bCache = true) {
 
         $aCacheHits = $aReturn = $aTemp = $aRequest = array();
+        $bCache = ($bCache or $this->_config->bugzilla->useOnlyCache);
+
         foreach ($aBugIds as $iBugId) {
             if ($bCache === true and empty($this->_allBugs[$iBugId]) !== true) {
                 $aTemp[]             = $this->_allBugs[$iBugId];
