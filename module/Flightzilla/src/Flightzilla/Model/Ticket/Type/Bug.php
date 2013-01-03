@@ -1373,6 +1373,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * Get the time of creation of a ticket
+     *
+     * @return int
+     */
+    public function getCreationTime() {
+        return strtotime($this->_data->create_ts);
+    }
+
+    /**
      * Get the time since last modification
      *
      * @return float

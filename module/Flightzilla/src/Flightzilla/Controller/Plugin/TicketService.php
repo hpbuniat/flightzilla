@@ -134,11 +134,6 @@ class TicketService extends AbstractPlugin {
             $oView->aMemberBugs = $oTicketService->getMemberBugs();
             $oView->aTeamBugs = $oTicketService->getTeamBugs($oView->aMemberBugs);
 
-            $oView->iTotal = $oTicketService->getCount();
-            $oView->aStats = $oTicketService->getStats();
-            $oView->aStatuses = $oTicketService->getStatuses();
-            $oView->aPriorities = $oTicketService->getPriorities();
-            $oView->aSeverities = $oTicketService->getSeverities();
             $oView->sChuck = $oTicketService->getChuckStatus();
             $oView->aThemes = $oTicketService->getThemesAsStack();
 
@@ -146,6 +141,13 @@ class TicketService extends AbstractPlugin {
             $oView->oTicketService = $oTicketService;
             $oView->oResourceManager = $oTicketService->getResourceManager();
         }
+
+        $oView->iTotal = $oTicketService->getCount();
+        $oView->aStats = $oTicketService->getStats();
+        $oView->aStatuses = $oTicketService->getStatuses();
+        $oView->aPriorities = $oTicketService->getPriorities();
+        $oView->aSeverities = $oTicketService->getSeverities();
+        $oView->iThroughPut = $oTicketService->getThroughPut();
 
         $oTasks = new \Flightzilla\Model\Ticket\Task\Manager($oTicketService);
         $oView->aTasks = $oTasks->check($oTicketService->getAllBugs());

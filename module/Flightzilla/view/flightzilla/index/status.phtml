@@ -15,6 +15,9 @@
         <span data-placement="bottom" data-title="<?php echo $this->aTasks[\Flightzilla\Model\Ticket\Task\Testserver::NAME]['description']; ?>" class="tipper badge">
             <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Testserver::NAME]['stack']); ?>
         </span>
+        <span data-placement="bottom" data-title="The ticket-throughput" class="tipper badge-inverse <?php echo ($this->iThroughPut > 0) ? 'red' : 'green'; ?>">
+            <?php echo count($this->iThroughPut); ?>
+        </span>
     </a>
 <?php else: ?>
 <div class="progress progress-striped progress-heading active">

@@ -62,11 +62,11 @@ div.row-fluid div.center.chuck {
     text-align: center;
 }
 
-.red {
+#dStatus .red, .red {
     color: red;
 }
 
-.green {
+#dStatus .green, .green {
     color: green;
 }
 

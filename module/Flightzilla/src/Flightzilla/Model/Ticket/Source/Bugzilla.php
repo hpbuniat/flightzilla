@@ -41,6 +41,8 @@
  */
 namespace Flightzilla\Model\Ticket\Source;
 
+use Flightzilla\Model\Ticket\Type\Bug;
+
 /**
  * Query Bugzilla as ticket-source
  *
@@ -140,49 +142,49 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     /**
      * List of all open tickets
      *
-     * @var \Flightzilla\Model\Ticket\Type\Bug[]
+     * @var Bug[]
      */
     private $_openBugs = array();
 
     /**
      * List of all reopened tickets
      *
-     * @var \Flightzilla\Model\Ticket\Type\Bug[]
+     * @var Bug[]
      */
     private $_reopenedBugs = array();
 
     /**
      * List of all fixed tickets
      *
-     * @var \Flightzilla\Model\Ticket\Type\Bug[]
+     * @var Bug[]
      */
     private $_fixedBugs = array();
 
     /**
      * List of all tickets, which are already in the stable-branch
      *
-     * @var \Flightzilla\Model\Ticket\Type\Bug[]
+     * @var Bug[]
      */
     private $_aFixedTrunk = array();
 
     /**
      * List of all tickets, which can be merged
      *
-     * @var \Flightzilla\Model\Ticket\Type\Bug[]
+     * @var Bug[]
      */
     private $_aFixedToMerge = array();
 
     /**
      * The list of all tickets
      *
-     * @var \Flightzilla\Model\Ticket\Type\Bug[]
+     * @var Bug[]
      */
     private $_aFixed = array();
 
     /**
      * The list of all tickets
      *
-     * @var \Flightzilla\Model\Ticket\Type\Bug[]
+     * @var Bug[]
      */
     private $_allBugs = array();
 
@@ -199,7 +201,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     /**
      * The list of all tickets, which are not assigned to a theme
      *
-     * @var \Flightzilla\Model\Ticket\Type\Bug[]
+     * @var Bug[]
      */
     private $_aUnthemed = array();
 
@@ -596,7 +598,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @param  array   $aBugIds
      * @param  boolean $bCache
      *
-     * @return array<\Flightzilla\Model\Ticket\Type\Bug>
+     * @return array<Bug>
      */
     private function _getXmlFromBugIds(array $aBugIds, $bCache = true) {
 
@@ -652,7 +654,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $oDate = new \Flightzilla\Model\Timeline\Date();
 
         foreach ($aTemp as $oBug) {
-            /* @var $oBug \Flightzilla\Model\Ticket\Type\Bug */
+            /* @var $oBug Bug */
             $iId = $oBug->id();
 
             $bAdd = true;
@@ -715,14 +717,14 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     public function getChangedTicketsWithinDays($sDays = '0d') {
         if (empty($sDays) !== true) {
             $this->_addParams();
-            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED);
-            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED);
-            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_CONFIRMED);
-            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_NEW);
-            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED);
-            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED);
-            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED);
-            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_CLOSED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_REOPENED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_UNCONFIRMED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_CONFIRMED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_NEW);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_ASSIGNED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_VERIFIED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_RESOLVED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_CLOSED);
             $this->_setGetParameter(self::BUG_PARAM_CHANGE_DATE_FROM, $sDays);
             $this->_setGetParameter(self::BUG_PARAM_CHANGE_DATE_TO, 'Now');
             $page   = $this->_request(self::BUG_LIST);
@@ -748,13 +750,13 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         if (empty($bugIds) === true) {
             $this->_addParams();
-            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED);
-            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED);
-            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_CONFIRMED);
-            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_NEW);
-            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED);
-            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED);
-            $this->_setGetParameter(self::BUG_PARAM_STATUS, \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_REOPENED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_UNCONFIRMED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_CONFIRMED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_NEW);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_ASSIGNED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_VERIFIED);
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_RESOLVED);
             $page   = $this->_request(self::BUG_LIST);
             $bugIds = $this->_getBugIdsFromPage($page);
 
@@ -778,12 +780,12 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     protected function _preSort($aTickets) {
         foreach ($aTickets as $oTicket) {
             switch ($oTicket->getStatus()) {
-                case \Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED:
+                case Bug::STATUS_REOPENED:
                     $this->_reopenedBugs[$oTicket->id()] = $oTicket;
                     break;
 
-                case \Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED:
-                case \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED:
+                case Bug::STATUS_VERIFIED:
+                case Bug::STATUS_RESOLVED:
                     $this->_fixedBugs[$oTicket->id()] = $oTicket;
                     break;
 
@@ -886,7 +888,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         $aStack = array();
         foreach ($this->_openBugs as $oTicket) {
-            if ($oTicket->isContainer() === false and $oTicket->isOrga() === false and $oTicket->isWorkedOn() !== true and $oTicket->isStatusAtMost(\Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED) === true) {
+            if ($oTicket->isContainer() === false and $oTicket->isOrga() === false and $oTicket->isWorkedOn() !== true and $oTicket->isStatusAtMost(Bug::STATUS_UNCONFIRMED) === true) {
                 $aStack[$oTicket->id()] = $oTicket;
             }
         }
@@ -908,9 +910,9 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         $aStack = array();
         foreach ($this->_openBugs as $oTicket) {
-            /* @var $oTicket \Flightzilla\Model\Ticket\Type\Bug */
+            /* @var $oTicket Bug */
             if ($oTicket->isContainer() === false and $oTicket->isOrga() === false and $oTicket->isConcept() === false and $oTicket->isWorkedOn() === true
-                and ($oTicket->isStatusAtLeast(\Flightzilla\Model\Ticket\Type\Bug::STATUS_CONFIRMED) or $oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_COMMENT, '?') === true)
+                and ($oTicket->isStatusAtLeast(Bug::STATUS_CONFIRMED) or $oTicket->hasFlag(Bug::FLAG_COMMENT, '?') === true)
             ) {
                 $aStack[$oTicket->id()] = $oTicket;
             }
@@ -1013,13 +1015,13 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
             $bLog = ($bug->id() == 139154);
 
-            /* @var $bug \Flightzilla\Model\Ticket\Type\Bug */
+            /* @var $bug Bug */
             if ($bug->isMerged()) {
                 $this->_aFixedTrunk[$bug->id()] = $bug;
             }
             elseif ($bug->couldBeInTrunk() === true) {
                 $aBlocked                 = $this->getBugListByIds($bug->blocks());
-                $bTrunk                   = (empty($aBlocked) === true and $bug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '+') === true) ? false : true;
+                $bTrunk                   = (empty($aBlocked) === true and $bug->hasFlag(Bug::FLAG_SCREEN, '+') === true) ? false : true;
                 $bOnlyOrganizationTickets = (empty($aBlocked) === true) ? false : true;
 
                 foreach ($aBlocked as $oBlocked) {
@@ -1038,7 +1040,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             }
 
             if (empty($this->_aFixedTrunk[$bug->id()]) === true) {
-                if ($bug->isMergeable() === true or ($bug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_MERGE, '+') !== true and $bug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_DBCHANGE, '?') === true)) {
+                if ($bug->isMergeable() === true or ($bug->hasFlag(Bug::FLAG_MERGE, '+') !== true and $bug->hasFlag(Bug::FLAG_DBCHANGE, '?') === true)) {
                     $aDepends = $this->getBugListByIds($bug->getDepends($this));
                     $bFixed   = true;
                     foreach ($aDepends as $oDependBug) {
@@ -1209,7 +1211,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $aBugs = array_merge($this->getFixedBugs(), $this->getOpenBugs());
         $back  = array();
         foreach ($aBugs as $bug) {
-            if ($bug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTSERVER, '?')) {
+            if ($bug->hasFlag(Bug::FLAG_TESTSERVER, '?')) {
                 $back[$bug->id()] = $bug;
             }
         }
@@ -1262,7 +1264,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         $aMember   = array();
         foreach ($aOpenBugs as $oBug) {
-            /* @var $oBug \Flightzilla\Model\Ticket\Type\Bug */
+            /* @var $oBug Bug */
             if ($oBug->isContainer() !== true) {
                 $sName             = (string) $oBug->getResource();
                 $aMember[$sName][] = $oBug;
@@ -1293,7 +1295,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $openBugs = $this->getOpenBugs();
         $aOpen    = array();
         foreach ($openBugs as $oBug) {
-            /* @var $oBug \Flightzilla\Model\Ticket\Type\Bug */
+            /* @var $oBug Bug */
             if ($oBug->doesBlock() === true and $oBug->isContainer() !== true) {
                 $aOpen[$oBug->id()] = $oBug;
             }
@@ -1377,14 +1379,14 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     /**
      * Find the theme to a bug
      *
-     * @param  \Flightzilla\Model\Ticket\Type\Bug $oBug
+     * @param  Bug $oBug
      *
      * @return int
      */
     private function _findTheme($oBug) {
 
         $mReturn = false;
-        if ($oBug instanceof \Flightzilla\Model\Ticket\Type\Bug) {
+        if ($oBug instanceof Bug) {
             $iBug = $oBug->id();
             if (isset($this->_aFindThemeCache[$iBug]) === true) {
                 $mReturn = $this->_aFindThemeCache[$iBug];
@@ -1427,13 +1429,13 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      *
      * @param  int $iBug
      *
-     * @return \Flightzilla\Model\Ticket\Type\Bug
+     * @return Bug
      *
-     * @throws \Flightzilla\Model\Ticket\Type\Bug\Exception if a bug is not found
+     * @throws Bug\Exception if a bug is not found
      */
     public function getBugById($iBug) {
         if (empty($iBug) === true) {
-            throw new \Flightzilla\Model\Ticket\Type\Bug\Exception(\Flightzilla\Model\Ticket\Type\Bug\Exception::INSUFFICIENT_DATA);
+            throw new Bug\Exception(Bug\Exception::INSUFFICIENT_DATA);
         }
 
         if (isset($this->_allBugs[$iBug]) !== true) {
@@ -1446,11 +1448,11 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     }
 
     /**
-     * @param \Flightzilla\Model\Ticket\Type\Bug $oBug
+     * @param Bug $oBug
      *
      * @return bool|\Flightzilla\Model\Ticket\Type\Project
      */
-    public function getProject(\Flightzilla\Model\Ticket\Type\Bug $oBug) {
+    public function getProject(Bug $oBug) {
 
         foreach ($this->_aProjects as $oTicket) {
             if ($oTicket->isProject() and $oTicket->doesDependOn($oBug, $this)) {
@@ -1505,83 +1507,83 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         if (empty($this->_aStats) === true) {
             $iCount        = $this->getCount();
             $this->_aStats = array(
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ESTIMATED   => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ORGA        => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_UNESTIMATED => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_INPROGRESS  => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ACTIVE      => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_TESTING     => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_MERGE       => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_DEADLINE    => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_SCREEN      => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_COMMENT     => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_FAILED      => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_QUICK       => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_TRANSLATION => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_TIMEDOUT    => 0,
+                Bug::WORKFLOW_ESTIMATED   => 0,
+                Bug::WORKFLOW_ORGA        => 0,
+                Bug::WORKFLOW_UNESTIMATED => 0,
+                Bug::WORKFLOW_INPROGRESS  => 0,
+                Bug::WORKFLOW_ACTIVE      => 0,
+                Bug::WORKFLOW_TESTING     => 0,
+                Bug::WORKFLOW_MERGE       => 0,
+                Bug::WORKFLOW_DEADLINE    => 0,
+                Bug::WORKFLOW_SCREEN      => 0,
+                Bug::WORKFLOW_COMMENT     => 0,
+                Bug::WORKFLOW_FAILED      => 0,
+                Bug::WORKFLOW_QUICK       => 0,
+                Bug::WORKFLOW_TRANSLATION => 0,
+                Bug::WORKFLOW_TIMEDOUT    => 0,
             );
 
             $iTimeoutLimit = $this->_config->tickets->workflow->timeout;
 
             foreach ($this->_allBugs as $oBug) {
-                /* @var $oBug \Flightzilla\Model\Ticket\Type\Bug */
+                /* @var $oBug Bug */
 
                 if ($oBug->isClosed() !== true and $oBug->isContainer() !== true) {
                     $bShouldHaveEstimation = true;
                     if ($oBug->isOrga() === true) {
-                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ORGA]++;
+                        $this->_aStats[Bug::WORKFLOW_ORGA]++;
                         $bShouldHaveEstimation = false;
                     }
 
                     if ($oBug->isEstimated()) {
-                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ESTIMATED]++;
+                        $this->_aStats[Bug::WORKFLOW_ESTIMATED]++;
                     }
                     elseif ($bShouldHaveEstimation === true) {
-                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_UNESTIMATED]++;
+                        $this->_aStats[Bug::WORKFLOW_UNESTIMATED]++;
                     }
 
                     if ($oBug->isWorkedOn()) {
-                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_INPROGRESS]++;
+                        $this->_aStats[Bug::WORKFLOW_INPROGRESS]++;
                     }
 
                     if ($oBug->isActive()) {
-                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ACTIVE]++;
+                        $this->_aStats[Bug::WORKFLOW_ACTIVE]++;
                     }
 
-                    if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '?')) {
-                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_TESTING]++;
+                    if ($oBug->hasFlag(Bug::FLAG_TESTING, '?')) {
+                        $this->_aStats[Bug::WORKFLOW_TESTING]++;
                     }
 
                     if ($oBug->isFailed()) {
-                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_FAILED]++;
+                        $this->_aStats[Bug::WORKFLOW_FAILED]++;
                     }
 
                     if ($oBug->isMergeable()) {
-                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_MERGE]++;
+                        $this->_aStats[Bug::WORKFLOW_MERGE]++;
                     }
 
                     if ($oBug->deadlineStatus()) {
-                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_DEADLINE]++;
+                        $this->_aStats[Bug::WORKFLOW_DEADLINE]++;
                     }
 
-                    if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '?')) {
-                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_SCREEN]++;
+                    if ($oBug->hasFlag(Bug::FLAG_SCREEN, '?')) {
+                        $this->_aStats[Bug::WORKFLOW_SCREEN]++;
                     }
 
-                    if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_COMMENT, '?')) {
-                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_COMMENT]++;
+                    if ($oBug->hasFlag(Bug::FLAG_COMMENT, '?')) {
+                        $this->_aStats[Bug::WORKFLOW_COMMENT]++;
                     }
 
                     if ($oBug->isQuickOne()) {
-                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_QUICK]++;
+                        $this->_aStats[Bug::WORKFLOW_QUICK]++;
                     }
 
                     if ($oBug->isOnlyTranslation()) {
-                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_TRANSLATION]++;
+                        $this->_aStats[Bug::WORKFLOW_TRANSLATION]++;
                     }
 
                     if ($oBug->isChangedWithinLimit($iTimeoutLimit) !== true) {
-                        $this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_TIMEDOUT]++;
+                        $this->_aStats[Bug::WORKFLOW_TIMEDOUT]++;
                     }
                 }
             }
@@ -1593,7 +1595,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     }
 
     /**
-     * Return all bugzilla statuses with percentage.
+     * Return all statuses with percentage.
      *
      * @return array
      */
@@ -1601,14 +1603,14 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         if (empty($this->_aStatuses) === true) {
             $this->_aStatuses = array(
-                \Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::STATUS_NEW         => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::STATUS_CONFIRMED   => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED    => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED    => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED    => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED    => 0,
-                \Flightzilla\Model\Ticket\Type\Bug::STATUS_CLOSED      => 0
+                Bug::STATUS_UNCONFIRMED => 0,
+                Bug::STATUS_NEW         => 0,
+                Bug::STATUS_CONFIRMED   => 0,
+                Bug::STATUS_ASSIGNED    => 0,
+                Bug::STATUS_RESOLVED    => 0,
+                Bug::STATUS_REOPENED    => 0,
+                Bug::STATUS_VERIFIED    => 0,
+                Bug::STATUS_CLOSED      => 0
             );
 
             $iCount = $this->getCount();
@@ -1624,6 +1626,30 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         return $this->_aStatuses;
     }
 
+    /**
+     * Get the ticket-throughput-diff for this week
+     *
+     * @return int
+     */
+    public function getThroughPut() {
+        
+        $iDiff = 0;
+        $iCompare = strtotime('this monday');
+        foreach ($this->_allBugs as $oBug) {
+            if ($oBug->isContainer() !== true) {
+                $bResolved = $oBug->isStatusAtLeast(Bug::STATUS_RESOLVED);
+                if ($bResolved === true and $oBug->getLastActivity() > $iCompare) {
+                    $iDiff--;
+                }
+                elseif ($bResolved === false and $oBug->getCreationTime() > $iCompare) {
+                    $iDiff++;
+                }
+            }
+        }
+
+        return $iDiff;
+    }
+
 
     /**
      * Get the chuck-status
@@ -1633,28 +1659,28 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     public function getChuckStatus() {
 
         $sStatus = \Flightzilla\Model\Chuck::OK;
-        if ($this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_INPROGRESS]['num'] === 0) {
+        if ($this->_aStats[Bug::WORKFLOW_INPROGRESS]['num'] === 0) {
             $this->getStats();
             $this->getStatuses();
         }
 
-        if ($this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_UNESTIMATED]['per'] > 10) {
+        if ($this->_aStats[Bug::WORKFLOW_UNESTIMATED]['per'] > 10) {
             $sStatus = \Flightzilla\Model\Chuck::WARN;
         }
-        elseif ($this->_aStatuses[\Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED]['per'] > 10) {
+        elseif ($this->_aStatuses[Bug::STATUS_UNCONFIRMED]['per'] > 10) {
             $sStatus = \Flightzilla\Model\Chuck::WARN;
         }
 
-        if ($this->_aStatuses[\Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED]['num'] > 1) {
+        if ($this->_aStatuses[Bug::STATUS_REOPENED]['num'] > 1) {
             $sStatus = \Flightzilla\Model\Chuck::ERROR;
         }
-        elseif ($this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_FAILED]['per'] > 2) {
+        elseif ($this->_aStats[Bug::WORKFLOW_FAILED]['per'] > 2) {
             $sStatus = \Flightzilla\Model\Chuck::ERROR;
         }
-        elseif ($this->_aStats[\Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_UNESTIMATED]['per'] > 15) {
+        elseif ($this->_aStats[Bug::WORKFLOW_UNESTIMATED]['per'] > 15) {
             $sStatus = \Flightzilla\Model\Chuck::WARN;
         }
-        elseif ($this->_aStatuses[\Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED]['per'] > 15) {
+        elseif ($this->_aStatuses[Bug::STATUS_UNCONFIRMED]['per'] > 15) {
             $sStatus = \Flightzilla\Model\Chuck::WARN;
         }
 
