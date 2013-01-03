@@ -1440,7 +1440,10 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         if (isset($this->_allBugs[$iBug]) !== true) {
             $aList                 = $this->getBugListByIds(array($iBug));
-            $this->_allBugs[$iBug] = $aList[$iBug];
+            if (isset($aList[$iBug]) === true) {
+                $this->_allBugs[$iBug] = $aList[$iBug];
+            }
+
             unset($aList);
         }
 
@@ -1680,7 +1683,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     public function getChuckStatus() {
 
         $sStatus = \Flightzilla\Model\Chuck::OK;
-        if ($this->_aStats[Bug::WORKFLOW_INPROGRESS]['num'] === 0) {
+        if (empty($this->_aStats[Bug::WORKFLOW_INPROGRESS]) === true) {
             $this->getStats();
             $this->getStatuses();
         }
