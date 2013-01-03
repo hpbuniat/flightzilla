@@ -1634,7 +1634,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     public function getThroughPut() {
         
         $iDiff = 0;
-        $iCompare = strtotime('this monday');
+        $iCompare = strtotime('last monday');
         foreach ($this->_allBugs as $oBug) {
             if ($oBug->isContainer() !== true) {
                 $bResolved = $oBug->isStatusAtLeast(Bug::STATUS_RESOLVED);
@@ -1650,6 +1650,27 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         return $iDiff;
     }
 
+    /**
+     * Get all tickets with deadlines as stack
+     *
+     * @return array
+     */
+    public function getDeadlineStack() {
+        $aStack = array();
+        foreach ($this->_allBugs as $oTicket) {
+            $mDeadline = strtotime($oTicket->getDeadline());
+            if ($mDeadline !== false) {
+                if (empty($aStack[$mDeadline]) === true) {
+                    $aStack[$mDeadline] = array();
+                }
+
+                $aStack[$mDeadline][] = $oTicket;
+            }
+        }
+
+        ksort($aStack);
+        return $aStack;
+    }
 
     /**
      * Get the chuck-status

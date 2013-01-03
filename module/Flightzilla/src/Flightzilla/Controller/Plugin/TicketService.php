@@ -133,6 +133,7 @@ class TicketService extends AbstractPlugin {
         if ($sMode !== 'status' and $sMode !== 'history') {
             $oView->aMemberBugs = $oTicketService->getMemberBugs();
             $oView->aTeamBugs = $oTicketService->getTeamBugs($oView->aMemberBugs);
+            $oView->aDeadlineStack = $oTicketService->getDeadlineStack();
 
             $oView->sChuck = $oTicketService->getChuckStatus();
             $oView->aThemes = $oTicketService->getThemesAsStack();
