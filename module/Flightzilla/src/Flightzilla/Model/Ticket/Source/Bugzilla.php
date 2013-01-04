@@ -1662,7 +1662,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $aStack = array();
         foreach ($this->_allBugs as $oTicket) {
             $mDeadline = strtotime($oTicket->getDeadline());
-            if ($mDeadline !== false) {
+            if ($mDeadline !== false and $oTicket->getStatus() !== Bug::STATUS_CLOSED and $oTicket->isContainer() !== true) {
                 if (empty($aStack[$mDeadline]) === true) {
                     $aStack[$mDeadline] = array();
                 }
