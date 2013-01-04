@@ -1378,7 +1378,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return int
      */
     public function getCreationTime() {
-        return strtotime($this->_data->create_ts);
+        return strtotime($this->_data->creation_ts);
     }
 
     /**

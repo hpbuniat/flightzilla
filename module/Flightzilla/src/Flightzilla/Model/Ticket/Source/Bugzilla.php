@@ -1638,13 +1638,13 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         
         $iDiff = 0;
         $iCompare = strtotime('last monday');
-        foreach ($this->_allBugs as $oBug) {
-            if ($oBug->isContainer() !== true) {
-                $bResolved = $oBug->isStatusAtLeast(Bug::STATUS_RESOLVED);
-                if ($bResolved === true and $oBug->getLastActivity() > $iCompare) {
+        foreach ($this->_allBugs as $oTicket) {
+            if ($oTicket->isContainer() !== true) {
+                $bResolved = $oTicket->isStatusAtLeast(Bug::STATUS_RESOLVED);
+                if ($bResolved === true and $oTicket->getLastActivity() > $iCompare) {
                     $iDiff--;
                 }
-                elseif ($bResolved === false and $oBug->getCreationTime() > $iCompare) {
+                elseif ($bResolved === false and $oTicket->getCreationTime() > $iCompare) {
                     $iDiff++;
                 }
             }
