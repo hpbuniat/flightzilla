@@ -23,16 +23,27 @@ To update the dependencies run:
     php composer.phar update
     bower update
     bower-installer
-    
+
 Features:
 -----
 
 flightzilla offers a variety of features, which are split into several categories.
 
 - Personal Dashboard
-    - My Dashboard (Tickets which are assigned to you, including several task-lists (testing, commenting, ...))
+    - My Dashboard
+        - Shows Tickets which are assigned to you
+        - The dashboard includes some handy shortcuts for common workflows (e.g. setting a ticket to "assigned" or "resolved")
+        - Includes several task-lists:
+            - Tickets with deadlines
+            - Unanswered Comment-Requests
+            - Tickets with failed testings
     - My Tickets (A list of your tickets - comparable to the "My Bugs"-List)
-    - Conflicts (Several listings to check the integrity of ticket-status (e.g., a RESOLVED-Tickets must not have only failed- or rejected testings))
+    - Conflicts - Several listings to check the integrity of ticket-status:
+        - RESOLVED-Tickets must not have only failed- or rejected testings
+        - Tickets without estimation (Organization) must have a due-date
+        - Tickets with worked-time must have a estimation
+        - Tickets should not be untouched for a certain amount of time (depending on your configuration)
+        - Flags should not be unanswered for a certain amount of time (depending on your configuration)
 - Kanban Board (A kanban-style-board, based on the current ticket-status)
 - Tickets (A list of all tickets, grouped by workflow-status & assigned project)
     - Provides a very detailed overview over all tickets - the status is indicated by many icons & colors
