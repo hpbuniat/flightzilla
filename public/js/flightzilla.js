@@ -105,6 +105,7 @@
                         data: data
                     }).done(function(msg) {
                         f.modal('Modify Tickets', msg);
+                        f.bindTicketModify();
                     }).fail(function(jqXHR, textStatus) {
                         alert( "Request failed: " + textStatus);
                     });
