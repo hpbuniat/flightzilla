@@ -138,17 +138,17 @@ div.row-fluid div.center.chuck {
     width: 100%;
     line-height: 13px;
     height: 13px;
-    padding-top: 0;
+    padding: 0 0 3px 0;
 }
 
 .kanban div.pin div.pin-bottom {
     position: absolute;
-    bottom: 5px;
+    bottom: 2px;
 }
 
 .kanban div.description {
     height: 60px;
-    margin: 3px;
+    margin: 0 2px;
     overflow: hidden;
 }
 
