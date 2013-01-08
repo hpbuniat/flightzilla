@@ -65,9 +65,13 @@ class TicketController extends AbstractActionController {
         $oViewModel->setTerminal(true);
 
         $oViewModel->dropAction = $this->params()->fromPost('drop');
+        $oViewModel->user = $this->params()->fromPost('user');
         $sTickets = $this->params()->fromPost('tickets');
+
+        $oTicketService = $this->getPluginManager()->get(TicketService::NAME)->getService();
+        $oViewModel->oResourceManager = $oTicketService->getResourceManager();
         if (empty($sTickets) !== true) {
-            $oViewModel->aTickets = $this->getPluginManager()->get(TicketService::NAME)->getService()->getBugListByIds($sTickets, false);
+            $oViewModel->aTickets = $oTicketService->getBugListByIds($sTickets, false);
         }
 
         return $oViewModel;
@@ -84,7 +88,8 @@ class TicketController extends AbstractActionController {
         $aSpecial = array(
             'estimation',
             'worked',
-            'comment'
+            'comment',
+            'assigned'
         );
         foreach ($aSpecial as $sSpecial) {
             $aTemp = $this->params()->fromPost($sSpecial);

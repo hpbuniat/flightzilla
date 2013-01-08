@@ -6,9 +6,14 @@
         'not' => ''
     );
 
-    $iActive = $iShowed = 0;
+    $iCount = $iActive = $iShowed = 0;
     foreach ($this->aStack as $this->oTicket) {
+        /* @var $this->oTicket \Flightzilla\Model\Ticket\Type\Bug */
         $sRender = $this->render('flightzilla/kanban/partial/pin.phtml');
+        if ($this->oTicket->getStatus() !== \Flightzilla\Model\Ticket\Type\Bug::STATUS_CLOSED) {
+            $iCount++;
+        }
+
         if ($this->oTicket->isWip() === true) {
             $iActive++;
             $aPins['active'] .= $sRender;
@@ -48,7 +53,7 @@
         <?php endif;?>
     </div>
     <div class="span1 relative-box">
-        <strong class="largeGray"><?php echo count($this->aStack);?> <br/> ...</strong>
+        <strong class="largeGray"><?php echo $iCount;?> <br/> ...</strong>
     </div>
     <div class="span<?php echo $this->iSplit; ?> pending">
         <?php echo $aPins['pending']; ?>

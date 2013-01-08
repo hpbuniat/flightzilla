@@ -300,6 +300,11 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $aProjects = $this->_config->bugzilla->projects->$sProject->toArray();
 
         $this->_aTeam    = $aProjects['team'];
+        // prepare bug models
+        foreach ($this->_aTeam as $sLogin => $aMember) {
+            $this->_oResource->registerResource(\Flightzilla\Model\Resource\Builder::build($sLogin, $aMember));
+        }
+
         $this->_aProject = $aProjects['products'];
         foreach ($this->_aProject as $aPortal) {
             $this->product($aPortal['name']);
@@ -644,11 +649,6 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             }
 
             unset($sResponse);
-        }
-
-        // prepare bug models
-        foreach ($this->_aTeam as $sLogin => $aMember) {
-            $this->_oResource->registerResource(\Flightzilla\Model\Resource\Builder::build($sLogin, $aMember));
         }
 
         $oDate = new \Flightzilla\Model\Timeline\Date();

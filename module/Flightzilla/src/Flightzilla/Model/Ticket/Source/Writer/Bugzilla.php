@@ -41,6 +41,7 @@
  */
 namespace Flightzilla\Model\Ticket\Source\Writer;
 
+use Flightzilla\Model\Ticket\Type\Bug;
 
 /**
  * Write changes into the source bugzilla
@@ -99,10 +100,10 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
     public function setTestingRequest(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
         $this->_getCommon($oTicket);
 
-        $sPayload = $oTicket->getFlagName(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING);
+        $sPayload = $oTicket->getFlagName(Bug::FLAG_TESTING);
         if (empty($sPayload) !== true) {
             $this->_aPayload[$sPayload] = \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST;
-            if ($oTicket->isType(\Flightzilla\Model\Ticket\Type\Bug::TYPE_BUG) !== true) {
+            if ($oTicket->isType(Bug::TYPE_BUG) !== true) {
                 $sRequesteePayload = str_replace('flag', 'requestee', $sPayload);
                 $this->_aPayload[$sRequesteePayload] = $oTicket->getReporter();
             }
@@ -120,7 +121,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
     public function reTest(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
         $this->_getCommon($oTicket);
 
-        $sPayload = $oTicket->getFlagName(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_DENIED);
+        $sPayload = $oTicket->getFlagName(Bug::FLAG_TESTING, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_DENIED);
         if (empty($sPayload) !== true) {
             $this->_aPayload[$sPayload] = \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST;
             $this->_aPayload['comment'] = 'Please test again!' . PHP_EOL . 'Test-Server: ' . (($oTicket->isMerged() === true) ? 'Stable' : 'Development');
@@ -136,7 +137,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
     public function setMerged(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
         $this->_getCommon($oTicket);
 
-        $sPayload = $oTicket->getFlagName(\Flightzilla\Model\Ticket\Type\Bug::FLAG_MERGE);
+        $sPayload = $oTicket->getFlagName(Bug::FLAG_MERGE);
         if (empty($sPayload) !== true) {
             $this->_aPayload[$sPayload] = \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_GRANTED;
         }
@@ -151,7 +152,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
     public function setStaged(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
         $this->_getCommon($oTicket);
 
-        $sPayload = $oTicket->getFlagName(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTSERVER);
+        $sPayload = $oTicket->getFlagName(Bug::FLAG_TESTSERVER);
         if (empty($sPayload) !== true) {
             $this->_aPayload[$sPayload] = \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_GRANTED;
         }
@@ -166,7 +167,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
     public function setUpdateTestserver(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
         $this->_getCommon($oTicket);
 
-        $sPayload = $oTicket->getFlagName(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTSERVER);
+        $sPayload = $oTicket->getFlagName(Bug::FLAG_TESTSERVER);
         if (empty($sPayload) !== true) {
             $this->_aPayload[$sPayload] = \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST;
         }
@@ -181,7 +182,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
     public function setDbChanged(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
         $this->_getCommon($oTicket);
 
-        $sPayload = $oTicket->getFlagName(\Flightzilla\Model\Ticket\Type\Bug::FLAG_DBCHANGE, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST);
+        $sPayload = $oTicket->getFlagName(Bug::FLAG_DBCHANGE, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST);
         if (empty($sPayload) !== true) {
             $this->_aPayload[$sPayload] = \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_GRANTED;
         }
@@ -231,7 +232,14 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
      * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setAssigned()
      */
     public function setAssigned(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
-        return $this->setStatus($oTicket, \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED);
+        $sStatus = Bug::STATUS_ASSIGNED;
+        if (empty($mPayload) !== true) {
+            $this->_aPayload['comment'] = 'Re-Assigned!';
+            $this->_aPayload['assigned_to'] = $mPayload;
+            $sStatus = Bug::STATUS_CONFIRMED;
+        }
+
+        return $this->setStatus($oTicket, $sStatus);
     }
 
     /**
@@ -239,12 +247,12 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
      * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setResolved()
      */
     public function setResolved(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
-        $this->_aPayload['resolution'] = \Flightzilla\Model\Ticket\Type\Bug::RESOLUTION_FIXED;
+        $this->_aPayload['resolution'] = Bug::RESOLUTION_FIXED;
         if (empty($this->_aPayload['comment']) === true) {
             $this->_aPayload['comment'] = 'Finished!';
         }
 
-        return $this->setStatus($oTicket, \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED);
+        return $this->setStatus($oTicket, Bug::STATUS_RESOLVED);
     }
 
     /**
@@ -256,7 +264,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
             $this->_aPayload['comment'] = 'Paused!';
         }
 
-        return $this->setStatus($oTicket, \Flightzilla\Model\Ticket\Type\Bug::STATUS_CONFIRMED);
+        return $this->setStatus($oTicket, Bug::STATUS_CONFIRMED);
     }
 
     /**

@@ -95,7 +95,8 @@
                 drop: function( event, ui ) {
                     var data = {
                         tickets: ui.draggable.data('ticket'),
-                        drop: $(this).data('drop')
+                        drop: $(this).data('drop'),
+                        user: $(this).data('user')
                     };
 
                     f.modal('Loading tickets', $('#loading').clone().removeAttr('id').css({top:0}).show());
