@@ -1,13 +1,14 @@
 <?php
 $aTimes = $this->collectiontime($this->aStack);
+$oResource = $this->oResourceManager->getResource($this->sMemberName);
 $sEstimationString = sprintf('%sh (%sh est.) <i class="icon-time"></i> %sh (%sd)', $aTimes['spent'], $aTimes['esti'] , $aTimes['left'] ,$aTimes['days']);
 ?>
 <div class="row-fluid memberBox">
     <div class="span12 well">
         <div class="span2">
-            <a href="#" class="thumbnail">
+            <a href="#" class="thumbnail droppable" data-drop="assign" data-user="<?php echo $oResource->getEmail(); ?>">
                 <?php
-                    echo $this->gravatar($this->oResourceManager->getResource($this->sMemberName)->getGravatar(), array(
+                    echo $this->gravatar($oResource->getGravatar(), array(
                         'imgSize' => 90,
                         'secure' => true
                     ),
@@ -24,10 +25,10 @@ $sEstimationString = sprintf('%sh (%sh est.) <i class="icon-time"></i> %sh (%sd)
                         <a href="#" class="btn disabled droppable tooltip" data-title="Drop a pin, to set it to ASSIGNED" data-drop="assign"><i class="icon-wrench"></i></a>
                     </div>
                     <div class="btn-group">
-                        <a href="#" class="btn disabled droppable tooltip" data-title="Drop a pin, to set it to CONFIRMED" data-drop="confirmed"><i class="icon-pause"></i></a>
+                        <a href="#" class="btn disabled droppable tooltip" data-title="Drop a pin, to set it to CONFIRMED" data-drop="confirmed" data-user="<?php echo $oResource->getEmail(); ?>"><i class="icon-pause"></i></a>
                     </div>
                     <div class="btn-group">
-                        <a href="#" class="btn disabled droppable tooltip" data-title="Drop a pin, to set it to RESOLVED" data-drop="resolve"><i class="icon-ok-circle"></i></a>
+                        <a href="#" class="btn disabled droppable tooltip" data-title="Drop a pin, to set it to RESOLVED" data-drop="resolve" data-user="<?php echo $oResource->getEmail(); ?>"><i class="icon-ok-circle"></i></a>
                     </div>
                 </div>
             </blockquote>

@@ -4,6 +4,11 @@
         $this->aTickets = array();
     }
 
+    $sUser = $this->oResourceManager->getResource($this->oResourceManager->getResourceByLogin($this->layout()->sCurrentUser))->getEmail();
+    if (empty($this->user) !== true) {
+        $sUser = $this->oResourceManager->getResource($this->oResourceManager->getResourceByEmail($this->user))->getEmail();
+    }
+
     foreach ($this->aTickets as $oTicket):
     /* @var $oTicket \Flightzilla\Model\Ticket\Type\Bug */
     ?>
@@ -21,8 +26,11 @@
                     <label class="control-label" for="timeEstimation">Estimation</label>
                     <div class="controls">
                         <input type="text" id="timeEstimation" value="<?php echo $oTicket->getEstimation(); ?>" name="estimation[<?php echo $oTicket->id();?>][]" />
-                        <input type="hidden" value="setAssigned" name="modify[<?php echo $oTicket->id();?>][]" />
                     </div>
+
+                    <label for="assignee">Assign to user:</label>
+                    <input type="text" id="assignee" value="<?php echo $sUser; ?>" name="assigned[<?php echo $oTicket->id();?>][]" />
+                    <input type="hidden" value="setAssigned" name="modify[<?php echo $oTicket->id();?>][]" />
                 </div>
             </li>
             <?php elseif ($this->dropAction === 'resolve' or $this->dropAction === 'confirmed'): ?>
@@ -84,7 +92,7 @@
                     Check, if the changes have been deployed to the test-system
                 </label>
             </li>
-            <?php elseif ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTSERVER) === false and (empty($this->dropAction) === true and $this->dropAction !== 'assign')): ?>
+            <?php elseif ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTSERVER) === false or (empty($this->dropAction) === true and $this->dropAction !== 'assign')): ?>
             <li>
                 <label class="checkbox">
                     <input type="checkbox" value="setUpdateTestserver" name="modify[<?php echo $oTicket->id();?>][]" />

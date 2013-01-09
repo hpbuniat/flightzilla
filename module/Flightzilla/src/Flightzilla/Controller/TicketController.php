@@ -2,7 +2,7 @@
 /**
  * flightzilla
  *
- * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * Copyright (c) 2012-2013, Hans-Peter Buniat <hpbuniat@googlemail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
  *
  * @package flightzilla
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 namespace Flightzilla\Controller;
@@ -50,7 +50,7 @@ use Zend\Mvc\Controller\AbstractActionController,
  * Ticket-related controller
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
@@ -65,9 +65,13 @@ class TicketController extends AbstractActionController {
         $oViewModel->setTerminal(true);
 
         $oViewModel->dropAction = $this->params()->fromPost('drop');
+        $oViewModel->user = $this->params()->fromPost('user');
         $sTickets = $this->params()->fromPost('tickets');
+
+        $oTicketService = $this->getPluginManager()->get(TicketService::NAME)->getService();
+        $oViewModel->oResourceManager = $oTicketService->getResourceManager();
         if (empty($sTickets) !== true) {
-            $oViewModel->aTickets = $this->getPluginManager()->get(TicketService::NAME)->getService()->getBugListByIds($sTickets, false);
+            $oViewModel->aTickets = $oTicketService->getBugListByIds($sTickets, false);
         }
 
         return $oViewModel;
@@ -84,7 +88,8 @@ class TicketController extends AbstractActionController {
         $aSpecial = array(
             'estimation',
             'worked',
-            'comment'
+            'comment',
+            'assigned'
         );
         foreach ($aSpecial as $sSpecial) {
             $aTemp = $this->params()->fromPost($sSpecial);

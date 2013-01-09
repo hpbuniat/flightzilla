@@ -39,10 +39,9 @@
  * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
-namespace Flightzilla\Model\Resource;
 
 /**
- * Create a human-resource model
+ * View-Helper to filter a stack of tickets for a single user
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -50,20 +49,35 @@ namespace Flightzilla\Model\Resource;
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-abstract class Builder {
+namespace Flightzilla\View\Helper;
+use Zend\View\Helper\AbstractHelper;
+
+class Userfilter extends AbstractHelper {
 
     /**
-     * Create a human resource
+     * Get the workflow-stats of the bug
      *
-     * @param  string $sLogin
-     * @param  array $aMember
+     * @param  array $aTickets
+     * @param  string $sUser
      *
-     * @return \Flightzilla\Model\Resource\Human
+     * @return string
      */
-    public static function build($sLogin, $aMember) {
-        $oTimecard = new \Flightzilla\Model\Resource\Human\Timecard();
-        $oResource = new \Flightzilla\Model\Resource\Human($sLogin, $aMember, $oTimecard);
+    public function __invoke(array $aTickets, $sUser) {
+        $aStack = array();
+        foreach ($aTickets as $iDeadline => $aIterate) {
+            foreach ($aIterate as $oTicket) {
 
-        return $oResource;
+                /* @var $oTicket \Flightzilla\Model\Ticket\Type\Bug */
+                if ((string) $oTicket->getResource() === $sUser) {
+                    if (empty($aStack[$iDeadline]) === true) {
+                        $aStack[$iDeadline] = array();
+                    }
+
+                    $aStack[$iDeadline][] = $oTicket;
+                }
+            }
+        }
+
+        return $aStack;
     }
 }

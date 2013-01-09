@@ -125,6 +125,7 @@ return array(
             'prioritycolor' => 'Flightzilla\View\Helper\Prioritycolor',
             'ticketicons' => 'Flightzilla\View\Helper\Ticketicons',
             'collectiontime' => 'Flightzilla\View\Helper\CollectionTime',
+            'userfilter' => 'Flightzilla\View\Helper\Userfilter',
         ),
         'factories' => array(
             'workflow' => function (\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {

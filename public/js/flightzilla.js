@@ -95,7 +95,8 @@
                 drop: function( event, ui ) {
                     var data = {
                         tickets: ui.draggable.data('ticket'),
-                        drop: $(this).data('drop')
+                        drop: $(this).data('drop'),
+                        user: $(this).data('user')
                     };
 
                     f.modal('Loading tickets', $('#loading').clone().removeAttr('id').css({top:0}).show());
@@ -104,10 +105,11 @@
                         url: BASE_URL + '/flightzilla/ticket/list',
                         data: data
                     }).done(function(msg) {
-                            f.modal('Modify Tickets', msg);
-                        }).fail(function(jqXHR, textStatus) {
-                            alert( "Request failed: " + textStatus);
-                        });
+                        f.modal('Modify Tickets', msg);
+                        f.bindTicketModify();
+                    }).fail(function(jqXHR, textStatus) {
+                        alert( "Request failed: " + textStatus);
+                    });
                 },
                 over: function(event, ui) {
                     $(this).toggleClass('btn-success').addClass('btn-danger');
@@ -131,7 +133,7 @@
         loadStatus: function() {
             var $dStatus = this.dStatus,
                 aSema = this.aSemaphore;
-            if ($dStatus.length && !aSema.status) {
+            if ($dStatus.length && !aSema.status && !aSema.list) {
                 aSema.status = true;
                 $.get($dStatus.data('data'), function(s) {
                     $dStatus.html(s).show();
@@ -159,12 +161,17 @@
 
             if ($dContent.length && $dContent.data('data') && !aSema.list) {
                 aSema.list = true;
+
                 $.get($dContent.data('data'), function(s) {
                     $dContent.html(s).show();
-                    $loader.hide();
                     $hide.show();
 
                     f.init();
+                }).error(function() {
+                    $dContent.html('<div class="alert alert-error"><strong>The request-failed!</strong></div>').show();
+
+                }).complete(function() {
+                    $loader.hide();
                     aSema.list = false;
                 });
             }
@@ -187,10 +194,10 @@
                     url: BASE_URL + '/flightzilla/ticket/modify',
                     data: $this.serializeArray()
                 }).done(function(msg) {
-                        f.modal('Modified Tickets', msg);
-                    }).fail(function(jqXHR, textStatus) {
-                        alert( "Request failed: " + textStatus);
-                    });
+                    f.modal('Modified Tickets', msg);
+                }).fail(function(jqXHR, textStatus) {
+                    alert( "Request failed: " + textStatus);
+                });
 
                 e.preventDefault();
             });

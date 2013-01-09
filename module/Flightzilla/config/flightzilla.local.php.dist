@@ -19,6 +19,7 @@ return array(
             'http' => array(
                 //'proxy' => "ip",
                 'cookiePath' => APPLICATION_PATH . "/data/cache/",
+                'useOnlyCache' => false // use only cached entries, regardless of their age
             ),
             'projects' => array(
                 'My Project 1' => array(
