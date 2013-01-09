@@ -8,7 +8,7 @@
         <?php echo $this->bug->priority?>
     </td>
     <td width="15%">
-        <a class="bugLink" target="_blank" href="<?php echo $this->sBugzilla; ?>/show_bug.cgi?id=<?php echo $this->bug->id(); ?>"><?php echo $this->bug->id(); ?></a>
+        <a class="bugLink draggable" target="_blank" href="<?php echo $this->sBugzilla; ?>/show_bug.cgi?id=<?php echo $this->bug->id(); ?>" data-ticket="<?php echo $this->bug->id(); ?>"><?php echo $this->bug->id(); ?></a>
         &nbsp;
         <?php
         echo $this->bug->assignee_short;
