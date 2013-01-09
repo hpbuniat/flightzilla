@@ -92,7 +92,7 @@
                     Check, if the changes have been deployed to the test-system
                 </label>
             </li>
-            <?php elseif ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTSERVER) === false or (empty($this->dropAction) === true and $this->dropAction !== 'assign')): ?>
+            <?php elseif ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTSERVER) === false or (empty($this->dropAction) !== true and $this->dropAction !== 'assign')): ?>
             <li>
                 <label class="checkbox">
                     <input type="checkbox" value="setUpdateTestserver" name="modify[<?php echo $oTicket->id();?>][]" />
