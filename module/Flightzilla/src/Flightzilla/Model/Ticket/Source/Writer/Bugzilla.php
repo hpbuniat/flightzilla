@@ -233,8 +233,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
      */
     public function setAssigned(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
         $sStatus = Bug::STATUS_ASSIGNED;
-        if (empty($mPayload) !== true) {
-            $this->_aPayload['comment'] = 'Re-Assigned!';
+        if (empty($mPayload) !== true and $oTicket->getAssignee() !== $mPayload) {
+            $this->_aPayload['comment'] = sprintf('re-assigned ticket from %s to %s', $oTicket->getAssignee(), $mPayload);
             $this->_aPayload['assigned_to'] = $mPayload;
             $sStatus = Bug::STATUS_CONFIRMED;
         }
