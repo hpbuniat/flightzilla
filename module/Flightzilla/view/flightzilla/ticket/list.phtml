@@ -46,7 +46,7 @@
                         <?php endif; ?>
                     </div>
 
-                    <?php if (empty($this->user) !== true): ?>
+                    <?php if (empty($this->user) !== true and $this->dropAction !== 'resolve'): ?>
                         <label for="assignee">Assign to user:</label>
                         <input type="text" id="assignee" value="<?php echo $sUser; ?>" name="assigned[<?php echo $oTicket->id();?>][]" />
                         <input type="hidden" value="setAssigned" name="modify[<?php echo $oTicket->id();?>][]" />
