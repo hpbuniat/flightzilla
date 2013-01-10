@@ -46,6 +46,12 @@
                         <?php endif; ?>
                     </div>
 
+                    <?php if (empty($this->user) !== true): ?>
+                        <label for="assignee">Assign to user:</label>
+                        <input type="text" id="assignee" value="<?php echo $sUser; ?>" name="assigned[<?php echo $oTicket->id();?>][]" />
+                        <input type="hidden" value="setAssigned" name="modify[<?php echo $oTicket->id();?>][]" />
+                    <?php endif; ?>
+
                     <label for="comment">Enter a comment:</label>
                     <?php if ($this->dropAction === 'resolve'): ?>
                         <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]">Finished!</textarea>

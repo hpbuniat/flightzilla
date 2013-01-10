@@ -85,11 +85,45 @@
         })(),
 
         /**
-         * Init dragg- & droppables
+         * Init draggables
          */
         dragging: function() {
-            $('.draggable').draggable({ revert: true });
-            $('.droppable').droppable({
+            var sSelector = '#ticket-dropper';
+            $('.draggable').draggable({
+                revert: true,
+                zIndex: 100,
+                start: function(event, ui) {
+                    $.get(BASE_URL + '/flightzilla/team/members', function(msg) {
+                        $('<div />', {
+                            id: 'ticket-dropper'
+                        }).html(msg).appendTo('body');
+                        $(sSelector).position({
+                            of: ui.helper,
+                            my: "center top",
+                            at: "left top",
+                            collision: "flipfit"
+                        });
+
+                        // enable droppables & manually trigger the activation
+                        f.dropping(sSelector);
+                        $('.droppable', sSelector).each(function() {
+                            $.data(this, "ui-droppable")._activate();
+                        });
+                    });
+                },
+                stop: function() {
+                    $(sSelector).remove();
+                }
+            });
+
+            f.dropping();
+        },
+
+        /**
+         * Init droppables
+         */
+        dropping: function(scope) {
+            $('.droppable', scope).droppable({
                 activeClass: "btn-success",
                 tolerance: "pointer",
                 drop: function( event, ui ) {
@@ -112,7 +146,11 @@
                     });
                 },
                 over: function(event, ui) {
-                    $(this).toggleClass('btn-success').addClass('btn-danger');
+                    var $this = $(this);
+                    $this.toggleClass('btn-success').addClass('btn-danger');
+                    if ($this.hasClass('close-ticket') === true) {
+                        $('#ticket-dropper').remove();
+                    }
                 },
                 out: function(event, ui) {
                     $(this).toggleClass('btn-success').removeClass('btn-danger');

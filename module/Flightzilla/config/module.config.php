@@ -107,6 +107,7 @@ return array(
             'mergy' => 'Flightzilla\Controller\MergyController',
             'ticket' => 'Flightzilla\Controller\TicketController',
             'analytics' => 'Flightzilla\Controller\AnalyticsController',
+            'team' => 'Flightzilla\Controller\TeamController',
         ),
     ),
     'controller_plugins' => array(

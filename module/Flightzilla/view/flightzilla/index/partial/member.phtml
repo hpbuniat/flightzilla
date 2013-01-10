@@ -1,37 +1,12 @@
 <?php
 $aTimes = $this->collectiontime($this->aStack);
-$oResource = $this->oResourceManager->getResource($this->sMemberName);
+$this->oResource = $this->oResourceManager->getResource($this->sMemberName);
 $sEstimationString = sprintf('%sh (%sh est.) <i class="icon-time"></i> %sh (%sd)', $aTimes['spent'], $aTimes['esti'] , $aTimes['left'] ,$aTimes['days']);
 ?>
 <div class="row-fluid memberBox">
     <div class="span12 well">
         <div class="span2">
-            <a href="#" class="thumbnail droppable" data-drop="assign" data-user="<?php echo $oResource->getEmail(); ?>">
-                <?php
-                    echo $this->gravatar($oResource->getGravatar(), array(
-                        'imgSize' => 90,
-                        'secure' => true
-                    ),
-                    array(
-                        'class' => 'avatar',
-                        'title' => $this->sMemberName
-                    ));
-                ?>
-            </a>
-            <?php echo sprintf('<h5><strong>%s</strong></h5>', $this->sMemberName); ?>
-            <blockquote>
-                <div class="btn-toolbar">
-                    <div class="btn-group">
-                        <a href="#" class="btn disabled droppable tooltip" data-title="Drop a pin, to set it to ASSIGNED" data-drop="assign"><i class="icon-wrench"></i></a>
-                    </div>
-                    <div class="btn-group">
-                        <a href="#" class="btn disabled droppable tooltip" data-title="Drop a pin, to set it to CONFIRMED" data-drop="confirmed" data-user="<?php echo $oResource->getEmail(); ?>"><i class="icon-pause"></i></a>
-                    </div>
-                    <div class="btn-group">
-                        <a href="#" class="btn disabled droppable tooltip" data-title="Drop a pin, to set it to RESOLVED" data-drop="resolve" data-user="<?php echo $oResource->getEmail(); ?>"><i class="icon-ok-circle"></i></a>
-                    </div>
-                </div>
-            </blockquote>
+            <?php echo $this->render('flightzilla/team/partial/member.phtml'); ?>
         </div>
         <div class="span10">
             <div class="row-fluid">
