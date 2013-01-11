@@ -234,7 +234,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
     public function setAssigned(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
         $sStatus = Bug::STATUS_ASSIGNED;
         if (empty($mPayload) !== true and $oTicket->getAssignee() !== $mPayload) {
-            $this->_aPayload['comment'] = sprintf('re-assigned ticket from %s to %s', $oTicket->getAssignee(), $mPayload);
+            $this->_aPayload['comment'] = $this->_aPayload['comment'] . PHP_EOL . PHP_EOL . sprintf('re-assigned ticket from %s to %s', $oTicket->getAssignee(), $mPayload);
             $this->_aPayload['assigned_to'] = $mPayload;
             $sStatus = Bug::STATUS_CONFIRMED;
         }
@@ -273,8 +273,10 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
      */
     public function setComment(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
         $this->_getCommon($oTicket);
+        if (empty($mPayload) !== true) {
+            $this->_aPayload['comment'] = $mPayload . PHP_EOL . $this->_aPayload['comment'];
+        }
 
-        $this->_aPayload['comment'] = $mPayload;
         return $this;
     }
 }

@@ -89,41 +89,37 @@
          */
         dragging: function() {
             var sSelector = '#ticket-dropper';
-            $('.draggable').draggable({
-                revert: true,
-                zIndex: 100,
-                start: function(event, ui) {
-                    $.get(BASE_URL + '/flightzilla/team/members', function(msg) {
-                        $('<div />', {
-                            id: 'ticket-dropper'
-                        }).html(msg).appendTo('body');
-                        $(sSelector).position({
-                            of: ui.helper,
+            $.get(BASE_URL + '/flightzilla/team/members', function(msg) {
+                $('<div />', {
+                    id: sSelector.substr(1),
+                    style: 'display:none'
+                }).html(msg).appendTo('body');
+
+                $('.draggable').draggable({
+                    revert: true,
+                    zIndex: 1000,
+                    start: function(event, ui) {
+                        $(sSelector).show().position({
+                            of: ui.helper.parents('.row-fluid, tr').eq(0),
                             my: "center top",
-                            at: "left top",
+                            at: "center bottom+10",
                             collision: "flipfit"
                         });
+                    },
+                    stop: function(event, ui) {
+                        $(sSelector).hide();
+                    }
+                });
 
-                        // enable droppables & manually trigger the activation
-                        f.dropping(sSelector);
-                        $('.droppable', sSelector).each(function() {
-                            $.data(this, "ui-droppable")._activate();
-                        });
-                    });
-                },
-                stop: function() {
-                    $(sSelector).remove();
-                }
+                f.dropping();
             });
-
-            f.dropping();
         },
 
         /**
          * Init droppables
          */
-        dropping: function(scope) {
-            $('.droppable', scope).droppable({
+        dropping: function() {
+            $('.droppable').droppable({
                 activeClass: "btn-success",
                 tolerance: "pointer",
                 drop: function( event, ui ) {
@@ -148,8 +144,8 @@
                 over: function(event, ui) {
                     var $this = $(this);
                     $this.toggleClass('btn-success').addClass('btn-danger');
-                    if ($this.hasClass('close-ticket') === true) {
-                        $('#ticket-dropper').remove();
+                    if ($this.hasClass('close-tickets') === true) {
+                        $('#ticket-dropper').hide();
                     }
                 },
                 out: function(event, ui) {

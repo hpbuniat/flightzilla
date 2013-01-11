@@ -123,6 +123,7 @@ div.row-fluid div.center.chuck {
 }
 
 .kanban div.pin {
+    background-color: #F5F5F5;
     border: 1px solid grey;
     border-radius: 6px 6px 6px 6px;
     float: left;
