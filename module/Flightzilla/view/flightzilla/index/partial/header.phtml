@@ -1,0 +1,97 @@
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href="<?php echo $this->url('home'); ?>">flightzilla</a>
+            <div class="nav-collapse pull-right">
+                <ul class="nav">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                          <?php echo $this->layout()->sCurrentProject; ?>
+                          <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <?php foreach ($this->layout()->aConfigProjects as $sConfigProjects): ?>
+                                <li><a href="<?php echo $this->url('flightzilla/default', array('controller' => 'index', 'action' => 'setproject', 'project' => $sConfigProjects)); ?>"><?php echo $sConfigProjects; ?></a></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </li>
+                    <li><a class="refresh-button" href="#"><i class="icon-refresh icon-white"></i> Refresh</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="icon-user icon-white"></i> <?php echo $this->layout()->sCurrentUser; ?>
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'logout')); ?>"><i class="icon-off"></i> Sign Out</a></li>
+                        </ul>
+                    </li>
+                    <li id="dStatus" data-data="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'status')); ?>">
+                        <?php echo $this->render('flightzilla/index/status.phtml'); ?>
+                    </li>
+                </ul>
+            </div>
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li class="dropdown <?php echo ($this->mode === 'dashboard') ? 'active' : ''; ?>">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Dashboard
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'dashboard')); ?>">My Dashboard</a></li>
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'mytickets')); ?>">My Tickets</a></li>
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'conflicts')); ?>">Conflicts</a></li>
+                        </ul>
+                    </li>
+                    <li class="<?php echo ($this->mode === 'board') ? 'active' : ''; ?>"><a href="<?php echo $this->url('flightzilla', array('controller' => 'kanban', 'action' => 'board')); ?>">Board</a></li>
+                    <li class="<?php echo ($this->mode === 'list') ? 'active' : ''; ?>"><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'index')); ?>">Tickets</a></li>
+                    <li class="dropdown <?php echo ($this->mode === 'team') ? 'active' : ''; ?>">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Team
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'team', 'action' => 'dashboard')); ?>">Dashboard</a></li>
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'team', 'action' => 'index')); ?>">Ticket-List</a></li>
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'team', 'action' => 'summary')); ?>">Summary</a></li>
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'team', 'action' => 'review')); ?>">Review</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown <?php echo ($this->mode === 'project') ? 'active' : ''; ?>">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Projects
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'project', 'action' => 'index')); ?>">List</a></li>
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'project', 'action' => 'board')); ?>">Board</a></li>
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'project', 'action' => 'planning')); ?>">Planning</a></li>
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'project', 'action' => 'planning', 'detailed' => 'detailed')); ?>">Planning (Detailed)</a></li>
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'project', 'action' => 'resources')); ?>">Resources</a></li>
+                        </ul>
+                    </li>
+                    <li class="<?php echo ($this->mode === 'mergy') ? 'active' : ''; ?>"><a href="<?php echo $this->url('flightzilla', array('controller' => 'mergy', 'action' => 'index')); ?>">Mergy</a></li>
+                    <li class="dropdown <?php echo ($this->mode === 'analytics') ? 'active' : ''; ?>">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Analytics
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'analytics', 'action' => 'campaign')); ?>">Campaigns</a></li>
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'analytics', 'action' => 'browser')); ?>">Browser</a></li>
+                        </ul>
+                    </li>
+                    <li class="divider"></li>
+                </ul>
+                <form class="navbar-search">
+                    <input type="text" id="searchId" value="Search" onblur="if (this.value=='') { this.value='Search'; }" onfocus="if (this.value=='Search') { this.value=''; }" class="" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

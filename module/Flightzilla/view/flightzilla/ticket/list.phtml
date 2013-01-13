@@ -1,0 +1,130 @@
+<form id="change-form" method="GET" action="<?php echo $this->url('flightzilla', array('controller' => 'ticket', 'action' => 'modify'))?>">
+    <?php
+    if (empty($this->aTickets) === true) {
+        $this->aTickets = array();
+    }
+
+    $sUser = $this->oResourceManager->getResource($this->oResourceManager->getResourceByLogin($this->layout()->sCurrentUser))->getEmail();
+    if (empty($this->user) !== true) {
+        $sUser = $this->oResourceManager->getResource($this->oResourceManager->getResourceByEmail($this->user))->getEmail();
+    }
+
+    foreach ($this->aTickets as $oTicket):
+    /* @var $oTicket \Flightzilla\Model\Ticket\Type\Bug */
+    ?>
+    <blockquote>
+    <?php
+        $this->oTask = $oTicket;
+        echo sprintf('<p>%s</p>', $this->render('flightzilla/index/partial/bug-line.phtml'));
+    ?>
+        <ul>
+            <?php
+            if (empty($this->dropAction) !== true):
+                if ($this->dropAction === 'assign'): ?>
+            <li>
+                <div class="control-group">
+                    <label class="control-label" for="timeEstimation">Estimation</label>
+                    <div class="controls">
+                        <input type="text" id="timeEstimation" value="<?php echo $oTicket->getEstimation(); ?>" name="estimation[<?php echo $oTicket->id();?>][]" />
+                    </div>
+
+                    <label for="assignee">Assign to user:</label>
+                    <input type="text" id="assignee" value="<?php echo $sUser; ?>" name="assigned[<?php echo $oTicket->id();?>][]" />
+                    <input type="hidden" value="setAssigned" name="modify[<?php echo $oTicket->id();?>][]" />
+                </div>
+            </li>
+            <?php elseif ($this->dropAction === 'resolve' or $this->dropAction === 'confirmed'): ?>
+            <li>
+                <div class="control-group">
+                    <label class="control-label" for="timeWorked">Worked</label>
+                    <div class="controls">
+                        <input type="text" id="timeWorked" value="<?php echo $oTicket->getTimeSinceLastActivity(); ?>" name="worked[<?php echo $oTicket->id();?>][]" />
+                        <?php if ($this->dropAction === 'resolve'): ?>
+                            <input type="hidden" value="setResolved" name="modify[<?php echo $oTicket->id();?>][]" />
+                        <?php elseif ($this->dropAction === 'confirmed'):?>
+                            <input type="hidden" value="setConfirmed" name="modify[<?php echo $oTicket->id();?>][]" />
+                        <?php endif; ?>
+                    </div>
+
+                    <?php if (empty($this->user) !== true and $this->dropAction !== 'resolve'): ?>
+                        <label for="assignee">Assign to user:</label>
+                        <input type="text" id="assignee" value="<?php echo $sUser; ?>" name="assigned[<?php echo $oTicket->id();?>][]" />
+                        <input type="hidden" value="setAssigned" name="modify[<?php echo $oTicket->id();?>][]" />
+                    <?php endif; ?>
+
+                    <label for="comment">Enter a comment:</label>
+                    <?php if (empty($this->user) !== true and $this->dropAction !== 'resolve'): ?>
+                        <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]"></textarea>
+                    <?php elseif ($this->dropAction === 'resolve'): ?>
+                        <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]">Finished!</textarea>
+                    <?php elseif ($this->dropAction === 'confirmed'):?>
+                        <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]">Paused!</textarea>
+                    <?php endif; ?>
+                    <input type="hidden" value="setComment" name="modify[<?php echo $oTicket->id();?>][]" />
+                </div>
+            </li>
+            <?php
+                endif;
+            endif;
+            ?>
+
+            <?php if ($this->dropAction !== 'assign' and $oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING) === false): ?>
+            <li>
+                <label class="checkbox">
+                    <input type="checkbox" value="setTestingRequest" name="modify[<?php echo $oTicket->id();?>][]" />
+                    Check, if testing of the changes is requested
+                </label>
+            </li>
+            <?php elseif ($oTicket->isFailed() === true and $oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_GRANTED) === false): ?>
+            <li>
+                <label class="checkbox">
+                    <input type="checkbox" value="reTest" name="modify[<?php echo $oTicket->id();?>][]" />
+                    Check, if the changes should be tested again
+                </label>
+            </li>
+            <?php endif; ?>
+
+            <?php if ($oTicket->isMergeable() === true): ?>
+            <li>
+                <label class="checkbox">
+                    <input type="checkbox" value="setMerged" name="modify[<?php echo $oTicket->id();?>][]" />
+                    Check, if the changes have been merged into the master-branch/trunk
+                </label>
+            </li>
+            <?php endif;?>
+
+            <?php if ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTSERVER, '?') === true): ?>
+            <li>
+                <label class="checkbox">
+                    <input type="checkbox" value="setStaged" name="modify[<?php echo $oTicket->id();?>][]" />
+                    Check, if the changes have been deployed to the test-system
+                </label>
+            </li>
+            <?php elseif ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTSERVER) === false or (empty($this->dropAction) !== true and $this->dropAction !== 'assign')): ?>
+            <li>
+                <label class="checkbox">
+                    <input type="checkbox" value="setUpdateTestserver" name="modify[<?php echo $oTicket->id();?>][]" />
+                    Check, if the changes should be deployed to the test-system
+                </label>
+            </li>
+            <?php endif;?>
+
+            <?php if ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_DBCHANGE, '?') === true): ?>
+            <li>
+                <label class="checkbox">
+                    <input type="checkbox" value="setDbChanged" name="modify[<?php echo $oTicket->id();?>][]" />
+                    Check, if the Database-Changes have been deployed to production
+                </label>
+            </li>
+            <?php endif;?>
+        </ul>
+    </blockquote>
+    <?php
+    endforeach;
+    ?>
+    <hr />
+    <p class="pull right">
+        <input type="submit" value="Change selected tickets" class="btn btn-primary btn-large" />
+    </p>
+</form>
+

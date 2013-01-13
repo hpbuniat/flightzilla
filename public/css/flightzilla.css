@@ -1,0 +1,229 @@
+img {
+    border: none
+}
+
+.pl10 {
+    padding-left:10px;
+}
+
+.clearfix:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+.fll {
+    float: left
+}
+
+.flr {
+    float: right
+}
+
+.left {
+    width: 150px
+}
+
+.right {
+    text-align: right
+}
+
+.table th, .table td {
+    vertical-align: middle !important;
+}
+
+.table th:hover {
+    cursor: pointer;
+}
+
+.bugCount {
+    margin: 0 0 5px
+}
+
+.toggleNav {
+    margin-top: -5px !important;
+}
+
+.legend {
+    margin: 0 10px;
+    padding: 5px 0;
+    display:none;
+}
+
+#quickList {
+    text-align: right;
+}
+
+div.row-fluid div.center.chuck {
+    float: none;
+    margin: 0 auto;
+    text-align: center;
+}
+
+#dStatus .red, .red {
+    color: red;
+}
+
+#dStatus .green, .green {
+    color: green;
+}
+
+.chuck {
+    z-index: -1;
+}
+
+.timeSpan {
+    position: absolute;
+    margin-top: -16px;
+}
+
+.timeWidth {
+    overflow: visible;
+    background-image: none;
+    background-color: red;
+    height: 3px;
+    margin-top: 14px;
+}
+
+.chartContainer {
+    min-width: 400px;
+    min-height: 400px;
+    margin: 0 auto;
+}
+
+.loading {
+    display: none;
+    position: relative;
+    top: -250px;
+    left: 50%;
+    width: 50px;
+}
+
+.input-xxxlarge {
+    width: 95%;
+    height: 250px;
+}
+
+.border-right {
+    border-right: 1px solid grey;
+}
+
+.kanban h4, .kanban h5 {
+    margin: 0 0 10px;
+}
+
+.kanban .pin .label {
+    padding: 2px 3px;
+}
+
+.label .tooltip {
+    white-space: normal;
+}
+
+.kanban div.pin {
+    background-color: #F5F5F5;
+    border: 1px solid grey;
+    border-radius: 6px 6px 6px 6px;
+    float: left;
+    font-size: 11px;
+    height: 90px;
+    margin: 5px;
+    width: 90px;
+    position: relative;
+    line-height: 16px;
+}
+
+.kanban div.pin div.pin-top, .kanban div.pin div.pin-bottom {
+    width: 100%;
+    line-height: 13px;
+    height: 13px;
+    padding: 0 0 3px 0;
+}
+
+.kanban div.pin div.pin-bottom {
+    position: absolute;
+    bottom: 2px;
+}
+
+.kanban div.description {
+    height: 60px;
+    margin: 0 2px;
+    overflow: hidden;
+}
+
+.kanban .theme a {
+    color: white;
+}
+
+.kanban div.description a {
+    color: black;
+}
+
+div.modal {
+    left: 25%;
+    width: 75%;
+}
+
+.largeGray {
+    font-size: 40px;
+    bottom: 0;
+    position: absolute;
+    color: #aaa;
+    text-align: center;
+    cursor: pointer;
+}
+
+.relative-box {
+    position: relative;
+    height: 75px;
+}
+
+.memberBackground {
+    background-color: white;
+    margin: 10px;
+    width: 960px;
+    border: 1px solid #DDDDDD;
+    border-radius: 4px 4px 4px 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.055);
+}
+
+.memberBackground p {
+    padding: 0 10px;
+}
+
+.memberLayer {
+    height: 90px;
+    padding: 5px;
+    width: 150px;
+}
+
+.memberBox .alert {
+    margin: 5px;
+}
+
+.dash .progress {
+    margin: 0 20px 0 0;
+}
+
+img.lazy {
+    margin-top: 20px;
+    width: 170px;
+    height: 90px;
+}
+
+.projectBox img.lazy {
+    height: 64px;
+    width: 120px;
+}
+
+div.progress-heading {
+    margin: 10px 15px;
+    width: 100px;
+}
+
+.progress-heading .bar {
+    background-color: #999;
+    background-repeat: repeat-x;
+}

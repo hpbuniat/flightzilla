@@ -1,0 +1,29 @@
+{
+    "name": "hpbuniat/flightzilla",
+    "description": "flightzilla",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "bugzilla",
+        "flightzilla"
+    ],
+    "authors": [
+        {
+            "name": "Hans-Peter Buniat",
+            "email": "hpbuniat@googlemail.com",
+            "role": "lead"
+        }
+    ],
+    "homepage": "https://github.com/hpbuniat/flightzilla",
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "http://packages.zendframework.com/"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3",
+        "zendframework/zendframework": "2.0.*",
+        "zendframework/zendgdata": "2.0.*",
+        "zendframework/zend-developer-tools": "dev-master"
+    }
+}

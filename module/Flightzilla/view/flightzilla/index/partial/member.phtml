@@ -1,0 +1,32 @@
+<?php
+$aTimes = $this->collectiontime($this->aStack);
+$this->oResource = $this->oResourceManager->getResource($this->sMemberName);
+$sEstimationString = sprintf('%sh (%sh est.) <i class="icon-time"></i> %sh (%sd)', $aTimes['spent'], $aTimes['esti'] , $aTimes['left'] ,$aTimes['days']);
+?>
+<div class="row-fluid memberBox">
+    <div class="span12 well">
+        <div class="span2">
+            <?php echo $this->render('flightzilla/team/partial/member.phtml'); ?>
+        </div>
+        <div class="span10">
+            <div class="row-fluid">
+                <div class="span3">
+                    <blockquote>
+                        <p><?php echo $sEstimationString; ?></p>
+                    </blockquote>
+                </div>
+                <div class="span9">
+                    <div class="progress progress-<?php echo $aTimes['color'];?> progress-striped">
+                        <div class="bar" style="width: <?php echo $aTimes['future']; ?>%"></div>
+                    </div>
+                </div>
+            </div>
+            <?php
+                $this->iLimit = 9;
+                $this->iSplit = 9;
+                $this->sRowMode = 'resource';
+                echo $this->render('flightzilla/index/partial/pin-row.phtml');
+            ?>
+        </div>
+    </div>
+</div>

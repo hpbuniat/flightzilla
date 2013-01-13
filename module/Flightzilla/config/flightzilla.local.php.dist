@@ -1,0 +1,73 @@
+<?php
+return array(
+    'flightzilla' => array(
+        'name' => 'flightzilla',
+        'tickets' => array(
+            'workflow' => array(
+                // after 4 months of inactivity, the ticket has timed-out
+                'timeout' => 10368000,
+
+                // a flag should be worked within 5 days
+                'flagage' => 432000,
+
+                // the board should only contain tickets which have been changed within this time-limit
+                'board' => 604800
+            )
+        ),
+        'bugzilla' => array(
+            'baseUrl' => "https://bugzilla",
+            'http' => array(
+                //'proxy' => "ip",
+                'cookiePath' => APPLICATION_PATH . "/data/cache/",
+                'useOnlyCache' => false // use only cached entries, regardless of their age
+            ),
+            'projects' => array(
+                'My Project 1' => array(
+                    'products' => array(
+                        array(
+                            'name' => '',
+                            'product' => '',
+                            'exclude_components' => array(
+                                '',
+                            )
+                        ),
+                        /* Use a second product, based on bugs of a specific theme
+                        array(
+                            'name' => '',
+                            'product' => '',
+                            'theme' =>
+                        )*/
+                    ),
+                    'team' => array(
+                        'hp.buniat' => array(                       // the login to bugzilla
+                            'name' => 'Hans-Peter Buniat',          // the full-name
+                            'mail' => 'hans-peter.buniat@mail',     // the mail (which is set in bugzilla)
+                            'gravatar' => 'hpbuniat@mail'           // optional: a gravatar-image
+                        ),
+                )
+            )
+        ),
+        'mergy' => array(
+            'command' => "/usr/local/bin/mergy",
+            'source' => array(
+                'portal' => array(
+                    'stable' => "https://svn/project/trunk",
+                    'feature' => "https://svn/project/branches/feature",
+                    'wc' => "/opt/mergy/trunks/project",
+                    'trac' => "https://trac/changeset/%d"
+                ),
+            )
+        ),
+        'analytics' => array(
+            'login' => "",
+            'password' => "",
+            'unsecurepassword' => "",
+            'portal' => array(
+                array(
+                    'name' => "portal.de",
+                    'id' =>
+                ),
+            )
+        )
+    )
+);

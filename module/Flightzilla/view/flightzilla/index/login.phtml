@@ -1,0 +1,28 @@
+<div class="hero-unit">
+    <form class="form-horizontal" method="POST" action="<?php echo $this->url('login')?>">
+        <legend>Login to <b><?php echo $this->layout()->sName; ?></b></legend>
+        <fieldset>
+            <div class="control-group">
+                <label class="control-label" for="username">Username</label>
+                <div class="controls">
+                    <input id="username" type="text" name="username" />
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="password">Password</label>
+                <div class="controls">
+                    <input id="password" type="password" name="password" />
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="controls">
+                    <button class="btn btn-primary btn-large">Login</button>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+
+    <a href="https://github.com/hpbuniat/flightzilla"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+</div>

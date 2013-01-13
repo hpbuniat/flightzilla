@@ -1,0 +1,26 @@
+<?php if (empty($this->aTasks) === false):?>
+    <a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'dashboard')); ?>">
+        <span data-placement="bottom" data-title="<?php echo $this->aTasks[\Flightzilla\Model\Ticket\Task\Comment::NAME]['description']; ?>" class="tipper badge badge-inverse">
+            <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Comment::NAME]['stack']); ?>
+        </span>
+        <span data-placement="bottom" data-title="<?php echo $this->aTasks[\Flightzilla\Model\Ticket\Task\Testing::NAME]['description']; ?>" class="tipper badge badge-warning">
+            <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Testing::NAME]['stack']); ?>
+        </span>
+        <span data-placement="bottom" data-title="<?php echo $this->aTasks[\Flightzilla\Model\Ticket\Task\Review::NAME]['description']; ?>" class="tipper badge badge-important">
+            <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Review::NAME]['stack']); ?>
+        </span>
+        <span data-placement="bottom" data-title="<?php echo $this->aTasks[\Flightzilla\Model\Ticket\Task\Waiting::NAME]['description']; ?>" class="tipper badge badge-info">
+            <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Waiting::NAME]['stack']); ?>
+        </span>
+        <span data-placement="bottom" data-title="<?php echo $this->aTasks[\Flightzilla\Model\Ticket\Task\Testserver::NAME]['description']; ?>" class="tipper badge">
+            <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Testserver::NAME]['stack']); ?>
+        </span>
+        <span data-placement="bottom" data-title="The ticket-throughput" class="tipper badge badge-inverse <?php echo ($this->iThroughPut > 0) ? 'red' : 'green'; ?>">
+            <?php echo sprintf('%+d', $this->iThroughPut); ?>
+        </span>
+    </a>
+<?php else: ?>
+<div class="progress progress-striped progress-heading active">
+    <div class="bar" style="width: 100%;"></div>
+</div>
+<?php endif; ?>

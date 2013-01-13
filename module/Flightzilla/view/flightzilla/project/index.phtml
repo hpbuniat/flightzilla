@@ -1,0 +1,93 @@
+<?php
+    echo $this->render('flightzilla/index/partial/header.phtml');
+
+    $iCount = 0;
+    echo '<div class="row-fluid">';
+
+    foreach ($this->aProjects as $this->oProject) {
+        /* @var $this->oProject \Flightzilla\Model\Ticket\Type\Bug */
+        if ($this->oProject->isType(\Flightzilla\Model\Ticket\Type\Bug::TYPE_PROJECT) === true and $this->oProject->hasUnclosedBugs() === true) {
+            $iCount++;
+
+            $this->aStack = $this->oProject->getDependsAsStack();
+            $aTimes = $this->collectiontime($this->aStack, true);
+            $sEstimationString = sprintf('%sd (%sd est.) <i class="icon-time"></i> %sd', $aTimes['spent_days'], $aTimes['esti_days'] , $aTimes['days']);
+?>
+
+                <div class="span6 well memberBox projectBox kanban">
+                    <div class="row-fluid">
+                        <div class="span12">
+                            <?php echo sprintf('<h5><strong><a target="_blank" href="%s/show_bug.cgi?id=%s">%s (%s)</a></strong></h5>', $this->layout()->sBugzilla, $this->oProject->id(), $this->oProject->title(), $this->oProject->id()); ?>
+                        </div>
+                    </div>
+                    <div class="row-fluid">
+                        <div class="span4">
+                            <blockquote>
+                                <p><?php echo $sEstimationString; ?></p>
+                            </blockquote>
+                            <blockquote>
+                                <p>
+                                    <i class="icon-tags"></i>
+                                    <?php if ($this->oProject->getRevenue() > 0):
+                                        echo $this->oProject->getRevenue();
+                                    else:?>
+                                    <span class="label label-warning">Missing revenue expectation!</span>
+                                    <?php endif;?>
+                                </p>
+                                <p>
+                                    <i class="icon-user"></i> <?php echo $this->oProject->getAssignee(true); ?>
+                                </p>
+                            </blockquote>
+                        </div>
+                        <div class="span8">
+                            <?php
+                            $this->iLimit = 3;
+                            $this->iSplit = 8;
+                            $this->sRowMode = 'project';
+                            echo $this->render('flightzilla/index/partial/pin-row.phtml');
+                            ?>
+                        </div>
+                    </div>
+                    <div class="row-fluid">
+                        <div class="span3">
+                            <blockquote>
+                                <p>
+                                    <a class="detail-toggle icon-list" href="javascript:;"></a>
+                                    <?php echo $this->finishstatus($this->oProject, \Flightzilla\View\Helper\Finishstatus::ENDDATE); ?>
+                                </p>
+                            </blockquote>
+                        </div>
+                        <div class="span7">
+                            <div data-title="<?php echo $aTimes['percent']; ?>%" class="tipper progress progress-<?php echo $aTimes['color'];?> progress-striped">
+                                <div class="bar" style="width: <?php echo $aTimes['percent']; ?>%"></div>
+                            </div>
+                        </div>
+                        <div class="span2">
+                            <?php echo $this->finishstatus($this->oProject, \Flightzilla\View\Helper\Finishstatus::DEADLINE); ?>
+                        </div>
+                    </div>
+                    <div class="row-fluid hidden project-detail">
+                        <div class="span12">
+                            <?php
+                            $sText = '';
+                            foreach ($this->oProject->long_desc as $oLongDesc) {
+                                if (strlen($oLongDesc->thetext) > 0) {
+                                    $sText = sprintf('<blockquote><pre>%s</pre><small>%s @ %s</small></blockquote>', (string) $oLongDesc->thetext, (string) $oLongDesc->who, (string) $oLongDesc->bug_when) . $sText;
+                                }
+                            }
+
+                            echo $sText;
+                            ?>
+                        </div>
+                    </div>
+                </div>
+        <?php
+            if ($iCount === 2) {
+                $iCount = 0;
+                echo '</div><div class="row-fluid">';
+            }
+        }
+    }
+
+    echo '</div>';
+?>

@@ -1,0 +1,11 @@
+<?php
+echo sprintf('%s %s (%s, <a class="bugLink" target="_blank" href="%s/show_bug.cgi?id=%s">%s</a>, %s @ %s)',
+    $this->ticketicons($this->oTask),
+    $this->oTask->title(),
+    $this->oTask->assignee_short,
+    $this->layout()->sBugzilla,
+    $this->oTask->id(),
+    $this->oTask->id(),
+    $this->oTask->getStatus(),
+    $this->estimation($this->oTask)
+);

@@ -1,0 +1,34 @@
+<table class="bugTable table table-striped table-bordered table-condensed">
+<thead>
+    <tr class="tableHeader">
+        <th class="campaignName"><span>Browser</span> - <?php echo $this->sPortal; ?></th>
+        <th>Version</th>
+        <th>Share</th>
+        <th>Conversion</th>
+    </tr>
+</thead>
+
+<?php
+foreach($this->aData as $sBrowser => $aBrowser) {
+    if ($aBrowser['share'] > 0.5) {
+        echo $this->partial('flightzilla/analytics/partial/browser.phtml', array(
+             'sName' => sprintf('<strong>%s</strong>', $sBrowser),
+             'sVersion' => '',
+             'fShare' => sprintf('<strong>%01.2f%%</strong>', $aBrowser['share']),
+             'fConversion' => sprintf('<strong>%01.2f%%</strong>', $aBrowser['conversion']),
+        ));
+        foreach ($aBrowser['versions'] as $sVersion => $aVersion) {
+            if (count($aBrowser['versions']) === 1 or $aVersion['totalshare'] > 0.5) {
+                echo $this->partial('flightzilla/analytics/partial/browser.phtml', array(
+                    'sName' => '',
+                    'sVersion' => $sVersion,
+                    'fShare' => sprintf("%01.2f%% (%01.2f%%)", $aVersion['share'], $aVersion['totalshare']),
+                    'fConversion' => sprintf("%01.2f%%", $aVersion['conversion']),
+                ));
+            }
+        }
+    }
+}
+?>
+
+</table>
