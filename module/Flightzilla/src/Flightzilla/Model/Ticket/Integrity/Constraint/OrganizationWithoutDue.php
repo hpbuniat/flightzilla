@@ -68,6 +68,6 @@ class OrganizationWithoutDue implements ConstraintInterface {
      */
     public static function check(Bug $oTicket, Bugzilla $oTicketSource) {
         $sDeadline = $oTicket->getDeadline();
-        return (($oTicket->isOrga() === true and empty($sDeadline) === true) === false);
+        return (($oTicket->isOrga() === true and $oTicket->isTheme() === false and empty($sDeadline) === true) === false);
     }
 }

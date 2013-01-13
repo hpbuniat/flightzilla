@@ -67,6 +67,6 @@ class TicketAge implements ConstraintInterface {
      * @see ConstraintInterface::check()
      */
     public static function check(Bug $oTicket, Bugzilla $oTicketSource) {
-        return (($oTicket->getStatus() !== Bug::STATUS_CLOSED and $oTicket->isChangedWithinLimit($oTicketSource->getConfig()->tickets->workflow->timeout) === false) === false);
+        return (($oTicket->isStatusAtLeast(Bug::STATUS_RESOLVED) !== true and $oTicket->isContainer() !== true and $oTicket->isChangedWithinLimit($oTicketSource->getConfig()->tickets->workflow->timeout) === false) === false);
     }
 }
