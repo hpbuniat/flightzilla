@@ -745,7 +745,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return $this
      */
     public function getBugList() {
-        $sToken = md5('get-bug-list' . date('dmy'));
+        $sToken = md5('get-bug-list' . serialize($this->_aProject) . date('dmy'));
         $bugIds = $this->_oCache->getItem($sToken);
 
         if (empty($bugIds) === true) {
