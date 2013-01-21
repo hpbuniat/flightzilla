@@ -807,6 +807,13 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         unset($sTitle);
 
         if (empty($this->_sType) === true) {
+            $sSeverity = $this->getSeverity();
+            if ($sSeverity !== self::SEVERITY_ENHANCEMENT and $sSeverity !== self::SEVERITY_IMPROVEMENT) {
+                $this->_sType = self::TYPE_BUG;
+            }
+        }
+
+        if (empty($this->_sType) === true) {
             $this->_sType = ($this->isConcept() === true) ? self::TYPE_CONCEPT : self::TYPE_FEATURE;
         }
 

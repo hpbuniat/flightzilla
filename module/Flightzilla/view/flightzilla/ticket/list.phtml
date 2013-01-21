@@ -21,44 +21,51 @@
             <?php
             if (empty($this->dropAction) !== true):
                 if ($this->dropAction === 'assign'): ?>
-            <li>
-                <div class="control-group">
-                    <label class="control-label" for="timeEstimation">Estimation</label>
-                    <div class="controls">
-                        <input type="text" id="timeEstimation" value="<?php echo $oTicket->getEstimation(); ?>" name="estimation[<?php echo $oTicket->id();?>][]" />
-                    </div>
+                    <li>
+                        <div class="control-group">
+                            <label class="control-label" for="timeEstimation">Estimation</label>
+                            <div class="controls">
+                                <input type="text" id="timeEstimation" value="<?php echo $oTicket->getEstimation(); ?>" name="estimation[<?php echo $oTicket->id();?>][]" />
+                            </div>
 
-                    <label for="assignee">Assign to user:</label>
-                    <input type="text" id="assignee" value="<?php echo $sUser; ?>" name="assigned[<?php echo $oTicket->id();?>][]" />
-                    <input type="hidden" value="setAssigned" name="modify[<?php echo $oTicket->id();?>][]" />
-                </div>
-            </li>
-            <?php elseif ($this->dropAction === 'resolve' or $this->dropAction === 'confirmed'): ?>
-            <li>
-                <div class="control-group">
-                    <label class="control-label" for="timeWorked">Worked</label>
-                    <div class="controls">
-                        <input type="text" id="timeWorked" value="<?php echo $oTicket->getTimeSinceLastActivity(); ?>" name="worked[<?php echo $oTicket->id();?>][]" />
-                        <?php if ($this->dropAction === 'resolve'): ?>
-                            <input type="hidden" value="setResolved" name="modify[<?php echo $oTicket->id();?>][]" />
-                        <?php elseif ($this->dropAction === 'confirmed'):?>
-                            <input type="hidden" value="setConfirmed" name="modify[<?php echo $oTicket->id();?>][]" />
-                        <?php endif; ?>
-                    </div>
+                            <label for="assignee">Assign to user:</label>
+                            <input type="text" id="assignee" value="<?php echo $sUser; ?>" name="assigned[<?php echo $oTicket->id();?>][]" />
+                            <input type="hidden" value="setAssigned" name="modify[<?php echo $oTicket->id();?>][]" />
+                        </div>
+                    </li>
+                    <?php elseif ($this->dropAction === 'resolve' or $this->dropAction === 'confirmed'): ?>
+                    <li>
+                        <div class="control-group">
+                            <label class="control-label" for="timeWorked">Worked</label>
+                            <div class="controls">
+                                <input type="text" id="timeWorked" value="<?php echo $oTicket->getTimeSinceLastActivity(); ?>" name="worked[<?php echo $oTicket->id();?>][]" />
+                                <?php if ($this->dropAction === 'resolve'): ?>
+                                    <input type="hidden" value="setResolved" name="modify[<?php echo $oTicket->id();?>][]" />
+                                <?php elseif ($this->dropAction === 'confirmed'):?>
+                                    <input type="hidden" value="setConfirmed" name="modify[<?php echo $oTicket->id();?>][]" />
+                                <?php endif; ?>
+                            </div>
 
+                            <?php if (empty($this->user) !== true and $this->dropAction !== 'resolve'): ?>
+                                <label for="assignee">Assign to user:</label>
+                                <input type="text" id="assignee" value="<?php echo $sUser; ?>" name="assigned[<?php echo $oTicket->id();?>][]" />
+                                <input type="hidden" value="setAssigned" name="modify[<?php echo $oTicket->id();?>][]" />
+                            <?php endif; ?>
+                        </div>
+                    </li>
+                <?php endif; ?>
+                <li>
                     <label for="comment">Enter a comment:</label>
-                    <?php if ($this->dropAction === 'resolve'): ?>
-                        <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]">Finished!</textarea>
+                    <?php if (empty($this->user) !== true and $this->dropAction !== 'resolve'): ?>
+                    <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]"></textarea>
+                    <?php elseif ($this->dropAction === 'resolve'): ?>
+                    <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]">Finished!</textarea>
                     <?php elseif ($this->dropAction === 'confirmed'):?>
-                        <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]">Paused!</textarea>
+                    <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]">Paused!</textarea>
                     <?php endif; ?>
                     <input type="hidden" value="setComment" name="modify[<?php echo $oTicket->id();?>][]" />
-                </div>
-            </li>
-            <?php
-                endif;
-            endif;
-            ?>
+                </li>
+            <?php endif; ?>
 
             <?php if ($this->dropAction !== 'assign' and $oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING) === false): ?>
             <li>
@@ -92,7 +99,7 @@
                     Check, if the changes have been deployed to the test-system
                 </label>
             </li>
-            <?php elseif ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTSERVER) === false or (empty($this->dropAction) === true and $this->dropAction !== 'assign')): ?>
+            <?php elseif ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTSERVER) === false or (empty($this->dropAction) !== true and $this->dropAction !== 'assign')): ?>
             <li>
                 <label class="checkbox">
                     <input type="checkbox" value="setUpdateTestserver" name="modify[<?php echo $oTicket->id();?>][]" />

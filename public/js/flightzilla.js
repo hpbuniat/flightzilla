@@ -85,10 +85,40 @@
         })(),
 
         /**
-         * Init dragg- & droppables
+         * Init draggables
          */
         dragging: function() {
-            $('.draggable').draggable({ revert: true });
+            var sSelector = '#ticket-dropper';
+            $.get(BASE_URL + '/flightzilla/team/members', function(msg) {
+                $('<div />', {
+                    id: sSelector.substr(1),
+                    style: 'display:none'
+                }).html(msg).appendTo('body');
+
+                $('.draggable').draggable({
+                    revert: true,
+                    zIndex: 1000,
+                    start: function(event, ui) {
+                        $(sSelector).show().position({
+                            of: ui.helper.parents('.row-fluid, tr').eq(0),
+                            my: "center top",
+                            at: "center bottom+10",
+                            collision: "flipfit"
+                        });
+                    },
+                    stop: function(event, ui) {
+                        $(sSelector).hide();
+                    }
+                });
+
+                f.dropping();
+            });
+        },
+
+        /**
+         * Init droppables
+         */
+        dropping: function() {
             $('.droppable').droppable({
                 activeClass: "btn-success",
                 tolerance: "pointer",
@@ -112,7 +142,11 @@
                     });
                 },
                 over: function(event, ui) {
-                    $(this).toggleClass('btn-success').addClass('btn-danger');
+                    var $this = $(this);
+                    $this.toggleClass('btn-success').addClass('btn-danger');
+                    if ($this.hasClass('close-tickets') === true) {
+                        $('#ticket-dropper').hide();
+                    }
                 },
                 out: function(event, ui) {
                     $(this).toggleClass('btn-success').removeClass('btn-danger');

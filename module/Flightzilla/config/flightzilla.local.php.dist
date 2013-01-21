@@ -25,10 +25,9 @@ return array(
                 'My Project 1' => array(
                     'products' => array(
                         array(
-                            'name' => '',
-                            'product' => '',
+                            'name' => '', // The name of the project in bugzilla
                             'exclude_components' => array(
-                                '',
+                                '', // Excluded components (if there are relations to tickets in this component, the tickets will be displayed anyway)
                             )
                         ),
                         /* Use a second product, based on bugs of a specific theme

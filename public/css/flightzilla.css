@@ -123,6 +123,7 @@ div.row-fluid div.center.chuck {
 }
 
 .kanban div.pin {
+    background-color: #F5F5F5;
     border: 1px solid grey;
     border-radius: 6px 6px 6px 6px;
     float: left;
@@ -177,6 +178,25 @@ div.modal {
 .relative-box {
     position: relative;
     height: 75px;
+}
+
+.memberBackground {
+    background-color: white;
+    margin: 10px;
+    width: 960px;
+    border: 1px solid #DDDDDD;
+    border-radius: 4px 4px 4px 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.055);
+}
+
+.memberBackground p {
+    padding: 0 10px;
+}
+
+.memberLayer {
+    height: 90px;
+    padding: 5px;
+    width: 150px;
 }
 
 .memberBox .alert {

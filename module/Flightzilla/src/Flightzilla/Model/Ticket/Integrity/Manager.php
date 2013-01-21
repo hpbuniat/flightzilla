@@ -64,7 +64,8 @@ class Manager {
         \Flightzilla\Model\Ticket\Integrity\Constraint\FlagAge::NAME,
         \Flightzilla\Model\Ticket\Integrity\Constraint\OrganizationWithoutDue::NAME,
         \Flightzilla\Model\Ticket\Integrity\Constraint\WorkedWithoutEstimation::NAME,
-        \Flightzilla\Model\Ticket\Integrity\Constraint\ResolvedTestFailed::NAME
+        \Flightzilla\Model\Ticket\Integrity\Constraint\ResolvedTestFailed::NAME,
+        \Flightzilla\Model\Ticket\Integrity\Constraint\IllogicalSeverity::NAME
     );
 
     /**

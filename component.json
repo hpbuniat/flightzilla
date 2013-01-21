@@ -11,7 +11,7 @@
     "path" : "public/vendor",
     "sources" : {
       "jquery-ui" : [
-        "components/jquery-ui/ui/minified/jquery-ui.min.js",
+        "components/jquery-ui/ui/minified/jquery-ui.custom.min.js",
         "components/jquery-ui/themes/overcast/jquery-ui.css",
         "components/jquery-ui/themes/overcast/jquery.ui.theme.css"
       ]

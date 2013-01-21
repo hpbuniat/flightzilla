@@ -162,28 +162,6 @@ class IndexController extends AbstractActionController {
     /**
      *
      */
-    public function teamAction() {
-        $oViewModel = new ViewModel;
-        $oViewModel->mode = 'team';
-
-        $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
-        return $oViewModel;
-    }
-
-    /**
-     *
-     */
-    public function teamdashAction() {
-        $oViewModel = new ViewModel;
-        $oViewModel->mode = 'team';
-
-        $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
-        return $oViewModel;
-    }
-
-    /**
-     *
-     */
     public function conflictsAction() {
         $oViewModel = new ViewModel;
         $oViewModel->mode = 'dashboard';
@@ -193,41 +171,6 @@ class IndexController extends AbstractActionController {
         $oConstraintManager = new \Flightzilla\Model\Ticket\Integrity\Manager($oTicketService);
         $oViewModel->aStack = $oConstraintManager->check($oTicketService->getAllBugs());
         $oViewModel->iEntries = $oConstraintManager->getEntryCount();
-
-        return $oViewModel;
-    }
-
-    /**
-     *
-     */
-    public function summaryAction() {
-        $oViewModel = new ViewModel;
-        $oViewModel->mode = 'summary';
-
-        $sDate = $this->params()->fromPost('date');
-        if (strtotime($sDate) === false or strtotime($sDate) === 0) {
-            $sDate = '';
-        }
-
-        if (empty($sDate) === true) {
-            $sDate = date('Y-m-d', strtotime('last weekday'));
-        }
-
-        $oViewModel->sDate = $sDate;
-        $oViewModel->bugsSummary = $this->getPluginManager()->get(TicketService::NAME)->getService()->getSummary($sDate);
-        return $oViewModel;
-    }
-
-    /**
-     *
-     */
-    public function reviewAction() {
-        $oViewModel = new ViewModel;
-        $oViewModel->mode = 'team';
-
-        $iDays = 7;
-        $oTicketService = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'list', $iDays)->getService();
-        $oViewModel->sResource = json_encode($oTicketService->getResourceManager()->getActivities($iDays));
 
         return $oViewModel;
     }

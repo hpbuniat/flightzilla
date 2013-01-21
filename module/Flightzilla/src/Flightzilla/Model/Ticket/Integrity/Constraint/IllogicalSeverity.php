@@ -45,7 +45,7 @@ use \Flightzilla\Model\Ticket\Type\Bug;
 use \Flightzilla\Model\Ticket\Source\Bugzilla;
 
 /**
- * Tickets which are most likely timed-out
+ * "Bugs" with a illogical severity
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -53,20 +53,22 @@ use \Flightzilla\Model\Ticket\Source\Bugzilla;
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class TicketAge implements ConstraintInterface {
+class IllogicalSeverity implements ConstraintInterface {
 
     /**
      * Name of the constraint
      *
      * @var string
      */
-    const NAME = 'TicketAge';
+    const NAME = 'IllogicalSeverity';
 
     /**
      * (non-PHPdoc)
      * @see ConstraintInterface::check()
      */
     public static function check(Bug $oTicket, Bugzilla $oTicketSource) {
-        return (($oTicket->isStatusAtLeast(Bug::STATUS_RESOLVED) !== true and $oTicket->isContainer() !== true and $oTicket->isChangedWithinLimit($oTicketSource->getConfig()->tickets->workflow->timeout) === false) === false);
+        $sSeverity = $oTicket->getSeverity();
+
+        return (($oTicket->isType($oTicket::TYPE_BUG) === true and ($sSeverity === Bug::SEVERITY_ENHANCEMENT or $sSeverity === Bug::SEVERITY_IMPROVEMENT)) === false);
     }
 }

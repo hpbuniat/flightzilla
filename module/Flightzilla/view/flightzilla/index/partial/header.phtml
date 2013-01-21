@@ -56,10 +56,10 @@
                             <b class="caret"></b>
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'teamdash')); ?>">Dashboard</a></li>
-                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'team')); ?>">Ticket-List</a></li>
-                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'summary')); ?>">Summary</a></li>
-                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'review')); ?>">Review</a></li>
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'team', 'action' => 'dashboard')); ?>">Dashboard</a></li>
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'team', 'action' => 'index')); ?>">Ticket-List</a></li>
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'team', 'action' => 'summary')); ?>">Summary</a></li>
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'team', 'action' => 'review')); ?>">Review</a></li>
                         </ul>
                     </li>
                     <li class="dropdown <?php echo ($this->mode === 'project') ? 'active' : ''; ?>">
