@@ -14,7 +14,7 @@
 <?php
     echo sprintf('<h5><strong>%s</strong></h5>', $this->sMemberName);
 else:
-    echo sprintf('<h5 class="droppable" data-drop="confirmed" data-user="%s"><i class="icon-user"></i> <strong>%s</strong></h5>', $this->oResource->getEmail(), $this->sMemberName);
+    echo sprintf('<h5 class="droppable" data-drop="assign" data-user="%s"><i class="icon-user"></i> <strong>%s</strong></h5>', $this->oResource->getEmail(), $this->sMemberName);
 endif;
 
 
