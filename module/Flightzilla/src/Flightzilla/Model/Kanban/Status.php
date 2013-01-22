@@ -116,11 +116,18 @@ class Status  {
     protected $_aResult = array();
 
     /**
-     * The type of the stack
+     * The types of the stack
      *
-     * @var string
+     * @var array
      */
-    protected $_sType = Bug::TYPE_BUG;
+    protected $_aTypes = array();
+
+    /**
+     * Should the tickets be grouped by theme or project?
+     *
+     * @var boolean
+     */
+    protected $_bGrouped = false;
 
     /**
      * Init
@@ -136,12 +143,22 @@ class Status  {
     /**
      * Set the type of the stack
      *
-     * @param  string $sType
+     * @param  array $aTypes
      *
      * @return $this
      */
-    public function setType($sType) {
-        $this->_sType = $sType;
+    public function setTypes(array $aTypes) {
+        $this->_aTypes = $aTypes;
+        return $this;
+    }
+
+    /**
+     * Activate grouping for projects
+     *
+     * @return $this
+     */
+    public function setGrouped() {
+        $this->_bGrouped = true;
         return $this;
     }
 
@@ -163,9 +180,16 @@ class Status  {
         $this->_init();
 
         foreach ($this->_aTickets as $oTicket) {
+            /* @var $oTicket \Flightzilla\Model\Ticket\AbstractType */
+
+            // use only tickets of the desired type for the kanban board
+            $sType = $oTicket->getType();
+            if (in_array($sType, $this->_aTypes) !== true) {
+                continue;
+            }
 
             $sStatus = self::RELEASE;
-            if ($this->_sType === Bug::TYPE_PROJECT) {
+            if ($this->_bGrouped === true) {
                 $aStack = $oTicket->getDepends();
 
                 foreach ($aStack as $iTicket) {
