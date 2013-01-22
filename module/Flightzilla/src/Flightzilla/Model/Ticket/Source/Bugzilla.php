@@ -860,13 +860,9 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      */
     public function getUnworkedWithoutOrganization() {
 
-        if (empty($this->_openBugs) === true) {
-            $this->getOpenBugs();
-        }
-
         $aStack = array();
-        foreach ($this->_openBugs as $oTicket) {
-            if ($oTicket->isContainer() === false and $oTicket->isOrga() === false and $oTicket->isWorkedOn() !== true) {
+        foreach ($this->_allBugs as $oTicket) {
+            if ($oTicket->isContainer() === false and $oTicket->isOrga() === false and $oTicket->isStatusAtMost(Bug::STATUS_CONFIRMED) and $oTicket->isWorkedOn(Bug::STATUS_CLOSED) !== true) {
                 $aStack[$oTicket->id()] = $oTicket;
             }
         }
@@ -882,12 +878,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      */
     public function getUntouched() {
 
-        if (empty($this->_openBugs) === true) {
-            $this->getOpenBugs();
-        }
-
         $aStack = array();
-        foreach ($this->_openBugs as $oTicket) {
+        foreach ($this->_allBugs as $oTicket) {
             if ($oTicket->isContainer() === false and $oTicket->isOrga() === false and $oTicket->isWorkedOn() !== true and $oTicket->isStatusAtMost(Bug::STATUS_UNCONFIRMED) === true) {
                 $aStack[$oTicket->id()] = $oTicket;
             }
@@ -903,13 +895,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getWaiting() {
-
-        if (empty($this->_openBugs) === true) {
-            $this->getOpenBugs();
-        }
-
         $aStack = array();
-        foreach ($this->_openBugs as $oTicket) {
+        foreach ($this->_allBugs as $oTicket) {
             /* @var $oTicket Bug */
             if ($oTicket->isContainer() === false and $oTicket->isOrga() === false and $oTicket->isConcept() === false and $oTicket->isWorkedOn() === true
                 and ($oTicket->isStatusAtLeast(Bug::STATUS_CONFIRMED) or $oTicket->hasFlag(Bug::FLAG_COMMENT, '?') === true)
@@ -928,13 +915,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getInprogress() {
-
-        if (empty($this->_openBugs) === true) {
-            $this->getOpenBugs();
-        }
-
         $aStack = array();
-        foreach ($this->_openBugs as $oTicket) {
+        foreach ($this->_allBugs as $oTicket) {
             if ($oTicket->isWip() === true) {
                 $aStack[$oTicket->id()] = $oTicket;
             }
@@ -950,14 +932,9 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return array
      */
     public function getOpenConcepts() {
-
-        if (empty($this->_openBugs) === true) {
-            $this->getOpenBugs();
-        }
-
         $aStack = array();
-        foreach ($this->_openBugs as $oTicket) {
-            if ($oTicket->isConcept() === true) {
+        foreach ($this->_allBugs as $oTicket) {
+            if ($oTicket->isConcept() === true and $oTicket->isStatusAtLeast(Bug::STATUS_RESOLVED) === false) {
                 $aStack[$oTicket->id()] = $oTicket;
             }
         }

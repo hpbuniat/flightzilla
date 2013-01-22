@@ -236,9 +236,9 @@ class Status  {
         $this->_aStatus[self::TEST_WAITING] = $this->_oTicketService->getBugsWithFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '?');
         $this->_aStatus[self::TEST_READY] = $this->_oTicketService->getFixedBugsInBranch();
 
-        // development waiting, wip
-        $this->_aStatus[self::DEV_WAITING] = $this->_oTicketService->getWaiting();
+        // development wip, waiting
         $this->_aStatus[self::DEV_WIP] = $this->_oTicketService->getFilteredList($this->_oTicketService->getInprogress(), $this->_aStatus[self::SCREEN_WIP]);
+        $this->_aStatus[self::DEV_WAITING] = $this->_oTicketService->getFilteredList($this->_oTicketService->getWaiting(), $this->_aStatus[self::DEV_WIP]);
 
         // development - ready
         $aFixedWithoutTesting = $this->_oTicketService->getFilteredList($this->_oTicketService->getFixedBugsUnknown(), $this->_aStatus[self::TEST_WAITING]);
