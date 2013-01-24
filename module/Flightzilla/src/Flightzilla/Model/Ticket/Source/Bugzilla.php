@@ -899,7 +899,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         foreach ($this->_allBugs as $oTicket) {
             /* @var $oTicket Bug */
             if ($oTicket->isContainer() === false and $oTicket->isOrga() === false and $oTicket->isConcept() === false and $oTicket->isWorkedOn() === true
-                and ($oTicket->isStatusAtLeast(Bug::STATUS_CONFIRMED) or $oTicket->hasFlag(Bug::FLAG_COMMENT, '?') === true)
+                and ($oTicket->isStatusAtLeast(Bug::STATUS_CONFIRMED) or $oTicket->hasFlag(Bug::FLAG_COMMENT, self::BUG_FLAG_REQUEST) === true)
             ) {
                 $aStack[$oTicket->id()] = $oTicket;
             }
@@ -998,7 +998,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             }
             elseif ($bug->couldBeInTrunk() === true) {
                 $aBlocked                 = $this->getBugListByIds($bug->blocks());
-                $bTrunk                   = (empty($aBlocked) === true and $bug->hasFlag(Bug::FLAG_SCREEN, '+') === true) ? false : true;
+                $bTrunk                   = (empty($aBlocked) === true and $bug->hasFlag(Bug::FLAG_SCREEN, self::BUG_FLAG_GRANTED) === true) ? false : true;
                 $bOnlyOrganizationTickets = (empty($aBlocked) === true) ? false : true;
 
                 foreach ($aBlocked as $oBlocked) {
@@ -1017,7 +1017,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             }
 
             if (empty($this->_aFixedTrunk[$bug->id()]) === true) {
-                if ($bug->isMergeable() === true or ($bug->hasFlag(Bug::FLAG_MERGE, '+') !== true and $bug->hasFlag(Bug::FLAG_DBCHANGE, '?') === true)) {
+                if ($bug->isMergeable() === true or ($bug->hasFlag(Bug::FLAG_MERGE, self::BUG_FLAG_GRANTED) !== true and $bug->hasFlag(Bug::FLAG_DBCHANGE, self::BUG_FLAG_REQUEST) === true)) {
                     $aDepends = $this->getBugListByIds($bug->getDepends($this));
                     $bFixed   = true;
                     foreach ($aDepends as $oDependBug) {
@@ -1096,7 +1096,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         }
 
         foreach ($this->_allBugs as $oTicket) {
-            if (empty($sFlag) === true or ($oTicket->hasFlag($sFlag, $sStatus) === true and ($sStatus === '?' or ($oTicket->hasFlag($sFlag, '?') !== true)))) {
+            if (empty($sFlag) === true or ($oTicket->hasFlag($sFlag, $sStatus) === true and ($sStatus === self::BUG_FLAG_REQUEST or ($oTicket->hasFlag($sFlag, self::BUG_FLAG_REQUEST) !== true)))) {
                 $aResult[$oTicket->id()] = $oTicket;
             }
         }
@@ -1188,7 +1188,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $aBugs = array_merge($this->getFixedBugs(), $this->getOpenBugs());
         $back  = array();
         foreach ($aBugs as $bug) {
-            if ($bug->hasFlag(Bug::FLAG_TESTSERVER, '?')) {
+            if ($bug->hasFlag(Bug::FLAG_TESTSERVER, self::BUG_FLAG_REQUEST)) {
                 $back[$bug->id()] = $bug;
             }
         }
@@ -1530,7 +1530,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                         $this->_aStats[Bug::WORKFLOW_ACTIVE]++;
                     }
 
-                    if ($oBug->hasFlag(Bug::FLAG_TESTING, '?')) {
+                    if ($oBug->hasFlag(Bug::FLAG_TESTING, self::BUG_FLAG_REQUEST)) {
                         $this->_aStats[Bug::WORKFLOW_TESTING]++;
                     }
 
@@ -1546,11 +1546,11 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                         $this->_aStats[Bug::WORKFLOW_DEADLINE]++;
                     }
 
-                    if ($oBug->hasFlag(Bug::FLAG_SCREEN, '?')) {
+                    if ($oBug->hasFlag(Bug::FLAG_SCREEN, self::BUG_FLAG_REQUEST)) {
                         $this->_aStats[Bug::WORKFLOW_SCREEN]++;
                     }
 
-                    if ($oBug->hasFlag(Bug::FLAG_COMMENT, '?')) {
+                    if ($oBug->hasFlag(Bug::FLAG_COMMENT, self::BUG_FLAG_REQUEST)) {
                         $this->_aStats[Bug::WORKFLOW_COMMENT]++;
                     }
 
