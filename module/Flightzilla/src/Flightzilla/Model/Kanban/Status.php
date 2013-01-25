@@ -226,14 +226,14 @@ class Status  {
         // concepts
         $this->_aStatus = array(
             self::SCREEN_WIP => $this->_oTicketService->getOpenConcepts(),
-            self::SCREEN_APPROVED => $this->_oTicketService->getBugsWithFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '+'),
+            self::SCREEN_APPROVED => $this->_oTicketService->getBugsWithFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, Bugzilla::BUG_FLAG_GRANTED),
         );
 
         // stack
         $this->_aStatus[self::WAITING] = $this->_oTicketService->getFilteredList($this->_oTicketService->getUnworkedWithoutOrganization(), $this->_aStatus[self::SCREEN_WIP]);
 
         // testing
-        $this->_aStatus[self::TEST_WAITING] = $this->_oTicketService->getBugsWithFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '?');
+        $this->_aStatus[self::TEST_WAITING] = $this->_oTicketService->getBugsWithFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST);
         $this->_aStatus[self::TEST_READY] = $this->_oTicketService->getFixedBugsInBranch();
 
         // development wip, waiting

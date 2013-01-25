@@ -495,8 +495,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function isMergeable() {
         $sStatus = $this->getStatus();
-        return ($this->hasFlag(Bug::FLAG_TESTING,'?') !== true and ($this->hasFlag(Bug::FLAG_MERGE,'?') === true or (
-            ($sStatus === Bug::STATUS_RESOLVED or $sStatus === Bug::STATUS_VERIFIED) and $this->hasFlag(Bug::FLAG_MERGE,'+') === false and $this->hasFlag(Bug::FLAG_TESTING,'+'))));
+        return ($this->hasFlag(Bug::FLAG_TESTING, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST) !== true and ($this->hasFlag(Bug::FLAG_MERGE, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST) === true or (
+            ($sStatus === Bug::STATUS_RESOLVED or $sStatus === Bug::STATUS_VERIFIED) and $this->hasFlag(Bug::FLAG_MERGE, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_GRANTED) === false and $this->hasFlag(Bug::FLAG_TESTING, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_GRANTED))));
     }
 
     /**
@@ -505,7 +505,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function isFailed() {
-        return ($this->hasFlag(Bug::FLAG_TESTING, '-') === true and $this->hasFlag(Bug::FLAG_TESTING,' +') !== true and $this->hasFlag(Bug::FLAG_TESTING, '?') !== true);
+        return ($this->hasFlag(Bug::FLAG_TESTING, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_DENIED) === true and $this->hasFlag(Bug::FLAG_TESTING, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_GRANTED) !== true and $this->hasFlag(Bug::FLAG_TESTING, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST) !== true);
     }
 
     /**
@@ -1135,7 +1135,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function isMerged() {
-        return ($this->isClosed() === true or $this->isContainer() === true or ($this->hasFlag(Bug::FLAG_MERGE, '+') === true and $this->hasFlag(Bug::FLAG_MERGE, '?') === false));
+        return ($this->isClosed() === true or $this->isContainer() === true or ($this->hasFlag(Bug::FLAG_MERGE, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_GRANTED) === true and $this->hasFlag(Bug::FLAG_MERGE, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST) === false));
     }
 
     /**
@@ -1144,7 +1144,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function couldBeInTrunk() {
-        return ($this->isMerged() === true or $this->getDupe() !== false or ($this->hasFlag(Bug::FLAG_SCREEN, '+') === true and $this->doesBlock() === true));
+        return ($this->isMerged() === true or $this->getDupe() !== false or ($this->hasFlag(Bug::FLAG_SCREEN, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_GRANTED) === true and $this->doesBlock() === true));
     }
 
     /**
