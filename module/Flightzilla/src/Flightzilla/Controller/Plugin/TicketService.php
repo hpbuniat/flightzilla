@@ -124,7 +124,11 @@ class TicketService extends AbstractPlugin {
         if ($sMode === 'board') {
 
             $oKanbanStatus = new \Flightzilla\Model\Kanban\Status($oTicketService->getAllBugs(), $oTicketService);
-            $oView->aKanban = $oKanbanStatus->setType(\Flightzilla\Model\Ticket\Type\Bug::TYPE_BUG)->process()->get();
+            $oView->aKanban = $oKanbanStatus->setTypes(array(
+                \Flightzilla\Model\Ticket\Type\Bug::TYPE_BUG,
+                \Flightzilla\Model\Ticket\Type\Bug::TYPE_FEATURE,
+                \Flightzilla\Model\Ticket\Type\Bug::TYPE_CONCEPT,
+            ))->process()->get();
         }
         elseif ($sMode !== 'history') {
             $oView->aUntouched = $oTicketService->getUntouched();

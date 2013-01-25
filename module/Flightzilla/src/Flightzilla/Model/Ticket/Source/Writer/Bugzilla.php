@@ -264,7 +264,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
      * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setConfirmed()
      */
     public function setConfirmed(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
-        if (empty($this->_aPayload['comment']) === true) {
+        if (empty($this->_aPayload['comment']) === true and $oTicket->getStatus() !== Bug::STATUS_REOPENED) {
             $this->_aPayload['comment'] = 'Paused!';
         }
 

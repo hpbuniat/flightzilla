@@ -495,8 +495,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function isMergeable() {
         $sStatus = $this->getStatus();
-        return ($this->hasFlag(Bug::FLAG_TESTING,'?') !== true and ($this->hasFlag(Bug::FLAG_MERGE,'?') === true or (
-            ($sStatus === Bug::STATUS_RESOLVED or $sStatus === Bug::STATUS_VERIFIED) and $this->hasFlag(Bug::FLAG_MERGE,'+') === false and $this->hasFlag(Bug::FLAG_TESTING,'+'))));
+        return ($this->hasFlag(Bug::FLAG_TESTING, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST) !== true and ($this->hasFlag(Bug::FLAG_MERGE, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST) === true or (
+            ($sStatus === Bug::STATUS_RESOLVED or $sStatus === Bug::STATUS_VERIFIED) and $this->hasFlag(Bug::FLAG_MERGE, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_GRANTED) === false and $this->hasFlag(Bug::FLAG_TESTING, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_GRANTED))));
     }
 
     /**
@@ -505,7 +505,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function isFailed() {
-        return ($this->hasFlag(Bug::FLAG_TESTING, '-') === true and $this->hasFlag(Bug::FLAG_TESTING,' +') !== true and $this->hasFlag(Bug::FLAG_TESTING, '?') !== true);
+        return ($this->hasFlag(Bug::FLAG_TESTING, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_DENIED) === true and $this->hasFlag(Bug::FLAG_TESTING, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_GRANTED) !== true and $this->hasFlag(Bug::FLAG_TESTING, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST) !== true);
     }
 
     /**
@@ -568,12 +568,12 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         // is there a predecessor?
         $iPredecessor = $this->getActivePredecessor();
         if (empty($iPredecessor) !== true) {
-            $iEndDate = $this->_oBugzilla->getBugById($iPredecessor)->getEndDate();
+            $iEndDate = $this->_oBugzilla->getBugById($iPredecessor)->getEndDate($iCalled);
             $this->_iStartDate = strtotime('+1 day ' . \Flightzilla\Model\Timeline\Date::START, $iEndDate);
         }
         // is there a deadline?
         elseif ($this->isEstimated() === true and $this->getDeadline() !== false) {
-            $iEndDate = $this->getEndDate();
+            $iEndDate = $this->getEndDate($iCalled);
 
             if (empty($iEndDate) !== true) {
                 $this->_iStartDate = strtotime(sprintf('-%d day ' . \Flightzilla\Model\Timeline\Date::START, ceil($this->getLeftHours() / \Flightzilla\Model\Timeline\Date::AMOUNT)), $iEndDate);
@@ -608,7 +608,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
                 $nextPrioBug = $oResource->getNextHigherPriorityTicket($this);
 
                 if ($nextPrioBug->id() !== $this->id()) {
-                    $this->_iStartDate = $nextPrioBug->getEndDate();
+                    $this->_iStartDate = $nextPrioBug->getEndDate($iCalled);
                 }
             }
         }
@@ -616,7 +616,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         if (empty($this->_iStartDate) === true) {
             $oProject = $this->_oBugzilla->getProject($this);
             if ($oProject instanceof \Flightzilla\Model\Ticket\Type\Project and $oProject->id() !== $iCalled) {
-                $this->_iStartDate = $oProject->getStartDate();
+                $this->_iStartDate = $oProject->getStartDate($iCalled);
             }
         }
 
@@ -625,7 +625,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         }
 
         $this->_iStartDate = $this->_oDate->getNextWorkday($this->_iStartDate);
-        if ($this->getEndDate() < $this->_iStartDate) {
+        if ($this->getEndDate($iCalled) < $this->_iStartDate) {
             $this->_oBugzilla->getLogger()->info(sprintf('End-Date < Start-Date! -> Ticket: %s, Start: %s, End: %s', $this->id(), date('Y-m-d', $this->_iStartDate), date('Y-m-d', $this->getEndDate())));
         }
 
@@ -646,9 +646,11 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     /**
      * Get the end-date in seconds
      *
+     * @param  boolean|null $iCalled
+     *
      * @return int
      */
-    public function getEndDate() {
+    public function getEndDate($iCalled = null) {
 
         if ($this->_iEndDate > 0) {
             return $this->_iEndDate;
@@ -687,7 +689,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
                 }
             }
             else {
-                $iStartDate  = $this->getStartDate();
+                $iStartDate  = $this->getStartDate($iCalled);
                 $iLeft       = $this->getLeftHours();
             }
 
@@ -697,7 +699,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             $this->_iEndDate = $this->_oDate->getNextWorkday($this->_iEndDate);
         }
 
-        if ($this->_iEndDate < $this->getStartDate()) {
+        if ($this->_iEndDate < $this->getStartDate($iCalled)) {
             $this->_oBugzilla->getLogger()->info(sprintf('End-Date < Start-Date! -> Ticket: %s, Start: %s, End: %s', $this->id(), date('Y-m-d', $this->getStartDate()), date('Y-m-d', $this->_iEndDate)));
         }
 
@@ -1133,7 +1135,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function isMerged() {
-        return ($this->isClosed() === true or $this->isContainer() === true or ($this->hasFlag(Bug::FLAG_MERGE, '+') === true and $this->hasFlag(Bug::FLAG_MERGE, '?') === false));
+        return ($this->isClosed() === true or $this->isContainer() === true or ($this->hasFlag(Bug::FLAG_MERGE, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_GRANTED) === true and $this->hasFlag(Bug::FLAG_MERGE, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST) === false));
     }
 
     /**
@@ -1142,7 +1144,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function couldBeInTrunk() {
-        return ($this->isMerged() === true or $this->getDupe() !== false or ($this->hasFlag(Bug::FLAG_SCREEN, '+') === true and $this->doesBlock() === true));
+        return ($this->isMerged() === true or $this->getDupe() !== false or ($this->hasFlag(Bug::FLAG_SCREEN, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_GRANTED) === true and $this->doesBlock() === true));
     }
 
     /**

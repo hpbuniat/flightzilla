@@ -80,7 +80,10 @@ class ProjectController extends AbstractActionController {
         $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'project')->getService();
 
         $oKanbanStatus = new \Flightzilla\Model\Kanban\Status($oServiceModel->getProjects(), $oServiceModel);
-        $oViewModel->aKanban = $oKanbanStatus->setType(\Flightzilla\Model\Ticket\Type\Bug::TYPE_PROJECT)->process()->get();
+        $oViewModel->aKanban = $oKanbanStatus->setGrouped()->setTypes(array(
+            \Flightzilla\Model\Ticket\Type\Bug::TYPE_PROJECT,
+            \Flightzilla\Model\Ticket\Type\Bug::TYPE_THEME,
+        ))->process()->get();
         $oViewModel->setTemplate('flightzilla/kanban/board');
 
         return $oViewModel;
