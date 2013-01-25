@@ -9,8 +9,11 @@
         $sUser = $this->oResourceManager->getResource($this->oResourceManager->getResourceByEmail($this->user))->getEmail();
     }
 
+
     foreach ($this->aTickets as $oTicket):
     /* @var $oTicket \Flightzilla\Model\Ticket\Type\Bug */
+
+        $bReassign = (empty($this->user) !== true and $sUser !== $oTicket->getAssignee() and $this->dropAction !== \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE);
     ?>
     <blockquote>
     <?php
@@ -39,7 +42,7 @@
                             <input type="hidden" value="setAssigned" name="modify[<?php echo $oTicket->id();?>][]" />
                         </div>
                     </li>
-                    <?php elseif ($this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE or $this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM): ?>
+                <?php elseif ($this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE or $this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM): ?>
                     <li>
                         <div class="control-group">
                             <?php if ($oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED): ?>
@@ -50,12 +53,12 @@
                             <?php endif; ?>
 
                             <?php if ($this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE): ?>
-                            <input type="hidden" value="setResolved" name="modify[<?php echo $oTicket->id();?>][]" />
+                                <input type="hidden" value="setResolved" name="modify[<?php echo $oTicket->id();?>][]" />
                             <?php elseif ($this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM):?>
-                            <input type="hidden" value="setConfirmed" name="modify[<?php echo $oTicket->id();?>][]" />
+                                <input type="hidden" value="setConfirmed" name="modify[<?php echo $oTicket->id();?>][]" />
                             <?php endif; ?>
 
-                            <?php if (empty($this->user) !== true and $this->dropAction !== \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE): ?>
+                            <?php if ($bReassign === true): ?>
                                 <label for="assignee">Assign to user:</label>
                                 <input type="text" id="assignee" value="<?php echo $sUser; ?>" name="assigned[<?php echo $oTicket->id();?>][]" />
                                 <input type="hidden" value="setAssigned" name="modify[<?php echo $oTicket->id();?>][]" />
@@ -65,12 +68,14 @@
                 <?php endif; ?>
                 <li>
                     <label for="comment">Enter a comment:</label>
-                    <?php if (empty($this->user) !== true and $this->dropAction !== \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE): ?>
-                    <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]"></textarea>
+                    <?php if ($bReassign === true): ?>
+                        <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]"></textarea>
                     <?php elseif ($this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE): ?>
-                    <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]">Finished!</textarea>
+                        <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]">Finished!</textarea>
+                    <?php elseif ($oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED): ?>
+                        <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]"></textarea>
                     <?php elseif ($this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM):?>
-                    <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]">Paused!</textarea>
+                        <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]">Paused!</textarea>
                     <?php endif; ?>
                     <input type="hidden" value="setComment" name="modify[<?php echo $oTicket->id();?>][]" />
                 </li>
