@@ -67,6 +67,15 @@ abstract class AbstractWriter {
     protected $_aPayload;
 
     /**
+     * Ticket-actions
+     *
+     * @var string
+     */
+    const TICKET_ASSIGN = 'assign';
+    const TICKET_CONFIRM = 'confirm';
+    const TICKET_RESOLVE = 'resolve';
+
+    /**
      * Set the source, as the source knows the basic communication
      *
      * @param \Flightzilla\Model\Ticket\AbstractSource $oSource
