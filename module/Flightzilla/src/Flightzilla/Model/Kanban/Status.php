@@ -184,7 +184,7 @@ class Status  {
 
             // use only tickets of the desired type for the kanban board
             $sType = $oTicket->getType();
-            if (in_array($sType, $this->_aTypes) !== true) {
+            if (in_array($sType, $this->_aTypes) !== true or $oTicket->getStatus() === Bug::STATUS_CLOSED) {
                 continue;
             }
 

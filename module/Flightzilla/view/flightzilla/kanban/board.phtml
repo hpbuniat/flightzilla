@@ -25,7 +25,7 @@
         <?php
             $this->aStack = $this->aKanban[\Flightzilla\Model\Kanban\Status::WAITING];
             $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
-            echo sprintf('<h5>waiting (%d)</h5>%s', $this->iRendered, $sRender);
+            echo sprintf('<h5 class="droppable tipper" data-title="Drop a pin, to set it to CONFIRMED" data-drop="%s">waiting (%d)</h5>%s', \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM, $this->iRendered, $sRender);
         ?>
     </div>
     <div class="span4 border-right">
@@ -35,14 +35,14 @@
                 <?php
                     $this->aStack =  $this->aKanban[\Flightzilla\Model\Kanban\Status::DEV_WAITING];
                     $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
-                    echo sprintf('<h5>waiting (%d)</h5>%s', $this->iRendered, $sRender);
+                    echo sprintf('<h5 class="droppable tipper" data-title="Drop a pin, to set it to CONFIRMED" data-drop="%s">waiting (%d)</h5>%s', \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM, $this->iRendered, $sRender);
                 ?>
             </div>
             <div class="span6">
                 <?php
                     $this->aStack =  $this->aKanban[\Flightzilla\Model\Kanban\Status::DEV_WIP];
                     $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
-                    echo sprintf('<h5>wip (%d)</h5>%s', $this->iRendered, $sRender);
+                    echo sprintf('<h5 class="droppable tipper" data-title="Drop a pin, to set it to ASSIGNED" data-drop="%s">wip (%d)</h5>%s', \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_ASSIGN, $this->iRendered, $sRender);
                 ?>
             </div>
         </div>
@@ -52,7 +52,7 @@
         <?php
         $this->aStack =  $this->aKanban[\Flightzilla\Model\Kanban\Status::DEV_READY];
         $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
-        echo sprintf('<h5>waiting (%d)</h5>%s', $this->iRendered, $sRender);
+        echo sprintf('<h5 class="droppable tipper" data-title="Drop a pin, to set it to RESOLVED" data-drop="%s">waiting (%d)</h5>%s', \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE, $this->iRendered, $sRender);
         ?>
     </div>
     <div class="span2 border-right">
@@ -86,5 +86,7 @@
     </div>
 </div>
 <script type="text/javascript">
-    setTimeout("location.reload(true);", 120000);
+    setTimeout(function() {
+        location.reload();
+    }, 120000);
 </script>
