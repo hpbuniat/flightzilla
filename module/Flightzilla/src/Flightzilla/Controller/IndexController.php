@@ -116,7 +116,9 @@ class IndexController extends AbstractActionController {
         $oViewModel->mode = 'status';
         $oViewModel->setTerminal(true);
 
-        $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, $oViewModel->mode);
+        $oTicketPlugin = $this->getPluginManager()->get(TicketService::NAME);
+        $oTicketService = $oTicketPlugin->getService();
+        $oTicketPlugin->init($oViewModel, $oViewModel->mode, $oTicketService->getThroughPutDays());
 
         return $oViewModel;
     }
