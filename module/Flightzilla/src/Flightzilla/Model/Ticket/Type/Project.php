@@ -241,4 +241,24 @@ class Project extends Bug {
 
         return ($this->_bOnlyConcepts === false);
     }
+
+    /**
+     * Check, if a ticket was changed within a given time-limit
+     *
+     * @param $iLimit
+     *
+     * @return boolean
+     */
+    public function isChangedWithinLimit($iLimit) {
+        $bIsChanged = false;
+        foreach($this->getDependsAsStack() as $oTicket) {
+            if ((time() - $oTicket->getLastActivity()) < $iLimit) {
+                $bIsChanged = true;
+                break;
+            }
+        }
+
+        return $bIsChanged;
+    }
+
 }
