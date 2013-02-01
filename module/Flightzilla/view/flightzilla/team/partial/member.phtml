@@ -14,7 +14,7 @@
 <?php
     echo sprintf('<h5><strong>%s</strong></h5>', $this->sMemberName);
 else:
-    echo sprintf('<h5 class="droppable tipper" data-title="Drop a pin, to ASSIG it to this user" data-drop="%s" data-user="%s"><i class="icon-user"></i> <strong>%s</strong></h5>', \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_ASSIGN, $this->oResource->getEmail(), $this->sMemberName);
+    echo sprintf('<h5 class="droppable tipper" data-title="Drop a pin, to ASSIGN it to this user" data-drop="%s" data-user="%s"><i class="icon-user"></i> <strong>%s</strong></h5>', \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_ASSIGN, $this->oResource->getEmail(), $this->sMemberName);
 endif;
 
 
