@@ -236,4 +236,12 @@ h3.table-toggle {
     #zend-developer-toolbar {
         display: none !important;
     }
+
+    a[href]:after {
+        content: "" !important;
+    }
+
+    .print-box {
+        page-break-inside: avoid;
+    }
 }

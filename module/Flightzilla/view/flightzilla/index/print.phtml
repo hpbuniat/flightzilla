@@ -10,7 +10,7 @@
         $aTimes = $this->collectiontime($aTickets);
         $sEstimationString = sprintf('%sd (%sd est.) <i class="icon-time"></i> %sd', $aTimes['spent_days'], $aTimes['esti_days'] , $aTimes['days']);
 ?>
-        <div class="span6" style="margin-bottom: 2px; border: 5px solid #<?php echo substr(md5($oTicket->getAssignee()), 0, 6); ?>; border-top: 25px solid #<?php echo substr(md5($oTicket->getAssignee()), 0, 6); ?>;">
+        <div class="span6 print-box" style="margin-bottom: 2px; border: 5px solid #<?php echo substr(md5($oTicket->getAssignee()), 0, 6); ?>; border-top: 25px solid #<?php echo substr(md5($oTicket->getAssignee()), 0, 6); ?>;">
             <div class="row-fluid">
                 <div class="span12">
                     <p><?php
