@@ -204,6 +204,21 @@ class IndexController extends AbstractActionController {
     /**
      *
      */
+    public function printAction() {
+        $oViewModel = new ViewModel;
+        $this->layout()->bMinimal = true;
+
+        $aTickets = implode(',', $this->params()->fromQuery('id'));
+        if (empty($aTickets) !== true) {
+            $oViewModel->aTickets = $this->getPluginManager()->get(TicketService::NAME)->getService()->getBugListByIds($aTickets);
+        }
+
+        return $oViewModel;
+    }
+
+    /**
+     *
+     */
     public function setprojectAction() {
         $oServiceManager = $this->getServiceLocator();
         $oConfig = $oServiceManager->get('_serviceConfig');

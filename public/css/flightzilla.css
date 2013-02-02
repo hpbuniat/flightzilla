@@ -227,3 +227,13 @@ div.progress-heading {
     background-color: #999;
     background-repeat: repeat-x;
 }
+
+h3.table-toggle {
+    cursor: pointer;
+}
+
+@media print {
+    #zend-developer-toolbar {
+        display: none !important;
+    }
+}

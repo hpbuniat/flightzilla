@@ -941,6 +941,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * Get the actual worked hours
+     *
+     * @return float
+     */
+    public function getActualTime() {
+        return (float) $this->actual_time;
+    }
+
+    /**
      * Check, if the bug is active & wip
      *
      * @return boolean
@@ -1319,10 +1328,13 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     /**
      * Get the reporter
      *
+     * @param  boolean $bTok Apply strtok('@') before returning
+     *
      * @return string
      */
-    public function getReporter() {
-        return (string) $this->_data->reporter;
+    public function getReporter($bTok = false) {
+        $sReporter = (string) $this->_data->reporter;
+        return ($bTok === true) ? strtok($sReporter, '@') : $sReporter;
     }
 
     /**

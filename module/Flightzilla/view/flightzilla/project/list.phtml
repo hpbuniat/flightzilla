@@ -6,7 +6,7 @@
     ?>
 
     <div class="span10">
-        <form id="buglist-form" method="get" target="_blank" action="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'go-bugzilla'))?>">
+        <form id="buglist-form" method="get" target="_blank" action="#">
             <?php
             foreach ($this->aProjects as $iTicket => $oProject) {
                 echo $this->partial('flightzilla/index/partial/table.phtml', array(

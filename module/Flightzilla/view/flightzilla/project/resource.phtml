@@ -9,7 +9,7 @@
     ?>
 
     <div class="span10">
-        <form id="buglist-form" method="get" target="_blank" action="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'go-bugzilla'))?>">
+        <form id="buglist-form" method="get" target="_blank" action="#">
             <?php
             foreach ($this->aResources as $oResource) {
                 echo sprintf('<div class="gantt t%s" data-target="%s"></div>', md5($oResource->getName()), $oResource->getName());

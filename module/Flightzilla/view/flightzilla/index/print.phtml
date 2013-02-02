@@ -1,0 +1,51 @@
+<div class="row-fluid">
+<?php if (empty($this->aTickets) !== true) {
+
+    $iCount = 0;
+    foreach ($this->aTickets as $oTicket) {
+
+        $iCount++;
+
+        $aTickets = ($oTicket->isContainer() === true) ? $oTicket->getDependsAsStack() : array($oTicket);
+        $aTimes = $this->collectiontime($aTickets);
+        $sEstimationString = sprintf('%sd (%sd est.) <i class="icon-time"></i> %sd', $aTimes['spent_days'], $aTimes['esti_days'] , $aTimes['days']);
+?>
+        <div class="span6" style="margin-bottom: 2px; border: 5px solid #<?php echo substr(md5($oTicket->getAssignee()), 0, 6); ?>; border-top: 25px solid #<?php echo substr(md5($oTicket->getAssignee()), 0, 6); ?>;">
+            <div class="row-fluid">
+                <div class="span12">
+                    <p><?php
+                        $this->oTask = $oTicket;
+                        echo sprintf('<p>%s</p>', $this->render('flightzilla/index/partial/bug-line.phtml'));
+                    ?></p>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span6">
+                    <i class="icon-user"></i> <?php echo $oTicket->getAssignee(true); ?> (<i class="icon-time"></i> <?php echo $sEstimationString; ?>)
+                </div>
+                <div class="span6">
+                    <?php if ($oTicket->isContainer() === true): ?>
+                        <i class="icon-folder-open"></i> <?php echo implode(', ', array_keys($oTicket->getDependsAsStack())); ?>
+                    <?php else: ?>
+                        <i class="icon-comment"></i> <?php echo $oTicket->getReporter(true); ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span6">
+                    Expected: <?php echo $this->finishstatus($oTicket, \Flightzilla\View\Helper\Finishstatus::ENDDATE); ?>
+                </div>
+                <div class="span6">
+                    Deadline: <?php echo $this->finishstatus($oTicket, \Flightzilla\View\Helper\Finishstatus::DEADLINE); ?>
+                </div>
+            </div>
+        </div>
+<?php
+        if ($iCount == 2) {
+            echo '</div><div class="row-fluid">';
+            $iCount = 0;
+        }
+    }
+}
+?>
+</div>
