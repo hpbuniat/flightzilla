@@ -41,8 +41,8 @@
  */
 namespace Flightzilla\Model\Ticket\Integrity\Constraint;
 
-use \Flightzilla\Model\Ticket\Type\Bug;
-use \Flightzilla\Model\Ticket\Source\Bugzilla;
+use \Flightzilla\Model\Ticket\Type\Bug,
+    \Flightzilla\Model\Ticket\Source\Bugzilla;
 
 /**
  * Tickets without estimation, but worked hours

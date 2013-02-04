@@ -45,7 +45,7 @@ use \Flightzilla\Model\Ticket\Type\Bug,
     \Flightzilla\Model\Ticket\Source\Bugzilla;
 
 /**
- * A resolved ticket must not have failed testing-requests only
+ * Projects which have only closed tickets
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -53,23 +53,30 @@ use \Flightzilla\Model\Ticket\Type\Bug,
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class ResolvedTestFailed implements ConstraintInterface {
+class ClosedProjects implements ConstraintInterface {
 
     /**
      * Name of the constraint
      *
      * @var string
      */
-    const NAME = 'ResolvedTestFailed';
+    const NAME = 'ClosedProjects';
 
     /**
      * (non-PHPdoc)
      * @see ConstraintInterface::check()
      */
     public static function check(Bug $oTicket, Bugzilla $oTicketSource) {
-        return (($oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_DENIED) === true
-                and $oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST) === false
-                and $oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED) === false
-                and ($oTicket->getStatus() === Bug::STATUS_RESOLVED or $oTicket->getStatus() === Bug::STATUS_REVIEWED)) === false);
+        $bPass = true;
+        if ($oTicket->isContainer() === true) {
+            $bPass = false;
+            foreach ($oTicket->getDependsAsStack() as $oDepends) {
+                if ($oDepends->getStatus() !== Bug::STATUS_CLOSED) {
+                    $bPass = true;
+                }
+            }
+        }
+
+        return $bPass;
     }
 }
