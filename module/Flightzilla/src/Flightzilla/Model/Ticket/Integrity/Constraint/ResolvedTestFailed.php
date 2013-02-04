@@ -41,8 +41,8 @@
  */
 namespace Flightzilla\Model\Ticket\Integrity\Constraint;
 
-use \Flightzilla\Model\Ticket\Type\Bug,
-    \Flightzilla\Model\Ticket\Source\Bugzilla;
+use \Flightzilla\Model\Ticket\Type\Bug;
+use \Flightzilla\Model\Ticket\Source\Bugzilla;
 
 /**
  * A resolved ticket must not have failed testing-requests only
