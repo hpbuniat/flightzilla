@@ -232,9 +232,17 @@ h3.table-toggle {
     cursor: pointer;
 }
 
+.print-box {
+    padding: 5px;
+}
+
 @media print {
     #zend-developer-toolbar {
         display: none !important;
+    }
+
+    * {
+        font-size: 26px !important;
     }
 
     a[href]:after {
@@ -243,5 +251,9 @@ h3.table-toggle {
 
     .print-box {
         page-break-inside: avoid;
+    }
+
+    i[class|="icon"] {
+        display: none !important;
     }
 }

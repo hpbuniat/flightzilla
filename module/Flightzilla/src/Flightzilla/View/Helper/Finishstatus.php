@@ -102,7 +102,7 @@ class Finishstatus extends AbstractHelper {
             $sReturn = sprintf('<i class="icon-time"></i>&nbsp;<span data-title="%s" class="tipper label %s">%s</span>', $sWhich, $sClass, $sDate, $sDate);
         }
         else {
-            $sReturn = sprintf('<span class="label label-important">%s missing!</span>', $sWhich);
+            $sReturn = sprintf('<span class="label label-important">No %s!</span>', $sWhich);
         }
 
         return $sReturn;

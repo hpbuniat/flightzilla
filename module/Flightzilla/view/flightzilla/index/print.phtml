@@ -7,7 +7,7 @@
 
         $iCount++;
         $iRows++;
-        $sBreak = (($iRows % 8) === 0) ? 'page-break-after:always;' : '';
+        $sBreak = (($iRows % 4) === 0) ? 'page-break-after:always;' : '';
 
         $aTickets = ($oTicket->isContainer() === true) ? $oTicket->getDependsAsStack() : array($oTicket);
         $aTimes = $this->collectiontime($aTickets);
@@ -36,13 +36,13 @@
                         <i class="icon-comment"></i> <?php echo $oTicket->getReporter(true); ?>
                     <?php endif; ?>
                     </p>
-                    <p>
-                        <i class="icon-time"></i> <?php echo $sEstimationString; ?>
-                    </p>
                 </div>
                 <div class="span6">
                     <p>Expected: <?php echo $this->finishstatus($oTicket, \Flightzilla\View\Helper\Finishstatus::ENDDATE); ?></p>
                     <p>Deadline: <?php echo $this->finishstatus($oTicket, \Flightzilla\View\Helper\Finishstatus::DEADLINE); ?></p>
+                    <p>
+                        <i class="icon-time"></i> <?php echo $sEstimationString; ?>
+                    </p>
                 </div>
             </div>
         </div>
