@@ -1,0 +1,56 @@
+<div class="row-fluid">
+<?php if (empty($this->aTickets) !== true) {
+
+    $iCount = 0;
+    $iRows = 0;
+    foreach ($this->aTickets as $oTicket) {
+
+        $iCount++;
+        $iRows++;
+        $sBreak = (($iRows % 4) === 0) ? 'page-break-after:always;' : '';
+
+        $aTickets = ($oTicket->isContainer() === true) ? $oTicket->getDependsAsStack() : array($oTicket);
+        $aTimes = $this->collectiontime($aTickets);
+        $sEstimationString = sprintf('%sd (%sd est.) <i class="icon-time"></i> %sd', $aTimes['spent_days'], $aTimes['esti_days'] , $aTimes['days']);
+?>
+        <div class="span6 print-box" style="<?php echo $sBreak; ?> margin-bottom: 2px; border: 5px solid #<?php echo substr(md5($oTicket->getAssignee()), 0, 6); ?>; border-top: 25px solid #<?php echo substr(md5($oTicket->getAssignee()), 0, 6); ?>;">
+            <div class="row-fluid">
+                <div class="span12">
+                    <p><?php
+                        echo sprintf('(%s %s) %s %s',
+                            $oTicket->getPriority(),
+                            $oTicket->id(),
+                            $this->ticketicons($oTicket),
+                            $oTicket->title()
+                        );
+                    ?></p>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span6">
+                    <p><i class="icon-user"></i> <?php echo $oTicket->getAssignee(true); ?></p>
+                    <p>
+                    <?php if ($oTicket->isContainer() === true): ?>
+                        <i class="icon-folder-open"></i> <?php echo implode(', ', array_keys($oTicket->getDependsAsStack())); ?>
+                    <?php else: ?>
+                        <i class="icon-comment"></i> <?php echo $oTicket->getReporter(true); ?>
+                    <?php endif; ?>
+                    </p>
+                </div>
+                <div class="span6">
+                    <p>Expected: <?php echo $this->finishstatus($oTicket, \Flightzilla\View\Helper\Finishstatus::ENDDATE); ?></p>
+                    <p>Deadline: <?php echo $this->finishstatus($oTicket, \Flightzilla\View\Helper\Finishstatus::DEADLINE); ?></p>
+                    <p>
+                        <i class="icon-time"></i> <?php echo $sEstimationString; ?>
+                    </p>
+                </div>
+            </div>
+        </div>
+<?php
+        if (($iCount % 2) === 0) {
+            echo '</div><div class="row-fluid">';
+        }
+    }
+}
+?>
+</div>

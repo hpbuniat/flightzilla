@@ -14,7 +14,7 @@
 <?php
     echo sprintf('<h5><strong>%s</strong></h5>', $this->sMemberName);
 else:
-    echo sprintf('<h5 class="droppable" data-title="Drop a pin, to ASSIG it to this user" data-drop="%s" data-user="%s"><i class="icon-user"></i> <strong>%s</strong></h5>', \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_ASSIGN, $this->oResource->getEmail(), $this->sMemberName);
+    echo sprintf('<h5 class="droppable tipper" data-title="Drop a pin, to ASSIGN it to this user" data-drop="%s" data-user="%s"><i class="icon-user"></i> <strong>%s</strong></h5>', \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_ASSIGN, $this->oResource->getEmail(), $this->sMemberName);
 endif;
 
 
@@ -22,13 +22,13 @@ endif;
 <blockquote>
     <div class="btn-toolbar">
         <div class="btn-group">
-            <a href="#" class="btn disabled droppable tooltip" data-title="Drop a pin, to set it to ASSIGNED" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_ASSIGN; ?>"><i class="icon-wrench"></i></a>
+            <a href="#" class="btn disabled droppable tipper" data-title="Drop a pin, to set it to ASSIGNED" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_ASSIGN; ?>"><i class="icon-wrench"></i></a>
         </div>
         <div class="btn-group">
-            <a href="#" class="btn disabled droppable tooltip" data-title="Drop a pin, to set it to CONFIRMED" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM; ?>" data-user="<?php echo $this->oResource->getEmail(); ?>"><i class="icon-pause"></i></a>
+            <a href="#" class="btn disabled droppable tipper" data-title="Drop a pin, to set it to CONFIRMED" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM; ?>" data-user="<?php echo $this->oResource->getEmail(); ?>"><i class="icon-pause"></i></a>
         </div>
         <div class="btn-group">
-            <a href="#" class="btn disabled droppable tooltip" data-title="Drop a pin, to set it to RESOLVED" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE; ?>" data-user="<?php echo $this->oResource->getEmail(); ?>"><i class="icon-ok-circle"></i></a>
+            <a href="#" class="btn disabled droppable tipper" data-title="Drop a pin, to set it to RESOLVED" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE; ?>" data-user="<?php echo $this->oResource->getEmail(); ?>"><i class="icon-ok-circle"></i></a>
         </div>
     </div>
 </blockquote>

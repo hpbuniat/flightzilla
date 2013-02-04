@@ -36,9 +36,9 @@ echo $this->render('flightzilla/index/partial/deadline.phtml');
 ?>
 
 <blockquote>
-    <h3>Untouched Tickets</h3>
+    <h3 class="table-toggle">Untouched Tickets</h3>
 </blockquote>
-<form id="buglist-form" method="get" target="_blank" action="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'go-bugzilla')); ?>">
+<form style="display: none" id="buglist-form" method="get" target="_blank" action="#">
 <?php
 echo $this->partial('flightzilla/index/partial/table.phtml', array(
     'caption' => 'Untouched Tickets',

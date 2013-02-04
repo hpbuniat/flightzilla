@@ -243,10 +243,10 @@ abstract class AbstractSource {
 
         $sReturn = sprintf('%dd', $iMax);
         if ($sToday === $sRef) {
-            if ((time() - $iTime) < 60) {
+            if ((time() - $iTime) < 30) {
                 $sReturn = '';
             }
-            else {
+            elseif ($iMax === 0) {
                 $sReturn = sprintf('%dh', ceil(($sRef - $sToday) / 3600));
             }
         }

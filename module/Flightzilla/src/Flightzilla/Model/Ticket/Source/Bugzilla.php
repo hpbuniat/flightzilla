@@ -1631,6 +1631,15 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     }
 
     /**
+     * Get the number of days which are used to determine the ticket-throughput
+     *
+     * @return int
+     */
+    public function getThroughPutDays() {
+        return ceil((time() - strtotime('last monday')) / 86400);
+    }
+
+    /**
      * Get all tickets with deadlines as stack
      *
      * @return array

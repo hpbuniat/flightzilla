@@ -77,9 +77,9 @@ class Status  {
      */
     protected $_aStatusOrder = array(
         self::SCREEN_WIP => 1,
-        self::WAITING => 2,
+        self::DEV_WIP => 2,
         self::DEV_WAITING => 3,
-        self::DEV_WIP => 4,
+        self::WAITING => 4,
         self::DEV_READY => 5,
         self::TEST_WAITING => 6,
         self::TEST_READY => 7,
@@ -184,7 +184,7 @@ class Status  {
 
             // use only tickets of the desired type for the kanban board
             $sType = $oTicket->getType();
-            if (in_array($sType, $this->_aTypes) !== true) {
+            if (in_array($sType, $this->_aTypes) !== true or $oTicket->getStatus() === Bug::STATUS_CLOSED) {
                 continue;
             }
 
@@ -213,6 +213,8 @@ class Status  {
 
     /**
      * Init the lookup
+     * - sort all tickets into their status
+     * - projects are using their tickets to determine their status
      *
      * @return $this
      */

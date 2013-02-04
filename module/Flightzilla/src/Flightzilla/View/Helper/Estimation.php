@@ -79,9 +79,9 @@ class Estimation extends AbstractHelper {
     public function __invoke(\Flightzilla\Model\Ticket\Type\Bug $oTicket, $sType = self::TICKET_LIST) {
 
         $bEstimated = $oTicket->isEstimated();
-        $bOrga = $oTicket->isOrga();
-        $fActual = (float) $oTicket->actual_time;
-        $fEstimated = (float) $oTicket->estimated_time;
+        $bOrga = ($oTicket->isOrga() or $oTicket->isContainer());
+        $fActual = $oTicket->getActualTime();
+        $fEstimated = $oTicket->getEstimation();
         $bOvertime = ($fActual >= (1.1 * $fEstimated));
 
         $sReturn = '';

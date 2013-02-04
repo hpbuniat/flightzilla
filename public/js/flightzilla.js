@@ -546,6 +546,20 @@
             });
 
             /**
+             * Open the print-view
+             */
+            f.bugTable.on('click', 'a.print-link', function() {
+                $('#buglist-form').prop('action', PRINT).submit();
+            });
+
+            /**
+             * Toggle ticket-tables after a h3
+             */
+            $('h3.table-toggle').click(function() {
+                $('#buglist-form').toggle();
+            });
+
+            /**
              * Toggle tickets in team-dash view
              */
             $('.largeGray').click(function() {
@@ -553,14 +567,14 @@
             });
 
             /**
-             * Toggle Project-Details/Comments
+             * Toggle Project-Details/Commentsf
              */
             f.wrapper.on('click', 'a.detail-toggle', function() {
                 $(this).parents('.memberBox').find('.project-detail').toggleClass('hidden');
             });
 
-            $('.bugzilla-link').click(function() {
-                $('#buglist-form').submit();
+            f.bugTable.on('click', 'a.bugzilla-link').click(function() {
+                $('#buglist-form').prop('action', GO_BUGZILLA).submit();
             });
 
             $('.toggle').on('click', function() {

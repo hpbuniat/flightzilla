@@ -227,3 +227,33 @@ div.progress-heading {
     background-color: #999;
     background-repeat: repeat-x;
 }
+
+h3.table-toggle {
+    cursor: pointer;
+}
+
+.print-box {
+    padding: 5px;
+}
+
+@media print {
+    #zend-developer-toolbar {
+        display: none !important;
+    }
+
+    * {
+        font-size: 26px !important;
+    }
+
+    a[href]:after {
+        content: "" !important;
+    }
+
+    .print-box {
+        page-break-inside: avoid;
+    }
+
+    i[class|="icon"] {
+        display: none !important;
+    }
+}

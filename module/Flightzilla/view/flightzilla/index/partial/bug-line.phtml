@@ -1,5 +1,6 @@
 <?php
-echo sprintf('%s %s (%s, <a class="bugLink" target="_blank" href="%s/show_bug.cgi?id=%s">%s</a>, %s @ %s)',
+echo sprintf('(%s) %s %s (%s, <a class="bugLink" target="_blank" href="%s/show_bug.cgi?id=%s">%s</a>, %s @ %s)',
+    $this->oTask->getPriority(),
     $this->ticketicons($this->oTask),
     $this->oTask->title(),
     $this->oTask->assignee_short,

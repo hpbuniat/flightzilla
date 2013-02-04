@@ -116,7 +116,9 @@ class IndexController extends AbstractActionController {
         $oViewModel->mode = 'status';
         $oViewModel->setTerminal(true);
 
-        $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, $oViewModel->mode);
+        $oTicketPlugin = $this->getPluginManager()->get(TicketService::NAME);
+        $oTicketService = $oTicketPlugin->getService();
+        $oTicketPlugin->init($oViewModel, $oViewModel->mode, $oTicketService->getThroughPutDays());
 
         return $oViewModel;
     }
@@ -197,6 +199,21 @@ class IndexController extends AbstractActionController {
         $params = implode(',', $this->params()->fromQuery('id'));
         $this->redirect()->toUrl($this->getServiceLocator()->get('_serviceConfig')->bugzilla->baseUrl . '/buglist.cgi?quicksearch=' . $params);
         return $this->response;
+    }
+
+    /**
+     *
+     */
+    public function printAction() {
+        $oViewModel = new ViewModel;
+        $this->layout()->bMinimal = true;
+
+        $aTickets = implode(',', $this->params()->fromQuery('id'));
+        if (empty($aTickets) !== true) {
+            $oViewModel->aTickets = $this->getPluginManager()->get(TicketService::NAME)->getService()->getBugListByIds($aTickets);
+        }
+
+        return $oViewModel;
     }
 
     /**

@@ -6,25 +6,30 @@
     <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0') ?>
 
     <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'))
-                    ->appendStylesheet($this->basePath() . '/css/bootstrap-responsive.min.css')
-                    ->appendStylesheet($this->basePath() . '/vendor/bootstrap.css')
-                    ->appendStylesheet($this->basePath() . '/vendor/jquery-ui.css')
-                    ->appendStylesheet($this->basePath() . '/vendor/jquery.ui.theme.css')
-                    ->appendStylesheet($this->basePath() . '/css/flightzilla.css')
-                    ->appendStylesheet($this->basePath() . '/css/gantt.css')
-                    ->appendStylesheet($this->basePath() . '/css/silk-sprite.css');
+                    ->appendStylesheet($this->basePath() . '/css/bootstrap-responsive.min.css', 'all')
+                    ->appendStylesheet($this->basePath() . '/vendor/bootstrap.css', 'all')
+                    ->appendStylesheet($this->basePath() . '/vendor/jquery-ui.css', 'all')
+                    ->appendStylesheet($this->basePath() . '/vendor/jquery.ui.theme.css', 'all')
+                    ->appendStylesheet($this->basePath() . '/css/flightzilla.css', 'all')
+                    ->appendStylesheet($this->basePath() . '/css/gantt.css', 'all')
+                    ->appendStylesheet($this->basePath() . '/css/silk-sprite.css', 'all');
     ?>
 
     <style type="text/css">
         body {
             font-size: 13px;
+
+            <?php if ($this->bMinimal !== true):?>
             padding-top: 60px;
             padding-bottom: 40px;
+            <?php endif; ?>
         }
     </style>
     <script type="text/javascript">
         var BASE_URL = "<?php echo $this->basePath() ?>",
-            BUGZILLA = "<?php echo $this->sBugzilla ?>";
+            BUGZILLA = "<?php echo $this->sBugzilla ?>",
+            GO_BUGZILLA = "<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'go-bugzilla')); ?>",
+            PRINT = "<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'print')); ?>";
     </script>
 
     <!-- Scripts -->
@@ -38,7 +43,12 @@
                                   ->appendFile($this->basePath() . '/js/jquery.metadata.js');
     ?>
 </head>
-<body class="">
+<body <?php if ($this->bMinimal === true):?>class"minimal"<?php endif;?>>
+<?php if ($this->bMinimal === true):?>
+    <div class="wrapper">
+        <?php echo $this->content; ?>
+    </div>
+<?php else: ?>
     <div class="wrapper <?php echo ($this->sRoute === 'login') ? 'container' : 'container-fluid'; ?>">
         <?php
             echo $this->content
@@ -65,5 +75,6 @@
         <img src="<?php echo $this->basePath() . '/img/ajax-loader.gif'; ?>" />
     </p>
     <?php echo $this->inlineScript(); ?>
+<?php endif; ?>
 </body>
 </html>
