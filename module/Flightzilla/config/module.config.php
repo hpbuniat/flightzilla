@@ -62,11 +62,10 @@ return array(
                         'name' => $sAdapter,
                         'options' => array(
                             'ttl'             => 86400, // 1 day
-                            'server'          => '127.0.0.1',
-                            'port'            => 11211,
-                            'compression'     => true,
-                            'binary_protocol' => true,
-                            'no_block'        => true,
+                            'servers'          => array(
+                                'host' => '127.0.0.1',
+                                'port' => 11211,
+                            ),
                         )
                     ),
                     'plugins' => array(
