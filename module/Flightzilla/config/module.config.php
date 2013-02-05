@@ -64,8 +64,10 @@ return array(
                         'options' => array(
                             'ttl'     => 86400, // 1 day
                             'servers' => array(
-                                'host' => '127.0.0.1',
-                                'port' => 11211,
+                                array(
+                                    'host' => '127.0.0.1',
+                                    'port' => 11211,
+                                )
                             ),
                         )
                     ),
