@@ -1,5 +1,5 @@
 {
-    "name": "hpbuniat/flightzilla",
+    "name": "flightzilla",
     "description": "flightzilla",
     "license": "BSD-3-Clause",
     "keywords": [
@@ -16,8 +16,8 @@
     "homepage": "https://github.com/hpbuniat/flightzilla",
     "repositories": [
         {
-            "type": "composer",
-            "url": "http://packages.zendframework.com/"
+            "type": "git",
+            "url": "https://github.com/hpbuniat/flightzilla"
         }
     ],
     "require": {
