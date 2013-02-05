@@ -65,7 +65,8 @@ class Manager {
         \Flightzilla\Model\Ticket\Integrity\Constraint\OrganizationWithoutDue::NAME,
         \Flightzilla\Model\Ticket\Integrity\Constraint\WorkedWithoutEstimation::NAME,
         \Flightzilla\Model\Ticket\Integrity\Constraint\ResolvedTestFailed::NAME,
-        \Flightzilla\Model\Ticket\Integrity\Constraint\IllogicalSeverity::NAME
+        \Flightzilla\Model\Ticket\Integrity\Constraint\IllogicalSeverity::NAME,
+        \Flightzilla\Model\Ticket\Integrity\Constraint\ClosedProjects::NAME
     );
 
     /**

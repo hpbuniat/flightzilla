@@ -47,21 +47,33 @@ return array(
     'service_manager' => array(
         'factories' => array(
             '_session' => function(\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
-                return new Zend\Session\Container('flightzilla');
+                return new \Zend\Session\Container('flightzilla');
             },
             '_log' => function(\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
-                $oLogger = new Zend\Log\Logger;
+                $oLogger = new \Zend\Log\Logger;
                 $oLogger->addWriter(new Zend\Log\Writer\Stream(sprintf('./log/%s-error.log', date('Y-m-d'))));
 
                 return $oLogger;
             },
             '_cache' => function(\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
-                $sAdapter = (extension_loaded('memcached') === true) ? 'memcached' : '\Flightzilla\Cache\Storage\Adapter\Memcache';
+                //$sAdapter = (extension_loaded('memcached') === true) ? 'memcached' : '\Flightzilla\Cache\Storage\Adapter\Memcache';
+                $sAdapter = '\Flightzilla\Cache\Storage\Adapter\Memcache';
                 return Zend\Cache\StorageFactory::factory(array(
-                    'adapter' => $sAdapter,
+                    'adapter' => array(
+                        'name' => $sAdapter,
+                        'options' => array(
+                            'ttl'     => 86400, // 1 day
+                            'servers' => array(
+                                array(
+                                    'host' => '127.0.0.1',
+                                    'port' => 11211,
+                                )
+                            ),
+                        )
+                    ),
                     'plugins' => array(
                         'serializer'
-                    )
+                    ),
                 ));
             },
             '_serviceConfig'=> function(\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
