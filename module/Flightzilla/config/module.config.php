@@ -56,13 +56,14 @@ return array(
                 return $oLogger;
             },
             '_cache' => function(\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
-                $sAdapter = (extension_loaded('memcached') === true) ? 'memcached' : '\Flightzilla\Cache\Storage\Adapter\Memcache';
+                //$sAdapter = (extension_loaded('memcached') === true) ? 'memcached' : '\Flightzilla\Cache\Storage\Adapter\Memcache';
+                $sAdapter = '\Flightzilla\Cache\Storage\Adapter\Memcache';
                 return Zend\Cache\StorageFactory::factory(array(
                     'adapter' => array(
                         'name' => $sAdapter,
                         'options' => array(
-                            'ttl'             => 86400, // 1 day
-                            'servers'          => array(
+                            'ttl'     => 86400, // 1 day
+                            'servers' => array(
                                 'host' => '127.0.0.1',
                                 'port' => 11211,
                             ),
