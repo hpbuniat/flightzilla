@@ -1,0 +1,35 @@
+{
+    "name": "flightzilla",
+    "description": "flightzilla",
+    "license": "BSD-3-Clause",
+    "version": "0.0.1",
+    "keywords": [
+        "bugzilla",
+        "flightzilla"
+    ],
+    "authors": [
+        {
+            "name": "Hans-Peter Buniat",
+            "email": "hpbuniat@googlemail.com",
+            "role": "lead"
+        }
+    ],
+    "homepage": "https://github.com/hpbuniat/flightzilla",
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/hpbuniat/flightzilla"
+        }
+    ],
+    "dependencies":{
+
+    },
+    "devDependencies": {
+        "grunt": "~0.3.16",
+        "bower": ">=0.7",
+        "bower-installer": ">=0.1.*"
+    },
+    "engines": {
+        "node": ">=0.8"
+    }
+}
