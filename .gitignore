@@ -9,3 +9,4 @@ nbproject
 components/
 composer.lock
 config/autoload/flightzilla.local.php
+node_modules/
