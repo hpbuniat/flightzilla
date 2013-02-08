@@ -573,7 +573,7 @@
                 $(this).parents('.memberBox').find('.project-detail').toggleClass('hidden');
             });
 
-            f.bugTable.on('click', 'a.bugzilla-link').click(function() {
+            f.bugTable.on('click', 'a.bugzilla-link', function() {
                 $('#buglist-form').prop('action', GO_BUGZILLA).submit();
             });
 
