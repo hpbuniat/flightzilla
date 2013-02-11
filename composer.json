@@ -1,5 +1,5 @@
 {
-    "name": "flightzilla",
+    "name": "hpbuniat/flightzilla",
     "description": "flightzilla",
     "license": "BSD-3-Clause",
     "keywords": [
@@ -17,13 +17,14 @@
     "repositories": [
         {
             "type": "git",
-            "url": "https://github.com/hpbuniat/flightzilla"
+            "url": "https://github.com/hpbuniat/notifyy"
         }
     ],
     "require": {
         "php": ">=5.3.3",
         "zendframework/zendframework": "2.1.0",
         "zendframework/zendgdata": "2.*",
-        "zendframework/zend-developer-tools": "dev-master"
+        "zendframework/zend-developer-tools": "dev-master",
+        "hpbuniat/notifyy": "dev-master"
     }
 }
