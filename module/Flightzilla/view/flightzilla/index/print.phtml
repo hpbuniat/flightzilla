@@ -31,7 +31,15 @@
                     <p><i class="icon-user"></i> <?php echo $oTicket->getAssignee(true); ?></p>
                     <p>
                     <?php if ($oTicket->isContainer() === true): ?>
-                        <i class="icon-folder-open"></i> <?php echo implode(', ', array_keys($oTicket->getDependsAsStack())); ?>
+                        <?php
+                            $aPrint = array();
+                            foreach ($aTickets as $sTicket => $oIterateTicket) {
+                                if ($oIterateTicket->getStatus() !== \Flightzilla\Model\Ticket\Type\Bug::STATUS_CLOSED) {
+                                    $aPrint[] = $sTicket;
+                                }
+                            }
+                        ?>
+                        <i class="icon-folder-open"></i> <?php echo implode(', ', $aPrint); ?>
                     <?php else: ?>
                         <i class="icon-comment"></i> <?php echo $oTicket->getReporter(true); ?>
                     <?php endif; ?>

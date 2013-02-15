@@ -1,7 +1,8 @@
 {
-    "name": "hpbuniat/flightzilla",
+    "name": "flightzilla",
     "description": "flightzilla",
     "license": "BSD-3-Clause",
+    "version": "0.0.1",
     "keywords": [
         "bugzilla",
         "flightzilla"
@@ -17,14 +18,18 @@
     "repositories": [
         {
             "type": "git",
-            "url": "https://github.com/hpbuniat/notifyy"
+            "url": "https://github.com/hpbuniat/flightzilla"
         }
     ],
-    "require": {
-        "php": ">=5.3.3",
-        "zendframework/zendframework": "2.1.0",
-        "zendframework/zendgdata": "2.*",
-        "zendframework/zend-developer-tools": "dev-master",
-        "hpbuniat/notifyy": "dev-master"
+    "dependencies":{
+
+    },
+    "devDependencies": {
+        "grunt": "~0.3.16",
+        "bower": ">=0.7",
+        "bower-installer": ">=0.1.*"
+    },
+    "engines": {
+        "node": ">=0.8"
     }
 }
