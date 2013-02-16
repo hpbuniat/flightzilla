@@ -549,7 +549,7 @@
              * Open the print-view
              */
             f.bugTable.on('click', 'a.print-link', function() {
-                $('#buglist-form').prop('action', PRINT).submit();
+                $('#buglist-form').prop('target', '_blank').prop('action', PRINT).submit();
             });
 
             /**
@@ -574,7 +574,7 @@
             });
 
             f.bugTable.on('click', 'a.bugzilla-link', function() {
-                $('#buglist-form').prop('action', GO_BUGZILLA).submit();
+                $('#buglist-form').prop('target', '_blank').prop('action', GO_BUGZILLA).submit();
             });
 
             $('.toggle').on('click', function() {
