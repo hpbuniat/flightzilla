@@ -86,20 +86,30 @@ class TicketController extends AbstractActionController {
 
         $aModify = $this->params()->fromPost('modify');
         $aSpecial = array(
+            'assigned',
             'estimation',
             'worked',
-            'comment',
-            'assigned'
+            'comment'
         );
         foreach ($aSpecial as $sSpecial) {
             $aTemp = $this->params()->fromPost($sSpecial);
             if (empty($aTemp) !== true) {
                 foreach ($aTemp as $iTicket => $aActions) {
                     foreach ($aActions as $mValue) {
-                        $aModify[$iTicket][] = array(
+
+                        $aAdd = array(
                             'action' => sprintf('set%s', ucfirst($sSpecial)),
                             'value' => $mValue,
                         );
+
+                        if (is_array($aModify[$iTicket]) === true) {
+                            array_unshift($aModify[$iTicket], $aAdd);
+                        }
+                        else {
+                            $aModify[$iTicket] = array(
+                                $aAdd
+                            );
+                        }
                     }
                 }
             }
