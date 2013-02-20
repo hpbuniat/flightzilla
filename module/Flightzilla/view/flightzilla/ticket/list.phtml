@@ -45,12 +45,13 @@
                 <?php elseif ($this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE or $this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM): ?>
                     <li>
                         <div class="control-group">
-                            <?php if ($oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED): ?>
+                            <?php if ($this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE or $oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED): ?>
                                 <label class="control-label" for="timeWorked">Worked</label>
                                 <div class="controls">
                                     <input type="text" id="timeWorked" value="<?php echo $oTicket->getTimeSinceLastActivity(); ?>" name="worked[<?php echo $oTicket->id();?>][]" />
                                 </div>
-                            <?php elseif ($oTicket->isEstimated() === false or $oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED): ?>
+                            <?php endif; ?>
+                            <?php if ($oTicket->isEstimated() === false or $oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED): ?>
                                 <label class="control-label" for="timeEstimation">Estimation</label>
                                 <div class="controls">
                                     <input type="text" id="timeEstimation" value="<?php echo $oTicket->getEstimation(); ?>" name="estimation[<?php echo $oTicket->id();?>][]" />
