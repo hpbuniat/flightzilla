@@ -48,7 +48,7 @@
                             <?php if ($this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE or $oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED): ?>
                                 <label class="control-label" for="timeWorked">Worked</label>
                                 <div class="controls">
-                                    <input type="text" id="timeWorked" value="<?php echo $oTicket->getTimeSinceLastActivity(); ?>" name="worked[<?php echo $oTicket->id();?>][]" />
+                                    <input type="text" id="timeWorked" value="<?php echo (($oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED) ? $oTicket->getTimeSinceLastActivity() : 0); ?>" name="worked[<?php echo $oTicket->id();?>][]" />
                                 </div>
                             <?php endif; ?>
                             <?php if ($oTicket->isEstimated() === false or $oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED): ?>
