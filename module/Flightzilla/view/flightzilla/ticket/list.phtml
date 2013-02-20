@@ -50,6 +50,11 @@
                                 <div class="controls">
                                     <input type="text" id="timeWorked" value="<?php echo $oTicket->getTimeSinceLastActivity(); ?>" name="worked[<?php echo $oTicket->id();?>][]" />
                                 </div>
+                            <?php elseif ($oTicket->isEstimated() === false or $oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED): ?>
+                                <label class="control-label" for="timeEstimation">Estimation</label>
+                                <div class="controls">
+                                    <input type="text" id="timeEstimation" value="<?php echo $oTicket->getEstimation(); ?>" name="estimation[<?php echo $oTicket->id();?>][]" />
+                                </div>
                             <?php endif; ?>
 
                             <?php if ($this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE): ?>
@@ -81,54 +86,56 @@
                 </li>
             <?php endif; ?>
 
-            <?php if ($this->dropAction !== \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_ASSIGN and $oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING) === false): ?>
-            <li>
-                <label class="checkbox">
-                    <input type="checkbox" value="setTestingRequest" name="modify[<?php echo $oTicket->id();?>][]" />
-                    Check, if testing of the changes is requested
-                </label>
-            </li>
-            <?php elseif ($oTicket->isFailed() === true and $oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_GRANTED) === false): ?>
-            <li>
-                <label class="checkbox">
-                    <input type="checkbox" value="reTest" name="modify[<?php echo $oTicket->id();?>][]" />
-                    Check, if the changes should be tested again
-                </label>
-            </li>
-            <?php endif; ?>
+            <?php if (empty($this->dropAction) === true or $this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE): ?>
+                <?php if ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING) === false): ?>
+                <li>
+                    <label class="checkbox">
+                        <input type="checkbox" value="setTestingRequest" name="modify[<?php echo $oTicket->id();?>][]" />
+                        Check, if testing of the changes is requested
+                    </label>
+                </li>
+                <?php elseif ($oTicket->isFailed() === true and $oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_GRANTED) === false): ?>
+                <li>
+                    <label class="checkbox">
+                        <input type="checkbox" value="reTest" name="modify[<?php echo $oTicket->id();?>][]" />
+                        Check, if the changes should be tested again
+                    </label>
+                </li>
+                <?php endif; ?>
 
-            <?php if ($oTicket->isMergeable() === true): ?>
-            <li>
-                <label class="checkbox">
-                    <input type="checkbox" value="setMerged" name="modify[<?php echo $oTicket->id();?>][]" />
-                    Check, if the changes have been merged into the master-branch/trunk
-                </label>
-            </li>
-            <?php endif;?>
+                <?php if ($oTicket->isMergeable() === true): ?>
+                <li>
+                    <label class="checkbox">
+                        <input type="checkbox" value="setMerged" name="modify[<?php echo $oTicket->id();?>][]" />
+                        Check, if the changes have been merged into the master-branch/trunk
+                    </label>
+                </li>
+                <?php endif;?>
 
-            <?php if ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTSERVER, '?') === true): ?>
-            <li>
-                <label class="checkbox">
-                    <input type="checkbox" value="setStaged" name="modify[<?php echo $oTicket->id();?>][]" />
-                    Check, if the changes have been deployed to the test-system
-                </label>
-            </li>
-            <?php elseif ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTSERVER) === false or (empty($this->dropAction) !== true and $this->dropAction !== \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_ASSIGN)): ?>
-            <li>
-                <label class="checkbox">
-                    <input type="checkbox" value="setUpdateTestserver" name="modify[<?php echo $oTicket->id();?>][]" />
-                    Check, if the changes should be deployed to the test-system
-                </label>
-            </li>
-            <?php endif;?>
+                <?php if ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTSERVER, '?') === true): ?>
+                <li>
+                    <label class="checkbox">
+                        <input type="checkbox" value="setStaged" name="modify[<?php echo $oTicket->id();?>][]" />
+                        Check, if the changes have been deployed to the test-system
+                    </label>
+                </li>
+                <?php elseif ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTSERVER) === false): ?>
+                <li>
+                    <label class="checkbox">
+                        <input type="checkbox" value="setUpdateTestserver" name="modify[<?php echo $oTicket->id();?>][]" />
+                        Check, if the changes should be deployed to the test-system
+                    </label>
+                </li>
+                <?php endif;?>
 
-            <?php if ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_DBCHANGE, '?') === true): ?>
-            <li>
-                <label class="checkbox">
-                    <input type="checkbox" value="setDbChanged" name="modify[<?php echo $oTicket->id();?>][]" />
-                    Check, if the Database-Changes have been deployed to production
-                </label>
-            </li>
+                <?php if ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_DBCHANGE, '?') === true): ?>
+                <li>
+                    <label class="checkbox">
+                        <input type="checkbox" value="setDbChanged" name="modify[<?php echo $oTicket->id();?>][]" />
+                        Check, if the Database-Changes have been deployed to production
+                    </label>
+                </li>
+                <?php endif;?>
             <?php endif;?>
         </ul>
     </blockquote>
