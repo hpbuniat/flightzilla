@@ -890,6 +890,16 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * Get the version
+     *
+     * @return string
+     */
+    public function getVersion() {
+        $sVersion = (string) $this->version;
+        return ($sVersion !== 'unspecified') ? $sVersion : '';
+    }
+
+    /**
      * Get the remaining hours of a ticket
      *
      * @return string

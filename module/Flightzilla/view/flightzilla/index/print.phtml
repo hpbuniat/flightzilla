@@ -17,11 +17,12 @@
             <div class="row-fluid">
                 <div class="span12">
                     <h5><?php
-                        echo sprintf('(%s %s) %s %s',
+                        echo sprintf('(%s %s) %s %s (%s)',
                             $oTicket->getPriority(),
                             $oTicket->id(),
                             $this->ticketicons($oTicket),
-                            $oTicket->title()
+                            $oTicket->title(),
+                            $oTicket->getVersion()
                         );
                     ?></h5>
                 </div>
