@@ -242,7 +242,8 @@ h3.table-toggle {
     }
 
     * {
-        /*font-size: 1.5em !important;*/
+        font-size: 1.06em !important;
+        line-height: 1em !important;
     }
 
     a[href]:after {

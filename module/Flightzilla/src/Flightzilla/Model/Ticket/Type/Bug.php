@@ -1462,7 +1462,13 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function getAssignee($bTok = false) {
         $sAssignee = (string) $this->_data->assigned_to;
-        return ($bTok === true) ? strtok($sAssignee, '@') : $sAssignee;
+        if ($bTok === true) {
+            $sAssignee = strtok($sAssignee, '@');
+            $sAssignee = ucwords(str_replace(array('.', '-'), array(' ', '  '), $sAssignee));
+            $sAssignee = str_replace('  ', '-', $sAssignee);
+        }
+
+        return $sAssignee;
     }
 
     /**
