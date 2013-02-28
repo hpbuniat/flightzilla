@@ -102,13 +102,9 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
 
         $sPayload = $oTicket->getFlagName(Bug::FLAG_TESTING);
         if (empty($sPayload) !== true) {
-            $this->_aPayload[$sPayload] = \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST;
-            if ($oTicket->isType(Bug::TYPE_BUG) !== true) {
-                $sRequesteePayload = str_replace('flag', 'requestee', $sPayload);
-                $this->_aPayload[$sRequesteePayload] = $oTicket->getReporter();
-            }
+            $this->_aPayload['comment'] = 'Please review the changes!';
+            $this->_getTestingRequestee($oTicket, $sPayload);
 
-            $this->_aPayload['comment'] = 'Please review the changes!' . PHP_EOL . 'Test-Server: ' . (($oTicket->isMerged() === true) ? 'Stable' : 'Development');
         }
 
         return $this;
@@ -123,10 +119,29 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
 
         $sPayload = $oTicket->getFlagName(Bug::FLAG_TESTING, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_DENIED);
         if (empty($sPayload) !== true) {
-            $this->_aPayload[$sPayload] = \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST;
-            $this->_aPayload['comment'] = 'Please test again!' . PHP_EOL . 'Test-Server: ' . (($oTicket->isMerged() === true) ? 'Stable' : 'Development');
+            $this->_aPayload['comment'] = 'Please test again!';
+            $this->_getTestingRequestee($oTicket, $sPayload);
         }
 
+        return $this;
+    }
+
+    /**
+     * Get the testing-requestee
+     *
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  string $sPayload
+     *
+     * @return $this
+     */
+    protected function _getTestingRequestee(\Flightzilla\Model\Ticket\AbstractType $oTicket, $sPayload) {
+        $this->_aPayload[$sPayload] = \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST;
+        if ($oTicket->isType(Bug::TYPE_BUG) !== true) {
+            $sRequesteePayload = str_replace('flag', 'requestee', $sPayload);
+            $this->_aPayload[$sRequesteePayload] = $oTicket->getReporter();
+        }
+
+        $this->_aPayload['comment'] .=  PHP_EOL . 'Test-Server: ' . (($oTicket->isMerged() === true) ? 'Stable' : 'Development');
         return $this;
     }
 
