@@ -437,6 +437,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             $i++;
         }
 
+        $this->_setGetParameter('limit', 0);
+
         return $this;
     }
 
