@@ -515,6 +515,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         $queryString = rtrim($this->_getParameter, '&');
         $this->_client->setUri($this->_config->bugzilla->baseUrl . '/' . $option . '?' . $queryString);
+
         $this->_loginToBugzilla();
         $sResult = $this->_client->send()->getBody();
 

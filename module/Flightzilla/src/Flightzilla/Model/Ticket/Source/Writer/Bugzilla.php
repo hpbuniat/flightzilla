@@ -143,6 +143,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
 
         $this->_aPayload['comment'] .=  PHP_EOL . 'Test-Server: ' . (($oTicket->isMerged() === true) ? 'Stable' : 'Development');
         return $this;
+
     }
 
     /**

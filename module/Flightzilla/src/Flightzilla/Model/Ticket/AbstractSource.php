@@ -218,7 +218,7 @@ abstract class AbstractSource {
      * @return int
      */
     public function getLastRequestTime($mSalt = '') {
-        $sToken = md5(self::REQUEST_TOKEN . $mSalt);
+        $sToken = md5($this->getCurrentUser() . self::REQUEST_TOKEN . $mSalt);
 
         $iTime = $this->_oCache->getItem($sToken);
         if (empty($iTime) === true) {
@@ -245,9 +245,6 @@ abstract class AbstractSource {
         if ($sToday === $sRef) {
             if ((time() - $iTime) < 30) {
                 $sReturn = '';
-            }
-            elseif ($iMax === 0) {
-                $sReturn = sprintf('%dh', ceil(($sRef - $sToday) / 3600));
             }
         }
 
