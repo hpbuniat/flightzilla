@@ -2,7 +2,6 @@
 return array(
     'modules' => array(
         'Flightzilla',
-        'ZendDeveloperTools'
     ),
     'module_listener_options' => array(
         'config_glob_paths'    => array(

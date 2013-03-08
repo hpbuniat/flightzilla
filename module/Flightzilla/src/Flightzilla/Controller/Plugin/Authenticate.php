@@ -147,7 +147,10 @@ class Authenticate extends AbstractPlugin {
      * @return void
      */
     public function clearIdentity() {
-        setcookie(self::COOKIE_NAME, '', -1);
+        if (php_sapi_name() !== 'cli') {
+            setcookie(self::COOKIE_NAME, '', -1);
+        }
+
         $oAuthService = $this->getAuthService();
         if ($oAuthService->hasIdentity()) {
             $oAuthService->clearIdentity();
@@ -160,7 +163,9 @@ class Authenticate extends AbstractPlugin {
      * @return void
      */
     public function persist() {
-        setcookie(self::COOKIE_NAME, $this->getAuthAdapter()->getCrypted(), time() + 604800, $this->getController()->getRequest()->getBaseUrl());
+        if (php_sapi_name() !== 'cli') {
+            setcookie(self::COOKIE_NAME, $this->getAuthAdapter()->getCrypted(), time() + 604800, $this->getController()->getRequest()->getBaseUrl());
+        }
     }
 
     /**
