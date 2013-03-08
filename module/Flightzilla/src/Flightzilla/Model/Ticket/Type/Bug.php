@@ -615,8 +615,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
 
         if (empty($this->_iStartDate) === true) {
             $oProject = $this->_oBugzilla->getProject($this);
-            if ($oProject instanceof \Flightzilla\Model\Ticket\Type\Project and $oProject->id() !== $iCalled) {
-                $this->_iStartDate = $oProject->getStartDate($iCalled);
+            if ($oProject instanceof \Flightzilla\Model\Ticket\Type\Project and $oProject->id() !== $iCalled and $this->id() !== $iCalled) {
+                $this->_iStartDate = $oProject->getStartDate($this->id());
             }
         }
 

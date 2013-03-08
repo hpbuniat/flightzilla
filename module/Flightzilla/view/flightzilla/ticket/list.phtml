@@ -73,15 +73,18 @@
                     </li>
                 <?php endif; ?>
                 <li>
-                    <label for="comment">Enter a comment:</label>
                     <?php if ($bReassign === true): ?>
+                        <label for="comment">Enter a comment:</label>
                         <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]"></textarea>
                     <?php elseif ($this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE): ?>
+                        <label for="comment">Enter a comment:</label>
                         <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]">Finished!</textarea>
                     <?php elseif ($oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED): ?>
+                        <label for="comment">Enter a comment:</label>
                         <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]"></textarea>
                     <?php elseif ($this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM):?>
-                        <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]">Paused!</textarea>
+                        <label for="comment">Enter a comment:</label>
+                        <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]">I stopped working on this ticket!</textarea>
                     <?php endif; ?>
                     <input type="hidden" value="setComment" name="modify[<?php echo $oTicket->id();?>][]" />
                 </li>

@@ -67,6 +67,13 @@ class Project extends Bug {
     protected $_bOnlyConcepts = null;
 
     /**
+     * The start-dates of depended tickets
+     *
+     * @var array
+     */
+    protected $_aStartDates = array();
+
+    /**
      * Get start date as timestamp.
      * Start date is
      * - the end of its predecessor
@@ -90,16 +97,19 @@ class Project extends Bug {
         }
         else {
             // start date of the first ticket in current project
-            $aStartDate = array();
-            $aDepends   = $this->getDepends();
+            if ($this->id() !== $iCalled) {
+                $aDepends   = $this->getDepends();
 
-            $iCalled = (is_null($iCalled) === true) ? $this->id() : $iCalled;
-            foreach ($aDepends as $iTicket) {
-                $aStartDate[$iTicket] = (float) $this->_oBugzilla->getBugById($iTicket)->getStartDate($iCalled);
+                $iCalled = (is_null($iCalled) === true) ? $this->id() : $iCalled;
+                foreach ($aDepends as $iTicket) {
+                    $this->_aStartDates[$iTicket] = (float) $this->_oBugzilla->getBugById($iTicket)->getStartDate($iCalled);
+                }
             }
 
-            asort($aStartDate);
-            $this->_iStartDate = reset($aStartDate);
+            if (empty($this->_aStartDates) !== true) {
+                asort($this->_aStartDates);
+                $this->_iStartDate = reset($this->_aStartDates);
+            }
         }
 
         if (empty($this->_iStartDate) === true) {
