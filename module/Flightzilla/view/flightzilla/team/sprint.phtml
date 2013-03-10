@@ -1,0 +1,17 @@
+<?php echo $this->render('flightzilla/index/partial/header.phtml'); ?>
+
+<div class="row-fluid kanban">
+    <?php
+    if (empty($this->aWeekTickets) === true) {
+        $this->aWeekTickets = array();
+    }
+
+    $iCounter = 0;
+    foreach ($this->aWeekTickets as $this->sMemberName => $this->aMemberWeekTickets) {
+        $iCounter++;
+        $this->sCarousel = sprintf('member-carousel-%s', $iCounter);
+        $this->oResource = $this->oResourceManager->getResource($this->sMemberName);
+        echo $this->render('flightzilla/team/partial/sprint-carousel.phtml');
+    }
+    ?>
+</div>

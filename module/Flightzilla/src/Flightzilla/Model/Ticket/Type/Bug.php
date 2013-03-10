@@ -99,7 +99,6 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     const STATUS_ASSIGNED = 'ASSIGNED';
     const STATUS_REOPENED = 'REOPENED';
     const STATUS_RESOLVED = 'RESOLVED';
-    const STATUS_REVIEWED = 'REVIEWED';
     const STATUS_VERIFIED = 'VERIFIED';
     const STATUS_CLOSED = 'CLOSED';
 
@@ -110,12 +109,12 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         self::STATUS_ASSIGNED    => 3,
         self::STATUS_REOPENED    => 4,
         self::STATUS_RESOLVED    => 5,
-        self::STATUS_REVIEWED    => 6,
-        self::STATUS_VERIFIED    => 7,
-        self::STATUS_CLOSED      => 8
+        self::STATUS_VERIFIED    => 6,
+        self::STATUS_CLOSED      => 7
     );
 
     const RESOLUTION_FIXED = 'FIXED';
+    const RESOLUTION_REVIEWED = 'REVIEWED';
 
     /**
      * Deadline status
@@ -670,6 +669,10 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         if (empty($this->_iEndDate) === true and $this->cf_due_date) {
             $this->_iEndDate = strtotime(str_replace('00:00:00', \Flightzilla\Model\Timeline\Date::END, (string) $this->cf_due_date));
         }
+        elseif ($this->getWeek() !== false) {
+            $aDate = explode('/', $this->getWeek());
+            $this->_iEndDate = strtotime(sprintf('%s-W%s thursday %s', $aDate[0], $aDate[1], \Flightzilla\Model\Timeline\Date::END));
+        }
         elseif($this->isOrga() === true) {
             // if the ticket is of type 'organization', then it is finished right now --> @see \Flightzilla\Model\Ticket\Integrity\Constraint\OrganizationWithoutDue
             $this->_iEndDate = $iTime;
@@ -1118,16 +1121,20 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     public function hasUnclosedBugs() {
         $bReturn = false;
         if (isset($this->dependson) === true) {
+            $aTickets = array();
             foreach ($this->dependson as $iBug) {
+                $aTickets[] = (int) $iBug;
+            }
+
+            $aTickets = $this->_oBugzilla->getBugListByIds($aTickets);
+            foreach ($aTickets as $oTicket) {
                 try {
-                    $iBug = (int) $iBug;
-                    $oBug = $this->_oBugzilla->getBugById($iBug);
-                    if ($oBug->isContainer() === false) {
-                        if ($oBug->isClosed() !== true) {
+                    if ($oTicket->isContainer() === false) {
+                        if ($oTicket->isClosed() !== true) {
                             $bReturn = true;
                         }
 
-                        $this->_aDepends[] = $iBug;
+                        $this->_aDepends[] = $oTicket->id();
                     }
                 }
                 catch (\Exception $e) {
@@ -1526,6 +1533,20 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         }
 
         return (string) $this->_data->bug_severity;
+    }
+
+    /**
+     * Get the planned week
+     *
+     * @return string | boolean
+     */
+    public function getWeek() {
+        $sWeek = (string) $this->_data->cf_release_week;
+        if (empty($sWeek) === true or $sWeek === '---') {
+            $sWeek = false;
+        }
+
+        return $sWeek;
     }
 
     /**

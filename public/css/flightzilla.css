@@ -6,30 +6,6 @@ img {
     padding-left:10px;
 }
 
-.clearfix:after {
-    content: ".";
-    display: block;
-    height: 0;
-    clear: both;
-    visibility: hidden;
-}
-
-.fll {
-    float: left
-}
-
-.flr {
-    float: right
-}
-
-.left {
-    width: 150px
-}
-
-.right {
-    text-align: right
-}
-
 .table th, .table td {
     vertical-align: middle !important;
 }
@@ -166,7 +142,7 @@ div.modal {
     width: 75%;
 }
 
-.largeGray {
+.large-number-gray {
     font-size: 40px;
     bottom: 0;
     position: absolute;
@@ -180,27 +156,41 @@ div.modal {
     height: 75px;
 }
 
-.memberBackground {
+.member-background {
     background-color: white;
     margin: 10px;
-    width: 960px;
+    width: 1040px;
     border: 1px solid #DDDDDD;
     border-radius: 4px 4px 4px 4px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.055);
 }
 
-.memberBackground p {
+.member-background p {
     padding: 0 10px;
 }
 
-.memberLayer {
-    height: 90px;
+.member-layer {
+    height: 110px;
     padding: 5px;
-    width: 150px;
+    width: 160px;
 }
 
-.memberBox .alert {
+.member-layer h5 {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.member-box .alert {
     margin: 5px;
+}
+
+.member-thumbnail {
+    padding-right: 10px;
+    width: 40%;
+}
+
+.btn-column {
+    width: 50px;
 }
 
 .dash .progress {
@@ -213,7 +203,7 @@ img.lazy {
     height: 90px;
 }
 
-.projectBox img.lazy {
+.project-box img.lazy {
     height: 64px;
     width: 120px;
 }

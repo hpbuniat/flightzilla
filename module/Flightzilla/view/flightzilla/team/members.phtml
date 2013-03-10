@@ -1,10 +1,10 @@
-<div class="clearfix memberBackground">
+<div class="clearfix member-background">
 <?php
     $this->bThumbnail = false;
     foreach ($this->aTeam as $aTeam) {
         $this->sMemberName = $aTeam['name'];
         $this->oResource = $this->oResourceManager->getResource($this->sMemberName);
-        echo sprintf('<div class="pull-left memberLayer">%s</div>', $this->render('flightzilla/team/partial/member.phtml'));
+        echo sprintf('<div class="pull-left member-layer">%s</div>', $this->render('flightzilla/team/partial/member.phtml'));
     }
 ?>
     <p class="pull-right droppable close-tickets">

@@ -8,7 +8,7 @@ echo $this->partial('flightzilla/index/partial/table.phtml', array(
     'caption' => 'Update-Testserver!',
     'sBugzilla' => $this->layout()->sBugzilla,
     'bugs' => $this->bugsTestserver,
-    'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_REVIEWED,
+    'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED,
     'mode' => $this->mode
 ));
 
@@ -16,7 +16,7 @@ echo $this->partial('flightzilla/index/partial/table.phtml', array(
     'caption' => 'Reopened issues',
     'sBugzilla' => $this->layout()->sBugzilla,
     'bugs' => $this->bugsReopened,
-    'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_REVIEWED,
+    'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED,
     'mode' => $this->mode
 ));
 
@@ -24,7 +24,7 @@ echo $this->partial('flightzilla/index/partial/table.phtml', array(
     'caption' => 'Mergeable issues',
     'sBugzilla' => $this->layout()->sBugzilla,
     'bugs' => $this->bugsBranch,
-    'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_REVIEWED,
+    'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED,
     'mode' => $this->mode
 ));
 

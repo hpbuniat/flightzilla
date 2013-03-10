@@ -11,8 +11,7 @@
 
 
     foreach ($this->aTickets as $oTicket):
-    /* @var $oTicket \Flightzilla\Model\Ticket\Type\Bug */
-
+        /* @var $oTicket \Flightzilla\Model\Ticket\Type\Bug */
         $bReassign = (empty($this->user) !== true and $sUser !== $oTicket->getAssignee() and $this->dropAction !== \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE);
     ?>
     <blockquote>
@@ -82,11 +81,22 @@
                     <?php elseif ($oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED): ?>
                         <label for="comment">Enter a comment:</label>
                         <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]"></textarea>
-                    <?php elseif ($this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM):?>
+                    <?php elseif ($oTicket->isStatusAtLeast(\Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED) === true and $this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM):?>
                         <label for="comment">Enter a comment:</label>
                         <textarea id="comment" name="comment[<?php echo $oTicket->id();?>][]">I stopped working on this ticket!</textarea>
                     <?php endif; ?>
                     <input type="hidden" value="setComment" name="modify[<?php echo $oTicket->id();?>][]" />
+                </li>
+            <?php endif; ?>
+
+            <?php if ($bReassign === true or empty($this->week) === false): ?>
+                <li>
+                    <label for="sprint">Set the sprint for the ticket:</label>
+                    <select id="sprint" name="sprint[<?php echo $oTicket->id();?>][]">
+                        <?php foreach($this->aWeeks as $sAlias => $aWeek):?>
+                        <option <?php echo (empty($this->week) === false and $aWeek['title'] === $this->week) ? 'selected="selected"' : ''; ?> value="<?php echo $aWeek['title']; ?>"><?php echo $sAlias; ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </li>
             <?php endif; ?>
 
@@ -147,7 +157,7 @@
     endforeach;
     ?>
     <hr />
-    <p class="pull right">
+    <p class="pull-right">
         <input type="submit" value="Change selected tickets" class="btn btn-primary btn-large" />
     </p>
 </form>

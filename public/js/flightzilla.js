@@ -90,10 +90,12 @@
         dragging: function() {
             var sSelector = '#ticket-dropper';
             $.get(BASE_URL + '/flightzilla/team/members', function(msg) {
-                $('<div />', {
-                    id: sSelector.substr(1),
-                    style: 'display:none'
-                }).html(msg).appendTo('body');
+                if ($(sSelector).length === 0) {
+                    $('<div />', {
+                        id: sSelector.substr(1),
+                        style: 'display:none'
+                    }).html(msg).appendTo('body');
+                }
 
                 $('.draggable').draggable({
                     revert: true,
@@ -126,6 +128,7 @@
                     var data = {
                         tickets: ui.draggable.data('ticket'),
                         drop: $(this).data('drop'),
+                        week: $(this).data('week'),
                         user: $(this).data('user')
                     };
 
@@ -562,15 +565,15 @@
             /**
              * Toggle tickets in team-dash view
              */
-            $('.largeGray').click(function() {
-                $(this).parents('.memberBox').find('.allTickets').toggleClass('hidden');
+            $('.large-number-gray').click(function() {
+                $(this).parents('.member-box').find('.allTickets').toggleClass('hidden');
             });
 
             /**
              * Toggle Project-Details/Commentsf
              */
             f.wrapper.on('click', 'a.detail-toggle', function() {
-                $(this).parents('.memberBox').find('.project-detail').toggleClass('hidden');
+                $(this).parents('.member-box').find('.project-detail').toggleClass('hidden');
             });
 
             f.bugTable.on('click', 'a.bugzilla-link', function() {

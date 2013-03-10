@@ -14,7 +14,7 @@
             $sEstimationString = sprintf('%sd (%sd est.) <i class="icon-time"></i> %sd', $aTimes['spent_days'], $aTimes['esti_days'] , $aTimes['days']);
 ?>
 
-            <div class="span6 well memberBox projectBox kanban">
+            <div class="span6 well member-box project-box kanban">
                 <div class="row-fluid">
                     <div class="span12">
                         <?php echo sprintf('<h5><strong><a target="_blank" href="%s/show_bug.cgi?id=%s">%s (%s)</a></strong></h5>', $this->layout()->sBugzilla, $this->oProject->id(), $this->oProject->title(), $this->oProject->id()); ?>
@@ -101,7 +101,7 @@
           'caption' => 'Projects as List',
           'sBugzilla' => $this->layout()->sBugzilla,
           'bugs' => $this->aProjects,
-          'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_REVIEWED
+          'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED
      ));
     ?>
 </form>

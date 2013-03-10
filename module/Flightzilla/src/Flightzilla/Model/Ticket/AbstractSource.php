@@ -124,6 +124,13 @@ abstract class AbstractSource {
     protected $_oLogger;
 
     /**
+     * The timeline-/date-helper
+     *
+     * @var \Flightzilla\Model\Timeline\Date
+     */
+    protected $_oDate;
+
+    /**
      * Set the cache
      *
      * @param  \Zend\Cache\Storage\StorageInterface $oCache
@@ -258,5 +265,24 @@ abstract class AbstractSource {
      */
     public function getConfig() {
         return $this->_config;
+    }
+
+    /**
+     * Get the timeline-/date-helper
+     *
+     * @return \Flightzilla\Model\Timeline\Date
+     */
+    public function getDate() {
+        return $this->_oDate;
+    }
+
+    /**
+     * Get the resource-manager
+     *
+     * @return \Flightzilla\Model\Resource\Manager
+     */
+    public function getResourceManager() {
+
+        return $this->_oResource;
     }
 }

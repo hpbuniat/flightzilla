@@ -54,15 +54,20 @@ use Zend\View\Helper\AbstractHelper;
 
 class CollectionTime extends AbstractHelper {
 
+    const TIME_LEFT = 'left';
+    const TIME_ESTIMATED = 'esti';
+
     /**
      * Get the summarized times
      *
      * @param  array $aTickets
      * @param  boolean $bProject
+     * @param  int $iFuture
+     * @param  string $sPlannedSource The time, which is used to calculate the percentage
      *
      * @return string
      */
-    public function __invoke(array $aTickets, $bProject = false) {
+    public function __invoke(array $aTickets, $bProject = false, $iFuture = \Flightzilla\Model\Timeline\Date::FUTURE, $sPlannedSource = self::TIME_LEFT) {
         $aTimes = array(
             'spent' => 0,
             'esti' => 0,
@@ -82,7 +87,7 @@ class CollectionTime extends AbstractHelper {
         }
 
         $aTimes['days'] = round($aTimes['left'] / \Flightzilla\Model\Timeline\Date::AMOUNT, 1);
-        $aTimes['future'] = round(($aTimes['left'] / (\Flightzilla\Model\Timeline\Date::FUTURE * \Flightzilla\Model\Timeline\Date::AMOUNT)) * 100, 1);
+        $aTimes['planned'] = round(($aTimes[self::TIME_LEFT] / $iFuture) * 100, 1);
         $aTimes['spent_days'] = round($aTimes['spent'] / \Flightzilla\Model\Timeline\Date::AMOUNT, 1);
         $aTimes['esti_days'] = round($aTimes['esti'] / \Flightzilla\Model\Timeline\Date::AMOUNT, 1);
 
@@ -105,13 +110,13 @@ class CollectionTime extends AbstractHelper {
         }
         else {
             $aTimes['color'] = 'success';
-            if ($aTimes['future'] < 20) {
+            if ($aTimes['planned'] < 20) {
                 $aTimes['color'] = 'danger';
             }
-            elseif ($aTimes['future'] < 50) {
+            elseif ($aTimes['planned'] < 50) {
                 $aTimes['color'] = 'warning';
             }
-            elseif ($aTimes['future'] < 80) {
+            elseif ($aTimes['planned'] < 80) {
                 $aTimes['color'] = 'info';
             }
         }

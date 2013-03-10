@@ -162,6 +162,16 @@ abstract class AbstractWriter {
     abstract public function setStatus(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
 
     /**
+     * Set the sprint of the ticket
+     *
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
+     *
+     * @return $this
+     */
+    abstract public function setSprint(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
+
+    /**
      * Set the status to resolved
      *
      * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket

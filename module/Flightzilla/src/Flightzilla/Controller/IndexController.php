@@ -157,6 +157,7 @@ class IndexController extends AbstractActionController {
         $oViewModel->mode = 'dashboard';
 
         $oTicketService = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel)->getService();
+        $oViewModel->aWeekTickets = $oTicketService->getWeekSprint($oViewModel->aTeamBugs);
 
         return $oViewModel;
     }

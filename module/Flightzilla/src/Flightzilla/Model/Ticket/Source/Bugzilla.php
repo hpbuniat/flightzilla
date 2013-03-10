@@ -275,17 +275,9 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $this->_client    = $oHttpClient;
         $this->_client->setEncType(\Zend\Http\Client::ENC_FORMDATA);
 
+        $this->_oDate = new \Flightzilla\Model\Timeline\Date();
+
         $this->user($this->_config->bugzilla->login);
-    }
-
-    /**
-     * Get the resource-manager
-     *
-     * @return \Flightzilla\Model\Resource\Manager
-     */
-    public function getResourceManager() {
-
-        return $this->_oResource;
     }
 
     /**
@@ -654,8 +646,6 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             unset($sResponse);
         }
 
-        $oDate = new \Flightzilla\Model\Timeline\Date();
-
         foreach ($aTemp as $oBug) {
             /* @var $oBug Bug */
             $iId = $oBug->id();
@@ -683,7 +673,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             }
 
             if ($bAdd === true) {
-                $oBug->inject($this, $this->_oResource, $oDate);
+                $oBug->inject($this, $this->_oResource, $this->_oDate);
                 $this->_oResource->addTicket($oBug);
 
                 $aReturn[$iId] = $oBug;
@@ -1210,15 +1200,15 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     public function getTeamBugs($aMemberBugs) {
 
         $aTeam = array();
-        foreach ($aMemberBugs as $sName => $aBugs) {
+        foreach ($aMemberBugs as $sName => $aTickets) {
             if ($this->_oResource->hasResource($sName) === true) {
-                $aTeam[$sName] = $aBugs;
+                $aTeam[$sName] = $aTickets;
             }
         }
 
         $oSorting = new \Flightzilla\Model\Project\Sorting($this);
-        foreach ($aTeam as $sName => $aBugs) {
-            $aStack        = $oSorting->setStack($aBugs)->getSortedBugs();
+        foreach ($aTeam as $sName => $aTickets) {
+            $aStack        = $oSorting->setStack($aTickets)->getSortedBugs();
             $aTeam[$sName] = array();
             foreach ($aStack as $oTicket) {
                 if ((string) $oTicket->getResource() === $sName) {
@@ -1253,6 +1243,34 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         ksort($aMember);
         return $aMember;
+    }
+
+    /**
+     * Create a lookup for weekly-sprints
+     *
+     * @param  array $aTeamBugs Tickets of the configured team-members
+     *
+     * @return array
+     */
+    public function getWeekSprint($aTeamBugs) {
+        $aSprint = array();
+        foreach ($aTeamBugs as $sName => $aTickets) {
+            $aSprint[$sName] = $this->_oDate->getWeeks();
+            foreach ($aTickets as $oTicket) {
+                $sWeek = $oTicket->getWeek();
+
+                if ($sWeek !== false) {
+                    foreach ($aSprint[$sName] as $sWeekAlias => $aWeek) {
+                        if ($aWeek['title'] === $sWeek) {
+                            $aSprint[$sName][$sWeekAlias]['tickets'][] = $oTicket;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $aSprint;
     }
 
     /**
@@ -1651,7 +1669,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $aStack = array();
         foreach ($this->_allBugs as $oTicket) {
             $mDeadline = strtotime($oTicket->getDeadline());
-            if ($mDeadline !== false and $oTicket->getStatus() !== Bug::STATUS_CLOSED and $oTicket->isContainer() !== true) {
+            if ($mDeadline !== false and $oTicket->isStatusAtMost(Bug::STATUS_REOPENED) === true and $oTicket->isContainer() !== true) {
                 if (empty($aStack[$mDeadline]) === true) {
                     $aStack[$mDeadline] = array();
                 }

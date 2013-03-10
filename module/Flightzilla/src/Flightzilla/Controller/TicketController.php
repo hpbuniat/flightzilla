@@ -65,6 +65,7 @@ class TicketController extends AbstractActionController {
         $oViewModel->setTerminal(true);
 
         $oViewModel->dropAction = $this->params()->fromPost('drop');
+        $oViewModel->week = $this->params()->fromPost('week');
         $oViewModel->user = $this->params()->fromPost('user');
         $sTickets = $this->params()->fromPost('tickets');
 
@@ -88,6 +89,7 @@ class TicketController extends AbstractActionController {
         $aSpecial = array(
             'assigned',
             'estimation',
+            'sprint',
             'worked',
             'comment'
         );

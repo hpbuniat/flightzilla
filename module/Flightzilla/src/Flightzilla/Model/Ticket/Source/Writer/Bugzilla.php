@@ -245,6 +245,19 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
 
     /**
      * (non-PHPdoc)
+     * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setSprint()
+     */
+    public function setSprint(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
+        $this->_getCommon($oTicket);
+        if (empty($mPayload) !== true) {
+            $this->_aPayload['cf_release_week'] = $mPayload;
+        }
+
+        return $this;
+    }
+
+    /**
+     * (non-PHPdoc)
      * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setAssigned()
      */
     public function setAssigned(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
@@ -280,7 +293,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
      * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setConfirmed()
      */
     public function setConfirmed(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
-        if (empty($this->_aPayload['comment']) === true and $oTicket->getStatus() !== Bug::STATUS_REOPENED) {
+        if (empty($this->_aPayload['comment']) === true and $oTicket->getStatus() !== Bug::STATUS_REOPENED and $oTicket->isStatusAtLeast(\Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED) === true) {
             $this->_aPayload['comment'] = 'I stopped working on this ticket!';
         }
 

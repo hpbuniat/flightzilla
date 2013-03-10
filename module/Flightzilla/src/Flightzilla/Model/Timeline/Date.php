@@ -53,7 +53,7 @@ namespace Flightzilla\Model\Timeline;
 class Date {
 
     /**
-     * Amount of minutes, which a programmer is working each day
+     * Amount of hours, which a programmer is working each day
      *
      * @var int
      *
@@ -62,13 +62,22 @@ class Date {
     const AMOUNT = 6.0;
 
     /**
-     * Amount of days, we'd like to plan in the future
+     * Amount of hours which should be planne for a sprint per week
      *
      * @var int
      *
      * @TODO Config!
      */
-    const FUTURE = 10;
+    const WEEK = 30;
+
+    /**
+     * Amount of hours, we'd like to plan in the future
+     *
+     * @var int
+     *
+     * @TODO Config!
+     */
+    const FUTURE = 60;
 
     /**
      * The day starts at
@@ -89,6 +98,13 @@ class Date {
     const END = '16:00';
 
     /**
+     * The weekly-sprint identifier
+     *
+     * @var array
+     */
+    protected $_aWeeks = array();
+
+    /**
      * List of workdays
      *
      * @var array
@@ -104,7 +120,7 @@ class Date {
     );
 
     /**
-     * Check if a day is a holiday or a dayy of the weekend.
+     * Check if a day is a holiday or a day of the weekend.
      *
      * @param $iTimestamp
      *
@@ -155,7 +171,6 @@ class Date {
             $iDate -= 86400;
             $date = getdate($iDate);
             $weekday = $date['wday'];
-
         }
         while ($weekday !== 3);
 
@@ -196,5 +211,35 @@ class Date {
      */
     public function isGreater($iTimestamp, $iDays) {
         return ($iTimestamp >= strtotime(sprintf('+%d days', $iDays)));
+    }
+
+    /**
+     * Get the week-identifiers
+     *
+     * @param  int $iSlice Slice some weeks from the result
+     *
+     * @return array
+     */
+    public function getWeeks($iSlice = 0) {
+        if (empty($this->_aWeeks) === true) {
+            $this->_aWeeks['previous'] = array(
+                'title' => date('Y/W', strtotime('previous week')),
+                'tickets' => array()
+            );
+            $this->_aWeeks['current'] = array(
+                'title' => date('Y/W', strtotime('this week')),
+                'tickets' => array()
+            );
+            $this->_aWeeks['next'] = array(
+                'title' => date('Y/W', strtotime('next week')),
+                'tickets' => array()
+            );
+            $this->_aWeeks['next-but-one'] = array(
+                'title' => date('Y/W', strtotime('next week', strtotime('next week'))),
+                'tickets' => array()
+            );
+        }
+
+        return array_slice($this->_aWeeks, $iSlice, null, true);
     }
 }
