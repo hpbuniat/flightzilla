@@ -93,6 +93,7 @@
                 <li>
                     <label for="sprint">Set the sprint for the ticket:</label>
                     <select id="sprint" name="sprint[<?php echo $oTicket->id();?>][]">
+                        <option value="">---</option>
                         <?php foreach($this->aWeeks as $sAlias => $aWeek):?>
                         <option <?php echo (empty($this->week) === false and $aWeek['title'] === $this->week) ? 'selected="selected"' : ''; ?> value="<?php echo $aWeek['title']; ?>"><?php echo $sAlias; ?></option>
                         <?php endforeach; ?>

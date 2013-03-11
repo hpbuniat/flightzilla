@@ -71,6 +71,8 @@ class TicketController extends AbstractActionController {
 
         $oTicketService = $this->getPluginManager()->get(TicketService::NAME)->getService();
         $oViewModel->oResourceManager = $oTicketService->getResourceManager();
+        $oViewModel->aWeeks = $oTicketService->getDate()->getWeeks(1);
+
         if (empty($sTickets) !== true) {
             $oViewModel->aTickets = $oTicketService->getBugListByIds($sTickets, false);
         }
