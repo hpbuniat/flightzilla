@@ -95,7 +95,7 @@
                     <select id="sprint" name="sprint[<?php echo $oTicket->id();?>][]">
                         <option value="">---</option>
                         <?php foreach($this->aWeeks as $sAlias => $aWeek):?>
-                        <option <?php echo (empty($this->week) === false and $aWeek['title'] === $this->week) ? 'selected="selected"' : ''; ?> value="<?php echo $aWeek['title']; ?>"><?php echo $sAlias; ?></option>
+                        <option <?php echo ((empty($this->week) === false and $aWeek['title'] === $this->week) or $oTicket->getWeek() === $aWeek['title']) ? 'selected="selected"' : ''; ?> value="<?php echo $aWeek['title']; ?>"><?php echo $sAlias; ?></option>
                         <?php endforeach; ?>
                     </select>
                 </li>

@@ -80,6 +80,8 @@ class MergyController extends AbstractActionController {
         $sRepository = $oParams->fromPost('repo');
 
         $oConfig = $this->getServiceLocator()->get('_serviceConfig')->mergy;
+
+        /* @var $oLogger \Zend\Log\Logger */
         $oLogger = $this->getServiceLocator()->get('_log');
         $oMergy = new \Flightzilla\Model\Mergy\Invoker(new \Flightzilla\Model\Command(), $oLogger);
 

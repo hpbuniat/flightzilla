@@ -43,7 +43,7 @@
                                   ->appendFile($this->basePath() . '/js/jquery.metadata.js');
     ?>
 </head>
-<body <?php if ($this->bMinimal === true):?>class"minimal"<?php endif;?>>
+<body class="<?php if ($this->bMinimal === true):?>minimal<?php endif;?>">
 <?php if ($this->bMinimal === true):?>
     <div class="wrapper">
         <?php echo $this->content; ?>

@@ -1603,25 +1603,22 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     public function getStatuses() {
 
         if (empty($this->_aStatuses) === true) {
-            $this->_aStatuses = array(
-                Bug::STATUS_UNCONFIRMED => 0,
-                Bug::STATUS_NEW         => 0,
-                Bug::STATUS_CONFIRMED   => 0,
-                Bug::STATUS_ASSIGNED    => 0,
-                Bug::STATUS_RESOLVED    => 0,
-                Bug::STATUS_REOPENED    => 0,
-                Bug::STATUS_VERIFIED    => 0,
-                Bug::STATUS_CLOSED      => 0
-            );
+            $this->_aStatuses = array();
 
             $iCount = $this->getCount();
             foreach ($this->_allBugs as $oBug) {
                 if ($oBug->isClosed() !== true and $oBug->isContainer() !== true) {
-                    $this->_aStatuses[$oBug->getStatus()]++;
+                    $sStatus = (string) $oBug->getStatus();
+                    if (empty($this->_aStatuses[$sStatus]) === true) {
+                        $this->_aStatuses[$sStatus] = 0;
+                    }
+
+                    $this->_aStatuses[$sStatus]++;
                 }
             }
 
             $this->_percentify($this->_aStatuses, $iCount);
+            ksort($this->_aStatuses);
         }
 
         return $this->_aStatuses;
@@ -1702,7 +1699,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             $sStatus = \Flightzilla\Model\Chuck::WARN;
         }
 
-        if ($this->_aStatuses[Bug::STATUS_REOPENED]['num'] > 1) {
+        if (empty($this->_aStatuses[Bug::STATUS_REOPENED]) !== true and $this->_aStatuses[Bug::STATUS_REOPENED]['num'] > 1) {
             $sStatus = \Flightzilla\Model\Chuck::ERROR;
         }
         elseif ($this->_aStats[Bug::WORKFLOW_FAILED]['per'] > 2) {
@@ -1725,22 +1722,23 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      */
     public function getPriorities() {
 
-        $aPriorities = array(
-            'P1' => 0,
-            'P2' => 0,
-            'P3' => 0,
-            'P4' => 0,
-            'P5' => 0,
-        );
+        $aPriorities = array();
 
         $iCount = $this->getCount();
         foreach ($this->_allBugs as $oBug) {
             if ($oBug->isClosed() !== true and $oBug->isContainer() !== true) {
-                $aPriorities[(string) $oBug->priority]++;
+                $sPriority = (string) $oBug->priority;
+                if (empty($aPriorities[$sPriority]) === true) {
+                    $aPriorities[$sPriority] = 0;
+                }
+
+                $aPriorities[$sPriority]++;
             }
         }
 
         $this->_percentify($aPriorities, $iCount);
+        ksort($aPriorities);
+
         return $aPriorities;
     }
 
@@ -1766,7 +1764,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         }
 
         $this->_percentify($aSeverities, $iCount);
-        arsort($aSeverities);
+        ksort($aSeverities);
 
         return $aSeverities;
     }

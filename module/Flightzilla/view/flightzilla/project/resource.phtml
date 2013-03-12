@@ -20,7 +20,8 @@
 
         <script type="text/javascript">
             $(function() {
-                $(".gantt").each(function() {
+                var $gantt = $('.gantt');
+                $gantt.each(function() {
                     var $this = $(this);
                     $this.gantt({
                         source: "planning/data/type/resource/name/" + $this.data('target'),
@@ -35,12 +36,6 @@
                         },
                         itemsPerPage: 50
                     });
-                });
-
-                $(".gantt").popover({
-                    selector: ".bar",
-                    title: "I'm a popover",
-                    content: "And I'm the content of said popover."
                 });
             });
         </script>
