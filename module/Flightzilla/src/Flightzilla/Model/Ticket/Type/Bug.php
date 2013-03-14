@@ -573,7 +573,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function getDeadline() {
         $sDeadline = false;
-        if ($this->cf_due_date) {
+        if (empty($this->cf_due_date) !== true) {
             $sDeadline = date('d.m.Y', strtotime((string) $this->cf_due_date));
         }
         elseif ($this->getWeek() !== false) {
@@ -1574,6 +1574,10 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         $sWeek = (string) $this->_data->cf_release_week;
         if (empty($sWeek) === true or $sWeek === '---') {
             $sWeek = false;
+        }
+
+        if ($sWeek === false and empty($this->cf_due_date) !== true) {
+            $sWeek = date('Y/W', strtotime((string) $this->cf_due_date));
         }
 
         return $sWeek;

@@ -256,7 +256,7 @@ class Date {
     /**
      * Get a date (unix-timestamp) from a sprint-week
      *
-     * @param  string $sWeek The week with notation W/yyyy
+     * @param  string $sWeek The week with notation yyyy/WW
      * @param  string $sDay The day of the week
      *
      * @return int
