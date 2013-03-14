@@ -98,6 +98,16 @@ class Date {
     const END = '16:00';
 
     /**
+     * Week aliases
+     *
+     * @var string
+     */
+    const WEEK_PREVIOUS = 'previous';
+    const WEEK_CURRENT = 'current';
+    const WEEK_NEXT = 'next';
+    CONST WEEK_NEXT_BUT_ONE = 'next-but-one';
+
+    /**
      * The weekly-sprint identifier
      *
      * @var array
@@ -222,24 +232,37 @@ class Date {
      */
     public function getWeeks($iSlice = 0) {
         if (empty($this->_aWeeks) === true) {
-            $this->_aWeeks['previous'] = array(
+            $this->_aWeeks[self::WEEK_PREVIOUS] = array(
                 'title' => date('Y/W', strtotime('previous week')),
                 'tickets' => array()
             );
-            $this->_aWeeks['current'] = array(
+            $this->_aWeeks[self::WEEK_CURRENT] = array(
                 'title' => date('Y/W', strtotime('this week')),
                 'tickets' => array()
             );
-            $this->_aWeeks['next'] = array(
+            $this->_aWeeks[self::WEEK_NEXT] = array(
                 'title' => date('Y/W', strtotime('next week')),
                 'tickets' => array()
             );
-            $this->_aWeeks['next-but-one'] = array(
+            $this->_aWeeks[self::WEEK_NEXT_BUT_ONE] = array(
                 'title' => date('Y/W', strtotime('next week', strtotime('next week'))),
                 'tickets' => array()
             );
         }
 
         return array_slice($this->_aWeeks, $iSlice, null, true);
+    }
+
+    /**
+     * Get a date (unix-timestamp) from a sprint-week
+     *
+     * @param  string $sWeek The week with notation W/yyyy
+     * @param  string $sDay The day of the week
+     *
+     * @return int
+     */
+    public function getDateFromWeek($sWeek, $sDay = 'thursday') {
+        $aDate = explode('/', $sWeek);
+        return strtotime(sprintf('%s-W%s %s %s', $aDate[0], $aDate[1], $sDay, self::END));
     }
 }

@@ -513,6 +513,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return string
      */
     public function deadlineStatus() {
+        $sDeadlineStatus = '';
         if ($this->cf_due_date) {
             $iDeadline = strtotime((string) $this->cf_due_date);
             $iDiff = ($iDeadline - time());
@@ -520,23 +521,49 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             $sDeadline = date('d.m.Y', $iDeadline);
 
             if ($iDiff < 0) {
-                return Bug::DEADLINE_PAST;
+                $sDeadlineStatus = Bug::DEADLINE_PAST;
             }
             elseif($sToday === $sDeadline) {
-                return Bug::DEADLINE_TODAY;
+                $sDeadlineStatus = Bug::DEADLINE_TODAY;
             }
             elseif(date('W') === date('W', $iDeadline)) {
-                return Bug::DEADLINE_NEAR;
+                $sDeadlineStatus = Bug::DEADLINE_NEAR;
             }
             elseif((date('W') + 1) === date('W', $iDeadline)) {
-                return Bug::DEADLINE_WEEK;
+                $sDeadlineStatus = Bug::DEADLINE_WEEK;
             }
             elseif(date('W') === date('W', $iDeadline)) {
-                return Bug::DEADLINE_FAR;
+                $sDeadlineStatus = Bug::DEADLINE_FAR;
             }
         }
 
-        return null;
+        if (empty($sDeadlineStatus) === true) {
+            $aWeeks = $this->_oDate->getWeeks();
+            $sWeek = $this->getWeek();
+            foreach ($aWeeks as $sWeekAlias => $aWeek) {
+                if ($aWeek['title'] === $sWeek) {
+                    switch ($sWeekAlias) {
+                        case \Flightzilla\Model\Timeline\Date::WEEK_PREVIOUS:
+                            $sDeadlineStatus = Bug::DEADLINE_PAST;
+                            break;
+
+                        case \Flightzilla\Model\Timeline\Date::WEEK_CURRENT:
+                            $sDeadlineStatus = (date('w') < 4) ? Bug::DEADLINE_NEAR : Bug::DEADLINE_TODAY;
+                            break;
+
+                        case \Flightzilla\Model\Timeline\Date::WEEK_NEXT:
+                            $sDeadlineStatus = Bug::DEADLINE_WEEK;
+                            break;
+
+                        case \Flightzilla\Model\Timeline\Date::WEEK_NEXT_BUT_ONE:
+                            $sDeadlineStatus = Bug::DEADLINE_FAR;
+                            break;
+                    }
+                }
+            }
+        }
+
+        return $sDeadlineStatus;
     }
 
     /**
@@ -545,11 +572,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return string|boolean
      */
     public function getDeadline() {
+        $sDeadline = false;
         if ($this->cf_due_date) {
-            return date('d.m.Y', strtotime((string) $this->cf_due_date));
+            $sDeadline = date('d.m.Y', strtotime((string) $this->cf_due_date));
+        }
+        elseif ($this->getWeek() !== false) {
+            $sDeadline = date('d.m.Y', $this->_oDate->getDateFromWeek($this->getWeek()));
         }
 
-        return false;
+        return $sDeadline;
     }
 
     /**
@@ -670,8 +701,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             $this->_iEndDate = strtotime(str_replace('00:00:00', \Flightzilla\Model\Timeline\Date::END, (string) $this->cf_due_date));
         }
         elseif ($this->getWeek() !== false) {
-            $aDate = explode('/', $this->getWeek());
-            $this->_iEndDate = strtotime(sprintf('%s-W%s thursday %s', $aDate[0], $aDate[1], \Flightzilla\Model\Timeline\Date::END));
+            $this->_iEndDate = $this->_oDate->getDateFromWeek($this->getWeek());
         }
         elseif($this->isOrga() === true) {
             // if the ticket is of type 'organization', then it is finished right now --> @see \Flightzilla\Model\Ticket\Integrity\Constraint\OrganizationWithoutDue

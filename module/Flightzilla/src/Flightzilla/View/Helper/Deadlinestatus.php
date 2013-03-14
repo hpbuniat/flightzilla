@@ -63,7 +63,8 @@ class Deadlinestatus extends AbstractHelper {
      */
     public function __invoke(\Flightzilla\Model\Ticket\Type\Bug $oTicket) {
 
-        if ($oTicket->deadlineStatus()) {
+        $sDeadlineStatus = $oTicket->deadlineStatus();
+        if (empty($sDeadlineStatus) !== true) {
             $sIcon = 'ui-silk-flag-green';
             switch ($oTicket->deadlineStatus()) {
                 case \Flightzilla\Model\Ticket\Type\Bug::DEADLINE_PAST:
