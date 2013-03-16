@@ -28,8 +28,9 @@
                         <blockquote>
                             <p>
                                 <i class="icon-tags"></i>
-                                <?php if ($this->oProject->getRevenue() > 0):
-                                    echo $this->oProject->getRevenue();
+                                <?php $sRevenue = $this->oProject->getRevenue();
+                                if (empty($sRevenue) !== true):
+                                    echo $sRevenue;
                                 else:?>
                                 <span class="label label-warning">Missing revenue expectation!</span>
                                 <?php endif;?>
