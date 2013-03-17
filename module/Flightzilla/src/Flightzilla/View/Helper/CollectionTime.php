@@ -51,6 +51,7 @@
  */
 namespace Flightzilla\View\Helper;
 use Zend\View\Helper\AbstractHelper;
+use Flightzilla\Model\Timeline\Date;
 
 class CollectionTime extends AbstractHelper {
 
@@ -67,7 +68,7 @@ class CollectionTime extends AbstractHelper {
      *
      * @return string
      */
-    public function __invoke(array $aTickets, $bProject = false, $iFuture = \Flightzilla\Model\Timeline\Date::FUTURE, $sPlannedSource = self::TIME_LEFT) {
+    public function __invoke(array $aTickets, $bProject = false, $iFuture = Date::FUTURE, $sPlannedSource = self::TIME_LEFT) {
         $aTimes = array(
             'spent' => 0,
             'esti' => 0,
@@ -86,10 +87,10 @@ class CollectionTime extends AbstractHelper {
             }
         }
 
-        $aTimes['days'] = round($aTimes['left'] / \Flightzilla\Model\Timeline\Date::AMOUNT, 1);
-        $aTimes['planned'] = round(($aTimes[self::TIME_LEFT] / $iFuture) * 100, 1);
-        $aTimes['spent_days'] = round($aTimes['spent'] / \Flightzilla\Model\Timeline\Date::AMOUNT, 1);
-        $aTimes['esti_days'] = round($aTimes['esti'] / \Flightzilla\Model\Timeline\Date::AMOUNT, 1);
+        $aTimes['days'] = round($aTimes['left'] / Date::AMOUNT, 1);
+        $aTimes['planned'] = round(($aTimes[$sPlannedSource] / $iFuture) * 100, 1);
+        $aTimes['spent_days'] = round($aTimes['spent'] / Date::AMOUNT, 1);
+        $aTimes['esti_days'] = round($aTimes['esti'] / Date::AMOUNT, 1);
 
         $aTimes['percent'] = 0;
         if ($aTimes['esti'] > 0) {
@@ -118,6 +119,9 @@ class CollectionTime extends AbstractHelper {
             }
             elseif ($aTimes['planned'] < 80) {
                 $aTimes['color'] = 'info';
+            }
+            elseif ($aTimes['planned'] > 110) {
+                $aTimes['color'] = 'danger';
             }
         }
 

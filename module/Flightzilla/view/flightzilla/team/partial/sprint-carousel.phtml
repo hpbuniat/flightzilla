@@ -16,9 +16,14 @@
 
             <div class="carousel-inner">
                 <?php $iCount = 0;
+                $iExpected = \Flightzilla\Model\Timeline\Date::WEEK - ((date('w') - 1) * \Flightzilla\Model\Timeline\Date::AMOUNT);
+                if ($iExpected > \Flightzilla\Model\Timeline\Date::WEEK) {
+                    $iExpected = \Flightzilla\Model\Timeline\Date::WEEK;
+                }
+
                 foreach ($this->aMemberWeekTickets as $sTitle => $aWeek):
                     $this->aStack = $aWeek['tickets'];
-                    $aTimes = $this->collectiontime($this->aStack, false, \Flightzilla\Model\Timeline\Date::WEEK, \Flightzilla\View\Helper\CollectionTime::TIME_ESTIMATED);
+                    $aTimes = $this->collectiontime($this->aStack, false, $iExpected, \Flightzilla\View\Helper\CollectionTime::TIME_LEFT);
                     $sEstimationString = sprintf('%sh est. <i class="icon-time"></i> %sh',$aTimes['esti'], $aTimes['left']);
 
                     ?>

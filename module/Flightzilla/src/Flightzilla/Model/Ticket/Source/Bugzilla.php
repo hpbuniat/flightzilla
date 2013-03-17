@@ -42,6 +42,7 @@
 namespace Flightzilla\Model\Ticket\Source;
 
 use Flightzilla\Model\Ticket\Type\Bug;
+use Flightzilla\Model\Timeline\Date;
 
 /**
  * Query Bugzilla as ticket-source
@@ -275,7 +276,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $this->_client    = $oHttpClient;
         $this->_client->setEncType(\Zend\Http\Client::ENC_FORMDATA);
 
-        $this->_oDate = new \Flightzilla\Model\Timeline\Date();
+        $this->_oDate = new Date();
 
         $this->user($this->_config->bugzilla->login);
     }
@@ -1261,8 +1262,12 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
                 if ($sWeek !== false) {
                     foreach ($aSprint[$sName] as $sWeekAlias => $aWeek) {
+                        if ($sWeek === $aSprint[$sName][Date::WEEK_PREVIOUS]['title'] and $oTicket->isStatusAtLeast(Bug::STATUS_RESOLVED) !== true) {
+                            $aSprint[$sName][Date::WEEK_CURRENT]['tickets'][$oTicket->id()] = $oTicket;
+                        }
+
                         if ($aWeek['title'] === $sWeek) {
-                            $aSprint[$sName][$sWeekAlias]['tickets'][] = $oTicket;
+                            $aSprint[$sName][$sWeekAlias]['tickets'][$oTicket->id()] = $oTicket;
                             break;
                         }
                     }

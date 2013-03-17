@@ -1,7 +1,7 @@
 <?php
     $bReady = ($this->ready !== false and $this->oTicket->resolution === $this->ready);
 ?>
-<div data-ticket="<?php echo $this->oTicket->id(); ?>" class="pin draggable" style="<?php echo $this->buggradient($this->oTicket, $bReady, false); ?>">
+<div data-ticket="<?php echo $this->oTicket->id(); ?>" class="pin draggable <?php echo sprintf('ticket%s', $this->oTicket->id()); ?>" style="<?php echo $this->buggradient($this->oTicket, $bReady, false); ?>">
     <div class="pin-top label <?php echo $this->prioritycolor($this->oTicket); ?>">
         <span class="pull-left">
         <?php

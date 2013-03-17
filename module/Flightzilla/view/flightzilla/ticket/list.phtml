@@ -14,7 +14,7 @@
         /* @var $oTicket \Flightzilla\Model\Ticket\Type\Bug */
         $bReassign = (empty($this->user) !== true and $sUser !== $oTicket->getAssignee() and $this->dropAction !== \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE);
     ?>
-    <blockquote>
+    <blockquote data-ticket="<?php echo $oTicket->id(); ?>">
     <?php
         $this->oTask = $oTicket;
         echo sprintf('<p>%s</p>', $this->render('flightzilla/index/partial/bug-line.phtml'));

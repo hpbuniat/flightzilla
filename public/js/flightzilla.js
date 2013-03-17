@@ -226,6 +226,13 @@
                 var $this = $(this);
                 f.modal('Modifying tickets', $('#loading').clone().removeAttr('id').css({top:0}).show());
 
+                $('blockquote', $this).each(function() {
+                    var $that = $(this);
+                    $('.ticket' + $that.data('ticket')).css({
+                        opacity: 0.5
+                    });
+                });
+
                 $.ajax({
                     type: 'POST',
                     url: BASE_URL + '/flightzilla/ticket/modify',
