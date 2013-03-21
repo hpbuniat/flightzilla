@@ -631,10 +631,12 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             $sResponse = preg_replace('!<div style=".*?">BugZilla.*?</div>!i', '', $sResponse);
 
             if (strpos($sResponse, '<title>Invalid Username Or Password</title>') === false) {
-                $xml = simplexml_load_string($sResponse);
-                foreach ($xml as $bug) {
-                    $oBug    = \Flightzilla\Model\Ticket\Type::factory($bug);
-                    $aTemp[] = $oBug;
+                $xml = @simplexml_load_string($sResponse);
+                if (empty($xml) !== true) {
+                    foreach ($xml as $bug) {
+                        $oBug    = \Flightzilla\Model\Ticket\Type::factory($bug);
+                        $aTemp[] = $oBug;
+                    }
                 }
 
                 unset($xml);
