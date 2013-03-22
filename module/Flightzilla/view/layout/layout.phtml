@@ -6,9 +6,9 @@
     <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0') ?>
 
     <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'))
-                    ->appendStylesheet($this->basePath() . '/css/bootstrap-responsive.min.css', 'all')
+                    ->appendStylesheet($this->basePath() . '/vendor/bootstrap-responsive.css', 'all')
                     ->appendStylesheet($this->basePath() . '/vendor/bootstrap.css', 'all')
-                    ->appendStylesheet($this->basePath() . '/vendor/jquery-ui.css', 'all')
+                    ->appendStylesheet($this->basePath() . '/vendor/jquery-ui.min.css', 'all')
                     ->appendStylesheet($this->basePath() . '/vendor/jquery.ui.theme.css', 'all')
                     ->appendStylesheet($this->basePath() . '/css/flightzilla.css', 'all')
                     ->appendStylesheet($this->basePath() . '/css/gantt.css', 'all')
@@ -33,9 +33,9 @@
     </script>
 
     <!-- Scripts -->
-    <?php echo $this->headScript()->appendFile($this->basePath() . '/vendor/jquery.js')
-                                  ->appendFile($this->basePath() . '/vendor/jquery-ui.custom.min.js')
-                                  ->appendFile($this->basePath() . '/vendor/bootstrap.js')
+    <?php echo $this->headScript()->appendFile($this->basePath() . '/vendor/jquery.min.js')
+                                  ->appendFile($this->basePath() . '/vendor/jquery.ui.custom.min.js')
+                                  ->appendFile($this->basePath() . '/vendor/bootstrap.min.js')
                                   ->appendFile($this->basePath() . '/vendor/highcharts.js')
                                   ->appendFile($this->basePath() . '/js/flightzilla.js')
                                   ->appendFile($this->basePath() . '/js/jquery.fn.gantt.js')
@@ -49,7 +49,7 @@
         <?php echo $this->content; ?>
     </div>
 <?php else: ?>
-    <div class="wrapper <?php echo ($this->sRoute === 'login') ? 'container' : 'container-fluid'; ?>">
+    <div class="wrapper <?php echo ($this->sRoute === 'login') ? 'container login' : 'container-fluid'; ?>">
         <?php
             echo $this->content
         ?>
