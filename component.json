@@ -2,7 +2,7 @@
     "name": "flightzilla",
     "version": "0.1",
     "dependencies": {
-        "bootstrap": "~2.3",
+        "bootstrap": ">=2.3",
         "highcharts": "latest",
         "jquery": "~1.9",
         "jquery-ui": "~1.10"
