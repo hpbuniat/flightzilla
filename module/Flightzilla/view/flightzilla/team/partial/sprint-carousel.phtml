@@ -17,7 +17,7 @@
             <div class="carousel-inner">
                 <?php $iCount = 0;
                 $iExpected = \Flightzilla\Model\Timeline\Date::WEEK - ((date('w') - 1) * \Flightzilla\Model\Timeline\Date::AMOUNT);
-                if ($iExpected > \Flightzilla\Model\Timeline\Date::WEEK) {
+                if ($iExpected > \Flightzilla\Model\Timeline\Date::WEEK or $iExpected <= 0) {
                     $iExpected = \Flightzilla\Model\Timeline\Date::WEEK;
                 }
 

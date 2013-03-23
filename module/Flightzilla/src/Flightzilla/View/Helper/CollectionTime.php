@@ -88,7 +88,7 @@ class CollectionTime extends AbstractHelper {
         }
 
         $aTimes['days'] = round($aTimes['left'] / Date::AMOUNT, 1);
-        $aTimes['planned'] = round(($aTimes[$sPlannedSource] / $iFuture) * 100, 1);
+        $aTimes['planned'] = ($iFuture === 0) ? (($aTimes[$sPlannedSource] > 0) ? 200 : 100) : round(($aTimes[$sPlannedSource] / $iFuture) * 100, 1);
         $aTimes['spent_days'] = round($aTimes['spent'] / Date::AMOUNT, 1);
         $aTimes['esti_days'] = round($aTimes['esti'] / Date::AMOUNT, 1);
 
