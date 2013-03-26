@@ -184,6 +184,10 @@ div.modal {
     margin: 5px;
 }
 
+.member-box .carousel-control {
+    top: 165px;
+}
+
 .member-thumbnail {
     padding-right: 10px;
     width: 40%;
