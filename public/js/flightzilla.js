@@ -346,7 +346,11 @@
                         result = f.searchable.filter(function() {
                             v = $(this);
                             r = new RegExp(searchText, "ig");
-                            t = (r.exec(v.text()) || r.exec(v.data('assignee')));
+                            t = (r.exec(v.text()));
+                            if (!(t && t.length)) {
+                                t = r.exec(v.data('assignee'));
+                            }
+
                             return (t && t.length);
                         });
 
