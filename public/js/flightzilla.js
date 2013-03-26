@@ -340,11 +340,13 @@
                 var $this = $(this);
                 f.delay(function() {
                     var searchText = $.trim($this.val()),
-                        result, t;
+                        result, t, v, r;
 
                     if (searchText !== '') {
                         result = f.searchable.filter(function() {
-                            t = (new RegExp(searchText, "ig")).exec($(this).text());
+                            v = $(this);
+                            r = new RegExp(searchText, "ig");
+                            t = (r.exec(v.text()) || r.exec(v.data('assignee')));
                             return (t && t.length);
                         });
 
