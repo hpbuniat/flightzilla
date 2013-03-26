@@ -585,6 +585,14 @@
             });
 
             /**
+             * Toggle ticket-list in the team-sprint view
+             */
+            $('.member-name').click(function() {
+                var $this = $(this);
+                $this.parents('.member-box').next('table.bugTable').toggleClass('hidden');
+            });
+
+            /**
              * Toggle Project-Details/Commentsf
              */
             f.wrapper.on('click', 'a.detail-toggle', function() {

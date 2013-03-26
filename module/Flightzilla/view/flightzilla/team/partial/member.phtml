@@ -36,7 +36,7 @@
     </blockquote>
 </div>
 <?php
-    echo sprintf('<h4 class="text-center"><strong>%s</strong></h4>', $this->sMemberName);
+    echo sprintf('<h4 class="text-center member-name"><strong>%s</strong></h4>', $this->sMemberName);
 else:
     echo sprintf('<h5 class="droppable tipper" data-title="Drop a pin, to CONFIRM it for this user" data-drop="%s" data-user="%s"><i class="icon-user"></i> <strong>%s</strong></h5>', \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM, $this->oResource->getEmail(), $this->sMemberName);
 ?>

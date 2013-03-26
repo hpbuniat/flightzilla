@@ -1263,15 +1263,17 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                 $sWeek = $oTicket->getWeek();
 
                 if ($sWeek !== false) {
+                    $bAdded = false;
                     foreach ($aSprint[$sName] as $sWeekAlias => $aWeek) {
-                        if ($sWeek === $aSprint[$sName][Date::WEEK_PREVIOUS]['title'] and $oTicket->isStatusAtLeast(Bug::STATUS_RESOLVED) !== true) {
-                            $aSprint[$sName][Date::WEEK_CURRENT]['tickets'][$oTicket->id()] = $oTicket;
-                        }
-
                         if ($aWeek['title'] === $sWeek) {
+                            $bAdded = true;
                             $aSprint[$sName][$sWeekAlias]['tickets'][$oTicket->id()] = $oTicket;
                             break;
                         }
+                    }
+
+                    if (($bAdded === false or $sWeek === $aSprint[$sName][Date::WEEK_PREVIOUS]['title']) and $oTicket->isStatusAtLeast(Bug::STATUS_RESOLVED) !== true) {
+                        $aSprint[$sName][Date::WEEK_CURRENT]['tickets'][$oTicket->id()] = $oTicket;
                     }
                 }
             }

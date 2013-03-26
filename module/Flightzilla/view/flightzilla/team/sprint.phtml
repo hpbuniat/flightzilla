@@ -12,6 +12,22 @@
         $this->sCarousel = sprintf('member-carousel-%s', $iCounter);
         $this->oResource = $this->oResourceManager->getResource($this->sMemberName);
         echo $this->render('flightzilla/team/partial/sprint-carousel.phtml');
+
+        $aTickets = array();
+        foreach ($this->aMemberWeekTickets as $aWeek) {
+            $aTickets = array_merge($aTickets, $aWeek['tickets']);
+        }
+
+        echo $this->partial('flightzilla/index/partial/table.phtml', array(
+            'caption' => sprintf('Tickets: %s', $this->sMemberName),
+            'sBugzilla' => $this->layout()->sBugzilla,
+            'bugs' => $aTickets,
+            'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED,
+            'mode' => $this->mode,
+            'sCssClass' => 'hidden'
+        ));
+
+        unset ($aTickets);
     }
     ?>
     <div class="row-fluid">

@@ -87,7 +87,14 @@ class Deadlinestatus extends AbstractHelper {
                     break;
             }
 
-            return sprintf('&nbsp;<span class="deadline ui-silk %s" title="%s">&nbsp;</span>', $sIcon, $oTicket->getDeadline());
+            $sWeek = $oTicket->getWeek();
+            $sDeadline = $oTicket->getDeadline();
+            if (empty($sWeek) !== true) {
+                $sDeadline = sprintf('%s (%s)', $sDeadline, $sWeek);
+            }
+
+
+            return sprintf('&nbsp;<span class="deadline ui-silk %s" title="%s">&nbsp;</span>', $sIcon, $sDeadline);
         }
 
         return '';

@@ -3,10 +3,14 @@ if (empty($this->bugs) === true) {
     $this->bugs = array();
 }
 
+if (empty($this->sCssClass) === true) {
+    $this->sCssClass = '';
+}
+
 $aTimes = $this->collectiontime($this->bugs);
 
 if(count($this->bugs) > 0) {?>
-<table class="bugTable table-bordered table-condensed table tablesorter" style="width: 100%; margin-bottom: 10px;">
+<table class="bugTable table-bordered table-condensed table tablesorter <?php echo $this->sCssClass; ?>" style="width: 100%; margin-bottom: 10px;">
     <thead>
     <tr class="tableHeader">
         <td colspan="8">

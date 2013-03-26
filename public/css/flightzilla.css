@@ -222,7 +222,7 @@ div.progress-heading {
     background-repeat: repeat-x;
 }
 
-h3.table-toggle {
+h4.member-name, h3.table-toggle {
     cursor: pointer;
 }
 
