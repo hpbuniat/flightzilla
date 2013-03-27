@@ -348,7 +348,7 @@
                             r = new RegExp(searchText, "ig");
                             t = (r.exec(v.text()));
                             if (!(t && t.length)) {
-                                t = r.exec(v.data('assignee'));
+                                t = r.exec(v.parents('tr.bug').data('assignee'));
                             }
 
                             return (t && t.length);

@@ -292,8 +292,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         $aProjects = $this->_config->bugzilla->projects->$sProject->toArray();
 
-        $this->_aTeam    = $aProjects['team'];
-        // prepare bug models
+        $this->_aTeam = $aProjects['team'];
         foreach ($this->_aTeam as $sLogin => $aMember) {
             $this->_oResource->registerResource(\Flightzilla\Model\Resource\Builder::build($sLogin, $aMember));
         }
@@ -378,16 +377,15 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      *
      * @param  string $sProduct
      *
-     * @return Bugzilla
+     * @return $this
      */
     public function product($sProduct = '') {
 
-        if ($sProduct == '') {
-            return $this;
+        if (empty($sProduct) !== true) {
+            $this->_product[] = $sProduct;
+            $this->_product   = array_unique($this->_product);
         }
 
-        $this->_product[] = $sProduct;
-        $this->_product   = array_unique($this->_product);
         return $this;
     }
 
@@ -396,23 +394,22 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      *
      * @param  string $sUser
      *
-     * @return Bugzilla
+     * @return $this
      */
     public function user($sUser = '') {
 
-        if ($sUser == '') {
-            return $this;
+        if (empty($sUser) !== true) {
+            $this->_user[] = $sUser;
+            $this->_user   = array_unique($this->_user);
         }
 
-        $this->_user[] = $sUser;
-        $this->_user   = array_unique($this->_user);
         return $this;
     }
 
     /**
      * Add static params
      *
-     * @return Bugzilla
+     * @return $this
      */
     private function _addParams() {
 
@@ -656,7 +653,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             $bAdd = true;
             foreach ($this->_aProject as $aProduct) {
                 if (strtolower($aProduct['name']) === strtolower($oBug->product)) {
-                    if (isset($aProduct['theme'])) {
+                    if (isset($aProduct['theme']) === true) {
                         $bAdd     = false;
                         $aBlocked = $oBug->blocks();
                         if (is_array($aBlocked) === true) {
