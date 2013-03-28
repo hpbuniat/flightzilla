@@ -190,6 +190,13 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     private $_allBugs = array();
 
     /**
+     * The list of all tickets, relevant to the selected (current) project
+     *
+     * @var Bug[]
+     */
+    private $_aAllTicketsCurrentProject = array();
+
+    /**
      * @var \Flightzilla\Model\Ticket\Type\Theme[]
      */
     private $_aThemes = array();
@@ -211,7 +218,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      *
      * @var string
      */
-    private $_getParameter = "";
+    private $_getParameter = '';
 
     /**
      * Cache for bug-list requests
@@ -313,7 +320,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     public function getCount() {
 
         $iCount = 0;
-        foreach ($this->_allBugs as $oBug) {
+        foreach ($this->getAllBugs() as $oBug) {
+            /* @var $oBug Bug */
             if ($oBug->isClosed() !== true and $oBug->isContainer() !== true) {
                 $iCount++;
             }
@@ -796,13 +804,24 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     }
 
     /**
-     * Get all bugs
+     * Get all bugs for the relevant projects
      *
      * @return array
      */
     public function getAllBugs() {
 
-        return $this->_allBugs;
+        if (empty($this->_aAllTicketsCurrentProject) === true) {
+            $this->_aAllTicketsCurrentProject = array();
+            foreach ($this->_allBugs as $oTicket) {
+                foreach ($this->_aProject as $aProduct) {
+                    if (strtolower($aProduct['name']) === strtolower($oTicket->product)) {
+                        $this->_aAllTicketsCurrentProject[$oTicket->id()] = $oTicket;
+                    }
+                }
+            }
+        }
+
+        return $this->_aAllTicketsCurrentProject;
     }
 
     /**
@@ -854,7 +873,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     public function getUnworkedWithoutOrganization() {
 
         $aStack = array();
-        foreach ($this->_allBugs as $oTicket) {
+        foreach ($this->getAllBugs() as $oTicket) {
+            /* @var $oTicket Bug */
             if ($oTicket->isContainer() === false and $oTicket->isOrga() === false and $oTicket->isStatusAtMost(Bug::STATUS_CONFIRMED) and $oTicket->isWorkedOn(Bug::STATUS_CLOSED) !== true) {
                 $aStack[$oTicket->id()] = $oTicket;
             }
@@ -872,7 +892,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     public function getUntouched() {
 
         $aStack = array();
-        foreach ($this->_allBugs as $oTicket) {
+        foreach ($this->getAllBugs() as $oTicket) {
+            /* @var $oTicket Bug */
             if ($oTicket->isContainer() === false and $oTicket->isOrga() === false and $oTicket->isWorkedOn() !== true and $oTicket->isStatusAtMost(Bug::STATUS_UNCONFIRMED) === true) {
                 $aStack[$oTicket->id()] = $oTicket;
             }
@@ -889,7 +910,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      */
     public function getWaiting() {
         $aStack = array();
-        foreach ($this->_allBugs as $oTicket) {
+        foreach ($this->getAllBugs() as $oTicket) {
             /* @var $oTicket Bug */
             if ($oTicket->isContainer() === false and $oTicket->isOrga() === false and $oTicket->isConcept() === false and $oTicket->isWorkedOn() === true
                 and ($oTicket->isStatusAtLeast(Bug::STATUS_CONFIRMED) or $oTicket->hasFlag(Bug::FLAG_COMMENT, self::BUG_FLAG_REQUEST) === true)
@@ -909,7 +930,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      */
     public function getInprogress() {
         $aStack = array();
-        foreach ($this->_allBugs as $oTicket) {
+        foreach ($this->getAllBugs() as $oTicket) {
+            /* @var $oTicket Bug */
             if ($oTicket->isWip() === true) {
                 $aStack[$oTicket->id()] = $oTicket;
             }
@@ -926,7 +948,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      */
     public function getOpenConcepts() {
         $aStack = array();
-        foreach ($this->_allBugs as $oTicket) {
+        foreach ($this->getAllBugs() as $oTicket) {
+            /* @var $oTicket Bug */
             if ($oTicket->isConcept() === true and $oTicket->isStatusAtLeast(Bug::STATUS_RESOLVED) === false) {
                 $aStack[$oTicket->id()] = $oTicket;
             }
@@ -1088,7 +1111,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             $aStack = $this->_allBugs;
         }
 
-        foreach ($this->_allBugs as $oTicket) {
+        foreach ($this->getAllBugs() as $oTicket) {
+            /* @var $oTicket Bug */
             if (empty($sFlag) === true or ($oTicket->hasFlag($sFlag, $sStatus) === true and ($sStatus === self::BUG_FLAG_REQUEST or ($oTicket->hasFlag($sFlag, self::BUG_FLAG_REQUEST) !== true)))) {
                 $aResult[$oTicket->id()] = $oTicket;
             }
@@ -1481,30 +1505,6 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     }
 
     /**
-     * Get the first date, when worked time was entered
-     *
-     * @return int
-     *
-     * @throws \Exception
-     */
-    public function getFirstWorkedDate() {
-
-        $iTimestamp = PHP_INT_MAX;
-        foreach ($this->_allBugs as $oBug) {
-            $iTemp = $oBug->getFirstWorkDate();
-            if (empty($iTemp) !== true and $iTemp < $iTimestamp) {
-                $iTimestamp = $iTemp;
-            }
-        }
-
-        if (empty($iTimestamp) === true) {
-            throw new \Exception();
-        }
-
-        return $iTimestamp;
-    }
-
-    /**
      * Get the bug-stats
      *
      * @return array
@@ -1531,10 +1531,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             );
 
             $iTimeoutLimit = $this->_config->tickets->workflow->timeout;
-
-            foreach ($this->_allBugs as $oBug) {
+            foreach ($this->getAllBugs() as $oBug) {
                 /* @var $oBug Bug */
-
                 if ($oBug->isClosed() !== true and $oBug->isContainer() !== true) {
                     $bShouldHaveEstimation = true;
                     if ($oBug->isOrga() === true) {
@@ -1612,7 +1610,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             $this->_aStatuses = array();
 
             $iCount = $this->getCount();
-            foreach ($this->_allBugs as $oBug) {
+            foreach ($this->getAllBugs() as $oBug) {
+                /* @var $oBug Bug */
                 if ($oBug->isClosed() !== true and $oBug->isContainer() !== true) {
                     $sStatus = (string) $oBug->getStatus();
                     if (empty($this->_aStatuses[$sStatus]) === true) {
@@ -1639,7 +1638,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         $iDiff = 0;
         $iCompare = strtotime('last monday');
-        foreach ($this->_allBugs as $oTicket) {
+        foreach ($this->getAllBugs() as $oTicket) {
+            /* @var $oTicket Bug */
             if ($oTicket->isContainer() !== true) {
                 if ($oTicket->getCreationTime() > $iCompare) {
                     $iDiff++;
@@ -1670,7 +1670,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      */
     public function getDeadlineStack() {
         $aStack = array();
-        foreach ($this->_allBugs as $oTicket) {
+        foreach ($this->getAllBugs() as $oTicket) {
+            /* @var $oTicket Bug */
             $mDeadline = strtotime($oTicket->getDeadline());
             if ($mDeadline !== false and $oTicket->isStatusAtMost(Bug::STATUS_REOPENED) === true and $oTicket->isContainer() !== true) {
                 if (empty($aStack[$mDeadline]) === true) {
@@ -1731,7 +1732,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $aPriorities = array();
 
         $iCount = $this->getCount();
-        foreach ($this->_allBugs as $oBug) {
+        foreach ($this->getAllBugs() as $oBug) {
+            /* @var $oBug Bug */
             if ($oBug->isClosed() !== true and $oBug->isContainer() !== true) {
                 $sPriority = (string) $oBug->priority;
                 if (empty($aPriorities[$sPriority]) === true) {
@@ -1758,7 +1760,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $aSeverities = array();
 
         $iCount = $this->getCount();
-        foreach ($this->_allBugs as $oBug) {
+        foreach ($this->getAllBugs() as $oBug) {
+            /* @var $oBug Bug */
             if ($oBug->isClosed() !== true and $oBug->isContainer() !== true) {
                 $sSeverity = (string) $oBug->bug_severity;
                 if (empty($aSeverities[$sSeverity]) === true) {
