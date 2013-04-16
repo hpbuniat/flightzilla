@@ -1241,6 +1241,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             }
         }
 
+        ksort($aTeam);
         unset($oSorting);
 
         return $aTeam;

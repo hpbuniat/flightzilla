@@ -170,19 +170,6 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     CONST TYPE_CONCEPT = 'screen';
 
     /**
-     * The bug-types
-     *
-     * @var array
-     */
-    protected $_aTypes = array(
-        self::TYPE_STRING_BUG => self::TYPE_BUG,
-        self::TYPE_STRING_PROJECT  => self::TYPE_PROJECT,
-        self::TYPE_STRING_THEME  => self::TYPE_THEME,
-        self::TYPE_STRING_CONCEPT  => self::TYPE_CONCEPT,
-        self::TYPE_STRING_FEATURE  => self::TYPE_FEATURE,
-    );
-
-    /**
      * Bugzilla priorities
      */
     const PRIORITY_1 = 'P1';
@@ -821,26 +808,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         $this->_sKeywords = (string) $this->_data->keywords;
         $this->_sStatus = (string) $this->bug_status;
 
-        $this->_sType = '';
-        $sTitle = $this->title();
-        foreach ($this->_aTypes as $sKeywords => $sType) {
-            $aKeywords = explode(',', $sKeywords);
-            if (empty($aKeywords) !== true) {
-                foreach ($aKeywords as $sKeyword) {
-                    if (empty($sKeyword) !== true) {
-                        if (stristr($sTitle, sprintf('%s:', $sKeyword)) !== false or $this->hasKeyword($sKeyword) === true) {
-                            $this->_sType = $sType;
-                            break 2;
-                        }
-                    }
-                }
-            }
-
-            unset($aKeywords);
-        }
-
-        unset($sTitle);
-
+        $this->_sType = \Flightzilla\Model\Ticket\Type::getType($this->_data, $this->title(), $this->_sKeywords);
         if (empty($this->_sType) === true) {
             $sSeverity = $this->getSeverity();
             if ($sSeverity !== self::SEVERITY_ENHANCEMENT and $sSeverity !== self::SEVERITY_IMPROVEMENT) {
