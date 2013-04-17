@@ -103,8 +103,7 @@ class IndexController extends AbstractActionController {
         $oViewModel->mode = 'list';
         $oViewModel->setTerminal(true);
 
-        $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
-
+        $oViewModel->oTicketService = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel)->getService();
         return $oViewModel;
     }
 
