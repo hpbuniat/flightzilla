@@ -52,6 +52,7 @@
 namespace Flightzilla\View\Helper;
 use Zend\View\Helper\AbstractHelper;
 use Flightzilla\Model\Timeline\Date;
+use Flightzilla\Model\Ticket\Type\Bug;
 
 class CollectionTime extends AbstractHelper {
 
@@ -76,14 +77,11 @@ class CollectionTime extends AbstractHelper {
         );
 
         foreach($aTickets as $oTicket) {
-            /* @var $oTicket \Flightzilla\Model\Ticket\Type\Bug */
-            if ($oTicket->isEstimated()) {
-                $fSpent = (float) $oTicket->actual_time;
-                $fEsti = (float) $oTicket->getEstimation();
-                $fLeft = ($fEsti > $fSpent and $oTicket->isStatusAtLeast(\Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED) !== true) ? ($fEsti - $fSpent) : 0;
-                $aTimes['spent'] += $fSpent;
-                $aTimes['esti'] += $fEsti;
-                $aTimes['left'] += $fLeft;
+            /* @var $oTicket Bug */
+            if ($oTicket->isEstimated() === true) {
+                $aTimes['spent'] += $oTicket->getActualTime();
+                $aTimes['esti'] += $oTicket->getEstimation();
+                $aTimes['left'] += $oTicket->getLeftHours();
             }
         }
 

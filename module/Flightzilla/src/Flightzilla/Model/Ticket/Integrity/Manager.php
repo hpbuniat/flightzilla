@@ -60,13 +60,14 @@ class Manager {
      * @var array
      */
     protected $_aConstraints = array(
-        \Flightzilla\Model\Ticket\Integrity\Constraint\TicketAge::NAME,
-        \Flightzilla\Model\Ticket\Integrity\Constraint\FlagAge::NAME,
-        \Flightzilla\Model\Ticket\Integrity\Constraint\OrganizationWithoutDue::NAME,
-        \Flightzilla\Model\Ticket\Integrity\Constraint\WorkedWithoutEstimation::NAME,
-        \Flightzilla\Model\Ticket\Integrity\Constraint\ResolvedTestFailed::NAME,
-        \Flightzilla\Model\Ticket\Integrity\Constraint\IllogicalSeverity::NAME,
-        \Flightzilla\Model\Ticket\Integrity\Constraint\ClosedProjects::NAME
+        Constraint\TicketAge::NAME,
+        Constraint\FlagAge::NAME,
+        Constraint\OrganizationWithoutDue::NAME,
+        Constraint\WorkedWithoutEstimation::NAME,
+        Constraint\ResolvedTestFailed::NAME,
+        Constraint\IllogicalSeverity::NAME,
+        Constraint\ClosedProjects::NAME,
+        Constraint\WrongRevenueExpectation::NAME
     );
 
     /**

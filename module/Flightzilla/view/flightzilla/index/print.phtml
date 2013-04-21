@@ -5,6 +5,8 @@
     $iRows = 0;
     foreach ($this->aTickets as $oTicket) {
 
+        /* @var $oTicket \Flightzilla\Model\Ticket\Type\Bug */
+
         $iCount++;
         $iRows++;
         $sBreak = (($iRows % 4) === 0) ? 'page-break-after:always;' : '';
@@ -29,7 +31,16 @@
             </div>
             <div class="row-fluid">
                 <div class="span7">
-                    <p><i class="icon-user"></i> <?php echo $oTicket->getAssignee(true); ?></p>
+                    <p>
+                        <i class="icon-tags"></i>
+                        <?php $fRevenue = (float) $oTicket->getRevenue();
+                        if (empty($fRevenue) !== true) {
+                            echo sprintf ('%s (%s, %s)', $fRevenue, $oTicket->getRevenueScoreEstimation(), $oTicket->getRevenueScoreActual());
+                        }
+                        else {?>
+                            <span class="label label-warning">Missing revenue expectation!</span>
+                        <?php } ?>
+                        <i class="icon-user"></i> <?php echo $oTicket->getAssigneeShort(); ?></p>
                     <p>
                     <?php if ($oTicket->isContainer() === true): ?>
                         <i class="icon-time"></i> <?php echo $sEstimationString; ?>
@@ -39,7 +50,7 @@
                     </p>
                 </div>
                 <div class="span5">
-                    <p>Expected: <?php echo $this->finishstatus($oTicket, \Flightzilla\View\Helper\Finishstatus::ENDDATE); ?></p>
+                    <p>Estimation: <?php echo $this->finishstatus($oTicket, \Flightzilla\View\Helper\Finishstatus::ENDDATE); ?></p>
                     <p>Deadline: <?php echo $this->finishstatus($oTicket, \Flightzilla\View\Helper\Finishstatus::DEADLINE); ?></p>
                 </div>
             </div>

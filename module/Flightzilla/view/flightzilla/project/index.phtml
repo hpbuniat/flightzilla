@@ -17,7 +17,7 @@
             <div class="span6 well member-box project-box kanban">
                 <div class="row-fluid">
                     <div class="span12">
-                        <?php echo sprintf('<h5><strong><a target="_blank" href="%s/show_bug.cgi?id=%s">%s (%s)</a></strong></h5>', $this->layout()->sBugzilla, $this->oProject->id(), $this->oProject->title(), $this->oProject->id()); ?>
+                        <?php echo sprintf('<h5><strong><a target="_blank" href="%s/show_bug.cgi?id=%s">%s</a></strong> (%s) %s</h5>', $this->layout()->sBugzilla, $this->oProject->id(), $this->oProject->title(), $this->oProject->id(), $this->ticketicons($this->oProject)); ?>
                     </div>
                 </div>
                 <div class="row-fluid">
@@ -28,12 +28,13 @@
                         <blockquote>
                             <p>
                                 <i class="icon-tags"></i>
-                                <?php $sRevenue = $this->oProject->getRevenue();
-                                if (empty($sRevenue) !== true):
-                                    echo $sRevenue;
-                                else:?>
+                                <?php $fRevenue = (float) $this->oProject->getRevenue();
+                                if (empty($fRevenue) !== true) {
+                                    echo sprintf ('%s (%s, %s)', $fRevenue, $this->oProject->getRevenueScoreEstimation(), $this->oProject->getRevenueScoreActual());
+                                }
+                                else {?>
                                 <span class="label label-warning">Missing revenue expectation!</span>
-                                <?php endif;?>
+                                <?php } ?>
                             </p>
                             <p>
                                 <i class="icon-user"></i> <?php echo $this->oProject->getAssignee(true); ?>

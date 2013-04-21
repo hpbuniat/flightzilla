@@ -41,6 +41,8 @@
  */
 namespace Flightzilla\Model\Ticket\Type;
 
+use Flightzilla\Model\Timeline\Date;
+
 /**
  * A Project
  *
@@ -93,7 +95,7 @@ class Project extends Bug {
         $iPredecessor = $this->getActivePredecessor();
         if ($iPredecessor > 0) {
             $iEndDate = $this->_oBugzilla->getBugById($iPredecessor)->getEndDate($iCalled);
-            $this->_iStartDate = strtotime('+1 day ' . \Flightzilla\Model\Timeline\Date::START, $iEndDate);
+            $this->_iStartDate = strtotime('+1 day ' . Date::START, $iEndDate);
         }
         else {
             // start date of the first ticket in current project
@@ -113,7 +115,7 @@ class Project extends Bug {
         }
 
         if (empty($this->_iStartDate) === true) {
-            $this->_iStartDate = strtotime('+1 day ' . \Flightzilla\Model\Timeline\Date::START);
+            $this->_iStartDate = strtotime('+1 day ' . Date::START);
         }
 
         $this->_iStartDate = $this->_oDate->getNextWorkday($this->_iStartDate);
@@ -134,9 +136,10 @@ class Project extends Bug {
             return $this->_iEndDate;
         }
 
-        if ($this->cf_due_date) {
-            $sEndDate = (string) $this->cf_due_date;
-            $this->_iEndDate = strtotime(str_replace('00:00:00', \Flightzilla\Model\Timeline\Date::END, $sEndDate));
+        $sDeadline = $this->getDeadline();
+        if (empty($sDeadline) !== true) {
+            $sEndDate = $sDeadline;
+            $this->_iEndDate = strtotime(str_replace('00:00:00', Date::END, $sEndDate));
         }
 
         if (empty($this->_iEndDate) or $this->_iEndDate < time()) {
@@ -203,9 +206,10 @@ class Project extends Bug {
         }
 
         foreach ($this->getDependsAsStack() as $oTicket) {
+            /* @var Bug $oTicket */
             try {
                 if ($oTicket->isProject() === true) {
-                    $this->_aDependentProjects[] = $oTicket->id();
+                    $this->_aDependentProjects[$oTicket->id()] = $oTicket->id();
                 }
             }
             catch (\Exception $e) {
@@ -225,6 +229,7 @@ class Project extends Bug {
 
         $bReady = true;
         foreach ($this->getDependsAsStack() as $oTicket) {
+            /* @var Bug $oTicket */
             if ($oTicket->couldBeInTrunk() === false) {
                 $bReady = false;
                 break;
@@ -243,6 +248,7 @@ class Project extends Bug {
         if (is_null($this->_bOnlyConcepts) === true) {
             $this->_bOnlyConcepts = true;
             foreach ($this->getDependsAsStack() as $oTicket) {
+                /* @var Bug $oTicket */
                 if ($oTicket->isConcept() === false) {
                     $this->_bOnlyConcepts = false;
                 }
@@ -261,14 +267,53 @@ class Project extends Bug {
      */
     public function isChangedWithinLimit($iLimit) {
         $bIsChanged = false;
+
+        $iTime = time();
         foreach($this->getDependsAsStack() as $oTicket) {
-            if ((time() - $oTicket->getLastActivity()) < $iLimit) {
+            /* @var Bug $oTicket */
+            if (($iTime - $oTicket->getLastActivity()) < $iLimit) {
                 $bIsChanged = true;
                 break;
             }
         }
 
         return $bIsChanged;
+    }
+
+    /**
+     * Get the revenue-score-estimation based on work-days (estimation)
+     *
+     * @return float
+     */
+    public function getRevenueScoreEstimation() {
+        $fRevenue = (float) $this->getRevenue();
+        $fProbability = (float) $this->getRevenueProbability();
+        $fEstimation = (float) $this->getEstimationTimeOfDependencies();
+
+        $fReturn = 0;
+        if ($fRevenue > 0 and $fProbability > 0 and $fEstimation > 0) {
+            $fReturn = round(($fRevenue * ($fProbability / 100)) / ($fEstimation / Date::AMOUNT), 2);
+        }
+
+        return $fReturn;
+    }
+
+    /**
+     * Get the revenue-estimation based on work-days (actual- + left-time)
+     *
+     * @return float
+     */
+    public function getRevenueScoreActual() {
+        $fRevenue = (float) $this->getRevenue();
+        $fProbability = (float) $this->getRevenueProbability();
+        $fTime = (float) $this->getActualTimeOfDependencies() + (float) $this->getLeftTimeOfDependencies();
+
+        $fReturn = 0;
+        if ($fRevenue > 0 and $fProbability > 0 and $fTime > 0) {
+            $fReturn = round(($fRevenue * ($fProbability / 100)) / ($fTime / Date::AMOUNT), 2);
+        }
+
+        return $fReturn;
     }
 
 }
