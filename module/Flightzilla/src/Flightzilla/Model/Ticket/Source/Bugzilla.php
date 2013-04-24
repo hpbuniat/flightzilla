@@ -1279,9 +1279,12 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      */
     public function getWeekSprint($aTeamBugs) {
         $aSprint = array();
+
+        $iNextWeek = strtotime('next sunday');
         foreach ($aTeamBugs as $sName => $aTickets) {
             $aSprint[$sName] = $this->_oDate->getWeeks();
             foreach ($aTickets as $oTicket) {
+                /* @var $oTicket Bug */
                 $sWeek = $oTicket->getWeek();
 
                 if ($sWeek !== false) {
@@ -1294,7 +1297,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                         }
                     }
 
-                    if (($bAdded === false or $sWeek === $aSprint[$sName][Date::WEEK_PREVIOUS]['title']) and $oTicket->isStatusAtLeast(Bug::STATUS_RESOLVED) !== true) {
+                    // all open tickets from past sprints will be added to the current week
+                    if (($bAdded === false or $sWeek === $aSprint[$sName][Date::WEEK_PREVIOUS]['title']) and $iNextWeek > $this->_oDate->getDateFromWeek($sWeek) and $oTicket->isStatusAtLeast(Bug::STATUS_RESOLVED) !== true) {
                         $aSprint[$sName][Date::WEEK_CURRENT]['tickets'][$oTicket->id()] = $oTicket;
                     }
                 }
