@@ -1006,8 +1006,6 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $this->_aFixedToMerge = array();
         foreach ($fixedBugs as $bug) {
 
-            $bLog = ($bug->id() == 139154);
-
             /* @var $bug Bug */
             if ($bug->isMerged()) {
                 $this->_aFixedTrunk[$bug->id()] = $bug;
@@ -1018,6 +1016,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                 $bOnlyOrganizationTickets = (empty($aBlocked) === true) ? false : true;
 
                 foreach ($aBlocked as $oBlocked) {
+                    /* @var $oBlocked Bug */
                     if ($oBlocked->isContainer() !== true and $oBlocked->isConcept() !== true) {
                         $bOnlyOrganizationTickets = false;
                     }
@@ -1037,8 +1036,24 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                     $aDepends = $this->getBugListByIds($bug->getDepends($this));
                     $bMergeable = $bug->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED);
                     foreach ($aDepends as $oDependBug) {
+                        /* @var $oDependBug Bug */
                         if ($oDependBug->isMergeable() !== true and $oDependBug->couldBeInTrunk() !== true) {
                             $bMergeable = false;
+                        }
+                    }
+
+                    if ($bMergeable === true) {
+                        $aBlocked  = $this->getBugListByIds($bug->blocks());
+                        foreach ($aBlocked as $oBlocked) {
+                            /* @var $oBlocked Bug */
+                            if ($oBlocked->isProject() === true) {
+                                foreach ($oBlocked->getDependsAsStack() as $oSibling) {
+                                    /* @var $oSibling Bug */
+                                    if ($oSibling->couldBeInTrunk() !== true and $oSibling->isMerged() !== true and $oSibling->isMergeable() !== true) {
+                                        $bMergeable = false;
+                                    }
+                                }
+                            }
                         }
                     }
 
