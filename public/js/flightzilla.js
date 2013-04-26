@@ -160,10 +160,24 @@
         },
 
         /**
-         * Hover-Info for kanban-pins
+         * Enable hover/popover
          */
         tooltips: function() {
             $('div.description a, span.theme a, a.tooltip, .tipper').tooltip();
+            $('.j-popover').each(function() {
+                var $this = $(this),
+                    content = $('#' + $this.data('source')).html();
+
+                if (content && content.length) {
+                    $this.popover({
+                        html: true,
+                        content: content
+                    });
+                }
+                else {
+                    $this.remove();
+                }
+            });
         },
 
         /**

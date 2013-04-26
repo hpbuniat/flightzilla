@@ -1,5 +1,8 @@
-<?php if (empty($this->aTasks) === false):?>
+<?php if ($this->mode === 'status' and empty($this->aTasks) === false):?>
     <a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'dashboard')); ?>">
+        <span href="#" class="j-popover" data-source="j-status-task" data-placement="bottom" data-toggle="popover" data-trigger="hover">
+            <i class="icon-tasks icon-white"></i>
+        </span>
         <span data-placement="bottom" data-title="<?php echo $this->aTasks[\Flightzilla\Model\Ticket\Task\Comment::NAME]['description']; ?>" class="tipper badge badge-inverse">
             <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Comment::NAME]['stack']); ?>
         </span>
@@ -22,5 +25,32 @@
 <?php else: ?>
 <div class="progress progress-striped progress-heading active">
     <div class="bar" style="width: 100%;"></div>
+</div>
+<?php endif; ?>
+
+<?php if (empty($this->aWorked) === false): ?>
+<div class="hidden">
+    <table id="j-status-task" class="table">
+        <tbody>
+            <?php foreach($this->aTeam as $aTeam) {
+                $sMember = $aTeam['name'];
+                if (isset($this->aWorked[$sMember]) === true) {
+                    foreach ($this->aWorked[$sMember] as $aDate) {
+                        foreach ($aDate as $sDate => $aStats) {
+                            echo sprintf('<tr class=""><td>%s</td><td>%s: %s</td></tr>', ($aStats['time'] >= \Flightzilla\Model\Timeline\Date::AMOUNT) ? 'success' : 'warning', $sMember, $sDate, $aStats['time']);
+                            if (empty($aStats['tickets']) !== true) {
+                                foreach ($aStats['tickets'] as $iTicket => $aTicket) {
+                                    echo sprintf('<tr data-placement="bottom" class="tipper" data-title="%s"><td>%s</td><td>%s</td></tr>', $aTicket['title'], $iTicket, $aTicket['time']);
+                                }
+                            }
+                        }
+                    }
+                }
+                else {
+                    echo sprintf('<tr class="error"><td colspan="2">%s</td></tr>', $sMember);
+                }
+            }?>
+        </tbody>
+    </table>
 </div>
 <?php endif; ?>

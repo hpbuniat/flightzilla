@@ -41,6 +41,8 @@
  */
 namespace Flightzilla\Model\Resource;
 
+use Flightzilla\Model\Resource\Human;
+
 /**
  * The resource manager handles resources and their duties
  *
@@ -76,11 +78,11 @@ class Manager {
     /**
      * Register a resource
      *
-     * @param  \Flightzilla\Model\Resource\Human $oHuman
+     * @param  Human $oHuman
      *
      * @return $this
      */
-    public function registerResource(\Flightzilla\Model\Resource\Human $oHuman) {
+    public function registerResource(Human $oHuman) {
         $sName = $oHuman->getName();
         if (empty($this->_aResources[$sName]) === true) {
             $this->_aResources[$sName] = $oHuman;
@@ -160,9 +162,30 @@ class Manager {
     public function getActivities($iDays = 7) {
         $aActivities = array();
         foreach ($this->_aResources as $oResource) {
+            /* @var $oResource Human */
             $aActivity = $oResource->getTimecard()->getTimesAsGantt($iDays);
             if (empty($aActivity) !== true) {
                 $aActivities = array_merge($aActivities, $aActivity);
+            }
+        }
+
+        return $aActivities;
+    }
+
+    /**
+     * Get the activity of all resources, sorted by resource
+     *
+     * @param  int $iDays
+     *
+     * @return array
+     */
+    public function getActivitiesByResource($iDays = 7) {
+        $aActivities = array();
+        foreach ($this->_aResources as $oResource) {
+            /* @var $oResource Human */
+            $aActivity = $oResource->getTimecard()->getTimesAsStack($iDays);
+            if (empty($aActivity) !== true) {
+                $aActivities[$oResource->getName()] = $aActivity;
             }
         }
 
@@ -174,7 +197,7 @@ class Manager {
      *
      * @param  string $sName
      *
-     * @return \Flightzilla\Model\Resource\Human
+     * @return Human
      *
      * @throws \InvalidArgumentException
      */
@@ -207,7 +230,7 @@ class Manager {
     public function getResourceByEmail($sMail) {
         if (empty($this->_aLookup[$sMail]) === true) {
             foreach ($this->_aResources as $oHuman) {
-                /* @var $oHuman \Flightzilla\Model\Resource\Human */
+                /* @var $oHuman Human */
                 if ($oHuman->getEmail() === $sMail) {
                     $this->_aLookup[$sMail] = $oHuman->getName();
                     break;
@@ -232,7 +255,7 @@ class Manager {
     public function getResourceByLogin($sLogin) {
         if (empty($this->_aLookup[$sLogin]) === true) {
             foreach ($this->_aResources as $oHuman) {
-                /* @var $oHuman \Flightzilla\Model\Resource\Human */
+                /* @var $oHuman Human */
                 if ($oHuman->getLogin() === $sLogin) {
                     $this->_aLookup[$sLogin] = $oHuman->getName();
                     break;

@@ -129,7 +129,6 @@ class Timecard {
      */
     public function getTimesAsGantt($iDays) {
         $aTimes = $this->getTimes();
-
         $iCompare = strtotime(sprintf('-%d days', $iDays));
 
         $aGantt = array();
@@ -165,5 +164,46 @@ class Timecard {
         }
 
         return $aGantt;
+    }
+
+    /**
+     * Get the times for a stack
+     *
+     * @param  int $iDays
+     *
+     * @return array
+     */
+    public function getTimesAsStack($iDays) {
+        $aTimes = $this->getTimes();
+        $iCompare = strtotime(sprintf('-%d days', $iDays));
+
+        $aStack = array();
+        foreach ($this->_aDates as $sDate => $aDate) {
+            if (strtotime($sDate) >= $iCompare) {
+                $aAdd = array(
+                    'time' => 0,
+                    'tickets' => array()
+                );
+
+                $fHours = 0;
+                foreach ($aDate as $aTime) {
+                    $sTicket = $aTime['ticket']->id();
+                    if (empty($aAdd['tickets'][$sTicket]) === true) {
+                        $aAdd['tickets'][$sTicket] = array(
+                            'title' => $aTime['ticket']->title(),
+                            'time' => 0
+                        );
+                    }
+
+                    $aAdd['tickets'][$sTicket]['time'] += $aTime['time'];
+                    $fHours += $aTime['time'];
+                }
+
+                $aAdd['time'] = $fHours;
+                $aStack[$sDate] = $aAdd;
+            }
+        }
+
+        return $aStack;
     }
 }
