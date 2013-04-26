@@ -166,10 +166,14 @@
             $('div.description a, span.theme a, a.tooltip, .tipper').tooltip();
             $('.j-popover').each(function() {
                 var $this = $(this),
-                    content = $('#' + $this.data('source')).html();
+                    source = $('#' + $this.data('source')),
+                    content = source.css({
+                        width: source.width()
+                    }).html();
 
                 $this.click(function(e) {
                     e.preventDefault();
+                    $this.find('.tipper').tooltip();
                 });
                 if (content && content.length) {
                     $this.popover({
