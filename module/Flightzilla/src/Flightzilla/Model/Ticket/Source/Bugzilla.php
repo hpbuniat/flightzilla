@@ -1035,14 +1035,14 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             if (empty($this->_aFixedTrunk[$bug->id()]) === true) {
                 if ($bug->isMergeable() === true or ($bug->hasFlag(Bug::FLAG_MERGE, self::BUG_FLAG_GRANTED) !== true and $bug->hasFlag(Bug::FLAG_DBCHANGE, self::BUG_FLAG_REQUEST) === true)) {
                     $aDepends = $this->getBugListByIds($bug->getDepends($this));
-                    $bFixed   = $bug->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED);
+                    $bMergeable = $bug->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED);
                     foreach ($aDepends as $oDependBug) {
                         if ($oDependBug->isMergeable() !== true and $oDependBug->couldBeInTrunk() !== true) {
-                            $bFixed = false;
+                            $bMergeable = false;
                         }
                     }
 
-                    if ($bFixed === true) {
+                    if ($bMergeable === true) {
                         $this->_aFixedToMerge[$bug->id()] = $bug;
                     }
                     else {

@@ -168,10 +168,14 @@
                 var $this = $(this),
                     content = $('#' + $this.data('source')).html();
 
+                $this.click(function(e) {
+                    e.preventDefault();
+                });
                 if (content && content.length) {
                     $this.popover({
                         html: true,
-                        content: content
+                        content: content,
+                        container: 'body'
                     });
                 }
                 else {

@@ -32,15 +32,17 @@
             <div class="row-fluid">
                 <div class="span7">
                     <p>
+                        <i class="icon-user"></i> <?php echo substr($oTicket->getAssignee(true), 0, 25); ?></p>
+                    <p>
+                    <p>
                         <i class="icon-tags"></i>
                         <?php $fRevenue = (float) $oTicket->getRevenue();
                         if (empty($fRevenue) !== true) {
                             echo sprintf ('%s (%s, %s)', $fRevenue, $oTicket->getRevenueScoreEstimation(), $oTicket->getRevenueScoreActual());
                         }
                         else {?>
-                            <span class="label label-warning">Missing revenue expectation!</span>
+                            <span class="label label-warning">No revenue!</span>
                         <?php } ?>
-                        <i class="icon-user"></i> <?php echo $oTicket->getAssigneeShort(); ?></p>
                     <p>
                     <?php if ($oTicket->isContainer() === true): ?>
                         <i class="icon-time"></i> <?php echo $sEstimationString; ?>
