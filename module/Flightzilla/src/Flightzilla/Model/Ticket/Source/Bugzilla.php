@@ -1002,36 +1002,18 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             return $this->_aFixedToMerge;
         }
 
-        $fixedBugs            = $this->getFixedBugs();
         $this->_aFixedToMerge = array();
+
+        $fixedBugs = $this->getFixedBugs();
         foreach ($fixedBugs as $bug) {
 
             /* @var $bug Bug */
-            if ($bug->isMerged()) {
+            if ($bug->isMerged() === true or $bug->isMostLikelyInTrunk() === true) {
                 $this->_aFixedTrunk[$bug->id()] = $bug;
-            }
-            elseif ($bug->couldBeInTrunk() === true) {
-                $aBlocked                 = $this->getBugListByIds($bug->blocks());
-                $bTrunk                   = (empty($aBlocked) === true and $bug->hasFlag(Bug::FLAG_SCREEN, self::BUG_FLAG_GRANTED) === true) ? false : true;
-                $bOnlyOrganizationTickets = (empty($aBlocked) === true) ? false : true;
-
-                foreach ($aBlocked as $oBlocked) {
-                    /* @var $oBlocked Bug */
-                    if ($oBlocked->isContainer() !== true and $oBlocked->isConcept() !== true) {
-                        $bOnlyOrganizationTickets = false;
-                    }
-
-                    if ($oBlocked->couldBeInTrunk() !== true and $oBlocked->isMerged() !== true) {
-                        $bTrunk = false;
-                    }
-                }
-
-                if ($bTrunk === true and $bOnlyOrganizationTickets === false) {
-                    $this->_aFixedTrunk[$bug->id()] = $bug;
-                }
             }
 
             if (empty($this->_aFixedTrunk[$bug->id()]) === true) {
+                $aBlocked  = $this->getBugListByIds($bug->blocks());
                 if ($bug->isMergeable() === true or ($bug->hasFlag(Bug::FLAG_MERGE, self::BUG_FLAG_GRANTED) !== true and $bug->hasFlag(Bug::FLAG_DBCHANGE, self::BUG_FLAG_REQUEST) === true)) {
                     $aDepends = $this->getBugListByIds($bug->getDepends($this));
                     $bMergeable = $bug->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED);
@@ -1043,7 +1025,6 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                     }
 
                     if ($bMergeable === true) {
-                        $aBlocked  = $this->getBugListByIds($bug->blocks());
                         foreach ($aBlocked as $oBlocked) {
                             /* @var $oBlocked Bug */
                             if ($oBlocked->isProject() === true) {
@@ -1051,6 +1032,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                                     /* @var $oSibling Bug */
                                     if ($oSibling->couldBeInTrunk() !== true and $oSibling->isMerged() !== true and $oSibling->isMergeable() !== true) {
                                         $bMergeable = false;
+                                        break 2;
                                     }
                                 }
                             }
@@ -1064,7 +1046,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                         $this->_aFixed[$bug->id()] = $bug;
                     }
                 }
-                else {
+                elseif (empty($aBlocked) === true) {
                     $this->_aFixed[$bug->id()] = $bug;
                 }
             }
@@ -1334,23 +1316,23 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     }
 
     /**
-     * Get all open bugs, which are part of a theme
+     * Get all tickets, which are part of a theme and not yet merge-able
      *
      * @return array
      */
-    public function getThemedOpenBugs() {
+    public function getThemedTickets() {
 
-        $openBugs = $this->getOpenBugs();
-        $aOpen    = array();
-        foreach ($openBugs as $oBug) {
+        $this->getOpenBugs();
+        $aThemed = array();
+        foreach ($this->_allBugs as $oBug) {
             /* @var $oBug Bug */
-            if ($oBug->doesBlock() === true and $oBug->isContainer() !== true) {
-                $aOpen[$oBug->id()] = $oBug;
+            if ($oBug->doesBlock() === true and $oBug->isContainer() !== true and $oBug->isMerged() === false and $oBug->isMergeable() === false) {
+                $aThemed[$oBug->id()] = $oBug;
             }
         }
 
-        ksort($aOpen);
-        return $this->_findUnthemedBugs()->_sortBugsToThemes($aOpen);
+        ksort($aThemed);
+        return $this->_findUnthemedBugs()->_sortBugsToThemes($aThemed);
     }
 
     /**
@@ -1363,13 +1345,15 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     private function _sortBugsToThemes($aBugs) {
 
         $aThemes = array();
-        foreach ($aBugs as $bug) {
-            $aThemes = array_merge($aThemes, $bug->blocks());
+        foreach ($aBugs as $oBug) {
+            /* @var $oBug Bug */
+            $aThemes = array_merge($aThemes, $oBug->blocks());
         }
 
         $aThemeBugs = $this->getBugListByIds(array_unique($aThemes));
         $aThemes    = array();
         foreach ($aThemeBugs as $oTheme) {
+            /* @var $oTheme Bug */
             if ($oTheme->isContainer() === true) {
                 $aThemes[$oTheme->id()] = $oTheme;
             }
@@ -1377,11 +1361,12 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         $aThemed = array();
         foreach ($aBugs as $oBug) {
+            /* @var $oBug Bug */
             $mTheme = $this->_findTheme($oBug);
             if ($mTheme !== false) {
-                $sTheme                      = $aThemes[$mTheme]->id() . ' ' . $aThemes[$mTheme]->title();
-                $aThemed[$sTheme][]          = $oBug;
-                $this->_allBugs[$oBug->id()] = $oBug;
+                $sTheme                        = $aThemes[$mTheme]->id() . ' ' . $aThemes[$mTheme]->title();
+                $aThemed[$sTheme][$oBug->id()] = $oBug;
+                $this->_allBugs[$oBug->id()]   = $oBug;
                 unset($sTheme);
             }
         }
@@ -1407,14 +1392,15 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         $openBugs         = $this->getOpenBugs();
         $this->_aUnthemed = array();
-        foreach ($openBugs as $bug) {
-            if ($bug->isContainer() !== true) {
-                if ($bug->doesBlock() !== true) {
-                    $this->_aUnthemed[$bug->id()] = $bug;
+        foreach ($openBugs as $oBug) {
+            /* @var $oBug Bug */
+            if ($oBug->isContainer() !== true) {
+                if ($oBug->doesBlock() !== true) {
+                    $this->_aUnthemed[$oBug->id()] = $oBug;
                 }
                 else {
-                    if ($this->_findTheme($bug) === false) {
-                        $this->_aUnthemed[$bug->id()] = $bug;
+                    if ($this->_findTheme($oBug) === false) {
+                        $this->_aUnthemed[$oBug->id()] = $oBug;
                     }
                 }
             }

@@ -120,7 +120,7 @@ class TicketService extends AbstractPlugin {
             $oView->bugsBranch = $oTicketService->getFixedBugsInBranch();
             $oView->bugsTrunk = $oTicketService->getFixedBugsInTrunk();
             $oView->bugsFixed = $oTicketService->getFixedBugsUnknown();
-            $oView->bugsOpen = $oTicketService->getThemedOpenBugs();
+            $oView->bugsOpen = $oTicketService->getThemedTickets();
             $oView->bugsUnthemed = $oTicketService->getUnthemedBugs();
         }
 

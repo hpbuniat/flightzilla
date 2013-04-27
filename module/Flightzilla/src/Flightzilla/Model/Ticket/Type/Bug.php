@@ -1218,6 +1218,35 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * A more in detail version of 'couldBeInTrunk'
+     *
+     * @return boolean
+     */
+    public function isMostLikelyInTrunk() {
+        $bIsMostLikelyInTrunk = false;
+        if ($this->couldBeInTrunk() === true) {
+            $aBlocked                 = $this->_oBugzilla->getBugListByIds($this->blocks());
+            $bTrunk                   = (empty($aBlocked) === true and $this->hasFlag(Bug::FLAG_SCREEN, Bugzilla::BUG_FLAG_GRANTED) === true) ? false : true;
+            $bOnlyOrganizationTickets = (empty($aBlocked) === true) ? false : true;
+
+            foreach ($aBlocked as $oBlocked) {
+                /* @var $oBlocked Bug */
+                if ($oBlocked->isContainer() !== true and $oBlocked->isConcept() !== true) {
+                    $bOnlyOrganizationTickets = false;
+                }
+
+                if ($oBlocked->couldBeInTrunk() !== true and $oBlocked->isMerged() !== true) {
+                    $bTrunk = false;
+                }
+            }
+
+            $bIsMostLikelyInTrunk = ($bTrunk === true and $bOnlyOrganizationTickets === false);
+        }
+
+        return $bIsMostLikelyInTrunk;
+    }
+
+    /**
      * Get the dupe-id or false, if there is none
      *
      * @return mixed
