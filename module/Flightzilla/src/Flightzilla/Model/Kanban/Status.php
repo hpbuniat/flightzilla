@@ -69,6 +69,23 @@ class Status  {
     const TEST_WAITING = 'test_waiting';
     const TEST_READY = 'test_ready';
     const RELEASE = 'release';
+    const DONE = 'done';
+
+    /**
+     *
+     */
+    public static $aStatusText = array(
+        self::WAITING => 'Pending',
+        self::SCREEN_WIP => 'Concept wip',
+        self::SCREEN_APPROVED => 'Concept ready',
+        self::DEV_WAITING => 'Dev waiting',
+        self::DEV_WIP => 'Dev wip',
+        self::DEV_READY => 'Dev ready',
+        self::TEST_WAITING => 'Test waiting',
+        self::TEST_READY => 'Tested',
+        self::RELEASE => 'Staged',
+        self::DONE => 'Online'
+    );
 
     /**
      * The status-order
@@ -85,6 +102,7 @@ class Status  {
         self::TEST_READY => 7,
         self::SCREEN_APPROVED => 8,
         self::RELEASE => 9,
+        self::DONE => 10,
     );
 
     /**
@@ -172,6 +190,22 @@ class Status  {
     }
 
     /**
+     * Get the results, sorted by ticket
+     *
+     * @return array
+     */
+    public function getByTicket() {
+        $aResult = array();
+        foreach ($this->_aResult as $sStatus => $aTickets) {
+            foreach ($aTickets as $iTicket => $oTicket) {
+                $aResult[$iTicket] = $sStatus;
+            }
+        }
+
+        return $aResult;
+    }
+
+    /**
      * Process the stack
      *
      * @return $this
@@ -180,32 +214,36 @@ class Status  {
         $this->_init();
 
         foreach ($this->_aTickets as $oTicket) {
-            /* @var $oTicket \Flightzilla\Model\Ticket\AbstractType */
+            /* @var $oTicket Bug */
 
             // use only tickets of the desired type for the kanban board
             $sType = $oTicket->getType();
-            if (in_array($sType, $this->_aTypes) !== true or $oTicket->getStatus() === Bug::STATUS_CLOSED) {
+            if (in_array($sType, $this->_aTypes) !== true) {
                 continue;
             }
-
-            $sStatus = self::RELEASE;
-            if ($this->_bGrouped === true) {
-                $aStack = $oTicket->getDepends();
-
-                foreach ($aStack as $iTicket) {
-                    $sStackStatus = $this->_getStatus($iTicket);
-                    if ($this->_aStatusOrder[$sStackStatus] < $this->_aStatusOrder[$sStatus]) {
-                        $sStatus = $sStackStatus;
-                    }
-                }
-
-                unset($aStack);
+            elseif ($oTicket->getStatus() === Bug::STATUS_CLOSED) {
+                $this->_aResult[self::DONE][$oTicket->id()] = $oTicket;
             }
             else {
-                $sStatus = $this->_getStatus($oTicket->id());
-            }
+                $sStatus = self::RELEASE;
+                if ($this->_bGrouped === true) {
+                    $aStack = $oTicket->getDepends();
 
-            $this->_aResult[$sStatus][] = $oTicket;
+                    foreach ($aStack as $iTicket) {
+                        $sStackStatus = $this->_getStatus($iTicket);
+                        if ($this->_aStatusOrder[$sStackStatus] < $this->_aStatusOrder[$sStatus]) {
+                            $sStatus = $sStackStatus;
+                        }
+                    }
+
+                    unset($aStack);
+                }
+                else {
+                    $sStatus = $this->_getStatus($oTicket->id());
+                }
+
+                $this->_aResult[$sStatus][$oTicket->id()] = $oTicket;
+            }
         }
 
         return $this;
@@ -228,14 +266,14 @@ class Status  {
         // concepts
         $this->_aStatus = array(
             self::SCREEN_WIP => $this->_oTicketService->getOpenConcepts(),
-            self::SCREEN_APPROVED => $this->_oTicketService->getBugsWithFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, Bugzilla::BUG_FLAG_GRANTED),
+            self::SCREEN_APPROVED => $this->_oTicketService->getBugsWithFlag(Bug::FLAG_SCREEN, Bugzilla::BUG_FLAG_GRANTED),
         );
 
         // stack
         $this->_aStatus[self::WAITING] = $this->_oTicketService->getFilteredList($this->_oTicketService->getUnworkedWithoutOrganization(), $this->_aStatus[self::SCREEN_WIP]);
 
         // testing
-        $this->_aStatus[self::TEST_WAITING] = $this->_oTicketService->getBugsWithFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST);
+        $this->_aStatus[self::TEST_WAITING] = $this->_oTicketService->getBugsWithFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST);
         $this->_aStatus[self::TEST_READY] = $this->_oTicketService->getFixedBugsInBranch();
 
         // development wip, waiting

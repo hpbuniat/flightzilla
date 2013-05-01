@@ -25,7 +25,7 @@ if ($iCount > 0):?>
         <thead>
         <tr class="tableHeader">
             <td colspan="8">
-                <span class="caption <?php if ($this->mode === 'team' and $aTimes['left'] < \Flightzilla\Model\Timeline\Date::AMOUNT):?>red<?php endif;?>">
+                <span class="caption <?php if ($this->mode === 'team' and $aTimes['left'] < \Flightzilla\Model\Timeline\Date::AMOUNT) { echo "red"; } ?>">
                     <?php echo sprintf('<b>%s</b> - %s', $sCaption, $sEstimation); ?>
                 </span>
                 <div class="btn-group pull-right">
@@ -52,9 +52,15 @@ if ($iCount > 0):?>
         <tr class="tableHeader">
             <th>Prio</th>
             <th>Bug No.</th>
-            <th>Resolution</th>
-            <th>Status</th>
-            <th class="{sorter: 'digit'}">Times</th>
+            <?php if ($this->mode === 'project'):?>
+                <th>Kanban-Status</th>
+                <th class="{sorter: 'digit'}">Revenue</th>
+                <th class="{sorter: 'digit'}">Complexity</th>
+            <?php else: ?>
+                <th>Resolution</th>
+                <th>Status</th>
+                <th class="{sorter: 'digit'}">Times</th>
+            <?php endif; ?>
             <th>Summary</th>
             <th></th>
             <th>Component</th>

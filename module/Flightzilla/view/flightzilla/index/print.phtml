@@ -32,8 +32,11 @@
             <div class="row-fluid">
                 <div class="span7">
                     <p>
-                        <i class="icon-user"></i> <?php echo substr($oTicket->getAssignee(true), 0, 25); ?></p>
+                        <i class="icon-user"></i> <?php echo substr($oTicket->getAssignee(true), 0, 25); ?>
+                    </p>
                     <p>
+                        <i class="icon-tasks"></i> <?php echo (isset($this->aKanban[$oTicket->id()]) === true) ? \Flightzilla\Model\Kanban\Status::$aStatusText[$this->aKanban[$oTicket->id()]] : '-'; ?>
+                    </p>
                     <p>
                         <i class="icon-tags"></i>
                         <?php $fRevenue = (float) $oTicket->getRevenue();
@@ -43,12 +46,13 @@
                         else {?>
                             <span class="label label-warning">No revenue!</span>
                         <?php } ?>
+                    </p>
                     <p>
-                    <?php if ($oTicket->isContainer() === true): ?>
-                        <i class="icon-time"></i> <?php echo $sEstimationString; ?>
-                    <?php else: ?>
-                        <i class="icon-comment"></i> <?php echo $oTicket->getReporter(true); ?>
-                    <?php endif; ?>
+                        <?php if ($oTicket->isContainer() === true): ?>
+                            <i class="icon-time"></i> <?php echo $sEstimationString; ?>
+                        <?php else: ?>
+                            <i class="icon-comment"></i> <?php echo $oTicket->getReporter(true); ?>
+                        <?php endif; ?>
                     </p>
                 </div>
                 <div class="span5">

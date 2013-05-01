@@ -213,7 +213,14 @@ class IndexController extends AbstractActionController {
 
         $aTickets = implode(',', $this->params()->fromQuery('id'));
         if (empty($aTickets) !== true) {
-            $oViewModel->aTickets = $this->getPluginManager()->get(TicketService::NAME)->getService()->getBugListByIds($aTickets);
+            $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->getService();
+            $oViewModel->aTickets = $oServiceModel->getBugListByIds($aTickets);
+
+            $oKanbanStatus = new \Flightzilla\Model\Kanban\Status($oViewModel->aTickets, $oServiceModel);
+            $oViewModel->aKanban = $oKanbanStatus->setGrouped()->setTypes(array(
+                \Flightzilla\Model\Ticket\Type\Bug::TYPE_PROJECT,
+                \Flightzilla\Model\Ticket\Type\Bug::TYPE_THEME,
+            ))->process()->getByTicket();
         }
 
         return $oViewModel;

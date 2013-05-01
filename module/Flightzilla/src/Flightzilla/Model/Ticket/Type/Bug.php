@@ -1034,6 +1034,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * Get the complexity of the project
+     *
+     * @return int
+     */
+    public function getComplexity() {
+        return (int) $this->_data->cf_complexity;
+    }
+
+    /**
      * Get the depend-bugs
      *
      * @return array

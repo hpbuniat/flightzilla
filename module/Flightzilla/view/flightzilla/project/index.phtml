@@ -39,6 +39,9 @@
                             <p>
                                 <i class="icon-user"></i> <?php echo $this->oProject->getAssignee(true); ?>
                             </p>
+                            <p>
+                                <i class="icon-tasks"></i> <?php echo (isset($this->aKanban[$this->oProject->id()]) === true) ? \Flightzilla\Model\Kanban\Status::$aStatusText[$this->aKanban[$this->oProject->id()]] : '-'; ?>
+                            <p>
                         </blockquote>
                     </div>
                     <div class="span8">
@@ -103,7 +106,9 @@
           'caption' => 'Projects as List',
           'sBugzilla' => $this->layout()->sBugzilla,
           'bugs' => $this->aProjects,
-          'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED
+          'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED,
+          'mode' => $this->mode,
+          'aKanban' => $this->aKanban
      ));
     ?>
 </form>
