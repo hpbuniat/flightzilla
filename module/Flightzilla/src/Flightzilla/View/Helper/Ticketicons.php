@@ -67,6 +67,7 @@ class Ticketicons extends AbstractHelper {
     const ICON_TESTING = 'icon-eye-open';
     const ICON_COMMENT = 'icon-comment';
     const ICON_REVENUE = 'icon-tags';
+    const ICON_WARNING = 'icon-warning-sign';
 
     /**
      * Get the workflow-stats of the bug
@@ -123,6 +124,22 @@ class Ticketicons extends AbstractHelper {
 
         if ($oBug->isType(Bug::TYPE_BUG) === true) {
             $sClasses .= '&nbsp;<span class="ui-silk ui-silk-bug" title="' . Bug::TYPE_BUG . '">&nbsp;</span>';
+        }
+        elseif ($oBug->isContainer() !== true) {
+            $aBlocks = $oBug->blocks();
+            $oService = $oBug->getTicketService();
+            $bHasContainer = false;
+            foreach ($aBlocks as $iBlocks) {
+                $oBlocks = $oService->getBugById($iBlocks);
+                if ($oBlocks->isContainer() === true) {
+                    $bHasContainer = true;
+                    break;
+                }
+            }
+
+            if ($bHasContainer === false) {
+                $sClasses .= sprintf('&nbsp;<i class="%s" title="Feature with no container!">&nbsp;</i>', self::ICON_WARNING);
+            }
         }
 
         return $sClasses;
