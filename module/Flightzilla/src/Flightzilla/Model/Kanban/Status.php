@@ -60,6 +60,7 @@ class Status  {
      *
      * @var string
      */
+    const LISTED = 'listed';
     const WAITING = 'waiting_stack';
     const SCREEN_WIP = 'screen_wip';
     const SCREEN_APPROVED = 'screen_approved';
@@ -75,6 +76,7 @@ class Status  {
      *
      */
     public static $aStatusText = array(
+        self::LISTED => 'Listed',
         self::WAITING => 'Pending',
         self::SCREEN_WIP => 'Concept wip',
         self::SCREEN_APPROVED => 'Concept ready',
@@ -93,6 +95,7 @@ class Status  {
      * @var array
      */
     protected $_aStatusOrder = array(
+        self::LISTED => 0,
         self::SCREEN_WIP => 1,
         self::DEV_WIP => 2,
         self::DEV_WAITING => 3,
@@ -228,6 +231,9 @@ class Status  {
                 $sStatus = self::RELEASE;
                 if ($this->_bGrouped === true) {
                     $aStack = $oTicket->getDepends();
+                    if (empty($aStack) === true) {
+                        $sStatus = self::LISTED;
+                    }
 
                     foreach ($aStack as $iTicket) {
                         $sStackStatus = $this->_getStatus($iTicket);
