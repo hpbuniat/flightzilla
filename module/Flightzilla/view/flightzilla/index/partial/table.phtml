@@ -53,9 +53,10 @@ if ($iCount > 0):?>
             <th>Prio</th>
             <th>Bug No.</th>
             <?php if ($this->mode === 'project'):?>
-                <th>Kanban-Status</th>
+                <th>Status</th>
                 <th class="{sorter: 'digit'}">Revenue</th>
                 <th class="{sorter: 'digit'}">Complexity</th>
+                <th class="{sorter: 'digit'}">Risk</th>
             <?php else: ?>
                 <th>Resolution</th>
                 <th>Status</th>

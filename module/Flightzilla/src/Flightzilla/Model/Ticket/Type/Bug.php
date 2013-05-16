@@ -1043,6 +1043,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * Get the risk-potential of the project
+     *
+     * @return int
+     */
+    public function getRisk() {
+        return (int) $this->_data->cf_risk;
+    }
+
+    /**
      * Get the depend-bugs
      *
      * @return array
