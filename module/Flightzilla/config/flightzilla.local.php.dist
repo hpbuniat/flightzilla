@@ -46,6 +46,19 @@ return array(
                 )
             )
         ),
+        'notifyy' => array(
+            'hp.buniat' => array(
+                'growl' => array(
+                    'host' => '127.0.0.1',
+                    'port' => '9887',
+                    'password' => '',
+                    'enabled' => false
+                ),
+                'dbus' => array(
+                    'enabled' => true
+                )
+            )
+        ),
         'mergy' => array(
             'command' => "/usr/local/bin/mergy",
             'source' => array(

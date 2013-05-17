@@ -122,6 +122,17 @@ return array(
 
                 return $oAnalytics;
             },
+            'notifyy' => function (\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
+                $aConfig = $oServiceManager->get('_serviceConfig')->toArray();
+                $sCurrentUser = $oServiceManager->get('_auth')->getLogin();
+
+                $aNotifyConfig = array();
+                if (empty($aConfig['notifyy'][$sCurrentUser]) !== true) {
+                    $aNotifyConfig = $aConfig['notifyy'][$sCurrentUser];
+                }
+
+                return \notifyy\Builder::build($aNotifyConfig);
+            }
         ),
     ),
     'controllers' => array(
