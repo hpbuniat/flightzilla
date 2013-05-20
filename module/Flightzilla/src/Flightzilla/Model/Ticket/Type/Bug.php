@@ -434,6 +434,26 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * Get the projects, this ticket might be part of
+     *
+     * @return array
+     */
+    public function getProjects() {
+        $aProjects = array();
+        foreach ($this->blocks() as $iBlocked) {
+
+            $oBlocked = $this->_oBugzilla->getBugById($iBlocked);
+            /* @var $oBlocked Bug */
+
+            if ($oBlocked->isProject() === true) {
+                $aProjects[$oBlocked->id()] = $oBlocked;
+            }
+        }
+
+        return $aProjects;
+    }
+
+    /**
      * Get the blocked bug-id
      *
      * @return array
@@ -474,18 +494,6 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     public function isQuickOne() {
         $iEstimated = (int)  $this->estimated_time;
         return ($this->getStatus() !== Bug::STATUS_RESOLVED and $iEstimated > 0 and $iEstimated <= 3 and (int) $this->actual_time === 0);
-    }
-
-    /**
-     * Check if a bug might be merged
-     *
-     * @return boolean
-     */
-    public function isMergeable() {
-        $sStatus = $this->getStatus();
-        $bTested = $this->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED);
-        return ($bTested === true and $this->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST) !== true and ($this->hasFlag(Bug::FLAG_MERGE, Bugzilla::BUG_FLAG_REQUEST) === true
-            or (($sStatus === Bug::STATUS_RESOLVED or $sStatus === Bug::STATUS_VERIFIED) and $this->hasFlag(Bug::FLAG_MERGE, Bugzilla::BUG_FLAG_GRANTED) === false and $bTested === true)));
     }
 
     /**
@@ -1262,6 +1270,18 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         }
 
         return $bIsMostLikelyInTrunk;
+    }
+
+    /**
+     * Check if a bug might be merged
+     *
+     * @return boolean
+     */
+    public function isMergeable() {
+        $sStatus = $this->getStatus();
+        $bTested = $this->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED);
+        return ($bTested === true and $this->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST) !== true and ($this->hasFlag(Bug::FLAG_MERGE, Bugzilla::BUG_FLAG_REQUEST) === true
+                or (($sStatus === Bug::STATUS_RESOLVED or $sStatus === Bug::STATUS_VERIFIED) and $this->hasFlag(Bug::FLAG_MERGE, Bugzilla::BUG_FLAG_GRANTED) === false and $bTested === true)));
     }
 
     /**

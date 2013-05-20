@@ -1013,7 +1013,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             }
 
             if (empty($this->_aFixedTrunk[$bug->id()]) === true) {
-                $aBlocked  = $this->getBugListByIds($bug->blocks());
+                $aProjects = $bug->getProjects();
+
                 if ($bug->isMergeable() === true or ($bug->hasFlag(Bug::FLAG_MERGE, self::BUG_FLAG_GRANTED) !== true and $bug->hasFlag(Bug::FLAG_DBCHANGE, self::BUG_FLAG_REQUEST) === true)) {
                     $aDepends = $this->getBugListByIds($bug->getDepends($this));
                     $bMergeable = $bug->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED);
@@ -1025,15 +1026,13 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                     }
 
                     if ($bMergeable === true) {
-                        foreach ($aBlocked as $oBlocked) {
-                            /* @var $oBlocked Bug */
-                            if ($oBlocked->isProject() === true) {
-                                foreach ($oBlocked->getDependsAsStack() as $oSibling) {
-                                    /* @var $oSibling Bug */
-                                    if ($oSibling->couldBeInTrunk() !== true and $oSibling->isMerged() !== true and $oSibling->isMergeable() !== true) {
-                                        $bMergeable = false;
-                                        break 2;
-                                    }
+                        foreach ($aProjects as $oProject) {
+                            /* @var $oProject Bug */
+                            foreach ($oProject->getDependsAsStack() as $oSibling) {
+                                /* @var $oSibling Bug */
+                                if ($oSibling->couldBeInTrunk() !== true and $oSibling->isMerged() !== true and $oSibling->isMergeable() !== true) {
+                                    $bMergeable = false;
+                                    break 2;
                                 }
                             }
                         }
@@ -1046,7 +1045,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                         $this->_aFixed[$bug->id()] = $bug;
                     }
                 }
-                elseif (empty($aBlocked) === true) {
+                elseif (empty($aProjects) === true) {
                     $this->_aFixed[$bug->id()] = $bug;
                 }
             }
