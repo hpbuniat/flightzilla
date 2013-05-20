@@ -68,6 +68,7 @@ class Ticketicons extends AbstractHelper {
     const ICON_COMMENT = 'icon-comment';
     const ICON_REVENUE = 'icon-tags';
     const ICON_WARNING = 'icon-warning-sign';
+    const ICON_UPDATE = 'icon-refresh';
 
     /**
      * Get the workflow-stats of the bug
@@ -120,6 +121,10 @@ class Ticketicons extends AbstractHelper {
         $sRevenue = $oBug->getRevenue();
         if (empty($sRevenue) !== true) {
             $sClasses .= sprintf('&nbsp;<i class="%s" title="%s">&nbsp;</i>', self::ICON_REVENUE, $sRevenue);
+        }
+
+        if ($oBug->hasFlag(Bug::FLAG_TESTSERVER, Bugzilla::BUG_FLAG_REQUEST) === true) {
+            $sClasses .= sprintf('&nbsp;<i class="%s" title="Awaiting %s">&nbsp;</i>', self::ICON_UPDATE, Bug::FLAG_TESTSERVER);
         }
 
         if ($oBug->isType(Bug::TYPE_BUG) === true) {
