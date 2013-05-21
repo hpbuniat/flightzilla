@@ -78,10 +78,7 @@ module.exports = function (grunt) {
                         './components/jquery-ui/themes/smoothness/*.theme.css'
                     ], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
                     {src: ['./components/jquery-ui/jquery.ui.custom.min.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
-                    {src: [
-                        './components/jquery.tablesorter/js/jquery.tablesorter.min.js',
-                        './components/jquery.tablesorter/js/jquery.metadata.js'
-                    ], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true}
+                    {src: ['./components/jquery.tablesorter/js/jquery.tablesorter.min.js',], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true}
                 ]
             }
         }
