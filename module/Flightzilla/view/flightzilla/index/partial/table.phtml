@@ -49,21 +49,21 @@ if ($iCount > 0):?>
             </td>
         </tr>
 
-        <tr class="tableHeader">
+        <tr class="tableHeader tableSort">
             <th>Prio</th>
             <th>Bug No.</th>
             <?php if ($this->mode === 'project'):?>
                 <th>Status</th>
-                <th class="{sorter: 'digit'}">Revenue</th>
-                <th class="{sorter: 'digit'}">Complexity</th>
-                <th class="{sorter: 'digit'}">Risk</th>
+                <th data-sorter="digit">Revenue</th>
+                <th data-sorter="digit">Complexity</th>
+                <th data-sorter="digit">Risk</th>
             <?php else: ?>
                 <th>Resolution</th>
                 <th>Status</th>
-                <th class="{sorter: 'digit'}">Times</th>
+                <th data-sorter="digit">Times</th>
             <?php endif; ?>
             <th>Summary</th>
-            <th></th>
+            <th data-sorter="false"></th>
             <th>Component</th>
         </tr>
         </thead>

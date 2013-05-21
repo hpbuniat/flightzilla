@@ -643,7 +643,9 @@
             /**
              * Init the table-sorter
              */
-            $('.tablesorter').tablesorter();
+            $('.tablesorter').tablesorter({
+                selectorHeaders: '.tableSort > td,th'
+            });
         }
     };
 
