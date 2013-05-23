@@ -9,7 +9,7 @@ if (empty($this->sCssClass) === true) {
 
 $iCount = count($this->bugs);
 $sCaption = '';
-if (empty($this->caption) !== true and empty($this->revisions) !== true) {
+if (empty($this->caption) !== true and empty($this->revisions) === true) {
     $sCaption = sprintf('%s (%d)', $this->caption, $iCount);
 }
 elseif(empty($this->captionTicket) !== true and $this->captionTicket instanceof \Flightzilla\Model\Ticket\Type\Bug) {
@@ -88,7 +88,7 @@ if ($iCount > 0):?>
                     echo $this->render('flightzilla/index/partial/bug.phtml');
                 }
 
-                // this is very hacky to get all remaning revisions of ticket which are unknown as they are already closed
+                // this is very dirty: get all remaining revisions of tickets which are yet unknown as they are already closed
                 if (empty($this->revisions) !== true) {
                     $aStack = $this->revisions->getStack();
                     foreach ($aStack as $oStack) {
