@@ -43,6 +43,19 @@ return array(
                             'mail' => 'hans-peter.buniat@mail',     // the mail (which is set in bugzilla)
                             'gravatar' => 'hpbuniat@mail'           // optional: a gravatar-image
                         ),
+                    ),
+                    'mergy' => array(
+                        'command' => "/usr/local/bin/mergy",
+                        'source' => array(
+                            // you may add multiple svn repositories per project
+                            'portal' => array(
+                                'stable' => "https://svn/project/trunk",
+                                'feature' => "https://svn/project/branches/feature",
+                                'wc' => "/opt/mergy/trunks/project",
+                                'trac' => "https://trac/changeset/%d"
+                            )
+                        )
+                    )
                 )
             )
         ),
@@ -57,17 +70,6 @@ return array(
                 'dbus' => array(
                     'enabled' => true
                 )
-            )
-        ),
-        'mergy' => array(
-            'command' => "/usr/local/bin/mergy",
-            'source' => array(
-                'portal' => array(
-                    'stable' => "https://svn/project/trunk",
-                    'feature' => "https://svn/project/branches/feature",
-                    'wc' => "/opt/mergy/trunks/project",
-                    'trac' => "https://trac/changeset/%d"
-                ),
             )
         ),
         'analytics' => array(

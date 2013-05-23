@@ -51,7 +51,7 @@ namespace Flightzilla\Model\Mergy\Revision;
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class Stack {
+class Stack implements \ArrayAccess, \Countable {
 
     /**
      * The name of the project
@@ -89,11 +89,11 @@ class Stack {
     protected $_oXml;
 
     /**
-     * The parsed revisions
+     * The parsed result
      *
      * @var array
      */
-    protected $_aRevisions = array();
+    protected $_aResult = array();
 
     /**
      * Switch to get the revisions as string
@@ -101,6 +101,14 @@ class Stack {
      * @var boolean
      */
     const REVISIONS_AS_STRING = true;
+
+    /**
+     * Which attribute of a revision should be parsed as index
+     *
+     * @var string
+     */
+    const PARSE_REVISION = 'revision';
+    const PARSE_TICKETS = 'tickets';
 
     /**
      * Create a Stack
@@ -179,49 +187,128 @@ class Stack {
      * @return string|array According to $bAsString
      */
     public function getRevisions($bAsString = false) {
-        if ($bAsString === true) {
-            return implode(',', $this->_aRevisions);
-        }
-
-        return $this->_aRevisions;
+        return ($bAsString === true) ? implode(',', $this->_aResult) : $this->_aResult;
     }
 
     /**
      * Set the raw result
      *
      * @param  string $sXml
+     * @param  string $sParse
      *
      * @return Stack
      */
-    public function setRaw($sXml) {
-        $aMatches = array();
+    public function setRaw($sXml, $sParse = self::PARSE_REVISION) {
+        $this->_aResult = $aMatches = array();
         preg_match('!<tickets>.*?</tickets>!i', $sXml, $aMatches);
         if (empty($aMatches[0]) !== true) {
             $this->_oXml = simplexml_load_string($aMatches[0]);
-            $this->_parse();
+            switch ($sParse) {
+                case self::PARSE_REVISION:
+                    $this->_parseRevision();
+                    break;
+
+                case self::PARSE_TICKETS;
+                    $this->_parseTickets();
+                    break;
+            }
         }
 
         return $this;
     }
 
     /**
-     * Parse the result
+     * Parse the result to revisions
      *
-     * @return Stack
+     * @return $this
      */
-    protected function _parse() {
-        $this->_aRevisions = array();
+    protected function _parseRevision() {
         $aRevs = $this->_oXml->xpath('ticket');
         if (empty($aRevs) !== true) {
             foreach ($aRevs as $oRev) {
-                $this->_aRevisions[] = (string) $oRev['rev'];
+                $this->_aResult = array_merge($this->_aResult, explode(',', (string) $oRev['rev']));
             }
 
-            $this->_aRevisions = array_unique($this->_aRevisions);
-            sort($this->_aRevisions);
+            $this->_aResult = array_unique($this->_aResult);
+            sort($this->_aResult);
         }
 
         return $this;
     }
 
+    /**
+     * Parse the result to ticket-numbers
+     *
+     * @return $this
+     */
+    protected function _parseTickets() {
+        $aRevs = $this->_oXml->xpath('ticket');
+        if (empty($aRevs) !== true) {
+            foreach ($aRevs as $oRev) {
+                $aTickets = explode(',', (string) $oRev['id']);
+                $aRevisions = explode(',', (string) $oRev['rev']);
+                foreach ($aTickets as $iTicket) {
+                    if (empty($this->_aResult[$iTicket]) === true) {
+                        $this->_aResult[$iTicket] = array();
+                    }
+
+                    foreach ($aRevisions as $iRevision) {
+                        $this->_aResult[$iTicket][$iRevision] = (string) $oRev['author'];
+                    }
+                }
+            }
+
+            ksort($this->_aResult);
+        }
+
+        return $this;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \Countable::count()
+     */
+    public function count() {
+        return count($this->_aResult);
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \ArrayAccess::offsetSet()
+     */
+    public function offsetSet($offset, $value) {
+        if (is_null($offset) === true) {
+            $this->_aResult[] = $value;
+        }
+        else {
+            $this->_aResult[$offset] = $value;
+        }
+
+        return $this;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \ArrayAccess::offsetExists()
+     */
+    public function offsetExists($offset) {
+        return isset($this->_aResult[$offset]);
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \ArrayAccess::offsetUnset()
+     */
+    public function offsetUnset($offset) {
+        unset($this->_aResult[$offset]);
+        return $this;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \ArrayAccess::offsetGet()
+     */
+    public function offsetGet($offset) {
+        return ($this->offsetExists($offset) === true) ? $this->_aResult[$offset] : null;
+    }
 }

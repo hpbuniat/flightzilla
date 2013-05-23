@@ -79,7 +79,16 @@
                             <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'project', 'action' => 'resources')); ?>">Resources</a></li>
                         </ul>
                     </li>
-                    <li class="<?php echo ($this->mode === 'mergy') ? 'active' : ''; ?>"><a href="<?php echo $this->url('flightzilla', array('controller' => 'mergy', 'action' => 'index')); ?>">Mergy</a></li>
+                    <li class="dropdown <?php echo ($this->mode === 'mergy') ? 'active' : ''; ?>">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Mergy
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'mergy', 'action' => 'index')); ?>">Merge</a></li>
+                            <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'mergy', 'action' => 'status')); ?>">Status</a></li>
+                        </ul>
+                    </li>
                     <li class="dropdown <?php echo ($this->mode === 'analytics') ? 'active' : ''; ?>">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                             Analytics

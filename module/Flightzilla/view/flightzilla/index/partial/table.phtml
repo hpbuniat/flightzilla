@@ -72,7 +72,15 @@ if ($iCount > 0):?>
             foreach($this->bugs as $bug) {
                 $this->bug = $bug;
                 $this->bReady = ($this->ready !== false and $bug->resolution === $this->ready);
-                echo $this->render('flightzilla/index/partial/bug.phtml');
+                if (empty($this->revisions) !== true) {
+                    if ($this->revisions->offsetExists($bug->id()) === true) {
+                        echo $this->render('flightzilla/index/partial/bug.phtml');
+                        echo $this->render('flightzilla/mergy/partial/list.phtml');
+                    }
+                }
+                else {
+                    echo $this->render('flightzilla/index/partial/bug.phtml');
+                }
             }
         ?>
         </tbody>

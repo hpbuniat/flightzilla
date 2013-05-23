@@ -780,6 +780,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      */
     protected function _preSort($aTickets) {
         foreach ($aTickets as $oTicket) {
+
+            /* @var $oTicket Bug */
             switch ($oTicket->getStatus()) {
                 case Bug::STATUS_REOPENED:
                     $this->_reopenedBugs[$oTicket->id()] = $oTicket;
@@ -1129,6 +1131,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     public function getFilteredList(array $aStack, array $aFilter) {
 
         foreach ($aFilter as $oTicket) {
+            /* @var $oTicket Bug */
+
             $iIndex = $oTicket->id();
             if (isset($aStack[$iIndex]) === true) {
                 unset($aStack[$iIndex]);
@@ -1200,9 +1204,10 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         $aBugs = array_merge($this->getFixedBugs(), $this->getOpenBugs());
         $back  = array();
-        foreach ($aBugs as $bug) {
-            if ($bug->hasFlag(Bug::FLAG_TESTSERVER, self::BUG_FLAG_REQUEST)) {
-                $back[$bug->id()] = $bug;
+        foreach ($aBugs as $oTicket) {
+            /* @var $oTicket Bug */
+            if ($oTicket->hasFlag(Bug::FLAG_TESTSERVER, self::BUG_FLAG_REQUEST)) {
+                $back[$oTicket->id()] = $oTicket;
             }
         }
 

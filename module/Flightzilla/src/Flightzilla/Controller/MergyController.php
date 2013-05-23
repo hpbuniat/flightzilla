@@ -64,7 +64,37 @@ class MergyController extends AbstractActionController {
         $oViewModel->mode = 'mergy';
 
         $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
-        $oViewModel->sRepositories = json_encode(array_keys($this->getServiceLocator()->get('_serviceConfig')->mergy->source->toArray()));
+        $oViewModel->sRepositories = json_encode(array_keys($this->getServiceLocator()->get('mergy')->source->toArray()));
+        return $oViewModel;
+    }
+
+    /**
+     *
+     */
+    public function statusAction() {
+        $oViewModel = new ViewModel;
+        $oViewModel->mode = 'mergy';
+
+        $oConfig = $this->getServiceLocator()->get('mergy');
+        $oLogger = $this->getServiceLocator()->get('_log');
+        $oMergy = new \Flightzilla\Model\Mergy\Invoker(new \Flightzilla\Model\Command(), $oLogger);
+
+        $oViewModel->oTicketService = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel)->getService();
+
+        try {
+            $oSources = $oConfig->source;
+            foreach ($oSources as $sName => $oSource) {
+                $oMergy->unmerged(new \Flightzilla\Model\Mergy\Revision\Stack($sName, $oSource), $oConfig->command, $oSource);
+            }
+
+            $oViewModel->oMergy = $oMergy;
+            $oViewModel->aAllTickets = $oViewModel->oTicketService->getAllBugs();
+            unset($oConfig, $oMergy);
+        }
+        catch (\Exception $e) {
+            $oLogger->info($e);
+        }
+
         return $oViewModel;
     }
 
@@ -79,7 +109,7 @@ class MergyController extends AbstractActionController {
         $oParams = $this->params();
         $sRepository = $oParams->fromPost('repo');
 
-        $oConfig = $this->getServiceLocator()->get('_serviceConfig')->mergy;
+        $oConfig = $this->getServiceLocator()->get('mergy');
 
         /* @var $oLogger \Zend\Log\Logger */
         $oLogger = $this->getServiceLocator()->get('_log');
@@ -111,7 +141,7 @@ class MergyController extends AbstractActionController {
         $oViewModel->setTerminal(true);
         $oViewModel->mode = 'mergy';
 
-        $oConfig = $this->getServiceLocator()->get('_serviceConfig')->mergy;
+        $oConfig = $this->getServiceLocator()->get('mergy');
         $oLogger = $this->getServiceLocator()->get('_log');
         $oMergy = new \Flightzilla\Model\Mergy\Invoker(new \Flightzilla\Model\Command(), $oLogger);
 

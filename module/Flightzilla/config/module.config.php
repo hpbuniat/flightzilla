@@ -132,6 +132,17 @@ return array(
                 }
 
                 return \notifyy\Builder::build($aNotifyConfig);
+            },
+            'mergy' => function (\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
+                $oConfig = $oServiceManager->get('_serviceConfig')->bugzilla->projects;
+                $oSession = $oServiceManager->get('session');
+
+                $oMergyConfig = new \Zend\Config\Config(array());
+                if (empty($oConfig->{$oSession->sCurrentProduct}->mergy) !== true) {
+                    $oMergyConfig = $oConfig->{$oSession->sCurrentProduct}->mergy;
+                }
+
+                return $oMergyConfig;
             }
         ),
     ),
