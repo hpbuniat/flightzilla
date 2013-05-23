@@ -230,6 +230,14 @@ h4.member-name, h3.table-toggle {
     padding: 5px;
 }
 
+.wide-definition .dl-horizontal dt {
+    width: 300px;
+}
+
+.wide-definition .dl-horizontal dd {
+    margin-left: 320px;
+}
+
 @media print {
     #zend-developer-toolbar {
         display: none !important;

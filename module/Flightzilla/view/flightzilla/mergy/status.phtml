@@ -7,11 +7,12 @@
         <form id="buglist-form" method="get" target="_blank" action="#">
             <?php
             echo $this->partial('flightzilla/index/partial/table.phtml', array(
-                  'caption' => 'Tickets with unmerged revisions',
-                  'sBugzilla' => $this->layout()->sBugzilla,
-                  'bugs' => $this->aAllTickets,
-                  'revisions' => $this->oMergy,
-                  'ready' => 'REVIEWED',
+                'caption' => 'Tickets with unmerged revisions',
+                'sBugzilla' => $this->layout()->sBugzilla,
+                'bugs' => $this->aAllTickets,
+                'revisions' => $this->oMergy,
+                'ready' => 'REVIEWED',
+                'oTicketService' => $this->oTicketService
             ));
             ?>
         </form>

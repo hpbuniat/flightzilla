@@ -9,7 +9,7 @@ if (empty($this->sCssClass) === true) {
 
 $iCount = count($this->bugs);
 $sCaption = '';
-if (empty($this->caption) !== true) {
+if (empty($this->caption) !== true and empty($this->revisions) !== true) {
     $sCaption = sprintf('%s (%d)', $this->caption, $iCount);
 }
 elseif(empty($this->captionTicket) !== true and $this->captionTicket instanceof \Flightzilla\Model\Ticket\Type\Bug) {
@@ -19,6 +19,9 @@ elseif(empty($this->captionTicket) !== true and $this->captionTicket instanceof 
 
 $aTimes = $this->collectiontime($this->bugs);
 $sEstimation = sprintf('%.1fh worked (%.1fh estimated) - Left: %.1fh (%.1fd)', $aTimes['spent'], $aTimes['esti'], $aTimes['left'], $aTimes['days']);
+if (empty($this->revisions) !== true) {
+    $sEstimation = '';
+}
 
 if ($iCount > 0):?>
     <table class="bugTable table-bordered table-condensed table tablesorter <?php echo $this->sCssClass; ?>" style="width: 100%; margin-bottom: 10px;">
@@ -69,17 +72,42 @@ if ($iCount > 0):?>
         </thead>
         <tbody>
         <?php
+            $aMergeList = array();
             foreach($this->bugs as $bug) {
                 $this->bug = $bug;
                 $this->bReady = ($this->ready !== false and $bug->resolution === $this->ready);
+
                 if (empty($this->revisions) !== true) {
                     if ($this->revisions->offsetExists($bug->id()) === true) {
                         echo $this->render('flightzilla/index/partial/bug.phtml');
                         echo $this->render('flightzilla/mergy/partial/list.phtml');
+                        $aMergeList[$bug->id()] = $bug->id();
                     }
                 }
                 else {
                     echo $this->render('flightzilla/index/partial/bug.phtml');
+                }
+
+                // this is very hacky to get all remaning revisions of ticket which are unknown as they are already closed
+                if (empty($this->revisions) !== true) {
+                    $aStack = $this->revisions->getStack();
+                    foreach ($aStack as $oStack) {
+                        /* @var $oStack \Flightzilla\Model\Mergy\Revision\Stack */
+                        foreach ($oStack->getTickets() as $iTicket) {
+                            if (empty($aMergeList[$iTicket]) === true and is_numeric($iTicket) === true) {
+                                try {
+                                    $this->bug = $this->oTicketService->getBugById($iTicket);
+
+                                    echo $this->render('flightzilla/index/partial/bug.phtml');
+                                    echo $this->render('flightzilla/mergy/partial/list.phtml');
+                                    $aMergeList[$iTicket] = $iTicket;
+                                }
+                                catch (\Exception $e) {
+                                    $this->oTicketService->getLogger()->err($e->getTraceAsString());
+                                }
+                            }
+                        }
+                    }
                 }
             }
         ?>

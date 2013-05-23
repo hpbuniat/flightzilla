@@ -40,7 +40,6 @@
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 namespace Flightzilla\Model\Mergy;
-use Zend\Cache\Exception\BadMethodCallException;
 
 /**
  * Call mergy and get unmerged revisions, according to selection
@@ -299,7 +298,7 @@ class Invoker implements \ArrayAccess, \Countable {
             $bExists |= $oStack->offsetExists($offset);
         }
 
-        return $bExists;
+        return (bool)$bExists;
     }
 
     /**
@@ -311,7 +310,10 @@ class Invoker implements \ArrayAccess, \Countable {
         foreach ($this->_aStack as $oStack) {
             /* @var $oStack Revision\Stack */
             if ($oStack->offsetExists($offset) === true) {
-                $aStack[$oStack->getName()] = $oStack->offsetGet($offset);
+                $aStack[$oStack->getName()] = array(
+                    'stack' => $oStack,
+                    'revisions' => $oStack->offsetGet($offset)
+                );
             }
         }
 

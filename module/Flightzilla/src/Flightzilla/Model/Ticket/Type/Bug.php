@@ -354,7 +354,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         $sName = strtok($data->assigned_to, '@');
         $aName = explode('.', strtoupper($sName));
         $this->_data->assignee_name = ucwords(preg_replace('!\W!', ' ', $sName));
-        $this->_data->assignee_short = $aName[0]{0} . ((isset($aName[1]) === true) ? $aName[1]{0} : '');
+        $this->_data->assignee_short = (empty($aName) === true) ? 'N.N.' : (((empty($aName[0]) !== true) ? $aName[0]{0} : 'N.') . ((empty($aName[1]) !== true) ? $aName[1]{0} : ''));
 
         $this->_getFlags();
         $this->_getProperties();

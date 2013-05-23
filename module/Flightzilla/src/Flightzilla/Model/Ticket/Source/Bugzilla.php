@@ -1476,12 +1476,16 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         }
 
         if (isset($this->_allBugs[$iBug]) !== true) {
-            $aList                 = $this->getBugListByIds(array($iBug));
+            $aList = $this->getBugListByIds(array($iBug));
             if (isset($aList[$iBug]) === true) {
                 $this->_allBugs[$iBug] = $aList[$iBug];
             }
 
             unset($aList);
+        }
+
+        if (empty($this->_allBugs[$iBug]) === true) {
+            throw new Bug\Exception(Bug\Exception::INSUFFICIENT_DATA);
         }
 
         return $this->_allBugs[$iBug];
@@ -1495,7 +1499,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     public function getProject(Bug $oBug) {
 
         foreach ($this->_aProjects as $oTicket) {
-            if ($oTicket->isProject() and $oTicket->doesDependOn($oBug, $this)) {
+            if ($oTicket->isProject() === true and $oTicket->doesDependOn($oBug, $this) === true) {
                 return $oTicket;
             }
         }

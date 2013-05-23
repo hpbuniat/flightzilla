@@ -633,6 +633,16 @@
                 $(this).toggleClass('btn-primary').parents('.nav-list').find('a.toggleChart').trigger('click');
             });
 
+            $('.toggleNext').each(function() {
+                var $this = $(this),
+                    f = $this.data('toggleNext');
+                $this.on('click', function() {
+                    $this.next(f).toggle();
+                });
+
+                $this.next(f).toggle();
+            });
+
             /**
              * Add all selected tickets to the quick-list
              */

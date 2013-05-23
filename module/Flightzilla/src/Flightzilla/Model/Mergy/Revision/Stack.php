@@ -34,24 +34,23 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- * @package flightzilla
- * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @package   flightzilla
+ * @author    Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @license http://opensource.org/licenses/BSD-3-Clause
+ * @license   http://opensource.org/licenses/BSD-3-Clause
  */
 namespace Flightzilla\Model\Mergy\Revision;
-
 
 /**
  * Provide a stack for revisions
  *
- * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @author    Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @license http://opensource.org/licenses/BSD-3-Clause
- * @version Release: @package_version@
- * @link https://github.com/hpbuniat/flightzilla
+ * @license   http://opensource.org/licenses/BSD-3-Clause
+ * @version   Release: @package_version@
+ * @link      https://github.com/hpbuniat/flightzilla
  */
-class Stack implements \ArrayAccess, \Countable {
+class Stack implements \Iterator, \ArrayAccess, \Countable {
 
     /**
      * The name of the project
@@ -108,18 +107,20 @@ class Stack implements \ArrayAccess, \Countable {
      * @var string
      */
     const PARSE_REVISION = 'revision';
+
     const PARSE_TICKETS = 'tickets';
 
     /**
      * Create a Stack
      *
-     * @param string $sName
+     * @param string              $sName
      * @param \Zend\Config\Config $oSource
      */
     public function __construct($sName, \Zend\Config\Config $oSource) {
-        $this->_sName = $sName;
-        $this->_sRemote = $oSource->feature;
-        $this->_sStable = $oSource->stable;
+
+        $this->_sName         = $sName;
+        $this->_sRemote       = $oSource->feature;
+        $this->_sStable       = $oSource->stable;
         $this->_sChangesetUrl = $oSource->trac;
     }
 
@@ -129,6 +130,7 @@ class Stack implements \ArrayAccess, \Countable {
      * @return string
      */
     public function getName() {
+
         return $this->_sName;
     }
 
@@ -138,6 +140,7 @@ class Stack implements \ArrayAccess, \Countable {
      * @return string
      */
     public function getRemote() {
+
         return $this->_sRemote;
     }
 
@@ -147,6 +150,7 @@ class Stack implements \ArrayAccess, \Countable {
      * @return string
      */
     public function getStable() {
+
         return $this->_sStable;
     }
 
@@ -156,6 +160,7 @@ class Stack implements \ArrayAccess, \Countable {
      * @return boolean
      */
     public function isEmpty() {
+
         return empty($this->_aRevisions);
     }
 
@@ -167,6 +172,7 @@ class Stack implements \ArrayAccess, \Countable {
      * @return string
      */
     public function getChangeset($iTicket) {
+
         return sprintf($this->_sChangesetUrl, $iTicket);
     }
 
@@ -176,18 +182,38 @@ class Stack implements \ArrayAccess, \Countable {
      * @return \SimpleXMLElement
      */
     public function getRaw() {
+
         return $this->_oXml;
     }
 
     /**
      * Get the revisions
      *
-     * @param  boolean $bAsString
+     * @param  boolean     $bAsString
+     * @param  int|boolean $iTicket
      *
      * @return string|array According to $bAsString
      */
-    public function getRevisions($bAsString = false) {
-        return ($bAsString === true) ? implode(',', $this->_aResult) : $this->_aResult;
+    public function getRevisions($bAsString = false, $iTicket = false) {
+
+        $mReturn = array();
+        if (empty($this->_aResult) === true) {
+            $mReturn = $this->_aResult;
+        }
+        elseif (isset($this->_aResult[$iTicket]) === true) {
+            $mReturn = array_keys($this->_aResult[$iTicket]);
+        }
+
+        return ($bAsString === true) ? implode(',', $mReturn) : $mReturn;
+    }
+
+    /**
+     * Get the ticket numbers
+     *
+     * @return array
+     */
+    public function getTickets() {
+        return array_keys($this->_aResult);
     }
 
     /**
@@ -199,6 +225,7 @@ class Stack implements \ArrayAccess, \Countable {
      * @return Stack
      */
     public function setRaw($sXml, $sParse = self::PARSE_REVISION) {
+
         $this->_aResult = $aMatches = array();
         preg_match('!<tickets>.*?</tickets>!i', $sXml, $aMatches);
         if (empty($aMatches[0]) !== true) {
@@ -223,6 +250,7 @@ class Stack implements \ArrayAccess, \Countable {
      * @return $this
      */
     protected function _parseRevision() {
+
         $aRevs = $this->_oXml->xpath('ticket');
         if (empty($aRevs) !== true) {
             foreach ($aRevs as $oRev) {
@@ -242,10 +270,11 @@ class Stack implements \ArrayAccess, \Countable {
      * @return $this
      */
     protected function _parseTickets() {
+
         $aRevs = $this->_oXml->xpath('ticket');
         if (empty($aRevs) !== true) {
             foreach ($aRevs as $oRev) {
-                $aTickets = explode(',', (string) $oRev['id']);
+                $aTickets   = explode(',', (string) $oRev['id']);
                 $aRevisions = explode(',', (string) $oRev['rev']);
                 foreach ($aTickets as $iTicket) {
                     if (empty($this->_aResult[$iTicket]) === true) {
@@ -253,7 +282,9 @@ class Stack implements \ArrayAccess, \Countable {
                     }
 
                     foreach ($aRevisions as $iRevision) {
-                        $this->_aResult[$iTicket][$iRevision] = (string) $oRev['author'];
+                        $oClone                               = clone $oRev;
+                        $oClone['rev']                        = $iRevision;
+                        $this->_aResult[$iTicket][$iRevision] = $oClone;
                     }
                 }
             }
@@ -266,17 +297,21 @@ class Stack implements \ArrayAccess, \Countable {
 
     /**
      * (non-PHPdoc)
+     *
      * @see \Countable::count()
      */
     public function count() {
+
         return count($this->_aResult);
     }
 
     /**
      * (non-PHPdoc)
+     *
      * @see \ArrayAccess::offsetSet()
      */
     public function offsetSet($offset, $value) {
+
         if (is_null($offset) === true) {
             $this->_aResult[] = $value;
         }
@@ -289,26 +324,79 @@ class Stack implements \ArrayAccess, \Countable {
 
     /**
      * (non-PHPdoc)
+     *
      * @see \ArrayAccess::offsetExists()
      */
     public function offsetExists($offset) {
+
         return isset($this->_aResult[$offset]);
     }
 
     /**
      * (non-PHPdoc)
+     *
      * @see \ArrayAccess::offsetUnset()
      */
     public function offsetUnset($offset) {
+
         unset($this->_aResult[$offset]);
         return $this;
     }
 
     /**
      * (non-PHPdoc)
+     *
      * @see \ArrayAccess::offsetGet()
      */
     public function offsetGet($offset) {
+
         return ($this->offsetExists($offset) === true) ? $this->_aResult[$offset] : null;
+    }
+
+    /**
+     * (non-PHPdoc)
+     *
+     * @see \Iterator::rewind()
+     */
+    public function rewind() {
+        reset($this->_aResult);
+        return $this;
+    }
+
+    /**
+     * (non-PHPdoc)
+     *
+     * @see \Iterator::current()
+     */
+    public function current() {
+        return current($this->_aResult);
+    }
+
+    /**
+     * (non-PHPdoc)
+     *
+     * @see \Iterator::key()
+     */
+    public function key() {
+        return key($this->_aResult);
+    }
+
+    /**
+     * (non-PHPdoc)
+     *
+     * @see \Iterator::next()
+     */
+    public function next() {
+        return next($this->_aResult);
+    }
+
+    /**
+     * (non-PHPdoc)
+     *
+     * @see \Iterator::valid()
+     */
+    public function valid() {
+        $key = key($this->_aResult);
+        return ($key !== null and $key !== false);
     }
 }
