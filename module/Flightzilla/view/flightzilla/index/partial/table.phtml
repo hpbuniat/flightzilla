@@ -72,43 +72,16 @@ if ($iCount > 0):?>
         </thead>
         <tbody>
         <?php
-            $aMergeList = array();
-            foreach($this->bugs as $bug) {
-                $this->bug = $bug;
-                $this->bReady = ($this->ready !== false and $bug->resolution === $this->ready);
+            if (empty($this->revisions) === true) {
+                foreach($this->bugs as $bug) {
+                    $this->bug = $bug;
+                    $this->bReady = ($this->ready !== false and $bug->resolution === $this->ready);
 
-                if (empty($this->revisions) !== true) {
-                    if ($this->revisions->offsetExists($bug->id()) === true) {
-                        echo $this->render('flightzilla/index/partial/bug.phtml');
-                        echo $this->render('flightzilla/mergy/partial/list.phtml');
-                        $aMergeList[$bug->id()] = $bug->id();
-                    }
-                }
-                else {
                     echo $this->render('flightzilla/index/partial/bug.phtml');
                 }
-
-                // this is very dirty: get all remaining revisions of tickets which are yet unknown as they are already closed
-                if (empty($this->revisions) !== true) {
-                    $aStack = $this->revisions->getStack();
-                    foreach ($aStack as $oStack) {
-                        /* @var $oStack \Flightzilla\Model\Mergy\Revision\Stack */
-                        foreach ($oStack->getTickets() as $iTicket) {
-                            if (empty($aMergeList[$iTicket]) === true and is_numeric($iTicket) === true) {
-                                try {
-                                    $this->bug = $this->oTicketService->getBugById($iTicket);
-
-                                    echo $this->render('flightzilla/index/partial/bug.phtml');
-                                    echo $this->render('flightzilla/mergy/partial/list.phtml');
-                                    $aMergeList[$iTicket] = $iTicket;
-                                }
-                                catch (\Exception $e) {
-                                    $this->oTicketService->getLogger()->err($e->getTraceAsString());
-                                }
-                            }
-                        }
-                    }
-                }
+            }
+            else {
+                echo $this->render('flightzilla/mergy/partial/list.phtml');
             }
         ?>
         </tbody>

@@ -1,15 +1,25 @@
-<tr>
-    <td colspan="8" class="wide-definition">
-        <?php
-        $aRevisions = $this->revisions->offsetGet($this->bug->id());
-        foreach ($aRevisions as $aRevision) {
-            /* @var $this->oStack \Flightzilla\Model\Mergy\Revision\Stack */
-            $this->oStack = $aRevision['stack'];
-            $this->iTicket = $this->bug->id();
-            $this->aRevisions = $aRevision['revisions'];
+<?php
+// this is very dirty: get all remaining revisions of tickets which are yet unknown as they are already closed
+if (empty($this->revisions) !== true) {
+    $aStack = $this->revisions->getStack();
+    foreach ($aStack as $oStack) {
+        /* @var $oStack \Flightzilla\Model\Mergy\Revision\Stack */
+        foreach ($oStack->getTickets() as $iTicket) {
+            if (empty($aMergeList[$iTicket]) === true and is_numeric($iTicket) === true) {
+                try {
+                    $this->bug = $this->oTicketService->getBugById($iTicket);
+                    $this->bReady = ($this->ready !== false and $this->bug->resolution === $this->ready);
 
-            echo $this->render('flightzilla/mergy/partial/revisions.phtml');
+                    echo $this->render('flightzilla/index/partial/bug.phtml');
+                    echo $this->render('flightzilla/mergy/partial/table-row.phtml');
+                    $aMergeList[$iTicket] = $iTicket;
+                }
+                catch (\Exception $e) {
+                    $this->oTicketService->getLogger()->err($e->getTraceAsString());
+                }
+            }
         }
-        ?>
-    </td>
-</tr>
+    }
+}
+
+
