@@ -43,6 +43,7 @@
     </div>
 <?php endforeach; ?>
 
+<?php $this->inlineScript()->appendFile($this->basePath() . '/vendor/highcharts.js'); ?>
 <script type="text/javascript">
 $(function() {
     $('.toggleChart').eq(0).trigger('click');

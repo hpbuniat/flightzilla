@@ -31,15 +31,12 @@
             GO_BUGZILLA = "<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'go-bugzilla')); ?>",
             PRINT = "<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'print')); ?>";
     </script>
-
-    <!-- Scripts -->
-    <?php echo $this->headScript()->appendFile($this->basePath() . '/vendor/jquery.min.js')
-                                  ->appendFile($this->basePath() . '/vendor/jquery.ui.custom.min.js')
-                                  ->appendFile($this->basePath() . '/vendor/bootstrap.min.js')
-                                  ->appendFile($this->basePath() . '/vendor/highcharts.js')
-                                  ->appendFile($this->basePath() . '/js/flightzilla.js')
-                                  ->appendFile($this->basePath() . '/js/jquery.fn.gantt.js')
-                                  ->appendFile($this->basePath() . '/vendor/jquery.tablesorter.min.js');
+    <?php
+    echo $this->headScript()->appendFile($this->basePath() . '/vendor/jquery.min.js')
+                            ->appendFile($this->basePath() . '/vendor/jquery.ui.custom.min.js')
+                            ->appendFile($this->basePath() . '/vendor/bootstrap.min.js')
+                            ->appendFile($this->basePath() . '/vendor/jquery.tablesorter.min.js')
+                            ->appendFile($this->basePath() . '/js/flightzilla.js');
     ?>
 </head>
 <body class="<?php if ($this->bMinimal === true):?>minimal<?php endif;?>">
@@ -73,6 +70,7 @@
     <p id="loading" class="loading">
         <img src="<?php echo $this->basePath() . '/img/ajax-loader.gif'; ?>" />
     </p>
+
     <?php echo $this->inlineScript(); ?>
 <?php endif; ?>
 </body>
