@@ -71,6 +71,7 @@ module.exports = function (grunt) {
                         './components/bootstrap/docs/assets/css/bootstrap-responsive.css' ,
                         './components/bootstrap/docs/assets/css/bootstrap.css'
                     ], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
+                    {src: ['./components/d3/d3.min.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
                     {src: ['./components/highcharts/highcharts.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
                     {src: ['./components/jquery/jquery.min.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
                     {src: [

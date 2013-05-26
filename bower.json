@@ -6,6 +6,7 @@
         "jquery-ui": "~1.10",
         "bootstrap": ">=2.3",
         "highcharts": "latest",
-        "jquery.tablesorter": "~2.10"
+        "jquery.tablesorter": "~2.10",
+        "d3": "latest"
     }
 }
