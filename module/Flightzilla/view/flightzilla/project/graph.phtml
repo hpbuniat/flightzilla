@@ -60,6 +60,7 @@
                 .range([(height - 40), 100]);
 
             // Data
+            var borderColor = d3.scale.category20c();
             g.selectAll('circle')
                 .data(data)
                 .enter()
@@ -76,6 +77,10 @@
                 .attr('fill', function(d, i) {
                     return aColors[d[color]];
                 })
+                .attr('stroke', function(d) {
+                    return borderColor(d.id);
+                })
+                .attr('stroke-width', 2)
                 .style('cursor', 'pointer')
                 .on('mouseover', function(d) {
                     d3.select('svg g.chart #label')
