@@ -1029,7 +1029,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return float
      */
     public function getRevenue() {
-        return (string) $this->_data->cf_expected_revenue;
+        return (float) $this->_data->cf_expected_revenue;
     }
 
     /**

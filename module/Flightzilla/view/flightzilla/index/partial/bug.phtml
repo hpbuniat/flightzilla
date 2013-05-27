@@ -18,7 +18,7 @@
     </td>
     <?php if ($this->mode === 'project'):?>
         <td><?php echo (isset($this->aKanban[$this->bug->id()]) === true) ? \Flightzilla\Model\Kanban\Status::$aStatusText[$this->aKanban[$this->bug->id()]] : '-'; ?></td>
-        <td><?php echo sprintf('%s (%s%%)', $this->bug->getRevenue(), $this->bug->getRevenueProbability()); ?></td>
+        <td><?php echo sprintf('%s&nbsp;(%s)', number_format($this->bug->getRevenue(), 0, '', '.'), $this->bug->getRevenueProbability()); ?></td>
         <td><?php echo $this->bug->getComplexity(); ?></td>
         <td><?php echo $this->bug->getRisk(); ?></td>
     <?php else: ?>

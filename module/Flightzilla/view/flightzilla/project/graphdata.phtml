@@ -11,6 +11,7 @@ foreach ($this->aProjects as $oProject) {
         'revenue' => $oProject->getRevenue(),
         'complexity' => $oProject->getComplexity(),
         'risk' => $oProject->getRisk(),
+        'probability' => $oProject->getRevenueProbability(),
         'score-estimation' => $oProject->getRevenueScoreEstimation(),
         'score-real' => $oProject->getRevenueScoreActual(),
         'estimation' => $oProject->getEstimationTimeOfDependencies(),

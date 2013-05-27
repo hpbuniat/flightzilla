@@ -260,3 +260,15 @@ h4.member-name, h3.table-toggle {
         display: none !important;
     }
 }
+
+
+/* svg d3 css */
+#xAxis path, #yAxis path, #xAxis line, #yAxis line {
+    fill: none;
+    shape-rendering: crispedges;
+    stroke: #CCCCCC;
+}
+
+path {
+    fill: #CED8B6;
+}

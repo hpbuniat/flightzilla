@@ -16,65 +16,51 @@
 <?php $this->inlineScript()->appendFile($this->basePath() . '/vendor/d3.min.js'); ?>
 <script type="text/javascript">
     $(function() {
+        var xScale, yScale, centered, g, svg,
+            width = 1280,
+            height = 640,
+            xAxis = 'revenue',
+            yAxis = 'complexity',
+            radius = 'probability',
+            color = 'risk',
+            aColors = [
+                '#bbb',
+                '#2ca02c',
+                '#98df8a',
+                '#bd9e39',
+                '#ff7f0e',
+                '#d62728'
+            ];
+
         d3.json(BASE_URL + '/flightzilla/project/graphdata', function(data) {
-            var xScale, yScale;
             var bounds = getBounds(data, 1);
-            var xAxis = 'complexity', yAxis = 'revenue';
-
-            var svg = d3.select("#project-canvas")
+            svg = d3.select("#project-canvas")
                 .append("svg")
-                .attr("width", "99%")
-                .attr("height", "99%");
+                .attr("width", width)
+                .attr("height", height);
 
-            svg.append('g').classed('chart', true).attr('transform', 'translate(80, -60)');
+            g = svg.append('g').classed('chart', true).attr('transform', 'translate(80, -60)');
 
-            // Hove-Lable
-            d3.select('svg g.chart')
-                .append('text')
-                .attr({'id': 'label', 'x': 0, 'y': 170})
-                .style({'font-size': '80px', 'font-weight': 'bold', 'fill': '#ddd'});
+            // Hover-Label
+            g.append('text')
+                .attr({'id': 'label', 'x': 0, 'y': 100})
+                .style({'font-size': '30px', 'font-weight': 'bold', 'fill': '#ddd'});
 
-            // Best fit line (to appear behind points)
-            d3.select('svg g.chart').append('line').attr('id', 'bestfit');
+            // Labels
+            g.append('text').attr({'id': 'xLabel', 'x': parseInt(width / 2), 'y': (height + 30), 'text-anchor': 'middle'}).text('Revenue');
+            g.append('text').attr('transform', 'translate(-60, 330)rotate(-90)').attr({'id': 'yLabel', 'text-anchor': 'middle'}).text('Complexity');
 
-            // Axis labels
-            d3.select('svg g.chart')
-                .append('text')
-                .attr({'id': 'xLabel', 'x': 400, 'y': 670, 'text-anchor': 'middle'})
-                .text('x-Axis');
-
-            d3.select('svg g.chart')
-                .append('text')
-                .attr('transform', 'translate(-60, 330)rotate(-90)')
-                .attr({'id': 'yLabel', 'text-anchor': 'middle'})
-                .text('y-Axis');
-
-            d3.select('svg g.chart')
-                .selectAll('circle')
-                .transition()
-                .duration(500)
-                .ease('quad-out')
-                .attr('cx', function(d) {
-                    return isNaN(d[xAxis]) ? d3.select(this).attr('cx') : xScale(d[xAxis]);
-                })
-                .attr('cy', function(d) {
-                    return isNaN(d[yAxis]) ? d3.select(this).attr('cy') : yScale(d[yAxis]);
-                })
-                .attr('r', function(d) {
-                    return isNaN(d[xAxis]) || isNaN(d[yAxis]) ? 0 : 12;
-                });
-
-            xScale = d3.scale.linear()
+            // Axes
+            xScale = d3.scale.pow().exponent(0.2)
                 .domain([bounds[xAxis].min, bounds[xAxis].max])
-                .range([20, 780]);
+                .range([20, (width - 30)]);
 
             yScale = d3.scale.linear()
                 .domain([bounds[yAxis].min, bounds[yAxis].max])
-                .range([600, 100]);
+                .range([(width - 40), 100]);
 
-            var pointColour = d3.scale.category20b();
-            d3.select('svg g.chart')
-                .selectAll('circle')
+            // Data
+            g.selectAll('circle')
                 .data(data)
                 .enter()
                 .append('circle')
@@ -84,7 +70,12 @@
                 .attr('cy', function(d) {
                     return isNaN(d[yAxis]) ? d3.select(this).attr('cy') : yScale(d[yAxis]);
                 })
-                .attr('fill', function(d, i) {return pointColour(i);})
+                .attr('r', function(d) {
+                    return (isNaN(d[radius]) || isNaN(d[xAxis]) || isNaN(d[yAxis])) ? 0 : (12 + (3 * d[radius]));
+                })
+                .attr('fill', function(d, i) {
+                    return aColors[d[color]];
+                })
                 .style('cursor', 'pointer')
                 .on('mouseover', function(d) {
                     d3.select('svg g.chart #label')
@@ -97,22 +88,8 @@
                         .transition()
                         .duration(1500)
                         .style('opacity', 0);
-                });
-
-            d3.select('svg g.chart')
-                .selectAll('circle')
-                .transition()
-                .duration(500)
-                .ease('quad-out')
-                .attr('cx', function(d) {
-                    return isNaN(d[xAxis]) ? d3.select(this).attr('cx') : xScale(d[xAxis]);
                 })
-                .attr('cy', function(d) {
-                    return isNaN(d[yAxis]) ? d3.select(this).attr('cy') : yScale(d[yAxis]);
-                })
-                .attr('r', function(d) {
-                    return isNaN(d[xAxis]) || isNaN(d[yAxis]) ? 0 : 12;
-                });
+                .on('click', clickCircle);
 
             // Update correlation
             var xArray = _.map(data, function(d) {return d[xAxis];});
@@ -121,70 +98,109 @@
             var x1 = xScale.domain()[0], y1 = c.m * x1 + c.b;
             var x2 = xScale.domain()[1], y2 = c.m * x2 + c.b;
 
-            // Fade in
+            // Best fit line (to appear behind points)
+            g.append('line').attr('id', 'bestfit');
             d3.select('#bestfit')
                 .style('opacity', 0)
                 .attr({'x1': xScale(x1), 'y1': yScale(y1), 'x2': xScale(x2), 'y2': yScale(y2)})
                 .transition()
                 .duration(1500)
                 .style('opacity', 1);
+
+            // Render axes
+            g.append("g")
+                .attr('transform', 'translate(0, 630)')
+                .attr('id', 'xAxis')
+                .call(function (s) {
+                    s.call(d3.svg.axis().scale(xScale).orient("bottom"));
+                });
+
+            g.append("g")
+                .attr('id', 'yAxis')
+                .attr('transform', 'translate(-10, 0)')
+                .call(function (s) {
+                    s.call(d3.svg.axis().scale(yScale).orient("left"));
+                });
         });
-    });
 
-    function getBounds(d, paddingFactor) {
-        // Find min and maxes (for the scales)
-        paddingFactor = typeof paddingFactor !== 'undefined' ? paddingFactor : 1;
+        function clickCircle(d) {
+            var x = width / 2,
+                y = height / 2,
+                k = 1;
 
-        var keys = _.keys(d[0]), b = {};
-        _.each(keys, function(k) {
-            b[k] = {};
-            _.each(d, function(d) {
-                if(isNaN(d[k])) {
-                    return;
-                }
+            if (d && centered !== d) {
+                x = xScale(d[xAxis]);
+                y = yScale(d[yAxis]);
+                k = 4;
+                centered = d;
+            }
+            else {
+                centered = null;
+            }
 
-                if(b[k].min === undefined || d[k] < b[k].min) {
-                    b[k].min = d[k];
-                }
+            g.transition().duration(1000).attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")");
+        }
 
-                if(b[k].max === undefined || d[k] > b[k].max) {
-                    b[k].max = d[k];
-                }
+        function getBounds(d, paddingFactor) {
+            // Find min and maxes (for the scales)
+            paddingFactor = typeof paddingFactor !== 'undefined' ? paddingFactor : 1;
+
+            var keys = _.keys(d[0]), b = {};
+            _.each(keys, function(k) {
+                b[k] = {};
+                _.each(d, function(d) {
+                    if(isNaN(d[k])) {
+                        return;
+                    }
+
+                    if(b[k].min === undefined || d[k] < b[k].min) {
+                        b[k].min = d[k];
+                    }
+
+                    if(b[k].max === undefined || d[k] > b[k].max) {
+                        b[k].max = d[k];
+                    }
+                });
+                b[k].max > 0 ? b[k].max *= paddingFactor : b[k].max /= paddingFactor;
+                b[k].min > 0 ? b[k].min /= paddingFactor : b[k].min *= paddingFactor;
             });
-            b[k].max > 0 ? b[k].max *= paddingFactor : b[k].max /= paddingFactor;
-            b[k].min > 0 ? b[k].min /= paddingFactor : b[k].min *= paddingFactor;
-        });
-        return b;
-    }
+            return b;
+        }
 
-    function getCorrelation(xArray, yArray) {
-        function sum(m, v) {return m + v;}
-        function sumSquares(m, v) {return m + v * v;}
-        function filterNaN(m, v, i) {isNaN(v) ? null : m.push(i); return m;}
+        function getCorrelation(xArray, yArray) {
+            function sum(m, v) {return m + v;}
+            function sumSquares(m, v) {return m + v * v;}
+            function filterNaN(m, v, i) {
+                if (!isNaN(v)) {
+                    m.push(i);
+                }
 
-        // clean the data (because we know that some values are missing)
-        var xNaN = _.reduce(xArray, filterNaN , []);
-        var yNaN = _.reduce(yArray, filterNaN , []);
-        var include = _.intersection(xNaN, yNaN);
-        var fX = _.map(include, function(d) {return xArray[d];});
-        var fY = _.map(include, function(d) {return yArray[d];});
+                return m;
+            }
 
-        var sumX = _.reduce(fX, sum, 0);
-        var sumY = _.reduce(fY, sum, 0);
-        var sumX2 = _.reduce(fX, sumSquares, 0);
-        var sumY2 = _.reduce(fY, sumSquares, 0);
-        var sumXY = _.reduce(fX, function(m, v, i) {return m + v * fY[i];}, 0);
+            // clean the data (because we know that some values are missing)
+            var xNaN = _.reduce(xArray, filterNaN , []);
+            var yNaN = _.reduce(yArray, filterNaN , []);
+            var include = _.intersection(xNaN, yNaN);
+            var fX = _.map(include, function(d) {return xArray[d];});
+            var fY = _.map(include, function(d) {return yArray[d];});
 
-        var n = fX.length;
-        var ntor = ( ( sumXY ) - ( sumX * sumY / n) );
-        var dtorX = sumX2 - ( sumX * sumX / n);
-        var dtorY = sumY2 - ( sumY * sumY / n);
+            var sumX = _.reduce(fX, sum, 0);
+            var sumY = _.reduce(fY, sum, 0);
+            var sumX2 = _.reduce(fX, sumSquares, 0);
+            var sumY2 = _.reduce(fY, sumSquares, 0);
+            var sumXY = _.reduce(fX, function(m, v, i) {return m + v * fY[i];}, 0);
 
-        var r = ntor / (Math.sqrt( dtorX * dtorY )); // Pearson ( http://www.stat.wmich.edu/s216/book/node122.html )
-        var m = ntor / dtorX; // y = mx + b
-        var b = ( sumY - m * sumX ) / n;
+            var n = fX.length;
+            var ntor = ( ( sumXY ) - ( sumX * sumY / n) );
+            var dtorX = sumX2 - ( sumX * sumX / n);
+            var dtorY = sumY2 - ( sumY * sumY / n);
 
-        console.log(r, m, b);
-        return {r: r, m: m, b: b};
-    }
+            var r = ntor / (Math.sqrt( dtorX * dtorY )); // Pearson ( http://www.stat.wmich.edu/s216/book/node122.html )
+            var m = ntor / dtorX; // y = mx + b
+            var b = ( sumY - m * sumX ) / n;
+
+            return {r: r, m: m, b: b};
+        }
+    });
 </script>
