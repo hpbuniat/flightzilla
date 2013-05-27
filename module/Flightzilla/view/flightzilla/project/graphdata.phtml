@@ -1,0 +1,23 @@
+<?php
+$aProjects = array();
+foreach ($this->aProjects as $oProject) {
+
+    /* @var \Flightzilla\Model\Ticket\Type\Project $oProject */
+    $aProjects[] = array(
+        'id' => $oProject->id(),
+        'summary' => $oProject->title(),
+        'assignee' => $oProject->getAssignee(),
+        'depends' => $oProject->getDependentProjects(),
+        'revenue' => $oProject->getRevenue(),
+        'complexity' => $oProject->getComplexity(),
+        'risk' => $oProject->getRisk(),
+        'score-estimation' => $oProject->getRevenueScoreEstimation(),
+        'score-real' => $oProject->getRevenueScoreActual(),
+        'estimation' => $oProject->getEstimationTimeOfDependencies(),
+        'worked' => $oProject->getActualTimeOfDependencies(),
+        'left' => $oProject->getLeftTimeOfDependencies(),
+        'status' => ((isset($this->aKanban[$oProject->id()]) === true) ? \Flightzilla\Model\Kanban\Status::$aStatusText[$this->aKanban[$oProject->id()]] : '-')
+    );
+}
+
+echo json_encode($aProjects);
