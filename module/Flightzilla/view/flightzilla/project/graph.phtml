@@ -57,7 +57,7 @@
 
             yScale = d3.scale.linear()
                 .domain([bounds[yAxis].min, bounds[yAxis].max])
-                .range([(width - 40), 100]);
+                .range([(height - 40), 100]);
 
             // Data
             g.selectAll('circle')
