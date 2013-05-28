@@ -51,7 +51,8 @@
             g.append('text').attr('transform', 'translate(-60, 330)rotate(-90)').attr({'id': 'yLabel', 'text-anchor': 'middle'}).text('Complexity');
 
             // Axes
-            xScale = d3.scale.pow().exponent(0.2)
+            xScale = d3.scale.pow()
+                .exponent(4 * parseFloat(bounds[xAxis].avg / bounds[xAxis].max))
                 .domain([bounds[xAxis].min, bounds[xAxis].max])
                 .range([20, (width - 30)]);
 
@@ -154,23 +155,18 @@
 
             var keys = _.keys(d[0]), b = {};
             _.each(keys, function(k) {
-                b[k] = {};
-                _.each(d, function(d) {
-                    if(isNaN(d[k])) {
-                        return;
-                    }
+                b[k] = {
+                    min: (_.min(d, k))[k],
+                    max: (_.max(d, k))[k],
+                    avg: (_.reduce(_.pluck(d, k), function(result, value) {
+                        return result + value;
+                    }) / _.size(d))
+                };
 
-                    if(b[k].min === undefined || d[k] < b[k].min) {
-                        b[k].min = d[k];
-                    }
-
-                    if(b[k].max === undefined || d[k] > b[k].max) {
-                        b[k].max = d[k];
-                    }
-                });
                 b[k].max > 0 ? b[k].max *= paddingFactor : b[k].max /= paddingFactor;
                 b[k].min > 0 ? b[k].min /= paddingFactor : b[k].min *= paddingFactor;
             });
+
             return b;
         }
 
