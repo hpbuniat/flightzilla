@@ -100,8 +100,10 @@
             var xArray = _.map(data, function(d) {return d[xAxis];});
             var yArray = _.map(data, function(d) {return d[yAxis];});
             var c = getCorrelation(xArray, yArray);
-            var x1 = xScale.domain()[0], y1 = c.m * x1 + c.b;
-            var x2 = xScale.domain()[1], y2 = c.m * x2 + c.b;
+            var x1 = xScale.domain()[0],
+                y1 = c.m * x1 + c.b;
+            var x2 = xScale.domain()[1],
+                y2 = c.m * x2 + c.b;
 
             // Best fit line (to appear behind points)
             g.append('line').attr('id', 'bestfit');
@@ -205,6 +207,7 @@
             var m = ntor / dtorX; // y = mx + b
             var b = ( sumY - m * sumX ) / n;
 
+            console.log({r: r, m: m, b: b});
             return {r: r, m: m, b: b};
         }
     });
