@@ -44,6 +44,7 @@ flightzilla offers a variety of features, which are split into several categorie
         - Tickets with worked-time must have a estimation
         - Tickets should not be untouched for a certain amount of time (depending on your configuration)
         - Flags should not be unanswered for a certain amount of time (depending on your configuration)
+        - and many more, waiting for your rules
 - Kanban Board (A kanban-style-board, based on the current ticket-status)
 - Tickets (A list of all tickets, grouped by workflow-status & assigned project)
     - Provides a very detailed overview over all tickets - the status is indicated by many icons & colors
@@ -63,6 +64,7 @@ flightzilla offers a variety of features, which are split into several categorie
     - Planning (WIP!, Gantt-View of projects)
     - Planning (Detailed) (WIP!, Gantt-View of projects, inkluding the tickets)
     - Resource (WIP!, Gantt-View of resources)
+    - Graph (WIP!, Show projects in a graph to identify stars, cash cows & dogs)
 - Mergy (Access to mergy directly from flightzilla. Mergy is a tool to execute merges)
 - Analytics
     - Campaigns (Access Google-Analytics Campaign-Data)
