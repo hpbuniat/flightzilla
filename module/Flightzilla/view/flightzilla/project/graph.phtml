@@ -60,6 +60,15 @@
                 .domain([bounds[yAxis].min, bounds[yAxis].max])
                 .range([(height - 40), 100]);
 
+            // Defines a sort order so that the smallest dots are drawn on top.
+            function order(a, b) {
+                return getRadius(b) - getRadius(a);
+            }
+
+            function getRadius(d) {
+                return (isNaN(d[radius]) || isNaN(d[xAxis]) || isNaN(d[yAxis])) ? 0 : (12 + (3 * d[radius]));
+            }
+
             // Data
             var borderColor = d3.scale.category20c();
             g.selectAll('circle')
@@ -73,7 +82,7 @@
                     return isNaN(d[yAxis]) ? d3.select(this).attr('cy') : yScale(d[yAxis]);
                 })
                 .attr('r', function(d) {
-                    return (isNaN(d[radius]) || isNaN(d[xAxis]) || isNaN(d[yAxis])) ? 0 : (12 + (3 * d[radius]));
+                    return getRadius(d);
                 })
                 .attr('fill', function(d, i) {
                     return aColors[d[color]];
@@ -83,6 +92,7 @@
                 })
                 .attr('stroke-width', 2)
                 .style('cursor', 'pointer')
+                .sort(order)
                 .on('mouseover', function(d) {
                     d3.select('svg g.chart #label')
                         .text(d.summary)
@@ -97,32 +107,28 @@
                 })
                 .on('click', clickCircle);
 
-            // Update correlation
-            var xArray = _.map(data, function(d) {return d[xAxis];});
-            var yArray = _.map(data, function(d) {return d[yAxis];});
-            var c = getCorrelation(xArray, yArray);
-
-            var x1 = xScale.domain()[0],
-                y1 = c.m * x1 + c.b;
-            var x2 = xScale.domain()[1],
-                y2 = c.m * x2 + c.b;
+            // draw the line
+            var xArray = _.sortBy(_.uniq(_.map(data, function(d) {return d[xAxis];}))),
+                xMax = xScale.domain()[1],
+                yMax = yScale.domain()[1];
 
             var line = d3.svg.line()
                 .x(function(d) {
-                    return xScale(d[xAxis]);
+                    return xScale(d);
                 })
                 .y(function(d) {
-                    return yScale(d[yAxis]);
+                    return yScale(1.25 + (yMax * (d / xMax)));
                 })
-                .interpolate('basis-open');
+                .interpolate('basis');
 
             g.append("path")
                 .style('opacity', 0)
-                .data([data])
+                .data([xArray])
                 .attr("d", line)
                 .style("fill", "none")
-                .style("stroke", "#000000")
-                .attr("transform", "translate(" + [100, 100] + ")")
+                .style("stroke", "red")
+                .style('stroke-width', 2)
+                //.attr("transform", "translate(" + [-100, -100] + ")")
                 .transition()
                 .duration(1500)
                 .style('opacity', 1);
@@ -158,7 +164,9 @@
                 centered = null;
             }
 
-            g.transition().duration(1000).attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")");
+            g.transition()
+                .duration(1000)
+                .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")");
         }
 
         function getBounds(d, paddingFactor) {
@@ -180,43 +188,6 @@
             });
 
             return b;
-        }
-
-        function getCorrelation(xArray, yArray) {
-            function sum(m, v) {return m + v;}
-            function sumSquares(m, v) {return m + v * v;}
-            function filterNaN(m, v, i) {
-                if (!isNaN(v)) {
-                    m.push(i);
-                }
-
-                return m;
-            }
-
-            // clean the data (because we know that some values are missing)
-            var xNaN = _.reduce(xArray, filterNaN , []);
-            var yNaN = _.reduce(yArray, filterNaN , []);
-            var include = _.intersection(xNaN, yNaN);
-            var fX = _.map(include, function(d) {return xArray[d];});
-            var fY = _.map(include, function(d) {return yArray[d];});
-
-            var sumX = _.reduce(fX, sum, 0);
-            var sumY = _.reduce(fY, sum, 0);
-            var sumX2 = _.reduce(fX, sumSquares, 0);
-            var sumY2 = _.reduce(fY, sumSquares, 0);
-            var sumXY = _.reduce(fX, function(m, v, i) {return m + v * fY[i];}, 0);
-
-            var n = fX.length;
-            var ntor = ( ( sumXY ) - ( sumX * sumY / n) );
-            var dtorX = sumX2 - ( sumX * sumX / n);
-            var dtorY = sumY2 - ( sumY * sumY / n);
-
-            var r = ntor / (Math.sqrt( dtorX * dtorY )); // Pearson ( http://www.stat.wmich.edu/s216/book/node122.html )
-            var m = ntor / dtorX; // y = mx + b
-            var b = ( sumY - m * sumX ) / n;
-
-            console.log({r: r, m: m, b: b});
-            return {r: r, m: m, b: b};
         }
     });
 </script>
