@@ -101,16 +101,28 @@
             var xArray = _.map(data, function(d) {return d[xAxis];});
             var yArray = _.map(data, function(d) {return d[yAxis];});
             var c = getCorrelation(xArray, yArray);
+
             var x1 = xScale.domain()[0],
                 y1 = c.m * x1 + c.b;
             var x2 = xScale.domain()[1],
                 y2 = c.m * x2 + c.b;
 
-            // Best fit line (to appear behind points)
-            g.append('line').attr('id', 'bestfit');
-            d3.select('#bestfit')
+            var line = d3.svg.line()
+                .x(function(d) {
+                    return xScale(d[xAxis]);
+                })
+                .y(function(d) {
+                    return yScale(d[yAxis]);
+                })
+                .interpolate('basis-open');
+
+            g.append("path")
                 .style('opacity', 0)
-                .attr({'x1': xScale(x1), 'y1': yScale(y1), 'x2': xScale(x2), 'y2': yScale(y2)})
+                .data([data])
+                .attr("d", line)
+                .style("fill", "none")
+                .style("stroke", "#000000")
+                .attr("transform", "translate(" + [100, 100] + ")")
                 .transition()
                 .duration(1500)
                 .style('opacity', 1);
