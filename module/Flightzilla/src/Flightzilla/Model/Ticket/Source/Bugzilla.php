@@ -1712,23 +1712,23 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             $this->getStatuses();
         }
 
-        if ($this->_aStats[Bug::WORKFLOW_UNESTIMATED]['per'] > 10) {
+        if (empty($this->_aStats[Bug::WORKFLOW_UNESTIMATED]) !== true and $this->_aStats[Bug::WORKFLOW_UNESTIMATED]['per'] > 10) {
             $sStatus = \Flightzilla\Model\Chuck::WARN;
         }
-        elseif ($this->_aStatuses[Bug::STATUS_UNCONFIRMED]['per'] > 10) {
+        elseif (empty($this->_aStats[Bug::STATUS_UNCONFIRMED]) !== true and $this->_aStatuses[Bug::STATUS_UNCONFIRMED]['per'] > 10) {
             $sStatus = \Flightzilla\Model\Chuck::WARN;
         }
 
         if (empty($this->_aStatuses[Bug::STATUS_REOPENED]) !== true and $this->_aStatuses[Bug::STATUS_REOPENED]['num'] > 1) {
             $sStatus = \Flightzilla\Model\Chuck::ERROR;
         }
-        elseif ($this->_aStats[Bug::WORKFLOW_FAILED]['per'] > 2) {
+        elseif (empty($this->_aStats[Bug::WORKFLOW_FAILED]) !== true and $this->_aStats[Bug::WORKFLOW_FAILED]['per'] > 2) {
             $sStatus = \Flightzilla\Model\Chuck::ERROR;
         }
-        elseif ($this->_aStats[Bug::WORKFLOW_UNESTIMATED]['per'] > 15) {
+        elseif (empty($this->_aStats[Bug::WORKFLOW_UNESTIMATED]) !== true and $this->_aStats[Bug::WORKFLOW_UNESTIMATED]['per'] > 15) {
             $sStatus = \Flightzilla\Model\Chuck::WARN;
         }
-        elseif ($this->_aStatuses[Bug::STATUS_UNCONFIRMED]['per'] > 15) {
+        elseif (empty($this->_aStats[Bug::STATUS_UNCONFIRMED]) !== true and $this->_aStatuses[Bug::STATUS_UNCONFIRMED]['per'] > 15) {
             $sStatus = \Flightzilla\Model\Chuck::WARN;
         }
 
