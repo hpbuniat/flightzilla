@@ -1,6 +1,6 @@
 /*global jQuery, BASE_URL */
 (function($) { $(function() {
-    var f = {
+    window.f = {
         bugs: {},
         write: {},
         toggleBugs: {},

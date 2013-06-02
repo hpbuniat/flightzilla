@@ -238,6 +238,15 @@ h4.member-name, h3.table-toggle {
     margin-left: 320px;
 }
 
+.small-definition .dl-horizontal dt {
+    width: 105px;
+}
+
+.small-definition .dl-horizontal dd {
+    margin-left: 110px;
+    overflow: hidden;
+}
+
 @media print {
     #zend-developer-toolbar {
         display: none !important;

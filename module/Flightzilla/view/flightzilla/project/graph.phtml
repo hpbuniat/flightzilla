@@ -5,6 +5,7 @@
     echo $this->partial('flightzilla/project/partial/sidebar.phtml', array(
           'sHeading' => 'Project-Graphs',
           'aStack' => array(),
+          'sContainer' => 'graph-info'
     ));
     ?>
 
@@ -13,181 +14,27 @@
     </div>
 </div>
 
-<?php $this->inlineScript()->appendFile($this->basePath() . '/vendor/d3.min.js'); ?>
+<?php $this->inlineScript()
+           ->appendFile($this->basePath() . '/vendor/d3.min.js')
+           ->appendFile($this->basePath() . '/js/graph.js');
+?>
 <script type="text/javascript">
     $(function() {
-        var xScale, yScale, centered, g, svg,
-            width = 1280,
-            height = 640,
-            xAxis = 'revenue',
-            yAxis = 'complexity',
-            radius = 'probability',
-            color = 'risk',
-            aColors = [
-                '#bbb',
-                '#2ca02c',
-                '#98df8a',
-                '#bd9e39',
-                '#ff7f0e',
-                '#d62728'
-            ];
-
+        f.loader.css({
+            top:'-130px'
+        }).show();
         d3.json(BASE_URL + '/flightzilla/project/graphdata', function(data) {
-            var bounds = getBounds(data, 1);
-            svg = d3.select("#project-canvas")
-                .append("svg")
-                .attr("width", width)
-                .attr("height", height);
+            window.graphData = data;
+            f.loader.hide();
 
-            g = svg.append('g').classed('chart', true).attr('transform', 'translate(80, -60)');
+            // prepare the bounds
+            graph.bounds = graph.getBounds(data, 1);
 
-            // Hover-Label
-            g.append('text')
-                .attr({'id': 'label', 'x': 0, 'y': 100})
-                .style({'font-size': '30px', 'font-weight': 'bold', 'fill': '#ddd'});
+            // build nav
+            graph.buildSelect();
 
-            // Labels
-            g.append('text').attr({'id': 'xLabel', 'x': parseInt(width / 2), 'y': (height + 30), 'text-anchor': 'middle'}).text('Revenue');
-            g.append('text').attr('transform', 'translate(-60, 330)rotate(-90)').attr({'id': 'yLabel', 'text-anchor': 'middle'}).text('Complexity');
-
-            // Axes
-            xScale = d3.scale.pow()
-                .exponent(4 * parseFloat(bounds[xAxis].avg / bounds[xAxis].max))
-                .domain([bounds[xAxis].min, bounds[xAxis].max])
-                .range([20, (width - 30)]);
-
-            yScale = d3.scale.linear()
-                .domain([bounds[yAxis].min, bounds[yAxis].max])
-                .range([(height - 40), 100]);
-
-            // Defines a sort order so that the smallest dots are drawn on top.
-            function order(a, b) {
-                return getRadius(b) - getRadius(a);
-            }
-
-            function getRadius(d) {
-                return (isNaN(d[radius]) || isNaN(d[xAxis]) || isNaN(d[yAxis])) ? 0 : (12 + (3 * d[radius]));
-            }
-
-            // Data
-            var borderColor = d3.scale.category20c();
-            g.selectAll('circle')
-                .data(data)
-                .enter()
-                .append('circle')
-                .attr('cx', function(d) {
-                    return isNaN(d[xAxis]) ? d3.select(this).attr('cx') : xScale(d[xAxis]);
-                })
-                .attr('cy', function(d) {
-                    return isNaN(d[yAxis]) ? d3.select(this).attr('cy') : yScale(d[yAxis]);
-                })
-                .attr('r', function(d) {
-                    return getRadius(d);
-                })
-                .attr('fill', function(d, i) {
-                    return aColors[d[color]];
-                })
-                .attr('stroke', function(d) {
-                    return borderColor(d.id);
-                })
-                .attr('stroke-width', 2)
-                .style('cursor', 'pointer')
-                .sort(order)
-                .on('mouseover', function(d) {
-                    d3.select('svg g.chart #label')
-                        .text(d.summary)
-                        .transition()
-                        .style('opacity', 1);
-                })
-                .on('mouseout', function(d) {
-                    d3.select('svg g.chart #label')
-                        .transition()
-                        .duration(1500)
-                        .style('opacity', 0);
-                })
-                .on('click', clickCircle);
-
-            // draw the line
-            var xArray = _.sortBy(_.uniq(_.map(data, function(d) {return d[xAxis];}))),
-                xMax = xScale.domain()[1],
-                yMax = yScale.domain()[1];
-
-            var line = d3.svg.line()
-                .x(function(d) {
-                    return xScale(d);
-                })
-                .y(function(d) {
-                    return yScale(1.25 + (yMax * (d / xMax)));
-                })
-                .interpolate('basis');
-
-            g.append("path")
-                .style('opacity', 0)
-                .data([xArray])
-                .attr("d", line)
-                .style("fill", "none")
-                .style("stroke", "red")
-                .style('stroke-width', 2)
-                //.attr("transform", "translate(" + [-100, -100] + ")")
-                .transition()
-                .duration(1500)
-                .style('opacity', 1);
-
-            // Render axes
-            g.append("g")
-                .attr('transform', 'translate(0, 630)')
-                .attr('id', 'xAxis')
-                .call(function (s) {
-                    s.call(d3.svg.axis().scale(xScale).orient("bottom"));
-                });
-
-            g.append("g")
-                .attr('id', 'yAxis')
-                .attr('transform', 'translate(-10, 0)')
-                .call(function (s) {
-                    s.call(d3.svg.axis().scale(yScale).orient("left"));
-                });
+            // draw
+            graph.drawScatterPlot(data);
         });
-
-        function clickCircle(d) {
-            var x = width / 2,
-                y = height / 2,
-                k = 1;
-
-            if (d && centered !== d) {
-                x = xScale(d[xAxis]);
-                y = yScale(d[yAxis]);
-                k = 4;
-                centered = d;
-            }
-            else {
-                centered = null;
-            }
-
-            g.transition()
-                .duration(1000)
-                .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")");
-        }
-
-        function getBounds(d, paddingFactor) {
-            // Find min and maxes (for the scales)
-            paddingFactor = typeof paddingFactor !== 'undefined' ? paddingFactor : 1;
-
-            var keys = _.keys(d[0]), b = {};
-            _.each(keys, function(k) {
-                b[k] = {
-                    min: (_.min(d, k))[k],
-                    max: (_.max(d, k))[k],
-                    avg: (_.reduce(_.pluck(d, k), function(result, value) {
-                        return result + value;
-                    }) / _.size(d))
-                };
-
-                b[k].max > 0 ? b[k].max *= paddingFactor : b[k].max /= paddingFactor;
-                b[k].min > 0 ? b[k].min /= paddingFactor : b[k].min *= paddingFactor;
-            });
-
-            return b;
-        }
     });
 </script>

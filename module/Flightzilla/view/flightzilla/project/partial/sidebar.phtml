@@ -1,15 +1,22 @@
 <div class="span2">
-  <div class="well sidebar-nav">
-    <ul class="nav nav-list">
-      <li class="nav-header">
-          <?php echo $this->sHeading; ?>
-          <a href="javascript:;" class="pull-right btn btn-primary toggleNav">Alle</a>
-      </li>
-      <?php foreach ($this->aStack as $sName): ?>
-          <li class="active"><a href="javascript:;" data-noajax="true" data-target="<?php echo 't' . md5($sName);?>" class="toggleChart">
-            <?php echo trim(str_replace(array('Thema:', 'Theme:', 'Thema', 'Theme'), '', $sName)) ?>
-          </a></li>
-      <?php endforeach; ?>
-    </ul>
-  </div>
+    <div class="well sidebar-nav">
+        <ul id="sidebar-list" class="nav nav-list">
+            <li class="nav-header">
+                <?php echo $this->sHeading; ?>
+                <?php if (empty($this->aStack) !== true): ?>
+                    <a href="javascript:;" class="pull-right btn btn-primary toggleNav">Alle</a>
+                <?php endif; ?>
+            </li>
+            <?php foreach ($this->aStack as $sName): ?>
+                <li class="active">
+                    <a href="javascript:;" data-noajax="true" data-target="<?php echo 't' . md5($sName);?>" class="toggleChart">
+                        <?php echo trim(str_replace(array('Thema:', 'Theme:', 'Thema', 'Theme'), '', $sName)) ?>
+                    </a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+    <?php if (empty($this->sContainer) !== true): ?>
+        <div style="display:none" class="well well-small small-definition" id="<?php echo $this->sContainer; ?>"></div>
+    <?php endif; ?>
 </div>

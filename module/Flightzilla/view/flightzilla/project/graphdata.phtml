@@ -6,24 +6,24 @@ foreach ($this->aProjects as $oProject) {
     $fRevenue = $oProject->getRevenue();
     $iComplexity = $oProject->getComplexity();
     $iRisk = $oProject->getRisk();
-    $iProbability = $oProject->getRevenueProbability();
+    $iDependency = $oProject->getRevenueProbability();
 
     if (empty($fRevenue) !== true or (empty($iComplexity) !== true and empty($iRisk) !== true)) {
-        $aProjects[] = array(
+        $aProjects[$oProject->id()] = array(
             'id' => $oProject->id(),
             'summary' => $oProject->title(),
-            'assignee' => $oProject->getAssignee(),
-            'depends' => $oProject->getDependentProjects(),
+            'assignee' => $oProject->getAssignee(true),
+            'status' => ((isset($this->aKanban[$oProject->id()]) === true) ? \Flightzilla\Model\Kanban\Status::$aStatusText[$this->aKanban[$oProject->id()]] : '-'),
             'revenue' => $fRevenue,
             'complexity' => $iComplexity,
             'risk' => $iRisk,
-            'probability' => $iProbability,
+            'dependency' => $iDependency,
             'score-estimation' => $oProject->getRevenueScoreEstimation(),
             'score-real' => $oProject->getRevenueScoreActual(),
             'estimation' => $oProject->getEstimationTimeOfDependencies(),
             'worked' => $oProject->getActualTimeOfDependencies(),
             'left' => $oProject->getLeftTimeOfDependencies(),
-            'status' => ((isset($this->aKanban[$oProject->id()]) === true) ? \Flightzilla\Model\Kanban\Status::$aStatusText[$this->aKanban[$oProject->id()]] : '-')
+            'depends' => $oProject->getDependentProjects(),
         );
     }
 }
