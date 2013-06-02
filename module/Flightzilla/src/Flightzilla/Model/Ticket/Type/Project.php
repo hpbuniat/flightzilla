@@ -217,6 +217,14 @@ class Project extends Bug {
             }
         }
 
+        // recursively get dependent projects
+        foreach ($this->_aDependentProjects as $iTicket) {
+            $oTicket = $this->_oBugzilla->getBugById($iTicket);
+
+            /* @var Project $oTicket */
+            $this->_aDependentProjects = array_merge($this->_aDependentProjects, $oTicket->getDependentProjects());
+        }
+
         return $this->_aDependentProjects;
     }
 
@@ -292,7 +300,7 @@ class Project extends Bug {
 
         $fReturn = 0;
         if ($fRevenue > 0 and $fProbability > 0 and $fEstimation > 0) {
-            $fReturn = round(($fRevenue * ($fProbability / 100)) / ($fEstimation / Date::AMOUNT), 2);
+            $fReturn = round(($fRevenue / $fProbability) / ($fEstimation / Date::AMOUNT), 2);
         }
 
         return $fReturn;
@@ -310,7 +318,7 @@ class Project extends Bug {
 
         $fReturn = 0;
         if ($fRevenue > 0 and $fProbability > 0 and $fTime > 0) {
-            $fReturn = round(($fRevenue * ($fProbability / 100)) / ($fTime / Date::AMOUNT), 2);
+            $fReturn = round(($fRevenue / $fProbability) / ($fTime / Date::AMOUNT), 2);
         }
 
         return $fReturn;
