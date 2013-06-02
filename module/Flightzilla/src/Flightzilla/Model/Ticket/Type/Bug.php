@@ -1029,11 +1029,14 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return float
      */
     public function getRevenue() {
-        return (float) $this->_data->cf_expected_revenue;
+        return (float) preg_replace('/([^0-9])/i', '', $this->_data->cf_expected_revenue);;
     }
 
     /**
      * Get the probability of the expected revenue
+     * - The value is based on known dependencies
+     * -> 1 = no dependencies
+     * -> 5 = many complex dependencies
      *
      * @return float
      */
@@ -1052,6 +1055,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
 
     /**
      * Get the risk-potential of the project
+     * - the higher the risk, the more projects are affected
      *
      * @return int
      */
@@ -1203,9 +1207,9 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
                         if ($oTicket->isClosed() !== true) {
                             $bReturn = true;
                         }
-
-                        $this->_aDepends[$oTicket->id()] = $oTicket->id();
                     }
+
+                    $this->_aDepends[$oTicket->id()] = $oTicket->id();
                 }
                 catch (\Exception $e) {
                     /* happens, if a bug is not found, which is ok for closed bugs */
