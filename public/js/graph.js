@@ -25,13 +25,15 @@
             '#d62728'
         ],
         filter: {
+            'summary': 'eq',
             'assignee': 'eq',
             'revenue': 'min',
-            'complexity': 'eq',
-            'probability': 'eq',
-            'risk': 'eq',
+            'complexity': 'max',
+            'dependency': 'max',
+            'risk': 'max',
             'status': 'eq'
         },
+        highlight: null,
 
         /**
          * Draw a scatter plot
@@ -46,11 +48,14 @@
             $('#project-canvas').empty();
 
             t.svg = d3.select("#project-canvas").append("svg").attr("width", t.width).attr("height", t.height);
-            t.g = t.svg.append('g').classed('chart', true).attr('transform', 'translate(80, -60)');
+            t.g = t.svg.append('g')
+                .classed('chart', true)
+                .attr('transform', 'translate(80, -60)');
 
             // Labels
             t.g.append('text').attr({'id': 'xLabel', 'x': parseInt(t.width / 2), 'y': (t.height + 30), 'text-anchor': 'middle'}).text(t.xAxis);
             t.g.append('text').attr('transform', 'translate(-60, 330)rotate(-90)').attr({'id': 'yLabel', 'text-anchor': 'middle'}).text(t.yAxis);
+
 
             // Axes
             t.xScale = d3.scale.pow()
@@ -63,6 +68,64 @@
                 .domain([t.bounds[t.yAxis].min, t.bounds[t.yAxis].max])
                 .range([(t.height - 40), 100])
                 .clamp(true);
+
+            // Some value-shorthands
+            var xArray = t.bounds[t.xAxis].unique,
+                xMed = t.bounds[t.xAxis].avg,
+                xMax = t.xScale.domain()[1],
+                yMed = t.bounds[t.yAxis].avg,
+                yMax = t.yScale.domain()[1];
+
+            // draw the line
+            var line = d3.svg.line()
+                .x(function(d) {
+                    return t.xScale(d);
+                })
+                .y(function(d) {
+                    return t.yScale(1.25 + (yMax * (d / xMax)));
+                })
+                .interpolate('basis');
+
+            t.g.append("path")
+                .style('opacity', 0)
+                .data([xArray])
+                .attr("d", line)
+                .style("fill", "none")
+                .style("stroke", "red")
+                .style('stroke-width', 2)
+                .transition()
+                .duration(1500)
+                .style('opacity', 1);
+
+            // boxes
+            t.g.append("svg:line")
+                .attr("class", "medianLine hMedianLine")
+                .attr("x1",0)
+                .attr("y1",0)
+                .attr("x2", t.width)
+                .attr("y2",0)
+                .attr("transform", "translate(0," + (t.yScale(yMed)) + ")");
+
+            t.g.append("svg:line")
+                .attr("class", "medianLine vMedianLine")
+                .attr("x1",0)
+                .attr("y1",0)
+                .attr("x2",0)
+                .attr("y2",t.height)
+                .attr("transform", "translate(" + (t.xScale(xMed)) + ",0)");
+
+            // Render axes
+            t.g.append("g")
+                .attr("class", "x label")
+                .attr('transform', 'translate(0, 630)')
+                .attr('id', 'xAxis')
+                .call(t.xAxisRender);
+
+            t.g.append("g")
+                .attr("class", "y label")
+                .attr('id', 'yAxis')
+                .attr('transform', 'translate(-10, 0)')
+                .call(t.yAxisRender);
 
             // Data
             var borderColor = d3.scale.category20c();
@@ -87,6 +150,16 @@
                 .style('cursor', 'pointer')
                 .sort(t.order)
                 .on('mouseover', function(d) {
+                    var el = d3.select(this),
+                        ra = el.attr('r');
+
+                    el.transition().duration(100).attr('ra', ra).attr("r", parseInt(ra) + 5);
+                    if (t.highlight) {
+                        t.highlight.transition().duration(100).attr("r", t.highlight.attr('ra'));
+                    }
+
+                    t.highlight = el;
+
                     var $d = $('<dl/>', {
                         class: 'dl-horizontal'
                     });
@@ -100,47 +173,14 @@
                         .append('<h5><a href="' + BUGZILLA + '/show_bug.cgi?id=' + d.id + '" target="_blank">' + d.summary + '</a></h5>')
                         .append($d)
                         .show();
-                });
-
-            // draw the line
-            var xArray = t.bounds[t.xAxis].unique,
-                xMax = t.xScale.domain()[1],
-                yMax = t.yScale.domain()[1];
-
-            var line = d3.svg.line()
-                .x(function(d) {
-                    return t.xScale(d);
                 })
-                .y(function(d) {
-                    return t.yScale(1.25 + (yMax * (d / xMax)));
-                })
-                .interpolate('basis');
-
-            t.g.append("path")
-                .style('opacity', 0)
-                .data([xArray])
-                .attr("d", line)
-                .style("fill", "none")
-                .style("stroke", "red")
-                .style('stroke-width', 2)
-                .transition()
-                .duration(1500)
-                .style('opacity', 1);
-
-            // Render axes
-            t.g.append("g")
-                .attr('transform', 'translate(0, 630)')
-                .attr('id', 'xAxis')
-                .call(function (s) {
-                    s.call(d3.svg.axis().scale(t.xScale).orient("bottom"));
-                });
-
-            t.g.append("g")
-                .attr('id', 'yAxis')
-                .attr('transform', 'translate(-10, 0)')
-                .call(function (s) {
-                    s.call(d3.svg.axis().scale(t.yScale).orient("left"));
-                });
+                .call(
+                    d3.behavior.zoom()
+                        .x(t.xScale)
+                        .y(t.yScale)
+                        .scaleExtent([1, 13])
+                        .on('zoom', t.zoom)
+                );
         },
 
         /**
@@ -205,6 +245,17 @@
         },
 
         /**
+         * If val is negative, return zero
+         *
+         * @param value
+         *
+         * @returns {*}
+         */
+        noNeg: function(value){
+            return value = value > 0 ? value : 0;
+        },
+
+        /**
          * Find min and maxes (for the scales)
          */
         getBounds: function (d, paddingFactor) {
@@ -230,6 +281,58 @@
             return b;
         },
 
+        /**
+         * Render the x-axis
+         *
+         * @param s
+         */
+        xAxisRender: function (s) {
+            s.call(d3.svg.axis().scale(graph.xScale).orient("bottom"));
+        },
+
+        /**
+         * Render the y-axis
+         *
+         * @param s
+         */
+        yAxisRender: function(s) {
+            s.call(d3.svg.axis().scale(graph.yScale).orient("left"))
+        },
+
+        /**
+         * Zoom/Pan behaviour
+         */
+        zoom: function() {
+            var $canvas = $('#project-canvas');
+            if ($canvas.data('zoom') === 'true') {
+                $canvas.data('zoom', 'false');
+                graph.drawScatterPlot();
+            }
+            else {
+                $canvas.data('zoom', 'true');
+
+                graph.g.select("#xAxis").call(graph.xAxisRender);
+                graph.g.select("#yAxis").call(graph.yAxisRender);
+
+                graph.g.select(".hAxisLine").attr("transform", "translate(0," + graph.yScale(0) + ")");
+                graph.g.select(".vAxisLine").attr("transform", "translate(" + graph.xScale(0) + ",0)");
+
+                var yVal = graph.yScale(graph.bounds[graph.yAxis].avg),
+                    xVal = graph.xScale(graph.bounds[graph.xAxis].avg);
+
+                graph.g.select(".hMedianLine").attr("transform", "translate(0," + yVal + ")");
+                graph.g.select(".vMedianLine").attr("transform", "translate(" + xVal + ",0)");
+
+                graph.g.selectAll("circle")
+                    .attr("transform", function(d) {
+                        return "translate(" + graph.xScale(d[graph.xAxis]) + "," + graph.yScale(d[graph.yAxis]) + ")";
+                    });
+            }
+        },
+
+        /**
+         * Create sidebar filter
+         */
         buildSelect: function () {
             var t = this,
                 $l = $('#sidebar-list'),
@@ -286,6 +389,9 @@
                             b[key] = value;
                         }
                         else if (compare === 'min' && parseFloat(value[property]) >= parseFloat(selection)) {
+                            b[key] = value;
+                        }
+                        else if (compare === 'max' && parseFloat(value[property]) <= parseFloat(selection)) {
                             b[key] = value;
                         }
                     });

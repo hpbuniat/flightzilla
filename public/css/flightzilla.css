@@ -278,6 +278,17 @@ h4.member-name, h3.table-toggle {
     stroke: #CCCCCC;
 }
 
+rect {
+    fill: transparent;
+}
+
 path {
     fill: #CED8B6;
+}
+
+.medianLine {
+    fill: none,
+    stroke: grey,
+    stroke-width: '1px',
+    stroke-dasharray: '5, 5'
 }
