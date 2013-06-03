@@ -15,6 +15,7 @@
         radius:  'dependency',
         color:  'risk',
         bDependencies: false,
+        bShowDependencies: false,
         bounds:  {},
         aColors:  [
             '#bbb',
@@ -129,10 +130,15 @@
 
             // Data
             var borderColor = d3.scale.category20c();
-            t.g.selectAll('circle')
-                .data(_.toArray(data))
-                .enter()
-                .append('circle')
+            var elem = t.g.selectAll('g')
+                .data(_.toArray(data));
+
+            var enter = elem.enter().append("g");
+
+            var circle = enter.append('circle')
+                .attr('id', function(d) {
+                    return 't' + d.id;
+                })
                 .attr('cx', function(d) {
                     return t.xScale(t.getValue(d, t.xAxis));
                 })
@@ -148,7 +154,6 @@
                 })
                 .attr('stroke-width', 2)
                 .style('cursor', 'pointer')
-                .sort(t.order)
                 .on('mouseover', function(d) {
                     var el = d3.select(this),
                         ra = el.attr('r');
@@ -174,6 +179,7 @@
                         .append($d)
                         .show();
                 })
+                .sort(t.order)
                 .call(
                     d3.behavior.zoom()
                         .x(t.xScale)
@@ -181,6 +187,15 @@
                         .scaleExtent([1, 13])
                         .on('zoom', t.zoom)
                 );
+/*
+            enter.append("text")
+                .attr('dx', function(d) {
+                    return -20;
+                })
+                .style("text-anchor", "middle")
+                .text(function(d) {
+                    return d.id;
+                });*/
         },
 
         /**
@@ -199,6 +214,13 @@
                     return t.yScale(t.getValue(d, t.yAxis));
                 })
                 .attr('r', t.getRadius);
+        },
+
+        /**
+         * Draw dependency markers between circles
+         */
+        drawDependencies: function() {
+
         },
 
         /**
@@ -367,6 +389,12 @@
             $('#include-deps').change(function() {
                 t.bDependencies = $(this).is(':checked');
                 t.updateScatterPlot();
+            });
+
+            $l.append('<label class="checkbox"><input id="show-deps" type="checkbox" value="">show dependency marker</label>');
+            $('#show-deps').change(function() {
+                t.bShowDependencies = $(this).is(':checked');
+                t.drawDependencies();
             });
         },
 
