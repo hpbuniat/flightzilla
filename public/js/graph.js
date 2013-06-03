@@ -41,22 +41,47 @@
          * @param data
          */
         drawScatterPlot: function(data) {
-            var t = this;
+            var t = this,
+                links = [],
+                nodes = [],
+                nodesLinkCross = {};
 
             data = data || window.graphData;
             data = t.filterData(data);
 
             $('#project-canvas').empty();
 
+            var force = d3.layout.force()
+                .charge(-120)
+                .linkDistance(30)
+                .size([t.width, t.height]);
+
             t.svg = d3.select("#project-canvas").append("svg").attr("width", t.width).attr("height", t.height);
             t.g = t.svg.append('g')
                 .classed('chart', true)
                 .attr('transform', 'translate(80, -60)');
 
+            $.each(data, function(id, node) {
+                nodesLinkCross[id] = nodes.length;
+                nodes.push(node);
+            });
+
+            $.each(nodes, function(key, value) {
+                if (value.depends && value.depends.length > 0) {
+                    $.each(value.depends, function(k, v) {
+                        if (typeof data[v] !== 'undefined' && typeof data[value.id] !== 'undefined') {
+                            links.push({
+                                source: nodesLinkCross[v],
+                                target: nodesLinkCross[value.id]
+                            });
+                        }
+                    });
+                }
+            });
+
             // Labels
             t.g.append('text').attr({'id': 'xLabel', 'x': parseInt(t.width / 2), 'y': (t.height + 30), 'text-anchor': 'middle'}).text(t.xAxis);
             t.g.append('text').attr('transform', 'translate(-60, 330)rotate(-90)').attr({'id': 'yLabel', 'text-anchor': 'middle'}).text(t.yAxis);
-
 
             // Axes
             t.xScale = d3.scale.pow()
@@ -128,12 +153,23 @@
                 .attr('transform', 'translate(-10, 0)')
                 .call(t.yAxisRender);
 
+            // force
+            force.nodes(nodes)
+                .links(links)
+                .start();
+
+            // links
+            var link = t.g.selectAll(".link")
+                .data(links)
+                .enter().append("line")
+                .attr("class", "link");
+
             // Data
             var borderColor = d3.scale.category20c();
             var elem = t.g.selectAll('g')
-                .data(_.toArray(data));
+                .data(nodes);
 
-            var enter = elem.enter().append("g");
+            var enter = elem.enter().append("g").attr('class', 'circle');
 
             var circle = enter.append('circle')
                 .attr('id', function(d) {
@@ -152,6 +188,7 @@
                 .attr('stroke', function(d) {
                     return borderColor(d.id);
                 })
+                .attr("class", "node")
                 .attr('stroke-width', 2)
                 .style('cursor', 'pointer')
                 .on('mouseover', function(d) {
@@ -179,7 +216,6 @@
                         .append($d)
                         .show();
                 })
-                .sort(t.order)
                 .call(
                     d3.behavior.zoom()
                         .x(t.xScale)
@@ -187,7 +223,21 @@
                         .scaleExtent([1, 13])
                         .on('zoom', t.zoom)
                 );
-/*
+
+
+            // order the circles
+            t.g.selectAll('g.circle').sort(t.order);
+            /*
+            force.on("tick", function() {
+                link.attr("x1", function(d) { return d.source.x; })
+                    .attr("y1", function(d) { return d.source.y; })
+                    .attr("x2", function(d) { return d.target.x; })
+                    .attr("y2", function(d) { return d.target.y; });
+
+                circle.attr("cx", function(d) { return d.x; })
+                    .attr("cy", function(d) { return d.y; });
+            });*/
+
             enter.append("text")
                 .attr('dx', function(d) {
                     return -20;
@@ -195,7 +245,7 @@
                 .style("text-anchor", "middle")
                 .text(function(d) {
                     return d.id;
-                });*/
+                });
         },
 
         /**
@@ -213,7 +263,8 @@
                 .attr('cy', function(d) {
                     return t.yScale(t.getValue(d, t.yAxis));
                 })
-                .attr('r', t.getRadius);
+                .attr('r', t.getRadius)
+                .sort(t.order);
         },
 
         /**
@@ -232,7 +283,7 @@
          * @returns {number}
          */
         getValue: function(d, property) {
-            var r = isNaN(d[property]) ? 0 : d[property];
+            var r = (typeof d[property] !== 'undefined' && isNaN(d[property])) ? 0 : d[property];
             if (graph.bDependencies === true) {
                 $.each(d.depends, function(key, value) {
                     r += (typeof window.graphData[value] === 'undefined' || isNaN(window.graphData[value][property])) ? 0 : window.graphData[value][property];
