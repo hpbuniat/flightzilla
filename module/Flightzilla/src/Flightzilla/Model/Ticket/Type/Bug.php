@@ -1064,6 +1064,16 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * Get the development-team of a project
+     * - e.g. local, site or foreign
+     *
+     * @return string
+     */
+    public function getDevelopmentTeam() {
+        return (string) $this->_data->cf_development_team;
+    }
+
+    /**
      * Get the depend-bugs
      *
      * @return array

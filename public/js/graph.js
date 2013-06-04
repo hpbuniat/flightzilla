@@ -32,7 +32,8 @@
             'complexity': 'max',
             'dependency': 'max',
             'risk': 'max',
-            'status': 'eq'
+            'status': 'eq',
+            'team': 'eq'
         },
         highlight: null,
         circleSelect: null,
@@ -205,15 +206,20 @@
             // order the circles
             t.g.selectAll('g.circle').sort(t.order);
 
-            /*
             enter.append("text")
+                .attr('class', 'circle-label')
                 .attr('dx', function(d) {
-                    return -20;
+                    return graph.xScale(graph.getValue(d, graph.xAxis));
                 })
-                .style("text-anchor", "middle")
+                .attr('dy', function(d) {
+                    return graph.yScale(graph.getValue(d, graph.yAxis));
+                })
+                .style('font-size', function(d) {
+                    return parseInt(graph.getRadius(d) / 2) + 'px';
+                })
                 .text(function(d) {
                     return d.id;
-                });*/
+                });
 
             elem.exit();
             t.drawDependencies();
@@ -335,7 +341,7 @@
          */
         getRadius: function (d) {
             var r = graph.getValue(d, graph.radius);
-            return (!!r) ? (5 + (3 * (6 - d[graph.radius]))) : 0;
+            return (!!r) ? (5 + (5 * (6 - d[graph.radius]))) : 0;
         },
 
         /**
@@ -500,6 +506,11 @@
 
                     data = b;
                 }
+            });
+
+            $('tr.bug').hide();
+            $.each(data, function(k, v) {
+               $('tr.ticket' + v.id).show();
             });
 
             return data;

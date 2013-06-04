@@ -248,7 +248,7 @@ h4.member-name, h3.table-toggle {
 }
 
 @media print {
-    #zend-developer-toolbar {
+    div.print-hide, div.navbar, #zend-developer-toolbar {
         display: none !important;
     }
 
@@ -267,6 +267,14 @@ h4.member-name, h3.table-toggle {
 
     i[class|="icon"] {
         display: none !important;
+    }
+
+    div.print-fullwidth {
+        width: 99%;
+        height: 99%;
+        margin: 0;
+        page-break-after: always;
+        page-break-inside: avoid;
     }
 }
 
@@ -299,4 +307,12 @@ line, .medianLine {
 line.link {
     stroke-width: 1px;
     stroke-dasharray: 2, 2;
+}
+
+text {
+    font-size: 12px;
+}
+
+text.circle-label {
+    text-anchor: middle;
 }

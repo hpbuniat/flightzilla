@@ -1,4 +1,4 @@
-<div class="span2">
+<div class="span2 print-hide">
     <div class="well sidebar-nav">
         <ul id="sidebar-list" class="nav nav-list">
             <li class="nav-header">
@@ -17,6 +17,6 @@
         </ul>
     </div>
     <?php if (empty($this->sContainer) !== true): ?>
-        <div style="display:none" class="well well-small small-definition" id="<?php echo $this->sContainer; ?>"></div>
+        <div style="display:none" class="well well-small small-definition sidebar-subnav" id="<?php echo $this->sContainer; ?>"></div>
     <?php endif; ?>
 </div>

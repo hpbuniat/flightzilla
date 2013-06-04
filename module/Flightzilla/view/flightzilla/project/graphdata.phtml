@@ -18,6 +18,7 @@ foreach ($this->aProjects as $oProject) {
             'complexity' => $iComplexity,
             'risk' => $iRisk,
             'dependency' => $iDependency,
+            'team' => $oProject->getDevelopmentTeam(),
             'score-estimation' => $oProject->getRevenueScoreEstimation(),
             'score-real' => $oProject->getRevenueScoreActual(),
             'estimation' => $oProject->getEstimationTimeOfDependencies(),
