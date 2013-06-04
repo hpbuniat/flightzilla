@@ -35,26 +35,35 @@
             'status': 'eq'
         },
         highlight: null,
+        circleSelect: null,
+        linkSelect: null,
+        linkData: [],
+        nodeData: [],
+
+        /**
+         * Vice-Versa lookup table for nodes & links
+         */
+        nodeLinkCross: {},
 
         /**
          * Draw a scatter plot
          * @param data
          */
         drawScatterPlot: function(data) {
-            var t = this,
-                links = [],
-                nodes = [],
-                nodesLinkCross = {};
+            var t = this;
 
             data = data || window.graphData;
             data = t.filterData(data);
 
-            $('#project-canvas').empty();
+            // reset
+            t.nodeData = [];
+            t.linkData = [];
+            t.nodeLinkCross = {};
+            t.circleSelect = null;
+            t.linkSelect = null;
 
-            var force = d3.layout.force()
-                .charge(-120)
-                .linkDistance(30)
-                .size([t.width, t.height]);
+            d3.select("svg").remove();
+            $('#project-canvas').empty();
 
             t.svg = d3.select("#project-canvas").append("svg").attr("width", t.width).attr("height", t.height);
             t.g = t.svg.append('g')
@@ -62,17 +71,17 @@
                 .attr('transform', 'translate(80, -60)');
 
             $.each(data, function(id, node) {
-                nodesLinkCross[id] = nodes.length;
-                nodes.push(node);
+                t.nodeLinkCross[id] = t.nodeData.length;
+                t.nodeData.push(node);
             });
 
-            $.each(nodes, function(key, value) {
+            $.each(t.nodeData, function(key, value) {
                 if (value.depends && value.depends.length > 0) {
                     $.each(value.depends, function(k, v) {
                         if (typeof data[v] !== 'undefined' && typeof data[value.id] !== 'undefined') {
-                            links.push({
-                                source: nodesLinkCross[v],
-                                target: nodesLinkCross[value.id]
+                            t.linkData.push({
+                                source: t.nodeLinkCross[v],
+                                target: t.nodeLinkCross[value.id]
                             });
                         }
                     });
@@ -153,25 +162,19 @@
                 .attr('transform', 'translate(-10, 0)')
                 .call(t.yAxisRender);
 
-            // force
-            force.nodes(nodes)
-                .links(links)
-                .start();
-
             // links
-            var link = t.g.selectAll(".link")
-                .data(links)
+            t.linkSelect = t.g.selectAll(".link")
+                .data(t.linkData)
                 .enter().append("line")
                 .attr("class", "link");
 
             // Data
             var borderColor = d3.scale.category20c();
-            var elem = t.g.selectAll('g')
-                .data(nodes);
+            var elem = t.g.selectAll('g').data(t.nodeData);
 
             var enter = elem.enter().append("g").attr('class', 'circle');
 
-            var circle = enter.append('circle')
+            t.circleSelect = enter.append('circle')
                 .attr('id', function(d) {
                     return 't' + d.id;
                 })
@@ -191,31 +194,7 @@
                 .attr("class", "node")
                 .attr('stroke-width', 2)
                 .style('cursor', 'pointer')
-                .on('mouseover', function(d) {
-                    var el = d3.select(this),
-                        ra = el.attr('r');
-
-                    el.transition().duration(100).attr('ra', ra).attr("r", parseInt(ra) + 5);
-                    if (t.highlight) {
-                        t.highlight.transition().duration(100).attr("r", t.highlight.attr('ra'));
-                    }
-
-                    t.highlight = el;
-
-                    var $d = $('<dl/>', {
-                        class: 'dl-horizontal'
-                    });
-                    $.each(d, function(key, value) {
-                        if (key !== 'summary') {
-                            $d.append('<dt>' + key + '</dt><dd>' + ((value) ? value : '&nbsp;') + '</dd>');
-                        }
-                    });
-
-                    $('#graph-info').empty()
-                        .append('<h5><a href="' + BUGZILLA + '/show_bug.cgi?id=' + d.id + '" target="_blank">' + d.summary + '</a></h5>')
-                        .append($d)
-                        .show();
-                })
+                .on('mouseover', t.circleMouseover)
                 .call(
                     d3.behavior.zoom()
                         .x(t.xScale)
@@ -227,17 +206,8 @@
 
             // order the circles
             t.g.selectAll('g.circle').sort(t.order);
+
             /*
-            force.on("tick", function() {
-                link.attr("x1", function(d) { return d.source.x; })
-                    .attr("y1", function(d) { return d.source.y; })
-                    .attr("x2", function(d) { return d.target.x; })
-                    .attr("y2", function(d) { return d.target.y; });
-
-                circle.attr("cx", function(d) { return d.x; })
-                    .attr("cy", function(d) { return d.y; });
-            });*/
-
             enter.append("text")
                 .attr('dx', function(d) {
                     return -20;
@@ -245,7 +215,41 @@
                 .style("text-anchor", "middle")
                 .text(function(d) {
                     return d.id;
-                });
+                });*/
+
+            elem.exit();
+            t.drawDependencies();
+        },
+
+        /**
+         * Handle mouseover on a circle
+         *
+         * @param {object} d
+         */
+        circleMouseover: function(d) {
+            var el = d3.select(this),
+                ra = el.attr('r');
+
+            el.transition().duration(100).attr('ra', ra).attr("r", parseInt(ra) + 5);
+            if (graph.highlight) {
+                graph.highlight.transition().duration(100).attr("r", graph.highlight.attr('ra'));
+            }
+
+            graph.highlight = el;
+
+            var $d = $('<dl/>', {
+                class: 'dl-horizontal'
+            });
+            $.each(d, function(key, value) {
+                if (key !== 'summary') {
+                    $d.append('<dt>' + key + '</dt><dd>' + ((value) ? value : '&nbsp;') + '</dd>');
+                }
+            });
+
+            $('#graph-info').empty()
+                .append('<h5><a href="' + BUGZILLA + '/show_bug.cgi?id=' + d.id + '" target="_blank">' + d.summary + '</a></h5>')
+                .append($d)
+                .show();
         },
 
         /**
@@ -253,6 +257,8 @@
          */
         updateScatterPlot: function() {
             var t = this;
+
+            t.g.selectAll('.link').attr("opacity", 0);
             t.g.selectAll('circle')
                 .transition()
                 .duration(500)
@@ -264,14 +270,31 @@
                     return t.yScale(t.getValue(d, t.yAxis));
                 })
                 .attr('r', t.getRadius)
-                .sort(t.order);
+                .sort(t.order)
+                .each('end', t.drawDependencies);
         },
 
         /**
          * Draw dependency markers between circles
          */
         drawDependencies: function() {
-
+            graph.g.selectAll('.link')
+                .transition()
+                .duration(500)
+                .ease('quad-out')
+                .attr("x1", function(d) {
+                    return $('#t' + graph.nodeData[d.source].id).attr("cx");
+                })
+                .attr("y1", function(d) {
+                    return $('#t' + graph.nodeData[d.source].id).attr("cy");
+                })
+                .attr("x2", function(d) {
+                    return $('#t' + graph.nodeData[d.target].id).attr("cx");
+                })
+                .attr("y2", function(d) {
+                    return $('#t' + graph.nodeData[d.target].id).attr("cy");
+                })
+                .attr("opacity", ((graph.bShowDependencies === true) ? 1 : 0));
         },
 
         /**
@@ -401,6 +424,8 @@
                         return "translate(" + graph.xScale(d[graph.xAxis]) + "," + graph.yScale(d[graph.yAxis]) + ")";
                     });
             }
+
+            graph.drawDependencies();
         },
 
         /**

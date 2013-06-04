@@ -289,6 +289,6 @@ path {
 line, .medianLine {
     fill: none;
     stroke: grey;
-    stroke-width: '1px';
-    stroke-dasharray: '5, 5';
+    stroke-width: 1px;
+    stroke-dasharray: 5, 5;
 }
