@@ -24,6 +24,7 @@ foreach ($this->aProjects as $oProject) {
             'worked' => $oProject->getActualTimeOfDependencies(),
             'left' => $oProject->getLeftTimeOfDependencies(),
             'depends' => $oProject->getDependentProjects(),
+            'blocked' => $oProject->getBlockedProjects()
         );
     }
 }

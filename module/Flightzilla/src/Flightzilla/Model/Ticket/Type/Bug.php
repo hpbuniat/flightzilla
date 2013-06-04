@@ -1091,6 +1091,20 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * Get all blocked tickets as stack
+     *
+     * @return array
+     */
+    public function getBlockedAsStack() {
+        $aStack = array();
+        foreach ($this->blocks() as $iTicket) {
+            $aStack[$iTicket] = $this->_oBugzilla->getBugById($iTicket);
+        }
+
+        return $aStack;
+    }
+
+    /**
      * Left hours of all dependencies
      *
      * @return float

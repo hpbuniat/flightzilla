@@ -62,6 +62,13 @@ class Project extends Bug {
     protected $_aDependentProjects = array();
 
     /**
+     * A list of projects, which are blocked by this project
+     *
+     * @var array
+     */
+    protected $_aBlockedProjects = array();
+
+    /**
      * Are there only concept-tickets
      *
      * @var boolean
@@ -226,6 +233,39 @@ class Project extends Bug {
         }
 
         return $this->_aDependentProjects;
+    }
+
+    /**
+     * Determine all blocked projects
+     *
+     * @return array
+     */
+    public function getBlockedProjects() {
+        if (empty($this->_aBlockedProjects) === false) {
+            return $this->_aBlockedProjects;
+        }
+
+        foreach ($this->getBlockedAsStack() as $oTicket) {
+            /* @var Bug $oTicket */
+            try {
+                if ($oTicket->isProject() === true) {
+                    $this->_aBlockedProjects[$oTicket->id()] = $oTicket->id();
+                }
+            }
+            catch (\Exception $e) {
+                /* happens, if a bug is not found, which is ok for closed bugs */
+            }
+        }
+
+        // recursively get dependent projects
+        foreach ($this->_aBlockedProjects as $iTicket) {
+            $oTicket = $this->_oBugzilla->getBugById($iTicket);
+
+            /* @var Project $oTicket */
+            $this->_aBlockedProjects = array_merge($this->_aBlockedProjects, $oTicket->getBlockedProjects());
+        }
+
+        return $this->_aBlockedProjects;
     }
 
     /**
