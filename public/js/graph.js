@@ -125,9 +125,7 @@
                 .style('opacity', 0)
                 .data([xArray])
                 .attr("d", line)
-                .style("fill", "none")
-                .style("stroke", "red")
-                .style('stroke-width', 2)
+                .attr('class', 'red-line')
                 .transition()
                 .duration(1500)
                 .style('opacity', 1);
@@ -170,7 +168,7 @@
 
             // Data
             var borderColor = d3.scale.category20c();
-            var elem = t.g.selectAll('g').data(t.nodeData);
+            var elem = t.g.selectAll('circle').data(t.nodeData);
 
             var enter = elem.enter().append("g").attr('class', 'circle');
 
@@ -241,8 +239,8 @@
                 class: 'dl-horizontal'
             });
             $.each(d, function(key, value) {
-                if (key !== 'summary') {
-                    $d.append('<dt>' + key + '</dt><dd>' + ((value) ? value : '&nbsp;') + '</dd>');
+                if (key !== 'summary' && !!value && ($.type(value) !== 'array' || value.length > 0)) {
+                    $d.append('<dt>' + key + '</dt><dd>' + value + '</dd>');
                 }
             });
 
@@ -308,7 +306,7 @@
         getValue: function(d, property) {
             var r = (typeof d[property] !== 'undefined' && isNaN(d[property])) ? 0 : d[property];
             if (graph.bDependencies === true) {
-                $.each(d.depends, function(key, value) {
+                $.each(d.blocked, function(key, value) {
                     r += (typeof window.graphData[value] === 'undefined' || isNaN(window.graphData[value][property])) ? 0 : window.graphData[value][property];
                 });
             }

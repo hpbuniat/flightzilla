@@ -282,13 +282,21 @@ rect {
     fill: transparent;
 }
 
-path {
-    fill: #CED8B6;
+path.red-line {
+    fill: none;
+    stroke: red;
+    stroke-widdt: 3px;
+    stroke-dasharray: 2, 2;
 }
 
 line, .medianLine {
     fill: none;
     stroke: grey;
-    stroke-width: 1px;
+    stroke-width: 2px;
     stroke-dasharray: 5, 5;
+}
+
+line.link {
+    stroke-width: 1px;
+    stroke-dasharray: 2, 2;
 }
