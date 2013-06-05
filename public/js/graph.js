@@ -9,7 +9,7 @@
         g: null,
         svg: null,
         width:  1280,
-        height:  640,
+        height:  800,
         xAxis:  'revenue',
         yAxis:  'complexity',
         radius:  'dependency',
@@ -151,7 +151,7 @@
             // Render axes
             t.g.append("g")
                 .attr("class", "x label")
-                .attr('transform', 'translate(0, 630)')
+                .attr('transform', 'translate(0, ' + (t.height - 10) + ')')
                 .attr('id', 'xAxis')
                 .call(t.xAxisRender);
 

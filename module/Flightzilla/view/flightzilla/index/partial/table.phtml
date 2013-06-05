@@ -31,7 +31,7 @@ if ($iCount > 0):?>
                 <span class="caption <?php if ($this->mode === 'team' and $aTimes['left'] < \Flightzilla\Model\Timeline\Date::AMOUNT) { echo "red"; } ?>">
                     <?php echo sprintf('<b>%s</b> - %s', $sCaption, $sEstimation); ?>
                 </span>
-                <div class="btn-group pull-right">
+                <div class="btn-group pull-right print-hide">
                     <a class="allBugs btn btn-small" href="javascript:;">All</a>
                     <a class="noBugs btn btn-small" href="javascript:;">None</a>
                     <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">

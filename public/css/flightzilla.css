@@ -252,7 +252,7 @@ h4.member-name, h3.table-toggle {
         display: none !important;
     }
 
-    * {
+    .print-box {
         font-size: 1.06em !important;
         line-height: 1em !important;
     }
@@ -261,7 +261,7 @@ h4.member-name, h3.table-toggle {
         content: "" !important;
     }
 
-    .print-box {
+    tr, img, .print-box {
         page-break-inside: avoid;
     }
 
@@ -275,6 +275,34 @@ h4.member-name, h3.table-toggle {
         margin: 0;
         page-break-after: always;
         page-break-inside: avoid;
+    }
+
+    /* print.css from bootstrap 3 */
+
+    pre, blockquote {
+        border: 1px solid #999;
+        page-break-inside: avoid;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    img {
+        max-width: 100% !important;
+    }
+
+    p,h2, h3 {
+        orphans: 3;
+        widows: 3;
+    }
+
+    h2, h3 {
+        page-break-after: avoid;
+    }
+
+    @page {
+        margin: 0.5cm;
     }
 }
 
