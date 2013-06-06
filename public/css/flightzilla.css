@@ -277,8 +277,11 @@ h4.member-name, h3.table-toggle {
         page-break-inside: avoid;
     }
 
-    /* print.css from bootstrap 3 */
+    body {
+        padding-top: 10px;
+    }
 
+    /* print.css from bootstrap 3 */
     pre, blockquote {
         border: 1px solid #999;
         page-break-inside: avoid;

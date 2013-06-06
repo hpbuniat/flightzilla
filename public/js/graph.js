@@ -9,7 +9,7 @@
         g: null,
         svg: null,
         width:  1280,
-        height:  800,
+        height:  760,
         xAxis:  'revenue',
         yAxis:  'complexity',
         radius:  'dependency',
