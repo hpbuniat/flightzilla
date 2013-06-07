@@ -208,15 +208,6 @@
 
             enter.append("text")
                 .attr('class', 'circle-label')
-                .attr('dx', function(d) {
-                    return graph.xScale(graph.getValue(d, graph.xAxis));
-                })
-                .attr('dy', function(d) {
-                    return graph.yScale(graph.getValue(d, graph.yAxis));
-                })
-                .style('font-size', function(d) {
-                    return parseInt(graph.getRadius(d) / 2) + 'px';
-                })
                 .text(function(d) {
                     return d.id;
                 });
@@ -299,6 +290,15 @@
                     return $('#t' + graph.nodeData[d.target].id).attr("cy");
                 })
                 .attr("opacity", ((graph.bShowDependencies === true) ? 1 : 0));
+
+            $('.circle-label').each(function() {
+                var $this = $(this),
+                    $p = $this.siblings('circle');
+
+                $this.attr('dx', $p.attr("cx"))
+                    .attr('dy', $p.attr("cy"))
+                    .css('font-size', (parseInt($p.attr("r") / 2) + 'px'));
+            });
         },
 
         /**
@@ -479,9 +479,11 @@
         },
 
         /**
+         * Filter the input data according to the select-box build by "buildSelect"
          *
-         * @param data
-         * @returns {*}
+         * @param  {object} data
+         *
+         * @returns {object}
          */
         filterData: function (data) {
             $('select.graph-filter').each(function() {
