@@ -153,6 +153,14 @@ class IndexController extends AbstractActionController {
         return $oViewModel;
     }
 
+    public function mywatchlistAction(){
+        $oViewModel = new ViewModel;
+        $oViewModel->mode = 'dashboard';
+
+        $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, $oViewModel->mode);
+
+    }
+
     /**
      *
      */
