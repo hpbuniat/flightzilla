@@ -2,7 +2,7 @@
 /**
  * flightzilla
  *
- * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * Copyright (c) 2012-2013, Hans-Peter Buniat <hpbuniat@googlemail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
  *
  * @package flightzilla
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 
@@ -44,7 +44,7 @@
  * View-Helper to create a deadline-flag
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
@@ -57,15 +57,16 @@ class Deadlinestatus extends AbstractHelper {
     /**
      * Determine the deadline-status of a bug
      *
-     * @param  \Flightzilla\Model\Ticket\Type\Bug $oBug
+     * @param  \Flightzilla\Model\Ticket\Type\Bug $oTicket
      *
      * @return string
      */
-    public function __invoke(\Flightzilla\Model\Ticket\Type\Bug $oBug) {
+    public function __invoke(\Flightzilla\Model\Ticket\Type\Bug $oTicket) {
 
-        if ($oBug->deadlineStatus()) {
+        $sDeadlineStatus = $oTicket->deadlineStatus();
+        if (empty($sDeadlineStatus) !== true) {
             $sIcon = 'ui-silk-flag-green';
-            switch ($oBug->deadlineStatus()) {
+            switch ($oTicket->deadlineStatus()) {
                 case \Flightzilla\Model\Ticket\Type\Bug::DEADLINE_PAST:
                     $sIcon = 'ui-silk-flag-pink';
                     break;
@@ -86,7 +87,14 @@ class Deadlinestatus extends AbstractHelper {
                     break;
             }
 
-            return '&nbsp;<span class="deadline ui-silk ' . $sIcon . '" title="' . $oBug->getDeadline() . '">&nbsp;</span>';
+            $sWeek = $oTicket->getWeek();
+            $sDeadline = $oTicket->getDeadline();
+            if (empty($sWeek) !== true) {
+                $sDeadline = sprintf('%s (%s)', $sDeadline, $sWeek);
+            }
+
+
+            return sprintf('&nbsp;<span class="deadline ui-silk %s" title="%s">&nbsp;</span>', $sIcon, $sDeadline);
         }
 
         return '';

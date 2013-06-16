@@ -2,7 +2,7 @@
 /**
  * flightzilla
  *
- * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * Copyright (c) 2012-2013, Hans-Peter Buniat <hpbuniat@googlemail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,17 +36,16 @@
  *
  * @package flightzilla
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 namespace Flightzilla\Model\Ticket\Source;
-
 
 /**
  * Abstract for source-writer
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
@@ -68,6 +67,15 @@ abstract class AbstractWriter {
     protected $_aPayload;
 
     /**
+     * Ticket-actions
+     *
+     * @var string
+     */
+    const TICKET_ASSIGN = 'assign';
+    const TICKET_CONFIRM = 'confirm';
+    const TICKET_RESOLVE = 'resolve';
+
+    /**
      * Set the source, as the source knows the basic communication
      *
      * @param \Flightzilla\Model\Ticket\AbstractSource $oSource
@@ -84,47 +92,142 @@ abstract class AbstractWriter {
     abstract public function getPayload();
 
     /**
-     * Set the inital testing-request
+     * Set the initial testing-request
      *
      * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
      *
-     * @return AbstractWriter
+     * @return $this
      */
-    abstract public function setTestingRequest(\Flightzilla\Model\Ticket\AbstractType $oTicket);
+    abstract public function setTestingRequest(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
 
     /**
-     * Re-test the ticket, after test was not sucessful
+     * Re-test the ticket, after test was not successful
      *
-     * @param \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
      *
-     * @return AbstractWriter
+     * @return $this
      */
-    abstract public function reTest(\Flightzilla\Model\Ticket\AbstractType $oTicket);
+    abstract public function reTest(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
 
     /**
      * The ticket has been merged
      *
-     * @param \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
      *
-     * @return AbstractWriter
+     * @return $this
      */
-    abstract public function setMerged(\Flightzilla\Model\Ticket\AbstractType $oTicket);
+    abstract public function setMerged(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
 
     /**
      * The ticket is now on the test-server
      *
-     * @param \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
      *
-     * @return AbstractWriter
+     * @return $this
      */
-    abstract public function setStaged(\Flightzilla\Model\Ticket\AbstractType $oTicket);
+    abstract public function setStaged(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
+
+    /**
+     * The changes should be updated to the test-server
+     *
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
+     *
+     * @return $this
+     */
+    abstract public function setUpdateTestserver(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
 
     /**
      * The db-changes of a ticket are now deployed
      *
-     * @param \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
      *
-     * @return AbstractWriter
+     * @return $this
      */
-    abstract public function setDbChanged(\Flightzilla\Model\Ticket\AbstractType $oTicket);
+    abstract public function setDbChanged(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
+
+    /**
+     * Set a specific status
+     *
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
+     *
+     * @return $this
+     */
+    abstract public function setStatus(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
+
+    /**
+     * Set the sprint of the ticket
+     *
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
+     *
+     * @return $this
+     */
+    abstract public function setSprint(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
+
+    /**
+     * Set the status to resolved
+     *
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
+     *
+     * @return $this
+     */
+    abstract public function setResolved(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
+
+    /**
+     * Set the status to assigned
+     *
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
+     *
+     * @return $this
+     */
+    abstract public function setAssigned(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
+
+    /**
+     * Set the status to confirmed
+     *
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
+     *
+     * @return $this
+     */
+    abstract public function setConfirmed(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
+
+    /**
+     * Set the estimation
+     *
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
+     *
+     * @return $this
+     */
+    abstract public function setEstimation(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
+
+    /**
+     * Set the worked-hours
+     *
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
+     *
+     * @return $this
+     */
+    abstract public function setWorked(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
+
+    /**
+     * Set a comment
+     *
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  mixed $mPayload
+     *
+     * @return $this
+     */
+    abstract public function setComment(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload);
 }

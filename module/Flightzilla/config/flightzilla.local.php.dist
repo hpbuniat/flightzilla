@@ -19,15 +19,15 @@ return array(
             'http' => array(
                 //'proxy' => "ip",
                 'cookiePath' => APPLICATION_PATH . "/data/cache/",
+                'useOnlyCache' => false // use only cached entries, regardless of their age
             ),
             'projects' => array(
                 'My Project 1' => array(
                     'products' => array(
                         array(
-                            'name' => '',
-                            'product' => '',
+                            'name' => '', // The name of the project in bugzilla
                             'exclude_components' => array(
-                                '',
+                                '', // Excluded components (if there are relations to tickets in this component, the tickets will be displayed anyway)
                             )
                         ),
                         /* Use a second product, based on bugs of a specific theme
@@ -38,20 +38,38 @@ return array(
                         )*/
                     ),
                     'team' => array(
-                        "Hans Peter Buniat",
+                        'hp.buniat' => array(                       // the login to bugzilla
+                            'name' => 'Hans-Peter Buniat',          // the full-name
+                            'mail' => 'hans-peter.buniat@mail',     // the mail (which is set in bugzilla)
+                            'gravatar' => 'hpbuniat@mail'           // optional: a gravatar-image
+                        ),
+                    ),
+                    'mergy' => array(
+                        'command' => "/usr/local/bin/mergy",
+                        'source' => array(
+                            // you may add multiple svn repositories per project
+                            'portal' => array(
+                                'stable' => "https://svn/project/trunk",
+                                'feature' => "https://svn/project/branches/feature",
+                                'wc' => "/opt/mergy/trunks/project",
+                                'trac' => "https://trac/changeset/%d"
+                            )
+                        )
                     )
                 )
             )
         ),
-        'mergy' => array(
-            'command' => "/usr/local/bin/mergy",
-            'source' => array(
-                'portal' => array(
-                    'stable' => "https://svn/project/trunk",
-                    'feature' => "https://svn/project/branches/feature",
-                    'wc' => "/opt/mergy/trunks/project",
-                    'trac' => "https://trac/changeset/%d"
+        'notifyy' => array(
+            'hp.buniat' => array(
+                'growl' => array(
+                    'host' => '127.0.0.1',
+                    'port' => '9887',
+                    'password' => '',
+                    'enabled' => false
                 ),
+                'dbus' => array(
+                    'enabled' => true
+                )
             )
         ),
         'analytics' => array(

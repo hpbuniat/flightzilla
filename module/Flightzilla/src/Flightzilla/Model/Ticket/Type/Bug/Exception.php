@@ -2,7 +2,7 @@
 /**
  * flightzilla
  *
- * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * Copyright (c) 2012-2013, Hans-Peter Buniat <hpbuniat@googlemail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
  *
  * @package flightzilla
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 
@@ -46,14 +46,16 @@ namespace Flightzilla\Model\Ticket\Type\Bug;
  * Ticket-related exceptions
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
 class Exception extends \Exception {
 
-    const INVALID_STATUS = '%s is not a valid bug status!';
+    const INVALID_STATUS = '(id: %d) %s is not a valid bug status !';
 
     const INVALID_START_DATE = 'Start date must not be zero! Please edit ticket %s.';
+
+    const INSUFFICIENT_DATA = 'There was an error retrieving the ticket-data';
 }

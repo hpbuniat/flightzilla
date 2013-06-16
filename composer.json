@@ -16,13 +16,15 @@
     "homepage": "https://github.com/hpbuniat/flightzilla",
     "repositories": [
         {
-            "type": "composer",
-            "url": "http://packages.zendframework.com/"
+            "type": "git",
+            "url": "https://github.com/hpbuniat/notifyy"
         }
     ],
     "require": {
         "php": ">=5.3.3",
-        "zendframework/zendframework": "2.0.*",
-        "zendframework/zendgdata": "2.0.*"
+        "zendframework/zendframework": "2.2.*",
+        "zendframework/zendgdata": "2.*",
+        "zendframework/zend-developer-tools": "dev-master",
+        "hpbuniat/notifyy": "dev-master"
     }
 }

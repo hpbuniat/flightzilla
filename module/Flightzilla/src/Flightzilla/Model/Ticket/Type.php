@@ -2,7 +2,7 @@
 /**
  * flightzilla
  *
- * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * Copyright (c) 2012-2013, Hans-Peter Buniat <hpbuniat@googlemail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,17 +36,19 @@
  *
  * @package flightzilla
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 
 namespace Flightzilla\Model\Ticket;
 
+use Flightzilla\Model\Ticket\Type\Bug;
+
 /**
  * Create a ticket as special type according to its keywords
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
@@ -54,14 +56,17 @@ namespace Flightzilla\Model\Ticket;
 abstract class Type {
 
     /**
-     * A theme is a collection of bugs.
+     * The bug-types
+     *
+     * @var array
      */
-    const THEME = 'Theme';
-
-    /**
-     * A project.
-     */
-    const PROJECT = 'Projekt';
+    public static $aTypes = array(
+        Bug::TYPE_STRING_BUG => Bug::TYPE_BUG,
+        Bug::TYPE_STRING_PROJECT  => Bug::TYPE_PROJECT,
+        Bug::TYPE_STRING_THEME  => Bug::TYPE_THEME,
+        Bug::TYPE_STRING_CONCEPT  => Bug::TYPE_CONCEPT,
+        Bug::TYPE_STRING_FEATURE  => Bug::TYPE_FEATURE,
+    );
 
     /**
      * Create a ticket
@@ -71,14 +76,49 @@ abstract class Type {
      * @return \Flightzilla\Model\Ticket\Type\Bug|\Flightzilla\Model\Ticket\Type\Project|\Flightzilla\Model\Ticket\Type\Theme
      */
     public static function factory(\SimpleXMLElement $oXml) {
-
-        if (stripos((string) $oXml->keywords, \Flightzilla\Model\Ticket\Type::PROJECT) !== false) {
-            return new \Flightzilla\Model\Ticket\Type\Project($oXml);
+        $sType = self::getType($oXml);
+        if ($sType === Bug::TYPE_PROJECT) {
+            return new Type\Project($oXml);
         }
-        elseif (stripos((string) $oXml->keywords, \Flightzilla\Model\Ticket\Type::THEME) !== false) {
-            return new \Flightzilla\Model\Ticket\Type\Theme($oXml);
+        elseif ($sType === Bug::TYPE_THEME) {
+            return new Type\Theme($oXml);
         }
 
-        return new \Flightzilla\Model\Ticket\Type\Bug($oXml);
+        return new Type\Bug($oXml);
+    }
+
+    /**
+     * Get the type of a ticket
+     *
+     * @param  \SimpleXMLElement $oXml
+     * @param  string $sTitle
+     * @param  string $sKeywords
+     *
+     * @return string
+     */
+    public static function getType(\SimpleXMLElement $oXml, $sTitle = '', $sKeywords = '') {
+
+        $sReturnType = false;
+
+        $sTitle = (empty($sTitle) === true) ? (string) $oXml->short_desc : $sTitle;
+        $sKeywords = (empty($sKeywords) === true) ? (string) $oXml->keywords : $sKeywords;
+
+        foreach (self::$aTypes as $sSplitKeywords => $sType) {
+            $aKeywords = explode(',', $sSplitKeywords);
+            if (empty($aKeywords) !== true) {
+                foreach ($aKeywords as $sKeyword) {
+                    if (empty($sKeyword) !== true) {
+                        if (stristr($sTitle, sprintf('%s:', $sKeyword)) !== false or stripos($sKeywords, $sKeyword) !== false) {
+                            $sReturnType = $sType;
+                            break 2;
+                        }
+                    }
+                }
+            }
+
+            unset($aKeywords);
+        }
+
+        return $sReturnType;
     }
 }

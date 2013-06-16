@@ -6,30 +6,6 @@ img {
     padding-left:10px;
 }
 
-.clearfix:after {
-    content: ".";
-    display: block;
-    height: 0;
-    clear: both;
-    visibility: hidden;
-}
-
-.fll {
-    float: left
-}
-
-.flr {
-    float: right
-}
-
-.left {
-    width: 150px
-}
-
-.right {
-    text-align: right
-}
-
 .table th, .table td {
     vertical-align: middle !important;
 }
@@ -62,11 +38,11 @@ div.row-fluid div.center.chuck {
     text-align: center;
 }
 
-.red {
+#dStatus .red, .red {
     color: red;
 }
 
-.green {
+#dStatus .green, .green {
     color: green;
 }
 
@@ -111,35 +87,46 @@ div.row-fluid div.center.chuck {
 }
 
 .kanban h4, .kanban h5 {
-    margin-bottom: 0;
+    margin: 0 0 10px;
+}
+
+.kanban .pin .label {
+    padding: 2px 3px;
+}
+
+.label .tooltip {
+    white-space: normal;
 }
 
 .kanban div.pin {
+    background-color: #F5F5F5;
     border: 1px solid grey;
     border-radius: 6px 6px 6px 6px;
     float: left;
     font-size: 11px;
     height: 90px;
     margin: 5px;
-    overflow: hidden;
     width: 90px;
     position: relative;
     line-height: 16px;
 }
 
-.kanban div.pin div.top, .kanban div.pin div.bottom {
+.kanban div.pin div.pin-top, .kanban div.pin div.pin-bottom {
     width: 100%;
-    line-height: 12px;
-    height: 12px;
+    line-height: 13px;
+    height: 13px;
+    padding: 0 0 3px 0;
 }
 
-.kanban div.pin div.bottom {
+.kanban div.pin div.pin-bottom {
     position: absolute;
-    bottom: 5px;
+    bottom: 2px;
 }
 
 .kanban div.description {
-    margin: 3px;
+    height: 60px;
+    margin: 0 2px;
+    overflow: hidden;
 }
 
 .kanban .theme a {
@@ -155,7 +142,7 @@ div.modal {
     width: 75%;
 }
 
-.largeGray {
+.large-number-gray {
     font-size: 40px;
     bottom: 0;
     position: absolute;
@@ -166,9 +153,197 @@ div.modal {
 
 .relative-box {
     position: relative;
-    height: 90px;
+    height: 75px;
+}
+
+.member-background {
+    background-color: white;
+    margin: 10px;
+    width: 1040px;
+    border: 1px solid #DDDDDD;
+    border-radius: 4px 4px 4px 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.055);
+}
+
+.member-background p {
+    padding: 0 10px;
+}
+
+.member-layer {
+    height: 110px;
+    padding: 5px;
+    width: 160px;
+}
+
+.member-layer h5 {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.member-box .alert {
+    margin: 5px;
+}
+
+.member-box .carousel-control {
+    top: 165px;
+}
+
+.member-thumbnail {
+    padding-right: 10px;
+    width: 40%;
+}
+
+.btn-column {
+    width: 50px;
 }
 
 .dash .progress {
     margin: 0 20px 0 0;
+}
+
+img.lazy {
+    margin-top: 20px;
+    width: 170px;
+    height: 90px;
+}
+
+.project-box img.lazy {
+    height: 64px;
+    width: 120px;
+}
+
+div.progress-heading {
+    margin: 10px 15px;
+    width: 120px;
+}
+
+.progress-heading .bar {
+    background-color: #999;
+    background-repeat: repeat-x;
+}
+
+h4.member-name, h3.table-toggle {
+    cursor: pointer;
+}
+
+.print-box {
+    padding: 5px;
+}
+
+.wide-definition .dl-horizontal dt {
+    width: 300px;
+}
+
+.wide-definition .dl-horizontal dd {
+    margin-left: 320px;
+}
+
+.small-definition .dl-horizontal dt {
+    width: 105px;
+}
+
+.small-definition .dl-horizontal dd {
+    margin-left: 110px;
+    overflow: hidden;
+}
+
+@media print {
+    div.print-hide, div.navbar, #zend-developer-toolbar {
+        display: none !important;
+    }
+
+    .print-box {
+        font-size: 1.06em !important;
+        line-height: 1em !important;
+    }
+
+    a[href]:after {
+        content: "" !important;
+    }
+
+    tr, img, .print-box {
+        page-break-inside: avoid;
+    }
+
+    i[class|="icon"] {
+        display: none !important;
+    }
+
+    div.print-fullwidth {
+        width: 99%;
+        height: 99%;
+        margin: 0;
+        page-break-after: always;
+        page-break-inside: avoid;
+    }
+
+    body {
+        padding-top: 10px;
+    }
+
+    /* print.css from bootstrap 3 */
+    pre, blockquote {
+        border: 1px solid #999;
+        page-break-inside: avoid;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    img {
+        max-width: 100% !important;
+    }
+
+    p,h2, h3 {
+        orphans: 3;
+        widows: 3;
+    }
+
+    h2, h3 {
+        page-break-after: avoid;
+    }
+
+    @page {
+        margin: 0.5cm;
+    }
+}
+
+
+/* svg d3 css */
+#xAxis path, #yAxis path, #xAxis line, #yAxis line {
+    fill: none;
+    shape-rendering: crispedges;
+    stroke: #CCCCCC;
+}
+
+rect {
+    fill: transparent;
+}
+
+path.red-line {
+    fill: none;
+    stroke: red;
+    stroke-widdt: 3px;
+    stroke-dasharray: 2, 2;
+}
+
+line, .medianLine {
+    fill: none;
+    stroke: grey;
+    stroke-width: 2px;
+    stroke-dasharray: 5, 5;
+}
+
+line.link {
+    stroke-width: 1px;
+    stroke-dasharray: 2, 2;
+}
+
+text {
+    font-size: 12px;
+}
+
+text.circle-label {
+    text-anchor: middle;
 }

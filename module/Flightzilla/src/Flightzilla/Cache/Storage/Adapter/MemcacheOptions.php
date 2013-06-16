@@ -2,7 +2,7 @@
 /**
  * flightzilla
  *
- * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * Copyright (c) 2012-2013, Hans-Peter Buniat <hpbuniat@googlemail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
  *
  * @package flightzilla
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 
@@ -59,7 +59,7 @@ use Zend\Cache\Exception\InvalidArgumentException;
  * Memcache-Storage Options
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla

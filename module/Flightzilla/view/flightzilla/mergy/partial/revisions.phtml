@@ -1,0 +1,13 @@
+<?php
+    $iTicket = (empty($this->iTicket) === true) ? false : $this->iTicket;
+?>
+<blockquote class="toggleNext" data-toggleNext="dl">
+    <p><?php echo $this->oStack->getRevisions(\Flightzilla\Model\Mergy\Revision\Stack::REVISIONS_AS_STRING, $iTicket); ?></p>
+    <small>svn merge -c <?php echo $this->oStack->getRevisions(\Flightzilla\Model\Mergy\Revision\Stack::REVISIONS_AS_STRING, $iTicket); ?> <?php echo $this->oStack->getRemote() ?></small>
+</blockquote>
+<dl class="dl-horizontal">
+    <?php foreach ($this->aRevisions as $oXml):?>
+        <dt><?php echo sprintf('<a href="%s" target="blank">%s @ %s</a>', $this->oStack->getChangeset($oXml['rev']), $oXml['author'], $oXml['rev']); ?></dt>
+        <dd><?php echo (empty($oXml['comment']) === true) ? (string) $oXml : (string) $oXml['comment']; ?></dd>
+    <?php endforeach; ?>
+</dl>

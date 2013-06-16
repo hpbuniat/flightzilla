@@ -2,7 +2,7 @@
 /**
  * flightzilla
  *
- * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * Copyright (c) 2012-2013, Hans-Peter Buniat <hpbuniat@googlemail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
  *
  * @package flightzilla
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 
@@ -44,30 +44,31 @@
  * View-Helper create a status-indicating background-gradient
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
 namespace Flightzilla\View\Helper;
 use Zend\View\Helper\AbstractHelper;
+use Flightzilla\Model\Ticket\Type\Bug;
 
 class Buggradient extends AbstractHelper {
 
     /**
      * Get the gradient-color for a bug
      *
-     * @param  \Flightzilla\Model\Ticket\Type\Bug $oBug
+     * @param  \Flightzilla\Model\Ticket\Type\Bug $oTicket
      * @param  boolean $bReady
      * @param  boolean $bTransparent
      *
      * @return string
      */
-    public function __invoke(\Flightzilla\Model\Ticket\Type\Bug $oBug, $bReady = false, $bTransparent = true) {
+    public function __invoke(Bug $oTicket, $bReady = false, $bTransparent = true) {
 
         $aColors = array();
-        $bTestingOpen = $oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '?');
-        $bTestingGranted = $oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '+');
+        $bTestingOpen = $oTicket->hasFlag(Bug::FLAG_TESTING, '?');
+        $bTestingGranted = $oTicket->hasFlag(Bug::FLAG_TESTING, '+');
         if ($bTestingOpen === true) {
             $aColors[] = 'yellow';
         }
@@ -80,26 +81,27 @@ class Buggradient extends AbstractHelper {
             $aColors[] = '#CCFF99';
         }
 
-        if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_DBCHANGE, '?') or $oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_DBCHANGE_TEST, '?')) {
+        if ($oTicket->hasFlag(Bug::FLAG_DBCHANGE, '?') === true or $oTicket->hasFlag(Bug::FLAG_DBCHANGE_TEST, '?') === true) {
             $aColors[] = 'orchid';
         }
 
-        if ($oBug->isFailed() === true and $bTestingGranted !== true) {
+        if ($oTicket->isFailed() === true and $bTestingGranted !== true) {
             $aColors[] = 'crimson';
         }
 
-        if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_MERGE, '?')) {
+        if ($oTicket->hasFlag(Bug::FLAG_MERGE, '?') === true) {
             $aColors[] = '#9FB9FF';
         }
 
-        if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '?')) {
+        if ($oTicket->hasFlag(Bug::FLAG_SCREEN, '?') === true) {
             $aColors[] = '#9F9F9F';
         }
 
-        if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TRANSLATION, '?')) {
+        if ($oTicket->hasFlag(Bug::FLAG_TRANSLATION, '?') === true) {
             $aColors[] = 'orange';
         }
 
+        $sStyle = '';
         if (count($aColors) > 0) {
             $sColors = implode(', ', $aColors);
             $sColors .= (($bTransparent === true) ? ' 70%' : ' 100%') . ', transparent';
@@ -110,9 +112,13 @@ class Buggradient extends AbstractHelper {
                 'background-image: -webkit-linear-gradient(0deg, ' . $sColors . ');',
                 'background-image: -linear-gradient(0deg, ' . $sColors . ');',
             );
-            return implode($aBackgrounds);
+            $sStyle = implode($aBackgrounds);
         }
 
-        return '';
+        if ($oTicket->isClosed() === true) {
+            $sStyle .= ' opacity: 0.25;';
+        }
+
+        return $sStyle;
     }
 }

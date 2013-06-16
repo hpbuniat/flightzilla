@@ -1,19 +1,41 @@
-<?php echo $this->render('flightzilla/index/partial/header.phtml'); ?>
-
-<div class="row-fluid kanban">
 <?php
+    echo $this->render('flightzilla/index/partial/header.phtml');
     $this->sMemberName = $this->oResourceManager->getResourceByLogin($this->layout()->sCurrentUser);
-    $this->aStack = (isset($this->aTeamBugs[$this->sMemberName]) === true) ? $this->aTeamBugs[$this->sMemberName] : array();
-
-    echo $this->render('flightzilla/index/partial/member.phtml');
+    $this->oResource = $this->oResourceManager->getResource($this->sMemberName);
 ?>
+
+<ul class="nav nav-tabs" id="ticket-tab">
+    <li class="active"><a href="#tab-sprint" data-toggle="tab">Sprint</a></li>
+    <li><a href="#tab-tickets" data-toggle="tab">Tickets</a></li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane active" id="tab-sprint">
+        <div class="row-fluid kanban">
+            <?php
+            $this->sCarousel = sprintf('member-carousel-%s', 1);
+            $this->aMemberWeekTickets = (isset($this->aWeekTickets[$this->sMemberName]) === true) ? $this->aWeekTickets[$this->sMemberName] : array();
+            echo $this->render('flightzilla/team/partial/sprint-carousel.phtml');
+            ?>
+        </div>
+    </div>
+    <div class="tab-pane" id="tab-tickets">
+        <div class="row-fluid kanban">
+            <?php
+            $this->aStack = (isset($this->aTeamBugs[$this->sMemberName]) === true) ? $this->aTeamBugs[$this->sMemberName] : array();
+            echo $this->render('flightzilla/index/partial/member.phtml');
+            ?>
+        </div>
+    </div>
 </div>
 
 <div class="row-fluid">
 <?php
     if ($this->iEntries > 0) {
         foreach ($this->aTasks as $this->aItems) {
-            echo $this->render('flightzilla/index/partial/tickets-half-width.phtml');
+            if (empty($this->aItems['stack']) !== true) {
+                echo $this->render('flightzilla/index/partial/tickets-half-width.phtml');
+            }
         }
     }
     else {
@@ -29,16 +51,20 @@
 ?>
 </div>
 
+<?php
+echo $this->render('flightzilla/index/partial/deadline.phtml');
+?>
+
 <blockquote>
-    <h3>Untouched Tickets</h3>
+    <h3 class="table-toggle">Untouched Tickets</h3>
 </blockquote>
-<form id="buglist-form" method="get" target="_blank" action="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'go-bugzilla')); ?>">
+<form style="display: none" id="buglist-form" method="get" target="_blank" action="#">
 <?php
 echo $this->partial('flightzilla/index/partial/table.phtml', array(
     'caption' => 'Untouched Tickets',
     'sBugzilla' => $this->layout()->sBugzilla,
     'bugs' => $this->aUntouched,
-    'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_REVIEWED
+    'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED
 ));
 ?>
 </form>

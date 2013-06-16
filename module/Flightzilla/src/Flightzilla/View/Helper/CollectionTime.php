@@ -2,7 +2,7 @@
 /**
  * flightzilla
  *
- * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * Copyright (c) 2012-2013, Hans-Peter Buniat <hpbuniat@googlemail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
  *
  * @package flightzilla
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 
@@ -44,24 +44,32 @@
  * View-Helper to get the summarized times of a ticket-collection
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
 namespace Flightzilla\View\Helper;
 use Zend\View\Helper\AbstractHelper;
+use Flightzilla\Model\Timeline\Date;
+use Flightzilla\Model\Ticket\Type\Bug;
 
 class CollectionTime extends AbstractHelper {
 
+    const TIME_LEFT = 'left';
+    const TIME_ESTIMATED = 'esti';
+
     /**
-     * Get the summarzied times
+     * Get the summarized times
      *
      * @param  array $aTickets
+     * @param  boolean $bProject
+     * @param  int $iFuture
+     * @param  string $sPlannedSource The time, which is used to calculate the percentage
      *
      * @return string
      */
-    public function __invoke(array $aTickets) {
+    public function __invoke(array $aTickets, $bProject = false, $iFuture = Date::FUTURE, $sPlannedSource = self::TIME_LEFT) {
         $aTimes = array(
             'spent' => 0,
             'esti' => 0,
@@ -69,28 +77,50 @@ class CollectionTime extends AbstractHelper {
         );
 
         foreach($aTickets as $oTicket) {
-            if ($oTicket->isEstimated()) {
-                $fSpent = (float) $oTicket->actual_time;
-                $fEsti = (float) $oTicket->estimated_time;
-                $fLeft = ($fEsti > $fSpent) ? ($fEsti - $fSpent) : 0;
-                $aTimes['spent'] += $fSpent;
-                $aTimes['esti'] += $fEsti;
-                $aTimes['left'] += $fLeft;
+            /* @var $oTicket Bug */
+            if ($oTicket->isEstimated() === true) {
+                $aTimes['spent'] += $oTicket->getActualTime();
+                $aTimes['esti'] += $oTicket->getEstimation();
+                $aTimes['left'] += $oTicket->getLeftHours();
             }
         }
 
-        $aTimes['days'] = round($aTimes['left'] / \Flightzilla\Model\Timeline\Date::AMOUNT, 1);
-        $aTimes['future'] = round(($aTimes['left'] / (\Flightzilla\Model\Timeline\Date::FUTURE * \Flightzilla\Model\Timeline\Date::AMOUNT)) * 100, 1);
+        $aTimes['days'] = round($aTimes['left'] / Date::AMOUNT, 1);
+        $aTimes['planned'] = ($iFuture === 0) ? (($aTimes[$sPlannedSource] > 0) ? 200 : 100) : round(($aTimes[$sPlannedSource] / $iFuture) * 100, 1);
+        $aTimes['spent_days'] = round($aTimes['spent'] / Date::AMOUNT, 1);
+        $aTimes['esti_days'] = round($aTimes['esti'] / Date::AMOUNT, 1);
 
-        $aTimes['color'] = 'success';
-        if ($aTimes['future'] < 20) {
+        $aTimes['percent'] = 0;
+        if ($aTimes['esti'] > 0) {
+            $aTimes['percent'] = round((1 - ($aTimes['left'] / $aTimes['esti'])) * 100, 1);
+        }
+
+        if ($bProject === true) {
             $aTimes['color'] = 'danger';
+            if ($aTimes['percent'] > 80) {
+                $aTimes['color'] = 'success';
+            }
+            elseif ($aTimes['percent'] > 50) {
+                $aTimes['color'] = 'info';
+            }
+            elseif ($aTimes['percent'] > 20) {
+                $aTimes['color'] = 'warning';
+            }
         }
-        elseif ($aTimes['future'] < 50) {
-            $aTimes['color'] = 'warning';
-        }
-        elseif ($aTimes['future'] < 80) {
-            $aTimes['color'] = 'info';
+        else {
+            $aTimes['color'] = 'success';
+            if ($aTimes['planned'] < 20) {
+                $aTimes['color'] = 'danger';
+            }
+            elseif ($aTimes['planned'] < 50) {
+                $aTimes['color'] = 'warning';
+            }
+            elseif ($aTimes['planned'] < 80) {
+                $aTimes['color'] = 'info';
+            }
+            elseif ($aTimes['planned'] > 110) {
+                $aTimes['color'] = 'danger';
+            }
         }
 
         return $aTimes;

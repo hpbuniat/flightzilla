@@ -2,7 +2,7 @@
 /**
  * flightzilla
  *
- * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * Copyright (c) 2012-2013, Hans-Peter Buniat <hpbuniat@googlemail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,36 +36,64 @@
  *
  * @package flightzilla
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 namespace Flightzilla\Model\Ticket\Type;
 
+use Flightzilla\Model\Timeline\Date;
 
 /**
  * A Project
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class Project extends \Flightzilla\Model\Ticket\Type\Bug {
+class Project extends Bug {
 
     /**
+     * A list of projects, which this project depends on
+     *
      * @var array
      */
     protected $_aDependentProjects = array();
 
     /**
-     * Get start date as timestamp.
+     * A list of projects, which are blocked by this project
      *
-     * Start date is either the end of its predecessor or the next workday.
+     * @var array
+     */
+    protected $_aBlockedProjects = array();
+
+    /**
+     * Are there only concept-tickets
+     *
+     * @var boolean
+     */
+    protected $_bOnlyConcepts = null;
+
+    /**
+     * The start-dates of depended tickets
+     *
+     * @var array
+     */
+    protected $_aStartDates = array();
+
+    /**
+     * Get start date as timestamp.
+     * Start date is
+     * - the end of its predecessor
+     * - the first start-date of a blocking ticket
+     * - or the next workday.
+     *
+     * @param  boolean|null $iCalled
      *
      * @return int
      */
-    public function getStartDate() {
+    public function getStartDate($iCalled = null) {
         if ($this->_iStartDate > 0){
             return $this->_iStartDate;
         }
@@ -73,12 +101,28 @@ class Project extends \Flightzilla\Model\Ticket\Type\Bug {
         // is there a predecessor?
         $iPredecessor = $this->getActivePredecessor();
         if ($iPredecessor > 0) {
-            $iEndDate = $this->_oBugzilla->getBugById($iPredecessor)->getEndDate();
-            $this->_iStartDate = strtotime('+1 day ' . \Flightzilla\Model\Timeline\Date::START, $iEndDate);
+            $iEndDate = $this->_oBugzilla->getBugById($iPredecessor)->getEndDate($iCalled);
+            $this->_iStartDate = strtotime('+1 day ' . Date::START, $iEndDate);
+        }
+        else {
+            // start date of the first ticket in current project
+            if ($this->id() !== $iCalled) {
+                $aDepends   = $this->getDepends();
+
+                $iCalled = (is_null($iCalled) === true) ? $this->id() : $iCalled;
+                foreach ($aDepends as $iTicket) {
+                    $this->_aStartDates[$iTicket] = (float) $this->_oBugzilla->getBugById($iTicket)->getStartDate($iCalled);
+                }
+            }
+
+            if (empty($this->_aStartDates) !== true) {
+                asort($this->_aStartDates);
+                $this->_iStartDate = reset($this->_aStartDates);
+            }
         }
 
-        if ($this->_iStartDate === 0){
-            $this->_iStartDate = strtotime('tomorrow ' . \Flightzilla\Model\Timeline\Date::START);
+        if (empty($this->_iStartDate) === true) {
+            $this->_iStartDate = strtotime('+1 day ' . Date::START);
         }
 
         $this->_iStartDate = $this->_oDate->getNextWorkday($this->_iStartDate);
@@ -89,30 +133,35 @@ class Project extends \Flightzilla\Model\Ticket\Type\Bug {
     /**
      * Get the end-date as timestamp.
      *
+     * @param  boolean|null $iCalled
+     *
      * @return int
      */
-    public function getEndDate() {
+    public function getEndDate($iCalled = null) {
 
         if ($this->_iEndDate > 0) {
             return $this->_iEndDate;
         }
 
-        if ($this->cf_due_date) {
-            $sEndDate = (string) $this->cf_due_date;
-            $this->_iEndDate = strtotime(str_replace('00:00:00', \Flightzilla\Model\Timeline\Date::END, $sEndDate));
+        $sDeadline = $this->getDeadline();
+        if (empty($sDeadline) !== true) {
+            $sEndDate = $sDeadline;
+            $this->_iEndDate = strtotime(str_replace('00:00:00', Date::END, $sEndDate));
         }
-        else {
+
+        if (empty($this->_iEndDate) or $this->_iEndDate < time()) {
             // End date of the last ticket in current project
             $aEndDates = array();
-            $depends   = $this->getDepends($this->_oBugzilla);
-            foreach ($depends as $child) {
-                $aEndDates[] = (float) $this->_oBugzilla
-                    ->getBugById($child)
-                    ->getEndDate();
+            $aDepends   = $this->getDepends();
+
+            $iCalled = (is_null($iCalled) === true) ? $this->id() : $iCalled;
+            foreach ($aDepends as $iTicket) {
+                $aEndDates[$iTicket] = (float) $this->_oBugzilla->getBugById($iTicket)->getEndDate($iCalled);
             }
 
-            arsort($aEndDates);
-            $this->_iEndDate = current($aEndDates);
+            asort($aEndDates);
+
+            $this->_iEndDate = end($aEndDates);
 
             $this->_iEndDate = $this->_oDate->getNextWorkday($this->_iEndDate);
         }
@@ -134,11 +183,9 @@ class Project extends \Flightzilla\Model\Ticket\Type\Bug {
             $dependencies = $this->getDependentProjects();
 
             $aEndDates = array();
-
             foreach ($dependencies as $dependency) {
-
                 $oTicket = $this->_oBugzilla->getBugById($dependency);
-                if ($oTicket->isStatusAtMost(\Flightzilla\Model\Ticket\Type\Bug::STATUS_REOPENED)) {
+                if ($oTicket->isStatusAtMost(Bug::STATUS_REOPENED) === true) {
                     $aEndDates[$oTicket->id()] = $oTicket->getEndDate();
                 }
             }
@@ -165,21 +212,156 @@ class Project extends \Flightzilla\Model\Ticket\Type\Bug {
             return $this->_aDependentProjects;
         }
 
-        if (isset($this->dependson) === true) {
-            foreach ($this->dependson as $iBug) {
-                try {
-                    $iBug = (int) $iBug;
-                    $oBug = $this->_oBugzilla->getBugById($iBug);
-                    if ($oBug->isProject() === true and $oBug->isTheme() === true) {
-                        $this->_aDependentProjects[] = $iBug;
-                    }
-                }
-                catch (Exception $e) {
-                    /* happens, if a bug is not found, which is ok for closed bugs */
+        foreach ($this->getDependsAsStack() as $oTicket) {
+            /* @var Bug $oTicket */
+            try {
+                if ($oTicket->isProject() === true) {
+                    $this->_aDependentProjects[$oTicket->id()] = $oTicket->id();
                 }
             }
+            catch (\Exception $e) {
+                /* happens, if a bug is not found, which is ok for closed bugs */
+            }
+        }
+
+        // recursively get dependent projects
+        foreach ($this->_aDependentProjects as $iTicket) {
+            $oTicket = $this->_oBugzilla->getBugById($iTicket);
+
+            /* @var Project $oTicket */
+            $this->_aDependentProjects = array_merge($this->_aDependentProjects, $oTicket->getDependentProjects());
         }
 
         return $this->_aDependentProjects;
     }
+
+    /**
+     * Determine all blocked projects
+     *
+     * @return array
+     */
+    public function getBlockedProjects() {
+        if (empty($this->_aBlockedProjects) === false) {
+            return $this->_aBlockedProjects;
+        }
+
+        foreach ($this->getBlockedAsStack() as $oTicket) {
+            /* @var Bug $oTicket */
+            try {
+                if ($oTicket->isProject() === true) {
+                    $this->_aBlockedProjects[$oTicket->id()] = $oTicket->id();
+                }
+            }
+            catch (\Exception $e) {
+                /* happens, if a bug is not found, which is ok for closed bugs */
+            }
+        }
+
+        // recursively get dependent projects
+        foreach ($this->_aBlockedProjects as $iTicket) {
+            $oTicket = $this->_oBugzilla->getBugById($iTicket);
+
+            /* @var Project $oTicket */
+            $this->_aBlockedProjects = array_merge($this->_aBlockedProjects, $oTicket->getBlockedProjects());
+        }
+
+        return $this->_aBlockedProjects;
+    }
+
+    /**
+     * Are all depending tickets merged?
+     *
+     * @return boolean
+     */
+    public function isMerged() {
+
+        $bReady = true;
+        foreach ($this->getDependsAsStack() as $oTicket) {
+            /* @var Bug $oTicket */
+            if ($oTicket->couldBeInTrunk() === false) {
+                $bReady = false;
+                break;
+            }
+        }
+
+        return ($this->hasDevelopment() === true and $bReady === true and empty($this->_aDepends) === false);
+    }
+
+    /**
+     * Does the project have any development-tickets?
+     *
+     * @return boolean
+     */
+    public function hasDevelopment() {
+        if (is_null($this->_bOnlyConcepts) === true) {
+            $this->_bOnlyConcepts = true;
+            foreach ($this->getDependsAsStack() as $oTicket) {
+                /* @var Bug $oTicket */
+                if ($oTicket->isConcept() === false) {
+                    $this->_bOnlyConcepts = false;
+                }
+            }
+        }
+
+        return ($this->_bOnlyConcepts === false);
+    }
+
+    /**
+     * Check, if a ticket was changed within a given time-limit
+     *
+     * @param $iLimit
+     *
+     * @return boolean
+     */
+    public function isChangedWithinLimit($iLimit) {
+        $bIsChanged = false;
+
+        $iTime = time();
+        foreach($this->getDependsAsStack() as $oTicket) {
+            /* @var Bug $oTicket */
+            if (($iTime - $oTicket->getLastActivity()) < $iLimit) {
+                $bIsChanged = true;
+                break;
+            }
+        }
+
+        return $bIsChanged;
+    }
+
+    /**
+     * Get the revenue-score-estimation based on work-days (estimation)
+     *
+     * @return float
+     */
+    public function getRevenueScoreEstimation() {
+        $fRevenue = (float) $this->getRevenue();
+        $fProbability = (float) $this->getRevenueProbability();
+        $fEstimation = (float) $this->getEstimationTimeOfDependencies();
+
+        $fReturn = 0;
+        if ($fRevenue > 0 and $fProbability > 0 and $fEstimation > 0) {
+            $fReturn = round(($fRevenue / $fProbability) / ($fEstimation / Date::AMOUNT), 2);
+        }
+
+        return $fReturn;
+    }
+
+    /**
+     * Get the revenue-estimation based on work-days (actual- + left-time)
+     *
+     * @return float
+     */
+    public function getRevenueScoreActual() {
+        $fRevenue = (float) $this->getRevenue();
+        $fProbability = (float) $this->getRevenueProbability();
+        $fTime = (float) $this->getActualTimeOfDependencies() + (float) $this->getLeftTimeOfDependencies();
+
+        $fReturn = 0;
+        if ($fRevenue > 0 and $fProbability > 0 and $fTime > 0) {
+            $fReturn = round(($fRevenue / $fProbability) / ($fTime / Date::AMOUNT), 2);
+        }
+
+        return $fReturn;
+    }
+
 }

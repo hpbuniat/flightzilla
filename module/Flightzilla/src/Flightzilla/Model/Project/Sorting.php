@@ -2,7 +2,7 @@
 /**
  * flightzilla
  *
- * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * Copyright (c) 2012-2013, Hans-Peter Buniat <hpbuniat@googlemail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
  *
  * @package flightzilla
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 namespace Flightzilla\Model\Project;
@@ -46,7 +46,7 @@ namespace Flightzilla\Model\Project;
  * Enter a description ..
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
@@ -150,7 +150,6 @@ class Sorting {
 
         if ($this->_bSorted !== true) {
             $this->_sortByPriority();
-            $this->_sortByStartDate();
 
             $bSorted = false;
             do {
@@ -250,12 +249,27 @@ class Sorting {
         }
 
         arsort($aSort);
-        $this->_aSorted = array();
+        $aStack = array();
         foreach ($aSort as $iBug => $mStuff) {
-            $this->_aSorted[$iBug] = $this->_aStack[$iBug];
+            $sPriority = $this->_aStack[$iBug]->getPriority();
+            if (empty($aStack[$sPriority]) === true) {
+                $aStack[$sPriority] = array();
+            }
+
+            $aStack[$sPriority][$iBug] = $this->_aStack[$iBug];
         }
 
-        unset($aSort);
+        $aSorted = array();
+        $aSort = array();
+        foreach ($aStack as $iPriority => $aSort) {
+            $this->_aSorted = $aSort;
+            $this->_sortByStartDate();
+
+            $aSorted = array_merge($aSorted, $this->_aSorted);
+        }
+
+        $this->_aSorted = $aSorted;
+        unset($aSort, $aStack);
 
         return $this;
     }

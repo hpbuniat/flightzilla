@@ -1,0 +1,29 @@
+<?php echo $this->render('flightzilla/index/partial/header.phtml'); ?>
+
+<div class="row-fluid">
+    <div class="hidden" id="ganttGraph">
+
+    </div>
+
+    <script type="text/javascript">
+        $(function() {
+            var $gantt = $("#ganttGraph");
+            $gantt.gantt({
+                source: <?php echo $this->sResource; ?>,
+                navigate: "scroll",
+                scale: "hours",
+                maxScale: "weeks",
+                minScale: "hours",
+                dow: ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
+                itemsPerPage: 100,
+                hourRange: {
+                    from: 7,
+                    to: 21
+                },
+                scrollToToday: true
+            });
+
+            $gantt.removeClass('hidden');
+        });
+    </script>
+</div>

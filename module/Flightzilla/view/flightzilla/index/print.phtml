@@ -1,0 +1,71 @@
+<div class="row-fluid print-box">
+<?php if (empty($this->aTickets) !== true) {
+
+    $iCount = 0;
+    $iRows = 0;
+    foreach ($this->aTickets as $oTicket) {
+
+        /* @var $oTicket \Flightzilla\Model\Ticket\Type\Bug */
+
+        $iCount++;
+        $iRows++;
+        $sBreak = (($iRows % 4) === 0) ? 'page-break-after:always;' : '';
+
+        $aTickets = ($oTicket->isContainer() === true) ? $oTicket->getDependsAsStack() : array($oTicket);
+        $aTimes = $this->collectiontime($aTickets);
+        $sEstimationString = sprintf('%sd (%sd est.) <i class="icon-time"></i> %sd', $aTimes['spent_days'], $aTimes['esti_days'] , $aTimes['days']);
+?>
+        <div class="span6 print-box" style="<?php echo $sBreak; ?> margin-bottom: 2px; border: 5px solid #<?php echo substr(md5($oTicket->getAssignee()), 0, 6); ?>; border-top: 25px solid #<?php echo substr(md5($oTicket->getAssignee()), 0, 6); ?>;">
+            <div class="row-fluid">
+                <div class="span12">
+                    <h5><?php
+                        echo sprintf('(%s %s) %s %s (%s)',
+                            $oTicket->getPriority(),
+                            $oTicket->id(),
+                            $this->ticketicons($oTicket),
+                            $oTicket->title(),
+                            $oTicket->getVersion()
+                        );
+                    ?></h5>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span7">
+                    <p>
+                        <i class="icon-user"></i> <?php echo substr($oTicket->getAssignee(true), 0, 25); ?>
+                    </p>
+                    <p>
+                        <i class="icon-tasks"></i> <?php echo (isset($this->aKanban[$oTicket->id()]) === true) ? \Flightzilla\Model\Kanban\Status::$aStatusText[$this->aKanban[$oTicket->id()]] : '-'; ?>
+                    </p>
+                    <p>
+                        <i class="icon-tags"></i>
+                        <?php $fRevenue = (float) $oTicket->getRevenue();
+                        if (empty($fRevenue) !== true) {
+                            echo sprintf ('%s (%s, %s)', $fRevenue, $oTicket->getRevenueScoreEstimation(), $oTicket->getRevenueScoreActual());
+                        }
+                        else {?>
+                            <span class="label label-warning">No revenue!</span>
+                        <?php } ?>
+                    </p>
+                    <p>
+                        <?php if ($oTicket->isContainer() === true): ?>
+                            <i class="icon-time"></i> <?php echo $sEstimationString; ?>
+                        <?php else: ?>
+                            <i class="icon-comment"></i> <?php echo $oTicket->getReporter(true); ?>
+                        <?php endif; ?>
+                    </p>
+                </div>
+                <div class="span5">
+                    <p>Estimation: <?php echo $this->finishstatus($oTicket, \Flightzilla\View\Helper\Finishstatus::ENDDATE); ?></p>
+                    <p>Deadline: <?php echo $this->finishstatus($oTicket, \Flightzilla\View\Helper\Finishstatus::DEADLINE); ?></p>
+                </div>
+            </div>
+        </div>
+<?php
+        if (($iCount % 2) === 0) {
+            echo '</div><div class="row-fluid">';
+        }
+    }
+}
+?>
+</div>

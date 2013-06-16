@@ -2,7 +2,7 @@
 /**
  * flightzilla
  *
- * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * Copyright (c) 2012-2013, Hans-Peter Buniat <hpbuniat@googlemail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
  *
  * @package flightzilla
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 namespace Flightzilla\Model\Ticket\Integrity\Constraint;
@@ -48,7 +48,7 @@ use \Flightzilla\Model\Ticket\Source\Bugzilla;
  * A resolved ticket must not have failed testing-requests only
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
@@ -70,6 +70,6 @@ class ResolvedTestFailed implements ConstraintInterface {
         return (($oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_DENIED) === true
                 and $oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST) === false
                 and $oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED) === false
-                and ($oTicket->getStatus() === Bug::STATUS_RESOLVED or $oTicket->getStatus() === Bug::STATUS_REVIEWED)) === false);
+                and ($oTicket->getStatus() === Bug::STATUS_RESOLVED or $oTicket->getStatus() === Bug::STATUS_VERIFIED)) === false);
     }
 }

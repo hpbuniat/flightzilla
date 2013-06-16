@@ -2,7 +2,7 @@
 /**
  * flightzilla
  *
- * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * Copyright (c) 2012-2013, Hans-Peter Buniat <hpbuniat@googlemail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
  *
  * @package flightzilla
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 namespace Flightzilla\Model\Project;
@@ -46,7 +46,7 @@ namespace Flightzilla\Model\Project;
  * The container contains all projects and directs the interal sorting for each project
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
@@ -92,13 +92,13 @@ class Container {
         'ganttOrange',
     );
 
-
     /**
      * Create the container
      *
      * @param  \Flightzilla\Model\Ticket\Source\Bugzilla $oBugzilla
      */
     public function __construct(\Flightzilla\Model\Ticket\Source\Bugzilla $oBugzilla) {
+
         $this->_oBugzilla = $oBugzilla;
     }
 
@@ -108,10 +108,11 @@ class Container {
      * @return $this
      */
     public function setup() {
-        $aThemes = $this->_oBugzilla->getThemes();
-        foreach ($aThemes as $oTheme) {
-            if ($oTheme->isProject() === true and $oTheme->hasUnclosedBugs($this->_oBugzilla) === true) {
-                $this->_aProjects[$oTheme->id()] = $oTheme;
+
+        $aProjects = $this->_oBugzilla->getProjects();
+        foreach ($aProjects as $oProject) {
+            if ($oProject->hasUnclosedBugs($this->_oBugzilla) === true) {
+                $this->_aProjects[$oProject->id()] = $oProject;
             }
         }
 
@@ -124,6 +125,7 @@ class Container {
      * @return $this
      */
     public function sortThemes() {
+
         $this->_aOrderedProjects = array();
         foreach ($this->_aProjects as $oProject) {
             try {
@@ -141,7 +143,7 @@ class Container {
 
                 unset($oSort);
             }
-            catch (Exception $e) {
+            catch (\Exception $e) {
                 $this->_aErrors[] = $e->getMessage();
             }
         }
@@ -155,6 +157,7 @@ class Container {
      * @return $this
      */
     public function sortProjects() {
+
         $this->_aOrderedProjects = array();
         foreach ($this->_aProjects as $oProject) {
             try {
@@ -163,11 +166,12 @@ class Container {
                     $oSort->add($this->_oBugzilla->getBugById($iBug));
                 }
 
+                $this->_aOrderedProjects[$oProject->id()]['project'] = $oProject;
                 $this->_aOrderedProjects[$oProject->id()]['short_desc'] = $oProject->title();
                 $this->_aOrderedProjects[$oProject->id()]['tasks'] = $oSort->getSortedBugs();
                 unset($oSort);
             }
-            catch (Exception $e) {
+            catch (\Exception $e) {
                 $this->_aErrors[] = sprintf('%s (Project: %d)', $e->getMessage(), $oProject->id());
             }
         }
@@ -178,10 +182,14 @@ class Container {
     /**
      * Get the projects with ordered bugs
      *
+     * @param  boolean $bDetailed
+     *
      * @return array
      */
-    public function getProjects() {
-        return $this->_createGanttData();
+    public function getProjects($bDetailed = false) {
+
+        $bDetailed = (bool) $bDetailed;
+        return $this->_createGanttData($bDetailed);
     }
 
     /**
@@ -190,6 +198,7 @@ class Container {
      * @return array
      */
     public function getProjectsRaw() {
+
         return $this->_createIterator();
     }
 
@@ -199,6 +208,7 @@ class Container {
      * @return array
      */
     public function getProjectsAsStack() {
+
         $aStack = array();
         foreach ($this->_aProjects as $oTheme) {
             $aStack[$oTheme->id()] = $oTheme->title();
@@ -213,44 +223,42 @@ class Container {
      * @return array
      */
     public function getErrors() {
+
         return $this->_aErrors;
     }
 
     /**
      * Create gantt-view-data
      *
+     * @param  boolean $bDetailed
+     *
      * @return array
      */
-    protected function _createGanttData() {
+    protected function _createGanttData($bDetailed) {
+
         $iColor = $i = 0;
         $aProjects = array();
-        foreach ($this->_aOrderedProjects as $project) {
-            if (isset($project['tasks']) === true) {
+        foreach ($this->_aOrderedProjects as $aProject) {
+            if (isset($aProject['tasks']) === true) {
                 if ($iColor >= count($this->_aColors)) {
                     $iColor = 0;
                 }
 
-                $color = $this->_aColors[$iColor];
+                $sColor = $this->_aColors[$iColor];
                 $iColor++;
-                $bStillTheSameProject = false;
-                foreach ($project['tasks'] as $oTask) {
-                    /* @var \Flightzilla\Model\Ticket\Type\Bug $oTask */
+                if ($bDetailed === true) {
+                    $bStillTheSameProject = false;
+                    foreach ($aProject['tasks'] as $oTask) {
+                        /* @var \Flightzilla\Model\Ticket\Type\Bug $oTask */
 
-                    $aProjects[$i]['name'] = (false === $bStillTheSameProject) ? (string) $project['short_desc'] : ' ';
-                    $aProjects[$i]['desc'] = (string) $oTask->id();
-                    $aProjects[$i]['values'][0] = array(
-                        'from'        => '/Date(' . $oTask->getStartDate() * 1000 . ')/',
-                        'to'          => '/Date(' . $oTask->getEndDate() * 1000 . ')/',
-                        'label'       => $oTask->title(),
-                        'customClass' => $color,
-                        'desc'        => '<b>' . $oTask->title() . '</b><br />'
-                            . '<b>Assignee:</b> ' . (string) $oTask->getResource() . '<br />'
-                            . '<b>Start:</b> ' . date('d.m.Y H:i', $oTask->getStartDate()) . '<br />'
-                            . '<b>Ende:</b> ' . date('d.m.Y H:i', $oTask->getEndDate()) . '<br />'
-                            . (string) $oTask->long_desc->thetext
-                    );
+                        $aProjects[$i] = $this->_getGanttDetail($oTask, (false === $bStillTheSameProject) ? (string) $aProject['short_desc'] : ' ', $sColor);
+                        $bStillTheSameProject = true;
+                        $i++;
+                    }
+                }
+                else {
+                    $aProjects[$i] = $this->_getGanttDetail($aProject['project'], $aProject['short_desc'], $sColor);
                     $i++;
-                    $bStillTheSameProject = true;
                 }
             }
         }
@@ -264,6 +272,7 @@ class Container {
      * @return array
      */
     protected function _createIterator() {
+
         $aProjects = array();
         foreach ($this->_aOrderedProjects as $iTicket => $aProject) {
             if (isset($aProject['tasks']) === true) {
@@ -281,5 +290,35 @@ class Container {
         }
 
         return $aProjects;
+    }
+
+    /**
+     * Get the gantt-data for a ticket/project
+     *
+     * @param  \Flightzilla\Model\Ticket\Type\Bug $oTask
+     * @param  string $sName
+     * @param  string $sColor
+     *
+     * @return array
+     */
+    protected function _getGanttDetail(\Flightzilla\Model\Ticket\Type\Bug $oTask, $sName, $sColor) {
+
+        return array(
+            'name' => $sName,
+            'desc' => (string) $oTask->id(),
+            'values' => array(
+                array(
+                    'from' => '/Date(' . $oTask->getStartDate() * 1000 . ')/',
+                    'to' => '/Date(' . $oTask->getEndDate() * 1000 . ')/',
+                    'label' => $oTask->title(),
+                    'customClass' => $sColor,
+                    'desc' => '<b>' . $oTask->title() . '</b><br />'
+                        . '<b>Assignee:</b> ' . (string) $oTask->getResource() . '<br />'
+                        . '<b>Start:</b> ' . date('d.m.Y H:i', $oTask->getStartDate()) . '<br />'
+                        . '<b>Ende:</b> ' . date('d.m.Y H:i', $oTask->getEndDate()) . '<br />'
+                        . substr((string) $oTask->long_desc->thetext, 0, 120)
+                )
+            )
+        );
     }
 }

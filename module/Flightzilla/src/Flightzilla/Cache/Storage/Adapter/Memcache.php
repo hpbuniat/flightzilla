@@ -2,7 +2,7 @@
 /**
  * flightzilla
  *
- * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * Copyright (c) 2012-2013, Hans-Peter Buniat <hpbuniat@googlemail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
  *
  * @package flightzilla
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 
@@ -65,7 +65,7 @@ use Zend\Cache\Storage\Adapter\AbstractAdapter;
  * Memcache-Storage Adapter
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
@@ -93,12 +93,13 @@ class Memcache extends AbstractAdapter implements
      * Constructor
      *
      * @param  null|array|Traversable|MemcacheOptions $options
-     * @throws Exception\ExceptionInterface
+     *
+     * @throws \Exception
      */
     public function __construct($options = null) {
 
         if (extension_loaded('memcache') !== true) {
-            throw new Exception\ExtensionNotLoadedException('Need ext/memcache');
+            throw new \Exception('Need ext/memcache');
         }
 
         parent::__construct($options);

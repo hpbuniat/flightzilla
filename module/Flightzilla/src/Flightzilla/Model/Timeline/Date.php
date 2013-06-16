@@ -2,7 +2,7 @@
 /**
  * flightzilla
  *
- * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * Copyright (c) 2012-2013, Hans-Peter Buniat <hpbuniat@googlemail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,8 @@
  * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
  * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-    * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-    * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
@@ -36,7 +36,7 @@
  *
  * @package flightzilla
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 namespace Flightzilla\Model\Timeline;
@@ -45,7 +45,7 @@ namespace Flightzilla\Model\Timeline;
  * A Date is one day of the timeline
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
@@ -53,7 +53,7 @@ namespace Flightzilla\Model\Timeline;
 class Date {
 
     /**
-     * Amount of minutes, which a programmer is working each day
+     * Amount of hours, which a programmer is working each day
      *
      * @var int
      *
@@ -62,13 +62,22 @@ class Date {
     const AMOUNT = 6.0;
 
     /**
-     * Amount of days, we'd like to plan in the future
+     * Amount of hours which should be planne for a sprint per week
      *
      * @var int
      *
      * @TODO Config!
      */
-    const FUTURE = 10;
+    const WEEK = 30;
+
+    /**
+     * Amount of hours, we'd like to plan in the future
+     *
+     * @var int
+     *
+     * @TODO Config!
+     */
+    const FUTURE = 60;
 
     /**
      * The day starts at
@@ -89,6 +98,23 @@ class Date {
     const END = '16:00';
 
     /**
+     * Week aliases
+     *
+     * @var string
+     */
+    const WEEK_PREVIOUS = 'previous';
+    const WEEK_CURRENT = 'current';
+    const WEEK_NEXT = 'next';
+    CONST WEEK_NEXT_BUT_ONE = 'next-but-one';
+
+    /**
+     * The weekly-sprint identifier
+     *
+     * @var array
+     */
+    protected $_aWeeks = array();
+
+    /**
      * List of workdays
      *
      * @var array
@@ -104,13 +130,7 @@ class Date {
     );
 
     /**
-     * Create a date
-     */
-    public function __construct() {
-    }
-
-    /**
-     * Check if a day is a holiday or a dayy of the weekend.
+     * Check if a day is a holiday or a day of the weekend.
      *
      * @param $iTimestamp
      *
@@ -123,10 +143,10 @@ class Date {
         $year = date('Y', $iTimestamp);
 
         // Parameter in richtiges Format bringen
-        if(strlen($day) == 1) {
+        if (strlen($day) === 1) {
             $day = "0$day";
         }
-        if(strlen($month) == 1) {
+        if (strlen($month) === 1) {
             $month = "0$month";
         }
 
@@ -135,7 +155,7 @@ class Date {
         $weekday = $date['wday'];
 
         // Prüfen, ob Wochenende
-        if($weekday == 0 || $weekday == 6) {
+        if ($weekday == 0 or $weekday == 6) {
             return true;
         }
 
@@ -150,8 +170,8 @@ class Date {
         // Bewegliche Feiertage berechnen
         $days = 60 * 60 * 24;
         $easterSunday = easter_date($year);
-        $aHolidays[] = date("dm", $easterSunday - 2 * $days);  // Karfreitag
-        $aHolidays[] = date("dm", $easterSunday + 1 * $days);  // Ostermontag
+        $aHolidays[] = date("dm", $easterSunday - 2 * $days); // Karfreitag
+        $aHolidays[] = date("dm", $easterSunday + 1 * $days); // Ostermontag
         $aHolidays[] = date("dm", $easterSunday + 39 * $days); // Himmelfahrt
         $aHolidays[] = date("dm", $easterSunday + 50 * $days); // Pfingstmontag
 
@@ -161,13 +181,13 @@ class Date {
             $iDate -= 86400;
             $date = getdate($iDate);
             $weekday = $date['wday'];
-
-        } while ($weekday !== 3);
+        }
+        while ($weekday !== 3);
 
         $aHolidays[] = date('dm', $iDate); // Buß - und Bettag
 
         // Prüfen, ob Feiertag
-        $code = $day.$month;
+        $code = $day . $month;
         return (in_array($code, $aHolidays) === true) ? true : false;
     }
 
@@ -182,12 +202,67 @@ class Date {
 
         $d = 0;
         do {
-            $iNextWorkday   = strtotime('+' . $d . 'day', $iTimestamp);
+            $iNextWorkday = strtotime('+' . $d . 'day', $iTimestamp);
             $bNonWorkingDay = $this->isWorkFreeDay($iNextWorkday);
             $d++;
         }
         while ($bNonWorkingDay);
 
         return $iNextWorkday;
+    }
+
+    /**
+     * Check if the timestamp is greater than the current date + $iDays days
+     *
+     * @param  int $iTimestamp
+     * @param  int $iDays
+     *
+     * @return boolean
+     */
+    public function isGreater($iTimestamp, $iDays) {
+        return ($iTimestamp >= strtotime(sprintf('+%d days', $iDays)));
+    }
+
+    /**
+     * Get the week-identifiers
+     *
+     * @param  int $iSlice Slice some weeks from the result
+     *
+     * @return array
+     */
+    public function getWeeks($iSlice = 0) {
+        if (empty($this->_aWeeks) === true) {
+            $this->_aWeeks[self::WEEK_PREVIOUS] = array(
+                'title' => date('Y/W', strtotime('previous week')),
+                'tickets' => array()
+            );
+            $this->_aWeeks[self::WEEK_CURRENT] = array(
+                'title' => date('Y/W', strtotime('this week')),
+                'tickets' => array()
+            );
+            $this->_aWeeks[self::WEEK_NEXT] = array(
+                'title' => date('Y/W', strtotime('next week')),
+                'tickets' => array()
+            );
+            $this->_aWeeks[self::WEEK_NEXT_BUT_ONE] = array(
+                'title' => date('Y/W', strtotime('next week', strtotime('next week'))),
+                'tickets' => array()
+            );
+        }
+
+        return array_slice($this->_aWeeks, $iSlice, null, true);
+    }
+
+    /**
+     * Get a date (unix-timestamp) from a sprint-week
+     *
+     * @param  string $sWeek The week with notation yyyy/WW
+     * @param  string $sDay The day of the week
+     *
+     * @return int
+     */
+    public function getDateFromWeek($sWeek, $sDay = 'thursday') {
+        $aDate = explode('/', $sWeek);
+        return strtotime(sprintf('%s-W%s %s %s', $aDate[0], $aDate[1], $sDay, self::END));
     }
 }

@@ -3,19 +3,11 @@ if (empty($this->aMergyStack) === true) {
     $this->aMergyStack = array();
 }
 
-foreach ($this->aMergyStack as $oStack):
-    if ($oStack->isEmpty() !== true):
-?>
-    <blockquote>
-        <p><?php echo $oStack->getRevisions(\Flightzilla\Model\Mergy\Revision\Stack::REVISIONS_AS_STRING); ?></p>
-        <small>svn merge -c <?php echo $oStack->getRevisions(\Flightzilla\Model\Mergy\Revision\Stack::REVISIONS_AS_STRING); ?> <?php echo $oStack->getRemote() ?></small>
-    </blockquote>
-    <dl class="dl-horizontal">
-    <?php foreach ($oStack->getRaw() as $oXml):?>
-        <dt><?php echo sprintf('<a href="%s" target="blank">%s, %s</a>', $oStack->getChangeset($oXml['rev']), $oXml['author'], $oXml['rev']); ?></dt>
-        <dd><?php echo (string) $oXml; ?></dd>
-    <?php endforeach; ?>
-    </dl>
-<?php
-    endif;
-endforeach; ?>
+foreach ($this->aMergyStack as $this->oStack) {
+
+    /* @var $this->oStack \Flightzilla\Model\Mergy\Revision\Stack */
+    if ($this->oStack->isEmpty() !== true) {
+        $this->aRevisions = $this->oStack->getRaw();
+        echo $this->render('flightzilla/mergy/partial/revisions.phtml');
+    }
+}

@@ -1,0 +1,74 @@
+<div class="row-fluid">
+<?php echo $this->render('flightzilla/index/partial/overview.phtml'); ?>
+
+<div class="span10">
+<form id="buglist-form" method="get" target="_blank" action="#">
+<?php
+echo $this->partial('flightzilla/index/partial/table.phtml', array(
+    'caption' => 'Update-Testserver!',
+    'sBugzilla' => $this->layout()->sBugzilla,
+    'bugs' => $this->bugsTestserver,
+    'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED,
+    'mode' => $this->mode
+));
+
+echo $this->partial('flightzilla/index/partial/table.phtml', array(
+    'caption' => 'Reopened issues',
+    'sBugzilla' => $this->layout()->sBugzilla,
+    'bugs' => $this->bugsReopened,
+    'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED,
+    'mode' => $this->mode
+));
+
+echo $this->partial('flightzilla/index/partial/table.phtml', array(
+    'caption' => 'Mergeable issues',
+    'sBugzilla' => $this->layout()->sBugzilla,
+    'bugs' => $this->bugsBranch,
+    'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED,
+    'mode' => $this->mode
+));
+
+echo $this->partial('flightzilla/index/partial/table.phtml', array(
+    'caption' => 'Ready for release',
+    'sBugzilla' => $this->layout()->sBugzilla,
+    'bugs' => $this->bugsTrunk,
+    'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED,
+    'mode' => $this->mode
+));
+
+echo $this->partial('flightzilla/index/partial/table.phtml', array(
+    'caption' => 'Fixed w/o pending flags',
+    'sBugzilla' => $this->layout()->sBugzilla,
+    'bugs' => $this->bugsFixed,
+    'mode' => $this->mode
+));
+
+echo $this->partial('flightzilla/index/partial/table.phtml', array(
+    'caption' => 'Issues w/o themes',
+    'sBugzilla' => $this->layout()->sBugzilla,
+    'bugs' => $this->bugsUnthemed,
+    'ready' => false,
+    'mode' => $this->mode
+));
+?>
+<h3>Bugs in Themes</h3>
+<?php
+    foreach($this->bugsOpen as $sTheme => $aBugs):
+        $aMatches = array();
+        preg_match('/(\d+)/', $sTheme, $aMatches);
+        if (empty($aMatches[0]) !== true) {
+            echo $this->partial('flightzilla/index/partial/table.phtml', array(
+                'captionTicket' => $this->oTicketService->getBugById($aMatches[0]),
+                'sBugzilla' => $this->layout()->sBugzilla,
+                'bugs' => $aBugs,
+                'ready' => false,
+                'mode' => $this->mode
+            ));
+        }
+    endforeach;
+?>
+</form>
+</div>
+
+<h4 id="quickList" class="bugCount" style="display:none"></h4>
+</div>

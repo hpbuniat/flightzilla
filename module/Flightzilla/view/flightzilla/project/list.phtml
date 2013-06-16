@@ -1,0 +1,25 @@
+<?php echo $this->render('flightzilla/index/partial/header.phtml'); ?>
+
+<div class="row-fluid">
+    <?php
+    echo $this->render('flightzilla/index/partial/overview.phtml');
+    ?>
+
+    <div class="span10">
+        <form id="buglist-form" method="get" target="_blank" action="#">
+            <?php
+            foreach ($this->aProjects as $iTicket => $oProject) {
+                echo $this->partial('flightzilla/index/partial/table.phtml', array(
+                      'captionTicket' => $oProject,
+                      'sBugzilla' => $this->layout()->sBugzilla,
+                      'bugs' => $oProject->getDependsAsStack(),
+                      'ready' => 'REVIEWED'
+                 ));
+            }
+            ?>
+        </form>
+
+    </div>
+
+    <h4 id="quickList" class="bugCount" style="display:none"></h4>
+</div>

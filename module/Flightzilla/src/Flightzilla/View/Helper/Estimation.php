@@ -2,7 +2,7 @@
 /**
  * flightzilla
  *
- * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * Copyright (c) 2012-2013, Hans-Peter Buniat <hpbuniat@googlemail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
  *
  * @package flightzilla
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 
@@ -44,7 +44,7 @@
  * View-Helper to create the estimation-view
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
@@ -71,17 +71,17 @@ class Estimation extends AbstractHelper {
     /**
      * Determine the deadline-status of a bug
      *
-     * @param  \Flightzilla\Model\Ticket\Type\Bug $oBug
+     * @param  \Flightzilla\Model\Ticket\Type\Bug $oTicket
      * @param  string $sType
      *
      * @return string
      */
-    public function __invoke(\Flightzilla\Model\Ticket\Type\Bug $oBug, $sType = self::TICKET_LIST) {
+    public function __invoke(\Flightzilla\Model\Ticket\Type\Bug $oTicket, $sType = self::TICKET_LIST) {
 
-        $bEstimated = $oBug->isEstimated();
-        $bOrga = $oBug->isOrga();
-        $fActual = (float) $oBug->actual_time;
-        $fEstimated = (float) $oBug->estimated_time;
+        $bEstimated = $oTicket->isEstimated();
+        $bOrga = ($oTicket->isOrga() or $oTicket->isContainer());
+        $fActual = $oTicket->getActualTime();
+        $fEstimated = $oTicket->getEstimation();
         $bOvertime = ($fActual >= (1.1 * $fEstimated));
 
         $sReturn = '';
@@ -110,11 +110,14 @@ class Estimation extends AbstractHelper {
                 break;
 
             case self::TICKET_BOARD:
+                $bNew = ($oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED or $oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_NEW);
+                $sIcon = ($bNew === true) ? '<i class="icon-folder-open"></i>' : (($bOvertime === true) ? '<i class="icon-time"></i>' : '');
+
                 if ($bEstimated === true) {
-                    $sReturn = sprintf('<span class="pull-right name label %s">%s</span>', ($bOvertime ? "label-important" : "label-success"), $oBug->assignee_short);
+                    $sReturn = sprintf('<span class="pull-right name label %s">%s %s</span>', ($bOvertime ? "label-important" : "label-success"), $sIcon, $oTicket->assignee_short);
                 }
                 else {
-                    $sReturn = sprintf('<span class="pull-right name label %s">%s</span>', ($bOrga ? "label-success" : "label-warning"), $oBug->assignee_short);
+                    $sReturn = sprintf('<span class="pull-right name label %s">%s %s</span>', ($bOrga ? "label-success" : "label-warning"), $sIcon, $oTicket->assignee_short);
                 }
 
                 break;

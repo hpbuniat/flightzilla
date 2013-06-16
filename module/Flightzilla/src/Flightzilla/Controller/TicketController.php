@@ -2,7 +2,7 @@
 /**
  * flightzilla
  *
- * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * Copyright (c) 2012-2013, Hans-Peter Buniat <hpbuniat@googlemail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
  *
  * @package flightzilla
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 namespace Flightzilla\Controller;
@@ -50,7 +50,7 @@ use Zend\Mvc\Controller\AbstractActionController,
  * Ticket-related controller
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
@@ -64,9 +64,17 @@ class TicketController extends AbstractActionController {
         $oViewModel = new ViewModel;
         $oViewModel->setTerminal(true);
 
+        $oViewModel->dropAction = $this->params()->fromPost('drop');
+        $oViewModel->week = $this->params()->fromPost('week');
+        $oViewModel->user = $this->params()->fromPost('user');
         $sTickets = $this->params()->fromPost('tickets');
+
+        $oTicketService = $this->getPluginManager()->get(TicketService::NAME)->getService();
+        $oViewModel->oResourceManager = $oTicketService->getResourceManager();
+        $oViewModel->aWeeks = $oTicketService->getDate()->getWeeks(1);
+
         if (empty($sTickets) !== true) {
-            $oViewModel->aTickets = $this->getPluginManager()->get(TicketService::NAME)->getService()->getBugListByIds($sTickets);
+            $oViewModel->aTickets = $oTicketService->getBugListByIds($sTickets, false);
         }
 
         return $oViewModel;
@@ -80,6 +88,37 @@ class TicketController extends AbstractActionController {
         $oViewModel->setTerminal(true);
 
         $aModify = $this->params()->fromPost('modify');
+        $aSpecial = array(
+            'assigned',
+            'estimation',
+            'sprint',
+            'worked',
+            'comment'
+        );
+        foreach ($aSpecial as $sSpecial) {
+            $aTemp = $this->params()->fromPost($sSpecial);
+            if (empty($aTemp) !== true) {
+                foreach ($aTemp as $iTicket => $aActions) {
+                    foreach ($aActions as $mValue) {
+
+                        $aAdd = array(
+                            'action' => sprintf('set%s', ucfirst($sSpecial)),
+                            'value' => $mValue,
+                        );
+
+                        if (is_array($aModify[$iTicket]) === true) {
+                            array_unshift($aModify[$iTicket], $aAdd);
+                        }
+                        else {
+                            $aModify[$iTicket] = array(
+                                $aAdd
+                            );
+                        }
+                    }
+                }
+            }
+        }
+
 
         $oTicketService = $this->getPluginManager()->get(TicketService::NAME)->getService();
         $aTickets = array();
@@ -87,9 +126,12 @@ class TicketController extends AbstractActionController {
             foreach ($aModify as $iTicket => $aActions) {
                 $oTicketWriter = new \Flightzilla\Model\Ticket\Source\Writer\Bugzilla($oTicketService);
                 $oTicket = $oTicketService->getBugById($iTicket);
-                foreach ($aActions as $sAction) {
+                foreach ($aActions as $mAction) {
+                    $sAction = (is_scalar($mAction) === true) ? $mAction : $mAction['action'];
+                    $mValue = (is_scalar($mAction) === true) ? false : $mAction['value'];
+
                     if (method_exists($oTicketWriter, $sAction) === true) {
-                        $oTicketWriter->$sAction($oTicket);
+                        $oTicketWriter->$sAction($oTicket, $mValue);
                     }
                 }
 

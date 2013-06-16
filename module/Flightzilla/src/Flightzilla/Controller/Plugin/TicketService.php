@@ -2,7 +2,7 @@
 /**
  * flightzilla
  *
- * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * Copyright (c) 2012-2013, Hans-Peter Buniat <hpbuniat@googlemail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
  *
  * @package flightzilla
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 namespace Flightzilla\Controller\Plugin;
@@ -48,7 +48,7 @@ use Zend\Mvc\Controller\Plugin\AbstractPlugin,
  * A plugin to init the ticket-service
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
@@ -99,61 +99,71 @@ class TicketService extends AbstractPlugin {
      *
      * @param  \Zend\View\Model\ViewModel $oView
      * @param  string $sMode
+     * @param  int $iRefreshDays
      *
      * @return $this
      */
-    public function init(\Zend\View\Model\ViewModel $oView, $sMode = 'list') {
+    public function init(\Zend\View\Model\ViewModel $oView, $sMode = 'list', $iRefreshDays = 0) {
         $oTicketService = $this->getService();
         /* @var $oTicketService \Flightzilla\Model\Ticket\Source\Bugzilla */
 
-        $oTicketService->getBugsChangedToday();
+        $oTicketService->getBugList();
+        $oTicketService->getChangedTicketsWithinDays($oTicketService->getSearchTimeModifier($oTicketService->getLastRequestTime($iRefreshDays), $iRefreshDays));
+
+        // set the sprint-weeks
+        $oView->aWeeks = $oTicketService->getDate()->getWeeks(1);
 
         // gather the ticket-information
-        $oView->bugsReopened = $oTicketService->getReopenedBugs();
-        $oView->bugsTestserver = $oTicketService->getUpdateTestserver();
-        $oView->bugsBranch = $oTicketService->getFixedBugsInBranch();
-        $oView->bugsTrunk = $oTicketService->getFixedBugsInTrunk();
-        $oView->bugsFixed = $oTicketService->getFixedBugsUnknown();
-        $oView->bugsOpen = $oTicketService->getThemedOpenBugs();
-        $oView->bugsUnthemed = $oTicketService->getUnthemedBugs();
+        if ($sMode !== 'history') {
+            $oView->bugsReopened = $oTicketService->getReopenedBugs();
+            $oView->bugsTestserver = $oTicketService->getUpdateTestserver();
+            $oView->bugsBranch = $oTicketService->getFixedBugsInBranch();
+            $oView->bugsTrunk = $oTicketService->getFixedBugsInTrunk();
+            $oView->bugsFixed = $oTicketService->getFixedBugsUnknown();
+            $oView->bugsOpen = $oTicketService->getThemedTickets();
+            $oView->bugsUnthemed = $oTicketService->getUnthemedBugs();
+        }
+
         if ($sMode === 'board') {
 
-            // concepts
-            $oView->allScreenWip = $oTicketService->getOpenConcepts();
-            $oView->allScreenApproved = $oTicketService->getBugsWithFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '+');
-
-            // stack
-            $oView->allBugsOpen = $oTicketService->getFilteredList($oTicketService->getUnworkedWithoutOrganization(), $oView->allScreenWip);
-
-            // testing
-            $oView->allBugsTesting = $oTicketService->getBugsWithFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '?');
-
-            // development waiting, wip
-            $oView->openWaiting = $oTicketService->getWaiting();
-            $oView->bugsWip = $oTicketService->getInprogress();
-
-            // development - ready
-            $aFixedWithoutTesting = $oTicketService->getFilteredList($oView->bugsFixed, $oView->allBugsTesting);
-            $oView->bugsFixedWithoutTesting = $oTicketService->getFilteredList($aFixedWithoutTesting, $oView->allScreenApproved);
+            $oKanbanStatus = new \Flightzilla\Model\Kanban\Status($oTicketService->getAllBugs(), $oTicketService);
+            $oView->aKanban = $oKanbanStatus->setTypes(array(
+                \Flightzilla\Model\Ticket\Type\Bug::TYPE_BUG,
+                \Flightzilla\Model\Ticket\Type\Bug::TYPE_FEATURE,
+                \Flightzilla\Model\Ticket\Type\Bug::TYPE_CONCEPT,
+            ))->process()->get();
         }
-        else {
+        elseif ($sMode !== 'history') {
             $oView->aUntouched = $oTicketService->getUntouched();
         }
 
-        $oView->aMemberBugs = $oTicketService->getMemberBugs();
-        $oView->aTeamBugs = $oTicketService->getTeamBugs($oView->aMemberBugs);
+        if ($sMode !== 'status' and $sMode !== 'history') {
+            $oView->aMemberBugs = $oTicketService->getMemberBugs();
+            $oView->aTeamBugs = $oTicketService->getTeamBugs($oView->aMemberBugs);
+            $oView->aDeadlineStack = $oTicketService->getDeadlineStack();
+
+            $oView->sChuck = $oTicketService->getChuckStatus();
+            $oView->aThemes = $oTicketService->getThemesAsStack();
+
+            // expose some those objects to the view
+            $oView->oTicketService = $oTicketService;
+            $oView->oResourceManager = $oTicketService->getResourceManager();
+
+            if ($sMode === 'sprint') {
+                $oView->aWeekTickets = $oTicketService->getWeekSprint($oView->aTeamBugs);
+            }
+        }
 
         $oView->iTotal = $oTicketService->getCount();
         $oView->aStats = $oTicketService->getStats();
         $oView->aStatuses = $oTicketService->getStatuses();
         $oView->aPriorities = $oTicketService->getPriorities();
         $oView->aSeverities = $oTicketService->getSeverities();
-        $oView->sChuck = $oTicketService->getChuckStatus();
-        $oView->aThemes = $oTicketService->getThemesAsStack();
+        $oView->iThroughPut = $oTicketService->getThroughPut();
 
-        // expose some those objects to the view
-        $oView->oTicketService = $oTicketService;
-        $oView->oResourceManager = $oTicketService->getResourceManager();
+        $oTasks = new \Flightzilla\Model\Ticket\Task\Manager($oTicketService);
+        $oView->aTasks = $oTasks->check($oTicketService->getAllBugs());
+        $oView->iEntries = $oTasks->getEntryCount();
 
         return $this;
     }

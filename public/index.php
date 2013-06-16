@@ -12,7 +12,7 @@ define('REQUEST_MICROTIME', microtime(true));
 define('STARTTIME', microtime(true));
 
 ini_set('max_execution_time', 120);
-ini_set('memory_limit', '512M');
+ini_set('memory_limit', '256M');
 
 // Setup autoloading
 include 'init_autoloader.php';

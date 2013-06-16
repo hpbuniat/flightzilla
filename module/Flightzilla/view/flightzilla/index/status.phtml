@@ -1,0 +1,57 @@
+<?php if ($this->mode === 'status' and empty($this->aTasks) === false):?>
+    <a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'dashboard')); ?>">
+        <span href="#" class="j-popover" data-source="j-status-task" data-placement="bottom" data-toggle="popover" data-trigger="click">
+            <i class="icon-tasks icon-white"></i>
+        </span>
+        <span data-placement="bottom" data-title="<?php echo $this->aTasks[\Flightzilla\Model\Ticket\Task\Comment::NAME]['description']; ?>" class="tipper badge badge-inverse">
+            <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Comment::NAME]['stack']); ?>
+        </span>
+        <span data-placement="bottom" data-title="<?php echo $this->aTasks[\Flightzilla\Model\Ticket\Task\Testing::NAME]['description']; ?>" class="tipper badge badge-warning">
+            <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Testing::NAME]['stack']); ?>
+        </span>
+        <span data-placement="bottom" data-title="<?php echo $this->aTasks[\Flightzilla\Model\Ticket\Task\Review::NAME]['description']; ?>" class="tipper badge badge-important">
+            <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Review::NAME]['stack']); ?>
+        </span>
+        <span data-placement="bottom" data-title="<?php echo $this->aTasks[\Flightzilla\Model\Ticket\Task\Waiting::NAME]['description']; ?>" class="tipper badge badge-info">
+            <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Waiting::NAME]['stack']); ?>
+        </span>
+        <span data-placement="bottom" data-title="<?php echo $this->aTasks[\Flightzilla\Model\Ticket\Task\Testserver::NAME]['description']; ?>" class="tipper badge">
+            <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Testserver::NAME]['stack']); ?>
+        </span>
+        <span data-placement="bottom" data-title="The ticket-throughput" class="tipper badge badge-inverse <?php echo ($this->iThroughPut > 0) ? 'red' : 'green'; ?>">
+            <?php echo sprintf('%+d', $this->iThroughPut); ?>
+        </span>
+    </a>
+<?php else: ?>
+<div class="progress progress-striped progress-heading active">
+    <div class="bar" style="width: 100%;"></div>
+</div>
+<?php endif; ?>
+
+<?php if (empty($this->aWorked) === false): ?>
+<div class="hidden" id="j-status-task">
+    <table class="table table-condensed">
+        <tbody>
+            <?php foreach($this->aTeam as $aTeam) {
+                $sMember = $aTeam['name'];
+                if (isset($this->aWorked[$sMember]) === true) {
+                    foreach ($this->aWorked[$sMember] as $sDate => $aStats) {
+                        if (empty($aStats['tickets']) !== true and empty($aStats['time']) !== true) {
+                            $aTickets = array();
+                            foreach ($aStats['tickets'] as $iTicket => $aTicket) {
+                                $aTickets[] = sprintf('<span data-placement="bottom" class="tipper" data-title="%s">%s (%s)</span>', $aTicket['title'], $iTicket, $aTicket['time']);
+                            }
+
+                            echo sprintf('<tr class="%s"><td>%s</td><td>%s (%s)</td></tr>', ($aStats['time'] >= \Flightzilla\Model\Timeline\Date::AMOUNT) ? 'success' : 'warning', $sMember, $sDate, $aStats['time']);
+                            echo sprintf('<tr><td colspan="2">%s</td></tr>', implode(',', $aTickets));
+                        }
+                    }
+                }
+                else {
+                    echo sprintf('<tr class="error"><td colspan="2">%s</td></tr>', $sMember);
+                }
+            }?>
+        </tbody>
+    </table>
+</div>
+<?php endif; ?>

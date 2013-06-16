@@ -2,7 +2,7 @@
 /**
  * flightzilla
  *
- * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * Copyright (c) 2012-2013, Hans-Peter Buniat <hpbuniat@googlemail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
  *
  * @package flightzilla
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 
@@ -51,7 +51,7 @@ use Zend\Mvc\Controller\AbstractActionController,
  * Ticket-related controller
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
@@ -92,7 +92,50 @@ class IndexController extends AbstractActionController {
         $oViewModel = new ViewModel;
         $oViewModel->mode = 'list';
 
-        $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
+        return $oViewModel;
+    }
+
+    /**
+     *
+     */
+    public function listAction() {
+        $oViewModel = new ViewModel;
+        $oViewModel->mode = 'list';
+        $oViewModel->setTerminal(true);
+
+        $oViewModel->oTicketService = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel)->getService();
+        $this->getServiceLocator()->get('notifyy')->notify(\notifyy\Notifyable::INFO, 'finished list-update', 'flightzilla');
+
+        return $oViewModel;
+    }
+
+    /**
+     *
+     */
+    public function statusAction() {
+        $oViewModel = new ViewModel;
+        $oViewModel->mode = 'status';
+        $oViewModel->setTerminal(true);
+
+        $oTicketPlugin = $this->getPluginManager()->get(TicketService::NAME);
+        $oTicketService = $oTicketPlugin->getService();
+        $oTicketPlugin->init($oViewModel, $oViewModel->mode, $oTicketService->getThroughPutDays());
+
+        $oViewModel->aTeam = $oTicketService->getTeam();
+        $oViewModel->aWorked = $oTicketService->getResourceManager()->getActivitiesByResource(2);
+
+        return $oViewModel;
+    }
+
+    /**
+     *
+     */
+    public function historyAction() {
+        $oViewModel = new ViewModel;
+        $oViewModel->mode = 'history';
+        $oViewModel->setTerminal(true);
+
+        $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, $oViewModel->mode);
 
         return $oViewModel;
     }
@@ -118,33 +161,8 @@ class IndexController extends AbstractActionController {
         $oViewModel->mode = 'dashboard';
 
         $oTicketService = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel)->getService();
+        $oViewModel->aWeekTickets = $oTicketService->getWeekSprint($oViewModel->aTeamBugs);
 
-        $oTasks = new \Flightzilla\Model\Ticket\Task\Manager($oTicketService);
-        $oViewModel->aTasks = $oTasks->check($oTicketService->getAllBugs());
-        $oViewModel->iEntries = $oTasks->getEntryCount();
-
-        return $oViewModel;
-    }
-
-    /**
-     *
-     */
-    public function teamAction() {
-        $oViewModel = new ViewModel;
-        $oViewModel->mode = 'team';
-
-        $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
-        return $oViewModel;
-    }
-
-    /**
-     *
-     */
-    public function teamdashAction() {
-        $oViewModel = new ViewModel;
-        $oViewModel->mode = 'team';
-
-        $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
         return $oViewModel;
     }
 
@@ -161,27 +179,6 @@ class IndexController extends AbstractActionController {
         $oViewModel->aStack = $oConstraintManager->check($oTicketService->getAllBugs());
         $oViewModel->iEntries = $oConstraintManager->getEntryCount();
 
-        return $oViewModel;
-    }
-
-    /**
-     *
-     */
-    public function summaryAction() {
-        $oViewModel = new ViewModel;
-        $oViewModel->mode = 'summary';
-
-        $sDate = $this->params()->fromPost('date');
-        if (strtotime($sDate) === false or strtotime($sDate) === 0) {
-            $sDate = '';
-        }
-
-        if (empty($sDate) === true) {
-            $sDate = date('Y-m-d', strtotime('last weekday'));
-        }
-
-        $oViewModel->sDate = $sDate;
-        $oViewModel->bugsSummary = $this->getPluginManager()->get(TicketService::NAME)->getService()->getSummary($sDate);
         return $oViewModel;
     }
 
@@ -207,6 +204,28 @@ class IndexController extends AbstractActionController {
         $params = implode(',', $this->params()->fromQuery('id'));
         $this->redirect()->toUrl($this->getServiceLocator()->get('_serviceConfig')->bugzilla->baseUrl . '/buglist.cgi?quicksearch=' . $params);
         return $this->response;
+    }
+
+    /**
+     *
+     */
+    public function printAction() {
+        $oViewModel = new ViewModel;
+        $this->layout()->bMinimal = true;
+
+        $aTickets = implode(',', $this->params()->fromQuery('id'));
+        if (empty($aTickets) !== true) {
+            $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->getService();
+            $oViewModel->aTickets = $oServiceModel->getBugListByIds($aTickets);
+
+            $oKanbanStatus = new \Flightzilla\Model\Kanban\Status($oViewModel->aTickets, $oServiceModel);
+            $oViewModel->aKanban = $oKanbanStatus->setGrouped()->setTypes(array(
+                \Flightzilla\Model\Ticket\Type\Bug::TYPE_PROJECT,
+                \Flightzilla\Model\Ticket\Type\Bug::TYPE_THEME,
+            ))->process()->getByTicket();
+        }
+
+        return $oViewModel;
     }
 
     /**

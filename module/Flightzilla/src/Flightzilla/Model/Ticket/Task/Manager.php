@@ -2,7 +2,7 @@
 /**
  * flightzilla
  *
- * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * Copyright (c) 2012-2013, Hans-Peter Buniat <hpbuniat@googlemail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
  *
  * @package flightzilla
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 namespace Flightzilla\Model\Ticket\Task;
@@ -47,7 +47,7 @@ use Flightzilla\Model\Reflector;
  * Handle the integrity of tickets & their workflow
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
@@ -62,7 +62,9 @@ class Manager {
     protected $_aTasks = array(
         \Flightzilla\Model\Ticket\Task\Waiting::NAME,
         \Flightzilla\Model\Ticket\Task\Comment::NAME,
-        \Flightzilla\Model\Ticket\Task\Testing::NAME
+        \Flightzilla\Model\Ticket\Task\Testing::NAME,
+        \Flightzilla\Model\Ticket\Task\Review::NAME,
+        \Flightzilla\Model\Ticket\Task\Testserver::NAME,
     );
 
     /**

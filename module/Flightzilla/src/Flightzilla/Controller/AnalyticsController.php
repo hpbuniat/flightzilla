@@ -2,7 +2,7 @@
 /**
  * flightzilla
  *
- * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * Copyright (c) 2012-2013, Hans-Peter Buniat <hpbuniat@googlemail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,20 +36,21 @@
  *
  * @package flightzilla
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 namespace Flightzilla\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController,
     Zend\View\Model\ViewModel,
-    Flightzilla\Controller\Plugin\Authenticate;
+    Flightzilla\Controller\Plugin\Authenticate,
+    Flightzilla\Controller\Plugin\AnalyticsService as Analytics;
 
 /**
  * Access google-analytics
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
@@ -59,7 +60,19 @@ class AnalyticsController extends AbstractActionController {
     /**
      *
      */
-    public function indexAction() {
+    public function campaignAction() {
+        $oAnalytics = $this->getServiceLocator()->get('_analytics');
+
+        $oViewModel = new ViewModel;
+        $oViewModel->mode = 'analytics';
+        $oViewModel->aPortals = $oAnalytics->getPortals();
+        return $oViewModel;
+    }
+
+    /**
+     *
+     */
+    public function browserAction() {
         $oAnalytics = $this->getServiceLocator()->get('_analytics');
 
         $oViewModel = new ViewModel;
@@ -75,37 +88,17 @@ class AnalyticsController extends AbstractActionController {
         $oViewModel = new ViewModel;
         $oViewModel->setTerminal(true);
 
-        $oAnalytics = $this->getServiceLocator()->get('_analytics');
-
-        $sMode = 'data';
-        $sPortal = $this->params()->fromPost('portal');
-        if (empty($sPortal) !== true and $oAnalytics instanceof \Flightzilla\Model\Analytics) {
+        $oViewModel->sPortal = htmlentities($this->params()->fromPost('portal'));
+        if (empty($oViewModel->sPortal) !== true) {
             $oViewModel->mode = $this->params()->fromPost('mode');
             $oViewModel->which = $this->params()->fromPost('which');
-            $bPaid = \Flightzilla\Model\Analytics::ALL_TRAFFIC;
-            if ($oViewModel->which === 'sem') {
-                $bPaid = \Flightzilla\Model\Analytics::ONLY_PAID_TRAFFIC;
-            }
-
-            switch ($oViewModel->mode) {
-                case 'conversion':
-                    $oViewModel->aData = $oAnalytics->getPortalData($sPortal, $bPaid);
-                    $oViewModel->aSeries = $oAnalytics->getSeries($oViewModel->aData);
-                    break;
-
-                case 'campaign':
-                    $sMode = $oViewModel->mode;
-                    $oViewModel->aData = $oAnalytics->getPortalData($sPortal, $bPaid);
-                    break;
-            }
-
-            $oViewModel->oPortal = $oAnalytics->getPortalInfo($sPortal);
             $oViewModel->sTarget = $this->params()->fromPost('container');
 
+            $oService = $this->getPluginManager()->get(Analytics::NAME)->init($oViewModel, $oViewModel->sPortal);
+
             $this->getResponse()->getHeaders()->addHeaders(array(
-                'Content-Type' => 'application/javascript'
+                'Content-Type' => $oService->getContentType()
             ));
-            $oViewModel->setTemplate(sprintf('flightzilla/analytics/%s', $sMode));
         }
         else {
             $this->getResponse()->setStatusCode(\Zend\Http\Response::STATUS_CODE_404);

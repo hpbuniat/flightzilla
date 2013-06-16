@@ -4,7 +4,7 @@
     <?php echo $this->render('flightzilla/index/partial/overview.phtml'); ?>
 
     <div class="span10">
-        <form id="buglist-form" method="get" target="_blank" action="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'go-bugzilla'))?>">
+        <form id="buglist-form" method="get" target="_blank" action="#">
         <?php
         echo $this->partial('flightzilla/index/partial/table.phtml', array(
             'caption' => 'Mergeable issues',

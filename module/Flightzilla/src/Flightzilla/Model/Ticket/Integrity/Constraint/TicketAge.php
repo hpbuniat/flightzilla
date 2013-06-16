@@ -2,7 +2,7 @@
 /**
  * flightzilla
  *
- * Copyright (c)2012, Hans-Peter Buniat <hpbuniat@googlemail.com>.
+ * Copyright (c) 2012-2013, Hans-Peter Buniat <hpbuniat@googlemail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
  *
  * @package flightzilla
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 namespace Flightzilla\Model\Ticket\Integrity\Constraint;
@@ -48,7 +48,7 @@ use \Flightzilla\Model\Ticket\Source\Bugzilla;
  * Tickets which are most likely timed-out
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
- * @copyright 2012 Hans-Peter Buniat <hpbuniat@googlemail.com>
+ * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
@@ -67,6 +67,6 @@ class TicketAge implements ConstraintInterface {
      * @see ConstraintInterface::check()
      */
     public static function check(Bug $oTicket, Bugzilla $oTicketSource) {
-        return (($oTicket->getStatus() !== Bug::STATUS_CLOSED and $oTicket->isChangedWithinLimit($oTicketSource->getConfig()->tickets->workflow->timeout) === false) === false);
+        return (($oTicket->isStatusAtLeast(Bug::STATUS_RESOLVED) !== true and $oTicket->isContainer() !== true and $oTicket->isChangedWithinLimit($oTicketSource->getConfig()->tickets->workflow->timeout) === false) === false);
     }
 }
