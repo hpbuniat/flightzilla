@@ -35,7 +35,7 @@ module.exports = function (grunt) {
                 stderr: true
             },
             bower: {
-                command: 'bower update',
+                command: 'bower install',
                 stdout: true,
                 stderr: true
             }
