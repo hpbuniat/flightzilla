@@ -74,6 +74,7 @@ class Waiting implements TaskInterface {
                 or $oTicket->hasFlag(Bug::FLAG_DBCHANGE, Bugzilla::BUG_FLAG_REQUEST, $oUser->getEmail(), Bug::FLAG_USER_SETTER)
                 or $oTicket->hasFlag(Bug::FLAG_SCREEN, Bugzilla::BUG_FLAG_REQUEST, $oUser->getEmail(), Bug::FLAG_USER_SETTER)
                 or $oTicket->hasFlag(Bug::FLAG_MERGE, Bugzilla::BUG_FLAG_REQUEST, $oUser->getEmail(), Bug::FLAG_USER_SETTER)
-                or $oTicket->hasFlag(Bug::FLAG_TESTSERVER, Bugzilla::BUG_FLAG_REQUEST, $oUser->getEmail(), Bug::FLAG_USER_SETTER));
+                or $oTicket->hasFlag(Bug::FLAG_TESTSERVER, Bugzilla::BUG_FLAG_REQUEST, $oUser->getEmail(), Bug::FLAG_USER_SETTER)
+                or ($oTicket->getStatus() === Bug::STATUS_CLARIFICATION and $oUser->getEmail() === $oTicket->getReporter()));
     }
 }

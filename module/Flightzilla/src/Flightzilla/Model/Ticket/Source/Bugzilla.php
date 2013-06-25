@@ -1588,7 +1588,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                         $this->_aStats[Bug::WORKFLOW_SCREEN]++;
                     }
 
-                    if ($oBug->hasFlag(Bug::FLAG_COMMENT, self::BUG_FLAG_REQUEST)) {
+                    if ($oBug->hasFlag(Bug::FLAG_COMMENT, self::BUG_FLAG_REQUEST) or $oBug->getStatus() === Bug::STATUS_CLARIFICATION) {
                         $this->_aStats[Bug::WORKFLOW_COMMENT]++;
                     }
 

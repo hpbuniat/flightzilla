@@ -136,7 +136,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
      */
     protected function _getTestingRequestee(\Flightzilla\Model\Ticket\AbstractType $oTicket, $sPayload) {
         $this->_aPayload[$sPayload] = \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST;
-        if ($oTicket->isType(Bug::TYPE_BUG) !== true) {
+        if ($oTicket->isType(Bug::TYPE_BUG) !== true and $oTicket->getReporter() !== $oTicket->getAssignee()) {
             $sRequesteePayload = str_replace('flag', 'requestee', $sPayload);
             $this->_aPayload[$sRequesteePayload] = $oTicket->getReporter();
         }
@@ -293,7 +293,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
      * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setConfirmed()
      */
     public function setConfirmed(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
-        if (empty($this->_aPayload['comment']) === true and $oTicket->getStatus() !== Bug::STATUS_REOPENED and $oTicket->isStatusAtLeast(\Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED) === true) {
+        if (empty($this->_aPayload['comment']) === true and $oTicket->getStatus() !== Bug::STATUS_REOPENED and $oTicket->isStatusAtLeast(Bug::STATUS_ASSIGNED) === true) {
             $this->_aPayload['comment'] = 'I stopped working on this ticket!';
         }
 
