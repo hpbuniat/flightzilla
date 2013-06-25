@@ -1,0 +1,24 @@
+<?php echo $this->render('flightzilla/index/partial/header.phtml'); ?>
+
+
+<form action="watchlist/add" method="post">
+    <input type="text" id="searchId" name="ticketId" />
+</form>
+
+<div class="row-fluid">
+
+    <div class="span10">
+        <form id="buglist-form" method="get" target="_blank" action="#">
+            <?php
+                echo $this->partial('flightzilla/index/partial/table.phtml', array(
+                'caption' => 'Issues w/o themes',
+                'sBugzilla' => $this->layout()->sBugzilla,
+                'bugs' => $this->watchlist,
+                'ready' => false,
+                'mode' => $this->mode
+                ));
+            ?>
+        </form>
+    </div>
+    <h4 id="quickList" class="bugCount" style="display:none"></h4>
+</div>
