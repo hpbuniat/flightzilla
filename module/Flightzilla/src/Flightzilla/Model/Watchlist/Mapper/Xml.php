@@ -20,7 +20,7 @@ class Xml implements MapperInterface
     /**
      * @var string
      */
-    private  $_sXmlPath = '';
+    private  $_sXmlFile = '';
 
 
     /**
@@ -51,6 +51,7 @@ class Xml implements MapperInterface
         $this->_sUser = $sUser;
         $this->_oConfig = $oConfig;
         $this->_oWatchlist = new Watchlist($this->_sUser);
+        $this->_sXmlFile = $this->_oConfig->watchlist->persistenceOptions->xml->path . $this->_sUser . '.xml';
     }
 
     public function add($iTicket)
@@ -75,7 +76,7 @@ class Xml implements MapperInterface
      */
     public function get()
     {
-        $oXml = @simplexml_load_file($this->_oConfig->watchlist->persistenceOptions->xml->path);
+        $oXml = @simplexml_load_file($this->_sXmlFile);
         if (true === $oXml instanceof \SimpleXMLElement){
             $aIds = $oXml->xpath('/watchlist/t.sari/ticket/@id');
 
@@ -95,8 +96,7 @@ class Xml implements MapperInterface
     private function _save()
     {
         $this->_oXmlWriter = new \XMLWriter();
-        $this->_oXmlWriter->openUri($this->_oConfig->watchlist->persistenceOptions->xml->path);
-        //$this->_oXmlWriter->openMemory();
+        $this->_oXmlWriter->openUri($this->_sXmlFile);
         $this->_oXmlWriter->startDocument('1.0', 'utf-8');
 
         $this->_oXmlWriter->startElement('watchlist');

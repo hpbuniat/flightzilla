@@ -33,7 +33,7 @@ class WatchlistController extends AbstractActionController{
         $oViewModel->oTicketService = $oTicketService;
 
         $oServiceLocator = $this->getServiceLocator();
-        $oWatchlist = new Watchlist\WatchlistService($oServiceLocator->get('_serviceConfig'), $oServiceLocator->get('Zend\Db\Adapter\Adapter'), $oServiceLocator->get('_auth'), $oTicketService);
+        $oWatchlist = new Watchlist\WatchlistService($oServiceLocator->get('_serviceConfig'), $oServiceLocator->get('_auth'), $oTicketService);
         $oViewModel->watchlist = $oWatchlist->get();
 
         return $oViewModel;
@@ -42,15 +42,28 @@ class WatchlistController extends AbstractActionController{
 
     public function addAction()
     {
-        echo '<pre>';
-        echo __FILE__ . ':' . __LINE__ . PHP_EOL;
-        print_r($this->getRequest()->getPost());
-        echo '</pre>';
+        $filter = new \Zend\Filter\Digits();
+        $ticketId = $filter->filter($this->getRequest()->getPost()->ticketId);
+
+        $oTicketService =  $this->getPluginManager()->get(TicketService::NAME)->getService();
+        $oServiceLocator = $this->getServiceLocator();
+        $oWatchlist = new Watchlist\WatchlistService($oServiceLocator->get('_serviceConfig'),$oServiceLocator->get('_auth'), $oTicketService);
+        $oWatchlist->add($ticketId);
+
+        $this->redirect()->toRoute('flightzilla', array('controller' => 'watchlist'));
     }
 
     public function removeAction()
     {
+        $filter = new \Zend\Filter\Digits();
+        $ticketId = $filter->filter($this->getRequest()->getPost()->ticketId);
 
+        $oTicketService =  $this->getPluginManager()->get(TicketService::NAME)->getService();
+        $oServiceLocator = $this->getServiceLocator();
+        $oWatchlist = new Watchlist\WatchlistService($oServiceLocator->get('_serviceConfig'),$oServiceLocator->get('_auth'), $oTicketService);
+        $oWatchlist->remove($ticketId);
+
+        $this->redirect()->toRoute('flightzilla', array('controller' => 'watchlist'));
     }
 
 }

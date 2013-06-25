@@ -43,11 +43,6 @@ class WatchlistService {
     private $_oAuth;
 
     /**
-     * @var \Zend\Db\Adapter\Adapter
-     */
-    private $_oDb;
-
-    /**
      * @var \Zend\Config\Config
      */
     private $_oModuleConfig;
@@ -60,10 +55,9 @@ class WatchlistService {
      * @param \Flightzilla\Authentication\Adapter $oAuth
      * @param \Flightzilla\Model\Ticket\AbstractSource $oTicketService
      */
-    public function __construct(\Zend\Config\Config $oModuleConfig, \Zend\Db\Adapter\Adapter $oDb, \Flightzilla\Authentication\Adapter $oAuth, \Flightzilla\Model\Ticket\AbstractSource $oTicketService)
+    public function __construct(\Zend\Config\Config $oModuleConfig, \Flightzilla\Authentication\Adapter $oAuth, \Flightzilla\Model\Ticket\AbstractSource $oTicketService)
     {
         $this->_oAuth = $oAuth;
-        $this->_oDb = $oDb;
         $this->_oModuleConfig = $oModuleConfig;
         $this->_oTicketService = $oTicketService;
         $this->_oWatchlist = new \Flightzilla\Model\Watchlist($this->_oAuth->getLogin());
