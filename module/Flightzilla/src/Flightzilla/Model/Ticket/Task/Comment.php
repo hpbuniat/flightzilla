@@ -69,6 +69,7 @@ class Comment implements TaskInterface {
      * @see TaskInterface::check()
      */
     public static function check(Bug $oTicket, Bugzilla $oTicketSource, Human $oUser) {
-        return $oTicket->hasFlag(Bug::FLAG_COMMENT, Bugzilla::BUG_FLAG_REQUEST, $oUser->getEmail());
+        return ($oTicket->hasFlag(Bug::FLAG_COMMENT, Bugzilla::BUG_FLAG_REQUEST, $oUser->getEmail())
+                or ($oTicket->getStatus() === Bug::STATUS_CLARIFICATION and $oUser->getEmail() === $oTicket->getAssignee()));
     }
 }

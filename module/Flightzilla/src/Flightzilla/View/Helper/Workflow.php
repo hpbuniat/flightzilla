@@ -50,7 +50,9 @@
  * @link https://github.com/hpbuniat/flightzilla
  */
 namespace Flightzilla\View\Helper;
+
 use Zend\View\Helper\AbstractHelper;
+use Flightzilla\Model\Ticket\Type\Bug;
 
 class Workflow extends AbstractHelper {
 
@@ -73,53 +75,53 @@ class Workflow extends AbstractHelper {
     /**
      * Get the workflow-stats of the bug
      *
-     * @param  \Flightzilla\Model\Ticket\Type\Bug $oBug
+     * @param  Bug $oBug
      *
      * @return string
      */
-    public function __invoke(\Flightzilla\Model\Ticket\Type\Bug $oBug) {
+    public function __invoke(Bug $oBug) {
 
         $sClasses = sprintf('prio%s ', $oBug->priority);
         $sClasses .= sprintf('severity%s ', $oBug->bug_severity);
 
         if ($oBug->isQuickOne() === true) {
-            $sClasses .= \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_QUICK . ' ';
+            $sClasses .= Bug::WORKFLOW_QUICK . ' ';
         }
 
         if ($oBug->isFailed() === true) {
-            $sClasses .= \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_FAILED . ' ';
+            $sClasses .= Bug::WORKFLOW_FAILED . ' ';
         }
 
         if ($oBug->isMergeable() === true) {
-            $sClasses .= \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_MERGE . ' ';
+            $sClasses .= Bug::WORKFLOW_MERGE . ' ';
         }
 
         if ($oBug->isWorkedOn()) {
-            $sClasses .= \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_INPROGRESS . ' ';
+            $sClasses .= Bug::WORKFLOW_INPROGRESS . ' ';
         }
 
         if ($oBug->isActive()) {
-            $sClasses .= \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_ACTIVE . ' ';
+            $sClasses .= Bug::WORKFLOW_ACTIVE . ' ';
         }
 
         if ($oBug->isOnlyTranslation() === true) {
-            $sClasses .= \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_TRANSLATION . ' ';
+            $sClasses .= Bug::WORKFLOW_TRANSLATION . ' ';
         }
 
-        if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '?') === true) {
-            $sClasses .= \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_SCREEN . ' ';
+        if ($oBug->hasFlag(Bug::FLAG_SCREEN, '?') === true) {
+            $sClasses .= Bug::WORKFLOW_SCREEN . ' ';
         }
 
-        if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_COMMENT, '?') === true) {
-            $sClasses .= \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_COMMENT . ' ';
+        if ($oBug->hasFlag(Bug::FLAG_COMMENT, '?') === true or $oBug->getStatus() === Bug::STATUS_CLARIFICATION) {
+            $sClasses .= Bug::WORKFLOW_COMMENT . ' ';
         }
 
-        if ($oBug->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '?') === true) {
-            $sClasses .= \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_TESTING . ' ';
+        if ($oBug->hasFlag(Bug::FLAG_TESTING, '?') === true) {
+            $sClasses .= Bug::WORKFLOW_TESTING . ' ';
         }
 
         if ($oBug->isChangedWithinLimit($this->_oConfig->tickets->workflow->timeout) !== true) {
-            $sClasses .= \Flightzilla\Model\Ticket\Type\Bug::WORKFLOW_TIMEDOUT . ' ';
+            $sClasses .= Bug::WORKFLOW_TIMEDOUT . ' ';
         }
 
         return $sClasses;
