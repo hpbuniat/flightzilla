@@ -5,6 +5,7 @@
 
     </div>
 
+    <?php $this->inlineScript()->appendFile($this->basePath() . '/js/jquery.fn.gantt.js'); ?>
     <script type="text/javascript">
         $(function() {
             var $gantt = $("#ganttGraph");
