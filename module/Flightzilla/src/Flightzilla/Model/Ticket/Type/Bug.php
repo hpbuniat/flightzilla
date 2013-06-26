@@ -402,6 +402,37 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     protected $_aWorked = array();
 
     /**
+     * Whether it is on the watchlist or not.
+     *
+     * @var bool
+     */
+    protected $_bOnWatchlist = false;
+
+    /**
+     * The setter function for the property <em>$_bOnWatchlist</em>.
+     *
+     * @param  boolean $bOnWatchlist
+     *
+     * @return $this Returns the instance of this class.
+     */
+    public function setOnWatchlist($bOnWatchlist) {
+
+        $this->_bOnWatchlist = $bOnWatchlist;
+        return $this;
+    }
+
+    /**
+     * The getter function for the property <em>$_bWatched</em>.
+     *
+     * @return boolean
+     */
+    public function isOnWatchlist() {
+
+        return $this->_bOnWatchlist;
+    }
+
+
+    /**
      * Create the bug
      *
      * @param \SimpleXMLElement $data

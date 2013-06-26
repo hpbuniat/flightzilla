@@ -117,9 +117,16 @@ class WatchlistService {
         $oWatchlist = $this->_getMapper()->get();
         $aTickets = $oWatchlist->get();
 
+        $aWatchedTickets = $this->_oTicketService->getBugListByIds($aTickets);
+        foreach ($aWatchedTickets as $oWatched){
+            $oWatched->setOnWatchlist(true);
+        }
+
         $aWatchlist = array(
             'aProjects' => $this->_oTicketService->getProjectsFromIds($aTickets),
         );
+
+        ksort($aWatchlist);
 
         // todo Status sammeln und overview in sidebar anzeigen
 

@@ -101,6 +101,10 @@ class Buggradient extends AbstractHelper {
             $aColors[] = 'orange';
         }
 
+        if ($oTicket->isOnWatchlist() === true) {
+            $aColors[] = '#803500';
+        }
+
         $sStyle = '';
         if (count($aColors) > 0) {
             $sColors = implode(', ', $aColors);
