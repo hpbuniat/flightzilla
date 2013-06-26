@@ -69,6 +69,8 @@ class Ticketicons extends AbstractHelper {
     const ICON_REVENUE = 'icon-tags';
     const ICON_WARNING = 'icon-warning-sign';
     const ICON_UPDATE = 'icon-refresh';
+    const ICON_MERGABLE = 'icon-random';
+    const ICON_MERGED = ' icon-plus-sign';
 
     /**
      * Get the workflow-stats of the bug
@@ -87,6 +89,14 @@ class Ticketicons extends AbstractHelper {
             else {
                 $sClasses .= sprintf('&nbsp;<i class="%s"></i>', self::ICON_RESOLVED);
             }
+        }
+
+        if ($oBug->isMergeable()){
+            $sClasses .= sprintf('&nbsp;<i class="%s" title="%s"></i>', self::ICON_MERGABLE, Bug::WORKFLOW_MERGE);
+        }
+
+        if ($oBug->isMerged()){
+            $sClasses .= sprintf('&nbsp;<i class="%s" title="%s"></i>', self::ICON_MERGED, Bug::WORKFLOW_MERGED);
         }
 
         if ($oBug->hasFlag(Bug::FLAG_COMMENT, Bugzilla::BUG_FLAG_REQUEST) === true or $oBug->getStatus() === Bug::STATUS_CLARIFICATION) {

@@ -1,29 +1,50 @@
 <?php echo $this->render('flightzilla/index/partial/header.phtml'); ?>
-
-
-<form action="watchlist/add" method="post">
-    <input type="text" id="searchId" name="ticketId" />
-    <input type="submit" value="Hinzufügen" />
-</form>
-<form action="watchlist/remove" method="post">
-    <input type="text" id="searchId" name="ticketId" />
-    <input type="submit" value="Entfernen" />
-</form>
-
 <div class="row-fluid">
+    <div class="span2">
+        <div class="well sidebar-nav">
+
+            <form action="watchlist/add" method="post">
+                <div class="input-append">
+                    <input class="span9" id="appendedInputButton" type="text" name="ticketId" placeholder="add ticket">
+                    <button class="btn submitForm" type="button">Go!</button>
+                </div>
+            </form>
+            <form action="watchlist/remove" method="post">
+                <div class="input-append">
+                    <input class="span9" id="appendedInputButton" type="text" name="ticketId"
+                           placeholder="remove ticket">
+                    <button class="btn submitForm" type="button">Go!</button>
+                </div>
+            </form>
+
+            <?php
+                echo $this->render('flightzilla/index/partial/legend.phtml');
+            ?>
+        </div>
+    </div>
 
     <div class="span10">
         <form id="buglist-form" method="get" target="_blank" action="#">
+
             <?php
+            foreach ($this->aProjects as $iTicket => $oProject) {
                 echo $this->partial('flightzilla/index/partial/table.phtml', array(
-                'caption' => 'Issues w/o themes',
-                'sBugzilla' => $this->layout()->sBugzilla,
-                'bugs' => $this->watchlist,
-                'ready' => false,
-                'mode' => $this->mode
+                    'captionTicket' => $oProject,
+                    'sBugzilla'     => $this->layout()->sBugzilla,
+                    'bugs'          => $oProject->getDependsAsStack(\Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED),
+                    'ready'         => 'REVIEWED'
                 ));
+            }
             ?>
         </form>
     </div>
-    <h4 id="quickList" class="bugCount" style="display:none"></h4>
 </div>
+
+<script type="text/javascript">
+    /**
+     * Add and remove tickets from watchlist
+     */
+    $('button.submitForm').click(function () {
+        $(this).parents('form').submit();
+    });
+</script>

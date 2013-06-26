@@ -33,6 +33,7 @@ class Watchlist {
 
     public function get()
     {
+        ksort($this->_aTickets);
         return $this->_aTickets;
     }
 

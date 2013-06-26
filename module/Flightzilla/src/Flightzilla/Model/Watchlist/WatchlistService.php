@@ -115,7 +115,20 @@ class WatchlistService {
     public function get()
     {
         $oWatchlist = $this->_getMapper()->get();
+        $aTickets = $oWatchlist->get();
 
-        return $this->_oTicketService->getBugListByIds($oWatchlist->get());
+        $aWatchlist = array(
+            'aProjects' => $this->_oTicketService->getProjectsFromIds($aTickets),
+        );
+
+        // todo Status sammeln und overview in sidebar anzeigen
+
+    /*    $oView->iTotal = $oTicketService->getCount();
+        $oView->aStats = $oTicketService->getStats();
+        $oView->aStatuses = $oTicketService->getStatuses();
+        $oView->aPriorities = $oTicketService->getPriorities();
+        $oView->aSeverities = $oTicketService->getSeverities();*/
+
+        return $aWatchlist;
     }
 }

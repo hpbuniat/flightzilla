@@ -29,12 +29,14 @@ class WatchlistController extends AbstractActionController{
         $oViewModel = new ViewModel;
         $oViewModel->mode = 'list';
 
-        $oTicketService =  $this->getPluginManager()->get(TicketService::NAME)->getService();
+        $oTicketService =  $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel)->getService();
         $oViewModel->oTicketService = $oTicketService;
 
         $oServiceLocator = $this->getServiceLocator();
         $oWatchlist = new Watchlist\WatchlistService($oServiceLocator->get('_serviceConfig'), $oServiceLocator->get('_auth'), $oTicketService);
-        $oViewModel->watchlist = $oWatchlist->get();
+        foreach ($oWatchlist->get() as $type => $value){
+            $oViewModel->{$type} = $value;
+        }
 
         return $oViewModel;
     }
@@ -65,5 +67,8 @@ class WatchlistController extends AbstractActionController{
 
         $this->redirect()->toRoute('flightzilla', array('controller' => 'watchlist'));
     }
+
+    // todo drag and drop für add und remove
+    // todo print view von den projekten und / oder tickets
 
 }

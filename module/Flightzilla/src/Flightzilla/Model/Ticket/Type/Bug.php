@@ -169,6 +169,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
 
     const WORKFLOW_MERGE = 'mergeable';
 
+    const WORKFLOW_MERGED = 'merged';
+
     const WORKFLOW_DEADLINE = 'deadline';
 
     const WORKFLOW_SCREEN = 'screen';
@@ -1197,11 +1199,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      *
      * @return array
      */
-    public function getDependsAsStack() {
+    public function getDependsAsStack($sStatusAtMost = Bug::STATUS_CLOSED) {
 
         $aStack = array();
         foreach ($this->getDepends() as $iTicket) {
-            $aStack[$iTicket] = $this->_oBugzilla->getBugById($iTicket);
+
+            $oTicket = $this->_oBugzilla->getBugById($iTicket);
+            if ($oTicket->isStatusAtMost($sStatusAtMost)){
+                $aStack[$iTicket] = $oTicket;
+            }
         }
 
         return $aStack;
