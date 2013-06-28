@@ -124,6 +124,7 @@ class WatchlistService {
 
         $aWatchlist = array(
             'aProjects' => $this->_oTicketService->getProjectsFromIds($aTickets),
+            'aWatchlist' => $aWatchedTickets
         );
 
         ksort($aWatchlist);

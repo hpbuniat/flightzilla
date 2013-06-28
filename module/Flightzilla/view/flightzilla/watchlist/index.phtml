@@ -24,19 +24,31 @@
     </div>
 
     <div class="span10">
-        <form id="buglist-form" method="get" target="_blank" action="#">
-
+        <blockquote>
+            <h3 class="table-toggle">Watchlist</h3>
+        </blockquote>
+        <form id="buglist-form" method="get" target="_blank" action="#" class="hide">
             <?php
-            foreach ($this->aProjects as $iTicket => $oProject) {
-                echo $this->partial('flightzilla/index/partial/table.phtml', array(
-                    'captionTicket' => $oProject,
-                    'sBugzilla'     => $this->layout()->sBugzilla,
-                    'bugs'          => $oProject->getDependsAsStack(\Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED),
-                    'ready'         => 'REVIEWED'
-                ));
-            }
+            echo $this->partial('flightzilla/index/partial/table.phtml', array(
+                'caption' => 'Watchlist',
+                'sBugzilla' => $this->layout()->sBugzilla,
+                'bugs' => $this->aWatchlist,
+                'ready' => false,
+                'mode' => $this->mode
+            ));
             ?>
         </form>
+
+        <?php
+        foreach ($this->aProjects as $iTicket => $oProject) {
+            echo $this->partial('flightzilla/index/partial/table.phtml', array(
+                'captionTicket' => $oProject,
+                'sBugzilla'     => $this->layout()->sBugzilla,
+                'bugs'          => $oProject->getDependsAsStack(\Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED),
+                'ready'         => 'REVIEWED'
+            ));
+        }
+        ?>
     </div>
 </div>
 
