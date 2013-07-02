@@ -718,6 +718,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     public function getChangedTicketsWithinDays($sDays = '0d') {
         if (empty($sDays) !== true) {
             $this->_addParams();
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_CLARIFICATION);
             $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_REOPENED);
             $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_UNCONFIRMED);
             $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_CONFIRMED);
@@ -751,6 +752,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         if (empty($bugIds) === true) {
             $this->_addParams();
+            $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_CLARIFICATION);
             $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_REOPENED);
             $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_UNCONFIRMED);
             $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_CONFIRMED);
