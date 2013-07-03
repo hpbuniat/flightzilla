@@ -16,7 +16,7 @@
             foreach ($this->aStats as $sType => $aStatus): ?>
         <?php if ($aStatus['num'] > 0): ?>
             <li><a href="javascript:;" data-target="<?php echo $sType?>" class="toggleBugs <?php echo $sType?>">
-                <?php echo ucwords(strtolower($sType))?>: <?php echo $aStatus['num']?> (<?php echo ceil($aStatus['per'])?>%)
+                <?php echo str_replace('-', ' ', ucwords(strtolower($sType))); ?>: <?php echo $aStatus['num']?> (<?php echo ceil($aStatus['per'])?>%)
             </a></li>
         <?php endif; ?>
         <?php endforeach; endif; ?>
@@ -25,7 +25,7 @@
             foreach ($this->aPriorities as $sType => $aStatus): ?>
         <?php if ($aStatus['num'] > 0): ?>
             <li><a href="javascript:;" data-target="prio<?php echo $sType?>" class="toggleBugs prio<?php echo $sType?>">
-                <?php echo ucwords(strtolower($sType))?>: <?php echo $aStatus['num']?> (<?php echo ceil($aStatus['per'])?>%)
+                    <?php echo str_replace('-', ' ', ucwords(strtolower($sType))); ?>: <?php echo $aStatus['num']?> (<?php echo ceil($aStatus['per'])?>%)
             </a></li>
         <?php endif; ?>
         <?php endforeach; endif; ?>
@@ -35,7 +35,7 @@
                 foreach ($this->aSeverities as $sType => $aStatus): ?>
         <?php if ($aStatus['num'] > 0): ?>
             <li><a href="javascript:;" data-target="severity<?php echo $sType?>" class="toggleBugs severity<?php echo $sType?>">
-                <?php echo ucwords(strtolower($sType))?>: <?php echo $aStatus['num']?> (<?php echo ceil($aStatus['per'])?>%)
+                    <?php echo str_replace('-', ' ', ucwords(strtolower($sType))); ?>: <?php echo $aStatus['num']?> (<?php echo ceil($aStatus['per'])?>%)
             </a></li>
         <?php endif; ?>
         <?php endforeach; endif; ?>

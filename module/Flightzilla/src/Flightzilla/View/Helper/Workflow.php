@@ -53,6 +53,7 @@ namespace Flightzilla\View\Helper;
 
 use Zend\View\Helper\AbstractHelper;
 use Flightzilla\Model\Ticket\Type\Bug;
+use Flightzilla\Model\Ticket\Source\Bugzilla;
 
 class Workflow extends AbstractHelper {
 
@@ -81,49 +82,55 @@ class Workflow extends AbstractHelper {
      */
     public function __invoke(Bug $oBug) {
 
-        $sClasses = sprintf('prio%s ', $oBug->priority);
-        $sClasses .= sprintf('severity%s ', $oBug->bug_severity);
+        $aClasses = array(
+            sprintf('prio%s', $oBug->priority),
+            sprintf('severity%s', $oBug->bug_severity)
+        );
 
         if ($oBug->isQuickOne() === true) {
-            $sClasses .= Bug::WORKFLOW_QUICK . ' ';
+            $aClasses[] = Bug::WORKFLOW_QUICK;
         }
 
         if ($oBug->isFailed() === true) {
-            $sClasses .= Bug::WORKFLOW_FAILED . ' ';
+            $aClasses[] = Bug::WORKFLOW_FAILED;
         }
 
         if ($oBug->isMergeable() === true) {
-            $sClasses .= Bug::WORKFLOW_MERGE . ' ';
+            $aClasses[] = Bug::WORKFLOW_MERGE;
         }
 
         if ($oBug->isWorkedOn()) {
-            $sClasses .= Bug::WORKFLOW_INPROGRESS . ' ';
+            $aClasses[] = Bug::WORKFLOW_INPROGRESS;
         }
 
         if ($oBug->isActive()) {
-            $sClasses .= Bug::WORKFLOW_ACTIVE . ' ';
+            $aClasses[] = Bug::WORKFLOW_ACTIVE;
         }
 
         if ($oBug->isOnlyTranslation() === true) {
-            $sClasses .= Bug::WORKFLOW_TRANSLATION . ' ';
+            $aClasses[] = Bug::WORKFLOW_TRANSLATION;
         }
 
-        if ($oBug->hasFlag(Bug::FLAG_SCREEN, '?') === true) {
-            $sClasses .= Bug::WORKFLOW_SCREEN . ' ';
+        if ($oBug->hasFlag(Bug::FLAG_TRANSLATION, Bugzilla::BUG_FLAG_REQUEST) === true) {
+            $aClasses[] = Bug::WORKFLOW_TRANSLATION_PENDING;
         }
 
-        if ($oBug->hasFlag(Bug::FLAG_COMMENT, '?') === true or $oBug->getStatus() === Bug::STATUS_CLARIFICATION) {
-            $sClasses .= Bug::WORKFLOW_COMMENT . ' ';
+        if ($oBug->hasFlag(Bug::FLAG_SCREEN, Bugzilla::BUG_FLAG_REQUEST) === true) {
+            $aClasses[] = Bug::WORKFLOW_SCREEN;
         }
 
-        if ($oBug->hasFlag(Bug::FLAG_TESTING, '?') === true) {
-            $sClasses .= Bug::WORKFLOW_TESTING . ' ';
+        if ($oBug->hasFlag(Bug::FLAG_COMMENT, Bugzilla::BUG_FLAG_REQUEST) === true or $oBug->getStatus() === Bug::STATUS_CLARIFICATION) {
+            $aClasses[] = Bug::WORKFLOW_COMMENT;
+        }
+
+        if ($oBug->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST) === true) {
+            $aClasses[] = Bug::WORKFLOW_TESTING;
         }
 
         if ($oBug->isChangedWithinLimit($this->_oConfig->tickets->workflow->timeout) !== true) {
-            $sClasses .= Bug::WORKFLOW_TIMEDOUT . ' ';
+            $aClasses[] = Bug::WORKFLOW_TIMEDOUT;
         }
 
-        return $sClasses;
+        return implode($aClasses, ' ');
     }
 }

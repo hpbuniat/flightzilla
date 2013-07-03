@@ -1542,6 +1542,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                 Bug::WORKFLOW_FAILED      => 0,
                 Bug::WORKFLOW_QUICK       => 0,
                 Bug::WORKFLOW_TRANSLATION => 0,
+                Bug::WORKFLOW_TRANSLATION_PENDING => 0,
                 Bug::WORKFLOW_TIMEDOUT    => 0,
             );
 
@@ -1570,7 +1571,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                         $this->_aStats[Bug::WORKFLOW_ACTIVE]++;
                     }
 
-                    if ($oBug->hasFlag(Bug::FLAG_TESTING, self::BUG_FLAG_REQUEST)) {
+                    if ($oBug->hasFlag(Bug::FLAG_TESTING, self::BUG_FLAG_REQUEST) === true) {
                         $this->_aStats[Bug::WORKFLOW_TESTING]++;
                     }
 
@@ -1600,6 +1601,10 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
                     if ($oBug->isOnlyTranslation()) {
                         $this->_aStats[Bug::WORKFLOW_TRANSLATION]++;
+                    }
+
+                    if ($oBug->hasFlag(Bug::FLAG_TRANSLATION, Bugzilla::BUG_FLAG_REQUEST) === true) {
+                        $this->_aStats[Bug::WORKFLOW_TRANSLATION_PENDING]++;
                     }
 
                     if ($oBug->isChangedWithinLimit($iTimeoutLimit) !== true) {

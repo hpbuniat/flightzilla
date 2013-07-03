@@ -179,7 +179,9 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
 
     const WORKFLOW_QUICK = 'quick';
 
-    const WORKFLOW_TRANSLATION = 'i18n';
+    const WORKFLOW_TRANSLATION = 'only-i18n';
+
+    const WORKFLOW_TRANSLATION_PENDING = 'i18n-pending';
 
     const WORKFLOW_TIMEDOUT = 'timedout';
 
