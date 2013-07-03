@@ -293,8 +293,13 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
      * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setConfirmed()
      */
     public function setConfirmed(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
-        if (empty($this->_aPayload['comment']) === true and $oTicket->getStatus() !== Bug::STATUS_REOPENED and $oTicket->isStatusAtLeast(Bug::STATUS_ASSIGNED) === true) {
-            $this->_aPayload['comment'] = 'I stopped working on this ticket!';
+        if (empty($this->_aPayload['comment']) === true) {
+            if ($oTicket->getStatus() !== Bug::STATUS_REOPENED and $oTicket->isStatusAtLeast(Bug::STATUS_ASSIGNED) === true) {
+                $this->_aPayload['comment'] = 'I stopped working on this ticket!';
+            }
+            elseif ($oTicket->getStatus() === Bug::STATUS_CLARIFICATION) {
+                $this->_aPayload['comment'] = 'Thank you!';
+            }
         }
 
         return $this->setStatus($oTicket, Bug::STATUS_CONFIRMED);
