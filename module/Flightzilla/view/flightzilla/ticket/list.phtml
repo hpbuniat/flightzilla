@@ -38,7 +38,6 @@
 
                             <label for="assignee">Assign to user:</label>
                             <input type="text" id="assignee" value="<?php echo $sUser; ?>" name="assigned[<?php echo $oTicket->id();?>][]" />
-                            <input type="hidden" value="setAssigned" name="modify[<?php echo $oTicket->id();?>][]" />
                         </div>
                     </li>
                 <?php elseif ($this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE or $this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM): ?>
@@ -66,7 +65,6 @@
                             <?php if ($bReassign === true): ?>
                                 <label for="assignee">Assign to user:</label>
                                 <input type="text" id="assignee" value="<?php echo $sUser; ?>" name="assigned[<?php echo $oTicket->id();?>][]" />
-                                <input type="hidden" value="setAssigned" name="modify[<?php echo $oTicket->id();?>][]" />
                             <?php endif; ?>
                         </div>
                     </li>
