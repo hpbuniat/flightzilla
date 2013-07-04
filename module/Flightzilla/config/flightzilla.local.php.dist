@@ -79,8 +79,16 @@ return array(
             'portal' => array(
                 array(
                     'name' => "portal.de",
-                    'id' =>
+                    'id' => 1234
                 ),
+            )
+        ),
+        'watchlist' => array(
+            'persistenceType' => \Flightzilla\Model\Watchlist\WatchlistService::PERSISTENCE_TYPE_XML,
+            'persistenceOptions' => array(
+                \Flightzilla\Model\Watchlist\WatchlistService::PERSISTENCE_TYPE_XML => array(
+                    'path' => getcwd() . '/data/xml/'
+                )
             )
         )
     )

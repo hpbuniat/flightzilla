@@ -1,0 +1,62 @@
+<?php echo $this->render('flightzilla/index/partial/header.phtml'); ?>
+<div class="row-fluid">
+    <div class="span2">
+        <div class="well sidebar-nav">
+
+            <form action="watchlist/add" method="post">
+                <div class="input-append">
+                    <input class="span9" id="appendedInputButton" type="text" name="ticketId" placeholder="add ticket">
+                    <button class="btn submitForm" type="button">Go!</button>
+                </div>
+            </form>
+            <form action="watchlist/remove" method="post">
+                <div class="input-append">
+                    <input class="span9" id="appendedInputButton" type="text" name="ticketId"
+                           placeholder="remove ticket">
+                    <button class="btn submitForm" type="button">Go!</button>
+                </div>
+            </form>
+
+            <?php
+                echo $this->render('flightzilla/index/partial/legend.phtml');
+            ?>
+        </div>
+    </div>
+
+    <div class="span10">
+        <blockquote>
+            <h3 class="table-toggle">Watchlist</h3>
+        </blockquote>
+        <form id="buglist-form" method="get" target="_blank" action="#" class="hide">
+            <?php
+            echo $this->partial('flightzilla/index/partial/table.phtml', array(
+                'caption' => 'Watchlist',
+                'sBugzilla' => $this->layout()->sBugzilla,
+                'bugs' => $this->aWatchlist,
+                'ready' => false,
+                'mode' => $this->mode
+            ));
+            ?>
+        </form>
+
+        <?php
+        foreach ($this->aProjects as $iTicket => $oProject) {
+            echo $this->partial('flightzilla/index/partial/table.phtml', array(
+                'captionTicket' => $oProject,
+                'sBugzilla'     => $this->layout()->sBugzilla,
+                'bugs'          => $oProject->getDependsAsStack(\Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED),
+                'ready'         => 'REVIEWED'
+            ));
+        }
+        ?>
+    </div>
+</div>
+
+<script type="text/javascript">
+    /**
+     * Add and remove tickets from watchlist
+     */
+    $('button.submitForm').click(function () {
+        $(this).parents('form').submit();
+    });
+</script>

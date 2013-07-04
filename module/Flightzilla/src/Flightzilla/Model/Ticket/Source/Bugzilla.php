@@ -1198,6 +1198,31 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     }
 
     /**
+     * Return array of projects from a given list of projects.
+     *
+     * @param array $aStack
+     *
+     * @return array|\Flightzilla\Model\Ticket\Type\Project[]
+     */
+    public function getProjectsFromIds(array $aStack = array()) {
+
+        $aProjects = array();
+        foreach ($aStack as $iTicket){
+            $oTicket = $this->getBugById($iTicket);
+            if ($oTicket->isProject()){
+                $aProjects[$iTicket] = $oTicket;
+            }
+            else {
+                if (false !== $this->getProject($oTicket)){
+                    $aProjects[$iTicket] = $this->getProject($oTicket);
+                }
+            }
+        }
+
+        return $aProjects;
+    }
+
+    /**
      * Get all tickets that need a testserver-update
      *
      * @return array

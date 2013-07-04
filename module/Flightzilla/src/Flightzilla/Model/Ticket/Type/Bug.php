@@ -169,6 +169,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
 
     const WORKFLOW_MERGE = 'mergeable';
 
+    const WORKFLOW_MERGED = 'merged';
+
     const WORKFLOW_DEADLINE = 'deadline';
 
     const WORKFLOW_SCREEN = 'screen';
@@ -400,6 +402,37 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @var array
      */
     protected $_aWorked = array();
+
+    /**
+     * Whether it is on the watchlist or not.
+     *
+     * @var bool
+     */
+    protected $_bOnWatchlist = false;
+
+    /**
+     * The setter function for the property <em>$_bOnWatchlist</em>.
+     *
+     * @param  boolean $bOnWatchlist
+     *
+     * @return $this Returns the instance of this class.
+     */
+    public function setOnWatchlist($bOnWatchlist) {
+
+        $this->_bOnWatchlist = $bOnWatchlist;
+        return $this;
+    }
+
+    /**
+     * The getter function for the property <em>$_bWatched</em>.
+     *
+     * @return boolean
+     */
+    public function isOnWatchlist() {
+
+        return $this->_bOnWatchlist;
+    }
+
 
     /**
      * Create the bug
@@ -1199,11 +1232,15 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      *
      * @return array
      */
-    public function getDependsAsStack() {
+    public function getDependsAsStack($sStatusAtMost = Bug::STATUS_CLOSED) {
 
         $aStack = array();
         foreach ($this->getDepends() as $iTicket) {
-            $aStack[$iTicket] = $this->_oBugzilla->getBugById($iTicket);
+
+            $oTicket = $this->_oBugzilla->getBugById($iTicket);
+            if ($oTicket->isStatusAtMost($sStatusAtMost)){
+                $aStack[$iTicket] = $oTicket;
+            }
         }
 
         return $aStack;

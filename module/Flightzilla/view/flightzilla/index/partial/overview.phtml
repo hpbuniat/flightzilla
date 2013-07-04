@@ -39,24 +39,10 @@
             </a></li>
         <?php endif; ?>
         <?php endforeach; endif; ?>
-
-        <li class="nav-header"><a href="javascript:;" data-target="legend" class="toggle">Legend</a></li>
-        <li class="legend"><div style="background-color: crimson; padding: 8px;">Test denied!</div></li>
-        <li class="legend"><div style="background-color: yellow; padding: 8px;">Testing open</div></li>
-        <li class="legend"><div style="background-color: #CCFF99; padding: 8px;">Partially tested (Testing o. Reporter)</div></li>
-        <li class="legend"><div style="background-color: lightgreen; padding: 8px;">Tested (Testing &amp; Reporter)</div></li>
-        <li class="legend"><div style="background-color: #9FB9FF; padding: 8px;">Merge-Request</div></li>
-        <li class="legend"><div style="background-color: orchid; padding: 8px;">DB-Change</div></li>
-        <li class="legend"><div style="background-color: orange; padding: 8px;">Translation-Request</div></li>
-        <li class="legend"><div style="background-color: #9F9F9F; padding: 8px;">Awaiting Test/Screen-Approval</div></li>
-        <li class="legend"><span class="icon-comment">&nbsp;</span> R&uuml;ckfrage</li>
-        <li class="legend"><span class="icon-eye-open">&nbsp;</span> Awaiting Test/Screen-Approval</li>
-        <li class="legend"><span class="icon-thumbs-up">&nbsp;</span> Testing/Screen approved</li>
-        <li class="legend"><span class="red">i18n </span> Translation done</li>
-        <li class="legend"><span class="ui-silk ui-silk-bug">&nbsp;</span> Ticket is a Bug</li>
-        <li class="legend"><span class="ui-silk ui-silk-database-refresh">&nbsp;</span> DB-Change done</li>
-        <li class="legend"><span class="ui-silk ui-silk-flag-yellow">&nbsp;</span> Deadline</li>
     </ul>
+    <?php
+      echo $this->render('flightzilla/index/partial/legend.phtml');
+    ?>
   </div>
     <?php if (isset($this->sChuck) === true):?>
     <img class="chuck" src="<?php echo $this->basePath() . '/img/chuck/' . $this->sChuck; ?>" />
