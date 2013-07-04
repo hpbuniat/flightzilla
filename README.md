@@ -38,6 +38,8 @@ flightzilla offers a variety of features, which are split into several categorie
             - Unanswered Comment-Requests
             - Tickets with failed testings
     - My Tickets (A list of your tickets - comparable to the "My Bugs"-List)
+    - My Watchlist
+        - Have a closer look on several hand-picked tickets (useful if your normal ticket-list is huge)
     - Conflicts - Several listings to check the integrity of ticket-status:
         - RESOLVED-Tickets must not have only failed- or rejected testings
         - Tickets without estimation (Organization) must have a due-date
