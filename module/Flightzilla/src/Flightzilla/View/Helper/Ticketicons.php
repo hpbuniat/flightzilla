@@ -82,68 +82,68 @@ class Ticketicons extends AbstractHelper {
      */
     public function __invoke(Bug $oBug) {
 
-        $sClasses = '';
+        $aClasses = array();
         if ($oBug->isStatusAtLeast(Bug::STATUS_RESOLVED) === true) {
             if ($oBug->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED) === true) {
-                $sClasses .= sprintf('&nbsp;<i class="%s"></i>', self::ICON_CHECKED);
+                $aClasses[] = sprintf('<i class="%s"></i>', self::ICON_CHECKED);
             }
             else {
-                $sClasses .= sprintf('&nbsp;<i class="%s"></i>', self::ICON_RESOLVED);
+                $aClasses[] = sprintf('<i class="%s"></i>', self::ICON_RESOLVED);
             }
         }
 
-        if ($oBug->isMergeable()){
-            $sClasses .= sprintf('&nbsp;<i class="%s" title="%s"></i>', self::ICON_MERGABLE, Bug::WORKFLOW_MERGE);
+        if ($oBug->isMergeable() === true) {
+            $aClasses[] = sprintf('<i class="%s" title="%s"></i>', self::ICON_MERGABLE, Bug::WORKFLOW_MERGE);
         }
 
-        if ($oBug->isMerged()){
-            $sClasses .= sprintf('&nbsp;<i class="%s" title="%s"></i>', self::ICON_MERGED, Bug::WORKFLOW_MERGED);
+        if ($oBug->isMerged() === true) {
+            $aClasses[] = sprintf('<i class="%s" title="%s"></i>', self::ICON_MERGED, Bug::WORKFLOW_MERGED);
         }
 
-        if ($oBug->isOnWatchlist()){
-            $sClasses .= sprintf('&nbsp;<i class="%s" title="on watchlist"></i>', self::ICON_WATCHED);
+        if ($oBug->isOnWatchlist() === true) {
+            $aClasses[] = sprintf('<i class="%s" title="on watchlist"></i>', self::ICON_WATCHED);
         }
 
         if ($oBug->hasFlag(Bug::FLAG_COMMENT, Bugzilla::BUG_FLAG_REQUEST) === true or $oBug->getStatus() === Bug::STATUS_CLARIFICATION) {
-            $sClasses .= sprintf('&nbsp;<i class="%s" title="Awaiting %s">&nbsp;</i>', self::ICON_COMMENT, Bug::FLAG_COMMENT);
+            $aClasses[] = sprintf('<i class="%s" title="Awaiting %s">&nbsp;</i>', self::ICON_COMMENT, Bug::FLAG_COMMENT);
             if (strlen($oBug->commentrequest_user) > 0) {
-                $sClasses .= '<span class="red"> ' . $oBug->commentrequest_user . '</span>';
+                $aClasses[] = '<span class="red"> ' . $oBug->commentrequest_user . '</span>';
             }
         }
 
         if ($oBug->hasFlag(Bug::FLAG_TRANSLATION, Bugzilla::BUG_FLAG_GRANTED) === true) {
-            $sClasses .= '&nbsp;<span class="red">i18n</span>';
+            $aClasses[] = '<span class="red">i18n</span>';
         }
 
         if ($oBug->hasFlag(Bug::FLAG_SCREEN, Bugzilla::BUG_FLAG_GRANTED) === true and $oBug->hasFlag(Bug::FLAG_SCREEN, Bugzilla::BUG_FLAG_REQUEST) === false) {
-            $sClasses .= sprintf('&nbsp;<i class="%s" title="%s">&nbsp;</i>', self::ICON_CHECKED, Bug::FLAG_SCREEN);
+            $aClasses[] = sprintf('<i class="%s" title="%s">&nbsp;</i>', self::ICON_CHECKED, Bug::FLAG_SCREEN);
         }
         elseif ($oBug->hasFlag(Bug::FLAG_SCREEN, Bugzilla::BUG_FLAG_REQUEST) === true) {
-            $sClasses .= sprintf('&nbsp;<i class="%s" title="Awaiting %s">&nbsp;</i>', self::ICON_TESTING, Bug::FLAG_SCREEN);
+            $aClasses[] = sprintf('<i class="%s" title="Awaiting %s">&nbsp;</i>', self::ICON_TESTING, Bug::FLAG_SCREEN);
         }
 
         if ($oBug->hasFlag(Bug::FLAG_DBCHANGE, Bugzilla::BUG_FLAG_GRANTED) === true) {
-            $sClasses .= '&nbsp;<span class="ui-silk ui-silk-database-refresh" title="' . Bug::FLAG_DBCHANGE . '">&nbsp;</span>';
+            $aClasses[] = '<span class="ui-silk ui-silk-database-refresh" title="' . Bug::FLAG_DBCHANGE . '">&nbsp;</span>';
         }
 
         if ($oBug->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST) === true) {
-            $sClasses .= sprintf('&nbsp;<i class="%s" title="Awaiting %s">&nbsp;</i>', self::ICON_TESTING, Bug::FLAG_TESTING);
+            $aClasses[] = sprintf('<i class="%s" title="Awaiting %s">&nbsp;</i>', self::ICON_TESTING, Bug::FLAG_TESTING);
             if (strlen($oBug->testingrequest_user) > 0) {
-                $sClasses .= '<span class="red"> ' . $oBug->testingrequest_user . '</span>';
+                $aClasses[] = '<span class="red"> ' . $oBug->testingrequest_user . '</span>';
             }
         }
 
         $sRevenue = $oBug->getRevenue();
         if (empty($sRevenue) !== true) {
-            $sClasses .= sprintf('&nbsp;<i class="%s" title="%s">&nbsp;</i>', self::ICON_REVENUE, $sRevenue);
+            $aClasses[] = sprintf('<i class="%s" title="%s">&nbsp;</i>', self::ICON_REVENUE, $sRevenue);
         }
 
         if ($oBug->hasFlag(Bug::FLAG_TESTSERVER, Bugzilla::BUG_FLAG_REQUEST) === true) {
-            $sClasses .= sprintf('&nbsp;<i class="%s" title="Awaiting %s">&nbsp;</i>', self::ICON_UPDATE, Bug::FLAG_TESTSERVER);
+            $aClasses[] = sprintf('<i class="%s" title="Awaiting %s">&nbsp;</i>', self::ICON_UPDATE, Bug::FLAG_TESTSERVER);
         }
 
         if ($oBug->isType(Bug::TYPE_BUG) === true) {
-            $sClasses .= '&nbsp;<span class="ui-silk ui-silk-bug" title="' . Bug::TYPE_BUG . '">&nbsp;</span>';
+            $aClasses[] = '<span class="ui-silk ui-silk-bug" title="' . Bug::TYPE_BUG . '">&nbsp;</span>';
         }
         elseif ($oBug->isContainer() !== true) {
             $aBlocks = $oBug->blocks();
@@ -158,10 +158,10 @@ class Ticketicons extends AbstractHelper {
             }
 
             if ($bHasContainer === false) {
-                $sClasses .= sprintf('&nbsp;<i class="%s" title="Feature with no container!">&nbsp;</i>', self::ICON_WARNING);
+                $aClasses[] = sprintf('<i class="%s" title="Feature with no container!">&nbsp;</i>', self::ICON_WARNING);
             }
         }
 
-        return $sClasses;
+        return implode('&nbsp;', $aClasses);
     }
 }

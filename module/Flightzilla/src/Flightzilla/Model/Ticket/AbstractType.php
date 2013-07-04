@@ -52,4 +52,54 @@ namespace Flightzilla\Model\Ticket;
  */
 abstract class AbstractType {
 
+    /**
+     * Whether it is on the watchlist or not.
+     *
+     * @var bool
+     */
+    protected $_bOnWatchlist = false;
+
+    /**
+     * Timestamp when the ticket starts.
+     *
+     * @var int
+     */
+    protected $_iStartDate = 0;
+
+    /**
+     * Timestamp for ticket's estimated end date.
+     *
+     * @var int
+     */
+    protected $_iEndDate = 0;
+
+    /**
+     * The ticket-id
+     *
+     * @var int
+     */
+    protected $_iId;
+
+    /**
+     * The setter function for the property <em>$_bOnWatchlist</em>.
+     *
+     * @param  boolean $bOnWatchlist
+     *
+     * @return $this Returns the instance of this class.
+     */
+    public function setOnWatchlist($bOnWatchlist) {
+
+        $this->_bOnWatchlist = $bOnWatchlist;
+        return $this;
+    }
+
+    /**
+     * The getter function for the property <em>$_bWatched</em>.
+     *
+     * @return boolean
+     */
+    public function isOnWatchlist() {
+
+        return $this->_bOnWatchlist;
+    }
 }

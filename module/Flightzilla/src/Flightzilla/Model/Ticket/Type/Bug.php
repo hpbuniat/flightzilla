@@ -334,27 +334,6 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     protected $_sKeywords = '';
 
     /**
-     * Timestamp when the ticket starts.
-     *
-     * @var int
-     */
-    protected $_iStartDate = 0;
-
-    /**
-     * Timestamp for ticket's estimated end date.
-     *
-     * @var int
-     */
-    protected $_iEndDate = 0;
-
-    /**
-     * The ticket-id
-     *
-     * @var int
-     */
-    protected $_iId;
-
-    /**
      * The ticket-source
      *
      * @var Bugzilla
@@ -402,36 +381,6 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @var array
      */
     protected $_aWorked = array();
-
-    /**
-     * Whether it is on the watchlist or not.
-     *
-     * @var bool
-     */
-    protected $_bOnWatchlist = false;
-
-    /**
-     * The setter function for the property <em>$_bOnWatchlist</em>.
-     *
-     * @param  boolean $bOnWatchlist
-     *
-     * @return $this Returns the instance of this class.
-     */
-    public function setOnWatchlist($bOnWatchlist) {
-
-        $this->_bOnWatchlist = $bOnWatchlist;
-        return $this;
-    }
-
-    /**
-     * The getter function for the property <em>$_bWatched</em>.
-     *
-     * @return boolean
-     */
-    public function isOnWatchlist() {
-
-        return $this->_bOnWatchlist;
-    }
 
 
     /**
@@ -762,8 +711,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
 
         $this->_iStartDate = $this->_oDate->getNextWorkday($this->_iStartDate);
         if ($this->getEndDate($iCalled) < $this->_iStartDate) {
-            $this->_oBugzilla->getLogger()
-            ->info(sprintf('End-Date < Start-Date! -> Ticket: %s, Start: %s, End: %s', $this->id(), date('Y-m-d', $this->_iStartDate), date('Y-m-d', $this->getEndDate())));
+            $this->_oBugzilla->getLogger()->info(sprintf('End-Date < Start-Date! -> Ticket: %s, Start: %s, End: %s', $this->id(), date('Y-m-d', $this->_iStartDate), date('Y-m-d', $this->getEndDate())));
         }
 
         return $this->_iStartDate;
@@ -1230,6 +1178,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     /**
      * Get all dependencies as stack of tickets
      *
+     * @param  string $sStatusAtMost
+     *
      * @return array
      */
     public function getDependsAsStack($sStatusAtMost = Bug::STATUS_CLOSED) {
@@ -1238,7 +1188,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         foreach ($this->getDepends() as $iTicket) {
 
             $oTicket = $this->_oBugzilla->getBugById($iTicket);
-            if ($oTicket->isStatusAtMost($sStatusAtMost)){
+            if ($oTicket->isStatusAtMost($sStatusAtMost) === true) {
                 $aStack[$iTicket] = $oTicket;
             }
         }

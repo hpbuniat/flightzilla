@@ -87,7 +87,7 @@ return array(
             'persistenceType' => \Flightzilla\Model\Watchlist\WatchlistService::PERSISTENCE_TYPE_XML,
             'persistenceOptions' => array(
                 \Flightzilla\Model\Watchlist\WatchlistService::PERSISTENCE_TYPE_XML => array(
-                    'path' => getcwd() . '/data/xml/'
+                    'path' => APPLICATION_PATH . '/data/xml/'
                 )
             )
         )
