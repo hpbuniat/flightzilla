@@ -1,9 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="WEB_MODULE" version="4">
+  <component name="DBNavigator.Module.ConnectionManager">
+    <connections />
+  </component>
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library name="PHARS">
+        <CLASSES>
+          <root url="phar://$MODULE_DIR$/vendor/zendframework/zendframework/tests/ZendTest/Loader/_files/PharModuleExplicit.phar" />
+          <root url="phar://$MODULE_DIR$/vendor/zendframework/zendframework/tests/ZendTest/Loader/_files/PharModulePharTar.phar.tar" />
+          <root url="phar://$MODULE_DIR$/vendor/zendframework/zendframework/tests/ZendTest/Loader/_files/PharModulePharTarGz.phar.tar.gz" />
+          <root url="phar://$MODULE_DIR$/vendor/zendframework/zendframework/tests/ZendTest/Loader/_files/PharModule.phar" />
+          <root url="phar://$MODULE_DIR$/library/Zend/Service/WindowsAzure/CommandLine/Scaffolders/DefaultScaffolder.phar" />
+          <root url="phar://$MODULE_DIR$/vendor/zendframework/zendframework/tests/ZendTest/View/_templates/view.phar" />
+          <root url="phar://$USER_HOME$/pear/share/pear/phpDocumentor/tests/data/test.phar" />
+          <root url="phar://$MODULE_DIR$/composer.phar" />
+          <root url="phar://$MODULE_DIR$/vendor/zendframework/zendframework/tests/ZendTest/Loader/_files/classmap.phar" />
+          <root url="phar://$MODULE_DIR$/vendor/zendframework/zendframework/tests/ZendTest/Loader/_files/PharModulePharZip.phar.zip" />
+        </CLASSES>
+        <SOURCES>
+          <root url="phar://$MODULE_DIR$/vendor/zendframework/zendframework/tests/ZendTest/Loader/_files/PharModuleExplicit.phar" />
+          <root url="phar://$MODULE_DIR$/vendor/zendframework/zendframework/tests/ZendTest/Loader/_files/PharModulePharTar.phar.tar" />
+          <root url="phar://$MODULE_DIR$/vendor/zendframework/zendframework/tests/ZendTest/Loader/_files/PharModulePharTarGz.phar.tar.gz" />
+          <root url="phar://$MODULE_DIR$/vendor/zendframework/zendframework/tests/ZendTest/Loader/_files/PharModule.phar" />
+          <root url="phar://$MODULE_DIR$/library/Zend/Service/WindowsAzure/CommandLine/Scaffolders/DefaultScaffolder.phar" />
+          <root url="phar://$MODULE_DIR$/vendor/zendframework/zendframework/tests/ZendTest/View/_templates/view.phar" />
+          <root url="phar://$USER_HOME$/pear/share/pear/phpDocumentor/tests/data/test.phar" />
+          <root url="phar://$MODULE_DIR$/composer.phar" />
+          <root url="phar://$MODULE_DIR$/vendor/zendframework/zendframework/tests/ZendTest/Loader/_files/classmap.phar" />
+          <root url="phar://$MODULE_DIR$/vendor/zendframework/zendframework/tests/ZendTest/Loader/_files/PharModulePharZip.phar.zip" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="PHP">
+        <CLASSES>
+          <root url="file://$USER_HOME$/pear/share/pear" />
+        </CLASSES>
+        <SOURCES>
+          <root url="file://$USER_HOME$/pear/share/pear" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="jQuery" level="application" />
   </component>
 </module>
 
