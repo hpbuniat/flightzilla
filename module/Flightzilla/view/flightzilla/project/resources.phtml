@@ -1,0 +1,41 @@
+<?php echo $this->render('flightzilla/index/partial/header.phtml'); ?>
+
+<div class="row-fluid">
+    <?php
+    echo $this->partial('flightzilla/project/partial/sidebar.phtml', array(
+        'sHeading' => 'Team',
+        'aStack' => array_keys($this->aStack),
+    ));
+    ?>
+
+    <div class="span10">
+        <?php
+        foreach ($this->aResources as $oResource) {
+            echo sprintf('<div class="gantt t%s" data-target="%s"></div>', md5($oResource->getName()), $oResource->getName());
+        }
+        ?>
+    </div>
+</div>
+
+<?php $this->inlineScript()->appendFile($this->basePath() . '/js/jquery.fn.gantt.js'); ?>
+<script type="text/javascript">
+    $(function() {
+        var $gantt = $('.gantt');
+        $gantt.each(function() {
+            var $this = $(this);
+            $this.gantt({
+                source: "planning/data/type/resource/name/" + $this.data('target'),
+                navigate: "scroll",
+                scale: "days",
+                maxScale: "months",
+                minScale: "days",
+                days: ["M", "T", "W", "T", "F", "S", "S"],
+                hourRange: {
+                    from: 7,
+                    to: 21
+                },
+                itemsPerPage: 50
+            });
+        });
+    });
+</script>

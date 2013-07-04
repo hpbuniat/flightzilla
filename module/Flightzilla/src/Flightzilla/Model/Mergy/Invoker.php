@@ -41,7 +41,6 @@
  */
 namespace Flightzilla\Model\Mergy;
 
-
 /**
  * Call mergy and get unmerged revisions, according to selection
  *
@@ -51,7 +50,7 @@ namespace Flightzilla\Model\Mergy;
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class Invoker {
+class Invoker implements \ArrayAccess, \Countable {
 
     /**
      * Command-Wrapper
@@ -87,6 +86,13 @@ class Invoker {
      * @var string
      */
     const LIST_COMMAND = '%s --remote=%s --path=%s --unattended --config=false --list --formatter=xml --ticket=%s';
+
+    /**
+     * Mergy-Command to get all unmerged revisions
+     *
+     * @var string
+     */
+    const UNMERGED_COMMAND = '%s --remote=%s --path=%s --unattended --config=false --list-group --all --formatter=xml';
 
     /**
      * Mergy command to merge
@@ -150,6 +156,29 @@ class Invoker {
 
         if ($this->_oCommand->isSuccess() and empty($this->_sCliOutput) !== true) {
             $this->_aStack[$oStack->getName()] = $oStack->setRaw($this->_sCliOutput);
+        }
+        else {
+            $this->_oLogger->err($this->_oCommand->status() . ' ' . $this->_sCliOutput);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Fetch all unmerged revisions using mergy
+     *
+     * @param  \Flightzilla\Model\Mergy\Revision\Stack $oStack
+     * @param  string $sMergy
+     * @param  \Zend\Config\Config $oSource
+     *
+     * @return Invoker
+     */
+    public function unmerged(\Flightzilla\Model\Mergy\Revision\Stack $oStack, $sMergy, \Zend\Config\Config $oSource) {
+        $sCommand = sprintf(self::UNMERGED_COMMAND, $sMergy, $oSource->feature, $oSource->stable);
+        $this->_sCliOutput = trim($this->_oCommand->execute($sCommand)->get());
+
+        if ($this->_oCommand->isSuccess() and empty($this->_sCliOutput) !== true) {
+            $this->_aStack[$oStack->getName()] = $oStack->setRaw($this->_sCliOutput, $oStack::PARSE_TICKETS);
         }
         else {
             $this->_oLogger->err($this->_oCommand->status() . ' ' . $this->_sCliOutput);
@@ -242,5 +271,68 @@ class Invoker {
      */
     public function getStack() {
         return $this->_aStack;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \Countable::count()
+     */
+    public function count() {
+        $iCount = 0;
+        foreach ($this->_aStack as $oStack) {
+            /* @var $oStack Revision\Stack */
+            $iCount += $oStack->count();
+        }
+
+        return $iCount;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \ArrayAccess::offsetExists()
+     */
+    public function offsetExists($offset) {
+        $bExists = false;
+        foreach ($this->_aStack as $oStack) {
+            /* @var $oStack Revision\Stack */
+            $bExists |= $oStack->offsetExists($offset);
+        }
+
+        return (bool)$bExists;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \ArrayAccess::offsetGet()
+     */
+    public function offsetGet($offset) {
+        $aStack = array();
+        foreach ($this->_aStack as $oStack) {
+            /* @var $oStack Revision\Stack */
+            if ($oStack->offsetExists($offset) === true) {
+                $aStack[$oStack->getName()] = array(
+                    'stack' => $oStack,
+                    'revisions' => $oStack->offsetGet($offset)
+                );
+            }
+        }
+
+        return $aStack;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \ArrayAccess::offsetSet()
+     */
+    public function offsetSet($offset, $value) {
+        throw new \BadMethodCallException('writing via proxy is prohibited');
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \ArrayAccess::offsetUnset()
+     */
+    public function offsetUnset($offset) {
+        throw new \BadMethodCallException('writing via proxy is prohibited');
     }
 }

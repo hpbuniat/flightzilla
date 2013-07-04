@@ -53,7 +53,7 @@ namespace Flightzilla\Model\Timeline;
 class Date {
 
     /**
-     * Amount of minutes, which a programmer is working each day
+     * Amount of hours, which a programmer is working each day
      *
      * @var int
      *
@@ -62,13 +62,22 @@ class Date {
     const AMOUNT = 6.0;
 
     /**
-     * Amount of days, we'd like to plan in the future
+     * Amount of hours which should be planne for a sprint per week
      *
      * @var int
      *
      * @TODO Config!
      */
-    const FUTURE = 10;
+    const WEEK = 30;
+
+    /**
+     * Amount of hours, we'd like to plan in the future
+     *
+     * @var int
+     *
+     * @TODO Config!
+     */
+    const FUTURE = 60;
 
     /**
      * The day starts at
@@ -89,6 +98,23 @@ class Date {
     const END = '16:00';
 
     /**
+     * Week aliases
+     *
+     * @var string
+     */
+    const WEEK_PREVIOUS = 'previous';
+    const WEEK_CURRENT = 'current';
+    const WEEK_NEXT = 'next';
+    CONST WEEK_NEXT_BUT_ONE = 'next-but-one';
+
+    /**
+     * The weekly-sprint identifier
+     *
+     * @var array
+     */
+    protected $_aWeeks = array();
+
+    /**
      * List of workdays
      *
      * @var array
@@ -104,7 +130,7 @@ class Date {
     );
 
     /**
-     * Check if a day is a holiday or a dayy of the weekend.
+     * Check if a day is a holiday or a day of the weekend.
      *
      * @param $iTimestamp
      *
@@ -155,7 +181,6 @@ class Date {
             $iDate -= 86400;
             $date = getdate($iDate);
             $weekday = $date['wday'];
-
         }
         while ($weekday !== 3);
 
@@ -196,5 +221,48 @@ class Date {
      */
     public function isGreater($iTimestamp, $iDays) {
         return ($iTimestamp >= strtotime(sprintf('+%d days', $iDays)));
+    }
+
+    /**
+     * Get the week-identifiers
+     *
+     * @param  int $iSlice Slice some weeks from the result
+     *
+     * @return array
+     */
+    public function getWeeks($iSlice = 0) {
+        if (empty($this->_aWeeks) === true) {
+            $this->_aWeeks[self::WEEK_PREVIOUS] = array(
+                'title' => date('Y/W', strtotime('previous week')),
+                'tickets' => array()
+            );
+            $this->_aWeeks[self::WEEK_CURRENT] = array(
+                'title' => date('Y/W', strtotime('this week')),
+                'tickets' => array()
+            );
+            $this->_aWeeks[self::WEEK_NEXT] = array(
+                'title' => date('Y/W', strtotime('next week')),
+                'tickets' => array()
+            );
+            $this->_aWeeks[self::WEEK_NEXT_BUT_ONE] = array(
+                'title' => date('Y/W', strtotime('next week', strtotime('next week'))),
+                'tickets' => array()
+            );
+        }
+
+        return array_slice($this->_aWeeks, $iSlice, null, true);
+    }
+
+    /**
+     * Get a date (unix-timestamp) from a sprint-week
+     *
+     * @param  string $sWeek The week with notation yyyy/WW
+     * @param  string $sDay The day of the week
+     *
+     * @return int
+     */
+    public function getDateFromWeek($sWeek, $sDay = 'thursday') {
+        $aDate = explode('/', $sWeek);
+        return strtotime(sprintf('%s-W%s %s %s', $aDate[0], $aDate[1], $sDay, self::END));
     }
 }

@@ -1,0 +1,15 @@
+<tr>
+    <td colspan="8" class="wide-definition">
+        <?php
+        $aRevisions = $this->revisions->offsetGet($this->bug->id());
+        foreach ($aRevisions as $aRevision) {
+            /* @var $this->oStack \Flightzilla\Model\Mergy\Revision\Stack */
+            $this->oStack = $aRevision['stack'];
+            $this->iTicket = $this->bug->id();
+            $this->aRevisions = $aRevision['revisions'];
+
+            echo $this->render('flightzilla/mergy/partial/revisions.phtml');
+        }
+        ?>
+    </td>
+</tr>

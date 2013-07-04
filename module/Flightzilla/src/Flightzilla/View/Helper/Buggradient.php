@@ -51,6 +51,7 @@
  */
 namespace Flightzilla\View\Helper;
 use Zend\View\Helper\AbstractHelper;
+use Flightzilla\Model\Ticket\Type\Bug;
 
 class Buggradient extends AbstractHelper {
 
@@ -63,11 +64,11 @@ class Buggradient extends AbstractHelper {
      *
      * @return string
      */
-    public function __invoke(\Flightzilla\Model\Ticket\Type\Bug $oTicket, $bReady = false, $bTransparent = true) {
+    public function __invoke(Bug $oTicket, $bReady = false, $bTransparent = true) {
 
         $aColors = array();
-        $bTestingOpen = $oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '?');
-        $bTestingGranted = $oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TESTING, '+');
+        $bTestingOpen = $oTicket->hasFlag(Bug::FLAG_TESTING, '?');
+        $bTestingGranted = $oTicket->hasFlag(Bug::FLAG_TESTING, '+');
         if ($bTestingOpen === true) {
             $aColors[] = 'yellow';
         }
@@ -80,7 +81,7 @@ class Buggradient extends AbstractHelper {
             $aColors[] = '#CCFF99';
         }
 
-        if ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_DBCHANGE, '?') or $oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_DBCHANGE_TEST, '?')) {
+        if ($oTicket->hasFlag(Bug::FLAG_DBCHANGE, '?') === true or $oTicket->hasFlag(Bug::FLAG_DBCHANGE_TEST, '?') === true) {
             $aColors[] = 'orchid';
         }
 
@@ -88,15 +89,15 @@ class Buggradient extends AbstractHelper {
             $aColors[] = 'crimson';
         }
 
-        if ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_MERGE, '?')) {
+        if ($oTicket->hasFlag(Bug::FLAG_MERGE, '?') === true) {
             $aColors[] = '#9FB9FF';
         }
 
-        if ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_SCREEN, '?')) {
+        if ($oTicket->hasFlag(Bug::FLAG_SCREEN, '?') === true) {
             $aColors[] = '#9F9F9F';
         }
 
-        if ($oTicket->hasFlag(\Flightzilla\Model\Ticket\Type\Bug::FLAG_TRANSLATION, '?')) {
+        if ($oTicket->hasFlag(Bug::FLAG_TRANSLATION, '?') === true) {
             $aColors[] = 'orange';
         }
 

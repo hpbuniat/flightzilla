@@ -64,7 +64,15 @@ class ProjectController extends AbstractActionController {
         $oViewModel->mode = 'project';
 
         $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'project')->getService();
+
+        /* @var \Flightzilla\Model\Ticket\Source\Bugzilla $oServiceModel */
         $oViewModel->aProjects = $oServiceModel->getProjects();
+
+        $oKanbanStatus = new \Flightzilla\Model\Kanban\Status($oServiceModel->getProjects(), $oServiceModel);
+        $oViewModel->aKanban = $oKanbanStatus->setGrouped()->setTypes(array(
+            \Flightzilla\Model\Ticket\Type\Bug::TYPE_PROJECT,
+            \Flightzilla\Model\Ticket\Type\Bug::TYPE_THEME,
+        ))->process()->getByTicket();
 
         return $oViewModel;
     }
@@ -77,7 +85,15 @@ class ProjectController extends AbstractActionController {
         $oViewModel->mode = 'project';
 
         $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'project')->getService();
+
+        /* @var \Flightzilla\Model\Ticket\Source\Bugzilla $oServiceModel */
         $oViewModel->aProjects = $oServiceModel->getProjects();
+
+        $oKanbanStatus = new \Flightzilla\Model\Kanban\Status($oServiceModel->getProjects(), $oServiceModel);
+        $oViewModel->aKanban = $oKanbanStatus->setGrouped()->setTypes(array(
+            \Flightzilla\Model\Ticket\Type\Bug::TYPE_PROJECT,
+            \Flightzilla\Model\Ticket\Type\Bug::TYPE_THEME,
+        ))->process()->getByTicket();
 
         return $oViewModel;
     }
@@ -92,6 +108,7 @@ class ProjectController extends AbstractActionController {
 
         $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'project')->getService();
 
+        /* @var \Flightzilla\Model\Ticket\Source\Bugzilla $oServiceModel */
         $oKanbanStatus = new \Flightzilla\Model\Kanban\Status($oServiceModel->getProjects(), $oServiceModel);
         $oViewModel->aKanban = $oKanbanStatus->setGrouped()->setTypes(array(
             \Flightzilla\Model\Ticket\Type\Bug::TYPE_PROJECT,
@@ -130,7 +147,56 @@ class ProjectController extends AbstractActionController {
         $oViewModel->mode = 'project';
 
         $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'project')->getService();
+
+        /* @var \Flightzilla\Model\Ticket\Source\Bugzilla $oServiceModel */
         $oViewModel->aStack = $oServiceModel->getTeam();
+        $oViewModel->aResources = $oServiceModel->getResourceManager()->getResources();
+
+        return $oViewModel;
+    }
+
+    /**
+     *
+     */
+    public function graphAction() {
+        $oViewModel = new ViewModel;
+        $oViewModel->mode = 'project';
+
+        $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'project')->getService();
+
+        /* @var \Flightzilla\Model\Ticket\Source\Bugzilla $oServiceModel */
+        $oViewModel->aProjects = $oServiceModel->getProjects();
+
+        $oKanbanStatus = new \Flightzilla\Model\Kanban\Status($oServiceModel->getProjects(), $oServiceModel);
+        $oViewModel->aKanban = $oKanbanStatus->setGrouped()->setTypes(array(
+            \Flightzilla\Model\Ticket\Type\Bug::TYPE_PROJECT,
+            \Flightzilla\Model\Ticket\Type\Bug::TYPE_THEME,
+        ))->process()->getByTicket();
+
+        return $oViewModel;
+    }
+
+    /**
+     *
+     */
+    public function graphdataAction() {
+        $oViewModel = new ViewModel;
+        $oViewModel->setTerminal(true);
+        $oViewModel->mode = 'project';
+        $this->getResponse()->getHeaders()->addHeaders(array(
+            'Content-Type' => 'application/json'
+        ));
+
+        $oServiceModel = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'project')->getService();
+
+        /* @var \Flightzilla\Model\Ticket\Source\Bugzilla $oServiceModel */
+        $oViewModel->aProjects = $oServiceModel->getProjects();
+
+        $oKanbanStatus = new \Flightzilla\Model\Kanban\Status($oServiceModel->getProjects(), $oServiceModel);
+        $oViewModel->aKanban = $oKanbanStatus->setGrouped()->setTypes(array(
+            \Flightzilla\Model\Ticket\Type\Bug::TYPE_PROJECT,
+            \Flightzilla\Model\Ticket\Type\Bug::TYPE_THEME,
+        ))->process()->getByTicket();
 
         return $oViewModel;
     }

@@ -14,10 +14,10 @@
             $sEstimationString = sprintf('%sd (%sd est.) <i class="icon-time"></i> %sd', $aTimes['spent_days'], $aTimes['esti_days'] , $aTimes['days']);
 ?>
 
-            <div class="span6 well memberBox projectBox kanban">
+            <div class="span6 well member-box project-box kanban">
                 <div class="row-fluid">
                     <div class="span12">
-                        <?php echo sprintf('<h5><strong><a target="_blank" href="%s/show_bug.cgi?id=%s">%s (%s)</a></strong></h5>', $this->layout()->sBugzilla, $this->oProject->id(), $this->oProject->title(), $this->oProject->id()); ?>
+                        <?php echo sprintf('<h5><strong><a target="_blank" href="%s/show_bug.cgi?id=%s">%s</a></strong> (%s) %s</h5>', $this->layout()->sBugzilla, $this->oProject->id(), $this->oProject->title(), $this->oProject->id(), $this->ticketicons($this->oProject)); ?>
                     </div>
                 </div>
                 <div class="row-fluid">
@@ -28,15 +28,20 @@
                         <blockquote>
                             <p>
                                 <i class="icon-tags"></i>
-                                <?php if ($this->oProject->getRevenue() > 0):
-                                    echo $this->oProject->getRevenue();
-                                else:?>
+                                <?php $fRevenue = (float) $this->oProject->getRevenue();
+                                if (empty($fRevenue) !== true) {
+                                    echo sprintf ('%s (%s, %s)', $fRevenue, $this->oProject->getRevenueScoreEstimation(), $this->oProject->getRevenueScoreActual());
+                                }
+                                else {?>
                                 <span class="label label-warning">Missing revenue expectation!</span>
-                                <?php endif;?>
+                                <?php } ?>
                             </p>
                             <p>
                                 <i class="icon-user"></i> <?php echo $this->oProject->getAssignee(true); ?>
                             </p>
+                            <p>
+                                <i class="icon-tasks"></i> <?php echo (isset($this->aKanban[$this->oProject->id()]) === true) ? \Flightzilla\Model\Kanban\Status::$aStatusText[$this->aKanban[$this->oProject->id()]] : '-'; ?>
+                            <p>
                         </blockquote>
                     </div>
                     <div class="span8">
@@ -101,7 +106,9 @@
           'caption' => 'Projects as List',
           'sBugzilla' => $this->layout()->sBugzilla,
           'bugs' => $this->aProjects,
-          'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_REVIEWED
+          'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED,
+          'mode' => $this->mode,
+          'aKanban' => $this->aKanban
      ));
     ?>
 </form>

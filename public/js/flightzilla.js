@@ -1,6 +1,6 @@
 /*global jQuery, BASE_URL */
 (function($) { $(function() {
-    var f = {
+    window.f = {
         bugs: {},
         write: {},
         toggleBugs: {},
@@ -88,31 +88,35 @@
          * Init draggables
          */
         dragging: function() {
-            var sSelector = '#ticket-dropper';
-            $.get(BASE_URL + '/flightzilla/team/members', function(msg) {
-                $('<div />', {
-                    id: sSelector.substr(1),
-                    style: 'display:none'
-                }).html(msg).appendTo('body');
-
-                $('.draggable').draggable({
-                    revert: true,
-                    zIndex: 1000,
-                    start: function(event, ui) {
-                        $(sSelector).show().position({
-                            of: ui.helper.parents('.row-fluid, tr').eq(0),
-                            my: "center top",
-                            at: "center bottom+10",
-                            collision: "flipfit"
-                        });
-                    },
-                    stop: function(event, ui) {
-                        $(sSelector).hide();
+            if ($('div.login').length === 0) {
+                var sSelector = '#ticket-dropper';
+                $.get(BASE_URL + '/flightzilla/team/members', function(msg) {
+                    if ($(sSelector).length === 0) {
+                        $('<div />', {
+                            id: sSelector.substr(1),
+                            style: 'display:none'
+                        }).html(msg).appendTo('body');
                     }
-                });
 
-                f.dropping();
-            });
+                    $('.draggable').draggable({
+                        revert: true,
+                        zIndex: 1000,
+                        start: function(event, ui) {
+                            $(sSelector).show().position({
+                                of: ui.helper.parents('.row-fluid, tr').eq(0),
+                                my: "center top",
+                                at: "center bottom+10",
+                                collision: "flipfit"
+                            });
+                        },
+                        stop: function(event, ui) {
+                            $(sSelector).hide();
+                        }
+                    });
+
+                    f.dropping();
+                });
+            }
         },
 
         /**
@@ -126,6 +130,7 @@
                     var data = {
                         tickets: ui.draggable.data('ticket'),
                         drop: $(this).data('drop'),
+                        week: $(this).data('week'),
                         user: $(this).data('user')
                     };
 
@@ -155,10 +160,32 @@
         },
 
         /**
-         * Hover-Info for kanban-pins
+         * Enable hover/popover
          */
         tooltips: function() {
             $('div.description a, span.theme a, a.tooltip, .tipper').tooltip();
+            $('.j-popover').each(function() {
+                var $this = $(this),
+                    source = $('#' + $this.data('source')),
+                    content = source.css({
+                        width: source.width()
+                    }).html();
+
+                $this.click(function(e) {
+                    e.preventDefault();
+                    $this.find('.tipper').tooltip();
+                });
+                if (content && content.length) {
+                    $this.popover({
+                        html: true,
+                        content: content,
+                        container: 'body'
+                    });
+                }
+                else {
+                    $this.remove();
+                }
+            });
         },
 
         /**
@@ -222,6 +249,13 @@
             $('#change-form').off('submit').on('submit', function(e) {
                 var $this = $(this);
                 f.modal('Modifying tickets', $('#loading').clone().removeAttr('id').css({top:0}).show());
+
+                $('blockquote', $this).each(function() {
+                    var $that = $(this);
+                    $('.ticket' + $that.data('ticket')).css({
+                        opacity: 0.5
+                    });
+                });
 
                 $.ajax({
                     type: 'POST',
@@ -328,11 +362,17 @@
                 var $this = $(this);
                 f.delay(function() {
                     var searchText = $.trim($this.val()),
-                        result, t;
+                        result, t, v, r;
 
                     if (searchText !== '') {
                         result = f.searchable.filter(function() {
-                            t = (new RegExp(searchText, "ig")).exec($(this).text());
+                            v = $(this);
+                            r = new RegExp(searchText, "ig");
+                            t = (r.exec(v.text()));
+                            if (!(t && t.length)) {
+                                t = r.exec(v.parents('tr.bug').data('assignee'));
+                            }
+
                             return (t && t.length);
                         });
 
@@ -549,7 +589,7 @@
              * Open the print-view
              */
             f.bugTable.on('click', 'a.print-link', function() {
-                $('#buglist-form').prop('action', PRINT).submit();
+                $('#buglist-form').prop('target', '_blank').prop('action', PRINT).submit();
             });
 
             /**
@@ -562,19 +602,27 @@
             /**
              * Toggle tickets in team-dash view
              */
-            $('.largeGray').click(function() {
-                $(this).parents('.memberBox').find('.allTickets').toggleClass('hidden');
+            $('.large-number-gray').click(function() {
+                $(this).parents('.member-box').find('.allTickets').toggleClass('hidden');
+            });
+
+            /**
+             * Toggle ticket-list in the team-sprint view
+             */
+            $('.member-name').click(function() {
+                var $this = $(this);
+                $this.parents('.member-box').next('table.bugTable').toggleClass('hidden');
             });
 
             /**
              * Toggle Project-Details/Commentsf
              */
             f.wrapper.on('click', 'a.detail-toggle', function() {
-                $(this).parents('.memberBox').find('.project-detail').toggleClass('hidden');
+                $(this).parents('.member-box').find('.project-detail').toggleClass('hidden');
             });
 
             f.bugTable.on('click', 'a.bugzilla-link', function() {
-                $('#buglist-form').prop('action', GO_BUGZILLA).submit();
+                $('#buglist-form').prop('target', '_blank').prop('action', GO_BUGZILLA).submit();
             });
 
             $('.toggle').on('click', function() {
@@ -583,6 +631,16 @@
 
             $('.toggleNav').on('click', function() {
                 $(this).toggleClass('btn-primary').parents('.nav-list').find('a.toggleChart').trigger('click');
+            });
+
+            $('.toggleNext').each(function() {
+                var $this = $(this),
+                    f = $this.data('toggleNext');
+                $this.on('click', function() {
+                    $this.next(f).toggle();
+                });
+
+                $this.next(f).toggle();
             });
 
             /**
@@ -595,7 +653,9 @@
             /**
              * Init the table-sorter
              */
-            $('.tablesorter').tablesorter();
+            $('.tablesorter').tablesorter({
+                selectorHeaders: '.tableSort > td,th'
+            });
         }
     };
 

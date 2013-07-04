@@ -93,12 +93,13 @@ class Memcache extends AbstractAdapter implements
      * Constructor
      *
      * @param  null|array|Traversable|MemcacheOptions $options
-     * @throws Exception\ExceptionInterface
+     *
+     * @throws \Exception
      */
     public function __construct($options = null) {
 
         if (extension_loaded('memcache') !== true) {
-            throw new Exception\ExtensionNotLoadedException('Need ext/memcache');
+            throw new \Exception('Need ext/memcache');
         }
 
         parent::__construct($options);

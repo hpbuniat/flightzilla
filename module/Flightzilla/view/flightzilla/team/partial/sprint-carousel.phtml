@@ -1,0 +1,59 @@
+<div class="row-fluid member-box">
+    <div class="span12 well">
+        <div class="span2">
+            <?php echo $this->render('flightzilla/team/partial/member.phtml'); ?>
+        </div>
+        <div id="<?php echo $this->sCarousel ?>" class="span10 member-carousel carousel slide" data-interval="false">
+
+            <ol class="carousel-indicators">
+                <?php $iCount = 0;
+                foreach (array_keys($this->aMemberWeekTickets) as $sTitle): ?>
+                    <li data-target="#<?php echo $this->sCarousel ?>" data-slide-to="<?php echo $iCount; ?>" class="<?php echo ($iCount === 1) ? 'active' : ''; ?>"></li>
+                    <?php
+                    $iCount++;
+                endforeach; ?>
+            </ol>
+
+            <div class="carousel-inner">
+                <?php $iCount = 0;
+                $iExpected = \Flightzilla\Model\Timeline\Date::WEEK - ((date('w') - 1) * \Flightzilla\Model\Timeline\Date::AMOUNT);
+                if ($iExpected > \Flightzilla\Model\Timeline\Date::WEEK or $iExpected <= 0) {
+                    $iExpected = \Flightzilla\Model\Timeline\Date::WEEK;
+                }
+
+                foreach ($this->aMemberWeekTickets as $sTitle => $aWeek):
+                    $this->aStack = $aWeek['tickets'];
+                    $aTimes = $this->collectiontime($this->aStack, false, ($iCount === 1) ? $iExpected : \Flightzilla\Model\Timeline\Date::WEEK, \Flightzilla\View\Helper\CollectionTime::TIME_LEFT);
+                    $sEstimationString = sprintf('%sh est. <i class="icon-time"></i> %sh',$aTimes['esti'], $aTimes['left']);
+
+                    ?>
+                    <div class="<?php echo ($iCount === 1) ? 'active' : ''; ?> item">
+                        <div class="row-fluid">
+                            <div class="span3">
+                                <blockquote>
+                                    <p><?php echo sprintf('<span title="%s">%s</span>: (%s)', $aWeek['title'], $sTitle, $sEstimationString); ?></p>
+                                </blockquote>
+                            </div>
+                            <div class="span9">
+                                <div class="progress progress-<?php echo $aTimes['color'];?> progress-striped">
+                                    <div class="bar" style="width: <?php echo $aTimes['planned']; ?>%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <?php
+                        $this->iLimit = 9;
+                        $this->iSplit = 9;
+                        $this->sRowMode = 'resource';
+                        echo $this->render('flightzilla/index/partial/pin-row.phtml');
+                        ?>
+                    </div>
+
+                    <?php $iCount++;
+                endforeach; ?>
+            </div>
+
+            <a class="carousel-control left" href="#<?php echo $this->sCarousel ?>" data-slide="prev">&lsaquo;</a>
+            <a class="carousel-control right" href="#<?php echo $this->sCarousel ?>" data-slide="next">&rsaquo;</a>
+        </div>
+    </div>
+</div>

@@ -5,34 +5,34 @@ return array(
             'home' => array(
                 'type' => 'Literal',
                 'options' => array(
-                    'route'    => '/',
+                    'route' => '/',
                     'defaults' => array(
                         'controller' => 'index',
-                        'action'     => 'index',
+                        'action' => 'index',
                     ),
                 ),
             ),
             'login' => array(
                 'type' => 'Literal',
                 'options' => array(
-                    'route'    => '/login',
+                    'route' => '/login',
                     'defaults' => array(
                         'controller' => 'index',
-                        'action'     => 'login',
+                        'action' => 'login',
                     ),
                 ),
             ),
             'flightzilla' => array(
-                'type'    => 'segment',
+                'type' => 'segment',
                 'options' => array(
-                    'route'    => '/flightzilla[/:controller[/:action]]',
+                    'route' => '/flightzilla[/:controller[/:action]]',
                     'constraints' => array(
                         'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
-                        'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                     ),
                     'defaults' => array(
                         'controller' => 'index',
-                        'action'     => 'index',
+                        'action' => 'index',
                     ),
                 ),
                 'may_terminate' => true,
@@ -46,42 +46,52 @@ return array(
     ),
     'service_manager' => array(
         'factories' => array(
-            '_session' => function(\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
+            '_session' => function (\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
+
                 return new \Zend\Session\Container('flightzilla');
             },
-            '_log' => function(\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
+            '_log' => function (\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
+
                 $oLogger = new \Zend\Log\Logger;
                 $oLogger->addWriter(new Zend\Log\Writer\Stream(sprintf('./log/%s-error.log', date('Y-m-d'))));
 
                 return $oLogger;
             },
-            '_cache' => function(\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
-                //$sAdapter = (extension_loaded('memcached') === true) ? 'memcached' : '\Flightzilla\Cache\Storage\Adapter\Memcache';
-                $sAdapter = '\Flightzilla\Cache\Storage\Adapter\Memcache';
-                return Zend\Cache\StorageFactory::factory(array(
-                    'adapter' => array(
-                        'name' => $sAdapter,
-                        'options' => array(
-                            'ttl'     => 86400, // 1 day
-                            'servers' => array(
-                                array(
-                                    'host' => '127.0.0.1',
-                                    'port' => 11211,
-                                )
-                            ),
-                        )
-                    ),
-                    'plugins' => array(
-                        'serializer'
-                    ),
-                ));
+            '_cache' => function (\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
+
+                $sAdapter = (extension_loaded('memcached') === true) ? 'memcached' : '\Flightzilla\Cache\Storage\Adapter\Memcache';
+                return Zend\Cache\StorageFactory::factory(
+                    array(
+                         'adapter' => array(
+                             'name' => $sAdapter,
+                             'options' => array(
+                                 'ttl' => 86400,
+                                 // 1 day
+                                 'servers' => array(
+                                     array(
+                                         'host' => '127.0.0.1',
+                                         'port' => 11211,
+                                     )
+                                 ),
+                             )
+                         ),
+                         'plugins' => array(
+                             'serializer'
+                         ),
+                    )
+                );
             },
-            '_serviceConfig'=> function(\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
+            '_serviceConfig' => function (\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
+
                 $aConfig = $oServiceManager->get('config');
-                $aConfig = $aConfig['flightzilla'];
-                return new \Zend\Config\Config($aConfig);
+                if (empty($aConfig['flightzilla']) === true) {
+                    throw new \InvalidArgumentException('Missing flightzilla-config-section!');
+                }
+
+                return new \Zend\Config\Config($aConfig['flightzilla']);
             },
-            '_bugzilla' => function(\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
+            '_bugzilla' => function (\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
+
                 $oResource = new \Flightzilla\Model\Resource\Manager;
                 $oHttpClient = new \Zend\Http\Client();
                 $oConfig = $oServiceManager->get('_serviceConfig');
@@ -89,26 +99,51 @@ return array(
 
                 $oTicketSource = new \Flightzilla\Model\Ticket\Source\Bugzilla($oResource, $oHttpClient, $oConfig);
                 $oTicketSource->setCache($oServiceManager->get('_cache'))
-                              ->setAuth($oServiceManager->get('_auth'))
-                              ->setLogger($oServiceManager->get('_log'))
-                              ->setProject($oSession->sCurrentProduct)
-                              ->initHttpClient();
+                    ->setAuth($oServiceManager->get('_auth'))
+                    ->setLogger($oServiceManager->get('_log'))
+                    ->setProject($oSession->sCurrentProduct)
+                    ->initHttpClient();
 
                 return $oTicketSource;
             },
-            '_analytics' => function(\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
+            '_analytics' => function (\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
+
                 $oGdataHttpClient = new \ZendGData\HttpClient();
-                $oGdataHttpClient->setOptions(array(
-                    'sslverifypeer' => false
-                ));
+                $oGdataHttpClient->setOptions(
+                    array(
+                         'sslverifypeer' => false
+                    )
+                );
                 $oConfig = $oServiceManager->get('_serviceConfig');
 
                 $oAnalytics = new \Flightzilla\Model\Analytics\Service($oGdataHttpClient, $oConfig);
                 $oAnalytics->setCache($oServiceManager->get('_cache'))
-                           ->setAuth($oServiceManager->get('_auth'));
+                    ->setAuth($oServiceManager->get('_auth'));
 
                 return $oAnalytics;
             },
+            'notifyy' => function (\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
+                $aConfig = $oServiceManager->get('_serviceConfig')->toArray();
+                $sCurrentUser = $oServiceManager->get('_auth')->getLogin();
+
+                $aNotifyConfig = array();
+                if (empty($aConfig['notifyy'][$sCurrentUser]) !== true) {
+                    $aNotifyConfig = $aConfig['notifyy'][$sCurrentUser];
+                }
+
+                return \notifyy\Builder::build($aNotifyConfig);
+            },
+            'mergy' => function (\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
+                $oConfig = $oServiceManager->get('_serviceConfig')->bugzilla->projects;
+                $oSession = $oServiceManager->get('session');
+
+                $oMergyConfig = new \Zend\Config\Config(array());
+                if (empty($oConfig->{$oSession->sCurrentProduct}->mergy) !== true) {
+                    $oMergyConfig = $oConfig->{$oSession->sCurrentProduct}->mergy;
+                }
+
+                return $oMergyConfig;
+            }
         ),
     ),
     'controllers' => array(
@@ -120,6 +155,7 @@ return array(
             'ticket' => 'Flightzilla\Controller\TicketController',
             'analytics' => 'Flightzilla\Controller\AnalyticsController',
             'team' => 'Flightzilla\Controller\TeamController',
+            'watchlist' => 'Flightzilla\Controller\WatchlistController',
         ),
     ),
     'controller_plugins' => array(
@@ -149,15 +185,15 @@ return array(
     ),
     'view_manager' => array(
         'display_not_found_reason' => true,
-        'display_exceptions'       => true,
-        'doctype'                  => 'HTML5',
-        'not_found_template'       => 'error/404',
-        'exception_template'       => 'error/index',
+        'display_exceptions' => true,
+        'doctype' => 'HTML5',
+        'not_found_template' => 'error/404',
+        'exception_template' => 'error/index',
         'template_map' => array(
-            'layout/layout'           => __DIR__ . '/../view/layout/layout.phtml',
+            'layout/layout' => __DIR__ . '/../view/layout/layout.phtml',
             'flightzilla/index/index' => __DIR__ . '/../view/flightzilla/index/index.phtml',
-            'error/404'               => __DIR__ . '/../view/error/404.phtml',
-            'error/index'             => __DIR__ . '/../view/error/index.phtml',
+            'error/404' => __DIR__ . '/../view/error/404.phtml',
+            'error/index' => __DIR__ . '/../view/error/index.phtml',
         ),
         'template_path_stack' => array(
             __DIR__ . '/../view',

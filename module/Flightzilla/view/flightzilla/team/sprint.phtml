@@ -1,0 +1,39 @@
+<?php echo $this->render('flightzilla/index/partial/header.phtml'); ?>
+
+<div class="row-fluid kanban">
+    <?php
+    if (empty($this->aWeekTickets) === true) {
+        $this->aWeekTickets = array();
+    }
+
+    $iCounter = 0;
+    foreach ($this->aWeekTickets as $this->sMemberName => $this->aMemberWeekTickets) {
+        $iCounter++;
+        $this->sCarousel = sprintf('member-carousel-%s', $iCounter);
+        $this->oResource = $this->oResourceManager->getResource($this->sMemberName);
+        echo $this->render('flightzilla/team/partial/sprint-carousel.phtml');
+
+        $aTickets = array();
+        foreach ($this->aMemberWeekTickets as $aWeek) {
+            $aTickets = array_merge($aTickets, $aWeek['tickets']);
+        }
+
+        echo $this->partial('flightzilla/index/partial/table.phtml', array(
+            'caption' => sprintf('Tickets: %s', $this->sMemberName),
+            'sBugzilla' => $this->layout()->sBugzilla,
+            'bugs' => $aTickets,
+            'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED,
+            'mode' => $this->mode,
+            'sCssClass' => 'hidden'
+        ));
+
+        unset ($aTickets);
+    }
+    ?>
+    <div class="row-fluid">
+        <div class="span12 relative-box">
+            <a class="carousel-control left" href=".member-carousel" data-slide="prev">&lsaquo;</a>
+            <a class="carousel-control right" href=".member-carousel" data-slide="next">&rsaquo;</a>
+        </div>
+    </div>
+</div>

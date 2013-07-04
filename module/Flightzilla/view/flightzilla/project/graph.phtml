@@ -1,0 +1,71 @@
+<?php echo $this->render('flightzilla/index/partial/header.phtml'); ?>
+
+<div class="row-fluid">
+    <?php
+    echo $this->partial('flightzilla/project/partial/sidebar.phtml', array(
+          'sHeading' => 'Project-Graphs',
+          'aStack' => array(),
+          'sContainer' => 'graph-info'
+    ));
+    ?>
+
+    <div id="project-canvas" class="span10 print-fullwidth"></div>
+</div>
+
+<div class="row-fluid">
+    <dl class="dl-horizontal">
+        <dt>Revenue</dt>
+        <dd>The projects expected revenue</dd>
+        <dt>Complexity</dt>
+        <dd>A estimated complexity factor for the project</dd>
+        <dt>Graph-Radius</dt>
+        <dd>The preconditioned dependency in inverse proportion: bigger circle equals less preconditions</dd>
+        <dt>Graph-Color</dt>
+        <dd>The risk dependency: green are standalone-projects, red are projects which are a fundation for other projects</dd>
+    </dl>
+</div>
+
+<div class="row-fluid">
+    <div class="span12">
+        <blockquote>
+            <h3 class="table-toggle">Project-List</h3>
+        </blockquote>
+        <form style="display: none" id="buglist-form" method="get" target="_blank" action="#">
+            <?php
+            echo $this->partial('flightzilla/index/partial/table.phtml', array(
+                  'caption' => 'Projects as List',
+                  'sBugzilla' => $this->layout()->sBugzilla,
+                  'bugs' => $this->aProjects,
+                  'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED,
+                  'mode' => $this->mode,
+                  'aKanban' => $this->aKanban
+            ));
+            ?>
+        </form>
+    </div>
+</div>
+
+<?php $this->inlineScript()
+           ->appendFile($this->basePath() . '/vendor/d3.min.js')
+           ->appendFile($this->basePath() . '/js/graph.js');
+?>
+<script type="text/javascript">
+    $(function() {
+        f.loader.css({
+            top:'-130px'
+        }).show();
+        d3.json(BASE_URL + '/flightzilla/project/graphdata', function(data) {
+            window.graphData = data;
+            f.loader.hide();
+
+            // prepare the bounds
+            graph.bounds = graph.getBounds(data, 1);
+
+            // build nav
+            graph.buildSelect();
+
+            // draw
+            graph.drawScatterPlot(data);
+        });
+    });
+</script>

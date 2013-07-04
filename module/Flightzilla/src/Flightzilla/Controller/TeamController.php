@@ -77,6 +77,7 @@ class TeamController extends AbstractActionController {
         $oViewModel->mode = 'team';
 
         $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
+
         return $oViewModel;
     }
 
@@ -87,9 +88,23 @@ class TeamController extends AbstractActionController {
         $oViewModel = new ViewModel;
         $oViewModel->setTerminal(true);
 
+        /* @var $oTicketService \Flightzilla\Model\Ticket\AbstractSource */
         $oTicketService = $this->getPluginManager()->get(TicketService::NAME)->getService();
         $oViewModel->oResourceManager = $oTicketService->getResourceManager();
         $oViewModel->aTeam = $oTicketService->getTeam();
+        $oViewModel->aWeeks = $oTicketService->getDate()->getWeeks(1);
+
+        return $oViewModel;
+    }
+
+    /**
+     *
+     */
+    public function sprintAction() {
+        $oViewModel = new ViewModel;
+        $oViewModel->mode = 'sprint';
+
+        $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, $oViewModel->mode);
 
         return $oViewModel;
     }

@@ -102,13 +102,9 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
 
         $sPayload = $oTicket->getFlagName(Bug::FLAG_TESTING);
         if (empty($sPayload) !== true) {
-            $this->_aPayload[$sPayload] = \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST;
-            if ($oTicket->isType(Bug::TYPE_BUG) !== true) {
-                $sRequesteePayload = str_replace('flag', 'requestee', $sPayload);
-                $this->_aPayload[$sRequesteePayload] = $oTicket->getReporter();
-            }
+            $this->_aPayload['comment'] = 'Please review the changes!';
+            $this->_getTestingRequestee($oTicket, $sPayload);
 
-            $this->_aPayload['comment'] = 'Please review the changes!' . PHP_EOL . 'Test-Server: ' . (($oTicket->isMerged() === true) ? 'Stable' : 'Development');
         }
 
         return $this;
@@ -123,11 +119,31 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
 
         $sPayload = $oTicket->getFlagName(Bug::FLAG_TESTING, \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_DENIED);
         if (empty($sPayload) !== true) {
-            $this->_aPayload[$sPayload] = \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST;
-            $this->_aPayload['comment'] = 'Please test again!' . PHP_EOL . 'Test-Server: ' . (($oTicket->isMerged() === true) ? 'Stable' : 'Development');
+            $this->_aPayload['comment'] = 'Please test again!';
+            $this->_getTestingRequestee($oTicket, $sPayload);
         }
 
         return $this;
+    }
+
+    /**
+     * Get the testing-requestee
+     *
+     * @param  \Flightzilla\Model\Ticket\AbstractType $oTicket
+     * @param  string $sPayload
+     *
+     * @return $this
+     */
+    protected function _getTestingRequestee(\Flightzilla\Model\Ticket\AbstractType $oTicket, $sPayload) {
+        $this->_aPayload[$sPayload] = \Flightzilla\Model\Ticket\Source\Bugzilla::BUG_FLAG_REQUEST;
+        if ($oTicket->isType(Bug::TYPE_BUG) !== true and $oTicket->getReporter() !== $oTicket->getAssignee()) {
+            $sRequesteePayload = str_replace('flag', 'requestee', $sPayload);
+            $this->_aPayload[$sRequesteePayload] = $oTicket->getReporter();
+        }
+
+        $this->_aPayload['comment'] .=  PHP_EOL . 'Test-Server: ' . (($oTicket->isMerged() === true) ? 'Stable' : 'Development');
+        return $this;
+
     }
 
     /**
@@ -229,6 +245,19 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
 
     /**
      * (non-PHPdoc)
+     * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setSprint()
+     */
+    public function setSprint(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
+        $this->_getCommon($oTicket);
+        if (empty($mPayload) !== true) {
+            $this->_aPayload['cf_release_week'] = $mPayload;
+        }
+
+        return $this;
+    }
+
+    /**
+     * (non-PHPdoc)
      * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setAssigned()
      */
     public function setAssigned(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
@@ -264,8 +293,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\Source\AbstractWriter {
      * @see \Flightzilla\Model\Ticket\Source\AbstractWriter::setConfirmed()
      */
     public function setConfirmed(\Flightzilla\Model\Ticket\AbstractType $oTicket, $mPayload) {
-        if (empty($this->_aPayload['comment']) === true and $oTicket->getStatus() !== Bug::STATUS_REOPENED) {
-            $this->_aPayload['comment'] = 'Paused!';
+        if (empty($this->_aPayload['comment']) === true and $oTicket->getStatus() !== Bug::STATUS_REOPENED and $oTicket->isStatusAtLeast(Bug::STATUS_ASSIGNED) === true) {
+            $this->_aPayload['comment'] = 'I stopped working on this ticket!';
         }
 
         return $this->setStatus($oTicket, Bug::STATUS_CONFIRMED);

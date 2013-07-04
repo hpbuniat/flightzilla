@@ -6,30 +6,6 @@ img {
     padding-left:10px;
 }
 
-.clearfix:after {
-    content: ".";
-    display: block;
-    height: 0;
-    clear: both;
-    visibility: hidden;
-}
-
-.fll {
-    float: left
-}
-
-.flr {
-    float: right
-}
-
-.left {
-    width: 150px
-}
-
-.right {
-    text-align: right
-}
-
 .table th, .table td {
     vertical-align: middle !important;
 }
@@ -166,7 +142,7 @@ div.modal {
     width: 75%;
 }
 
-.largeGray {
+.large-number-gray {
     font-size: 40px;
     bottom: 0;
     position: absolute;
@@ -180,27 +156,45 @@ div.modal {
     height: 75px;
 }
 
-.memberBackground {
+.member-background {
     background-color: white;
     margin: 10px;
-    width: 960px;
+    width: 1040px;
     border: 1px solid #DDDDDD;
     border-radius: 4px 4px 4px 4px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.055);
 }
 
-.memberBackground p {
+.member-background p {
     padding: 0 10px;
 }
 
-.memberLayer {
-    height: 90px;
+.member-layer {
+    height: 110px;
     padding: 5px;
-    width: 150px;
+    width: 160px;
 }
 
-.memberBox .alert {
+.member-layer h5 {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.member-box .alert {
     margin: 5px;
+}
+
+.member-box .carousel-control {
+    top: 165px;
+}
+
+.member-thumbnail {
+    padding-right: 10px;
+    width: 40%;
+}
+
+.btn-column {
+    width: 50px;
 }
 
 .dash .progress {
@@ -213,14 +207,14 @@ img.lazy {
     height: 90px;
 }
 
-.projectBox img.lazy {
+.project-box img.lazy {
     height: 64px;
     width: 120px;
 }
 
 div.progress-heading {
     margin: 10px 15px;
-    width: 100px;
+    width: 120px;
 }
 
 .progress-heading .bar {
@@ -228,7 +222,7 @@ div.progress-heading {
     background-repeat: repeat-x;
 }
 
-h3.table-toggle {
+h4.member-name, h3.table-toggle {
     cursor: pointer;
 }
 
@@ -236,24 +230,120 @@ h3.table-toggle {
     padding: 5px;
 }
 
+.wide-definition .dl-horizontal dt {
+    width: 300px;
+}
+
+.wide-definition .dl-horizontal dd {
+    margin-left: 320px;
+}
+
+.small-definition .dl-horizontal dt {
+    width: 105px;
+}
+
+.small-definition .dl-horizontal dd {
+    margin-left: 110px;
+    overflow: hidden;
+}
+
 @media print {
-    #zend-developer-toolbar {
+    div.print-hide, div.navbar, #zend-developer-toolbar {
         display: none !important;
     }
 
-    * {
-        font-size: 26px !important;
+    .print-box {
+        font-size: 1.06em !important;
+        line-height: 1em !important;
     }
 
     a[href]:after {
         content: "" !important;
     }
 
-    .print-box {
+    tr, img, .print-box {
         page-break-inside: avoid;
     }
 
     i[class|="icon"] {
         display: none !important;
     }
+
+    div.print-fullwidth {
+        width: 99%;
+        height: 99%;
+        margin: 0;
+        page-break-after: always;
+        page-break-inside: avoid;
+    }
+
+    body {
+        padding-top: 10px;
+    }
+
+    /* print.css from bootstrap 3 */
+    pre, blockquote {
+        border: 1px solid #999;
+        page-break-inside: avoid;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    img {
+        max-width: 100% !important;
+    }
+
+    p,h2, h3 {
+        orphans: 3;
+        widows: 3;
+    }
+
+    h2, h3 {
+        page-break-after: avoid;
+    }
+
+    @page {
+        margin: 0.5cm;
+    }
+}
+
+
+/* svg d3 css */
+#xAxis path, #yAxis path, #xAxis line, #yAxis line {
+    fill: none;
+    shape-rendering: crispedges;
+    stroke: #CCCCCC;
+}
+
+rect {
+    fill: transparent;
+}
+
+path.red-line {
+    fill: none;
+    stroke: red;
+    stroke-widdt: 3px;
+    stroke-dasharray: 2, 2;
+}
+
+line, .medianLine {
+    fill: none;
+    stroke: grey;
+    stroke-width: 2px;
+    stroke-dasharray: 5, 5;
+}
+
+line.link {
+    stroke-width: 1px;
+    stroke-dasharray: 2, 2;
+}
+
+text {
+    font-size: 12px;
+}
+
+text.circle-label {
+    text-anchor: middle;
 }

@@ -3,58 +3,89 @@ if (empty($this->bugs) === true) {
     $this->bugs = array();
 }
 
-$aTimes = $this->collectiontime($this->bugs);
-
-if(count($this->bugs) > 0) {?>
-<table class="bugTable table-bordered table-condensed table tablesorter" style="width: 100%; margin-bottom: 10px;">
-    <thead>
-    <tr class="tableHeader">
-        <td colspan="8">
-            <span class="caption <?php if ($this->mode === 'team' and $aTimes['left'] < \Flightzilla\Model\Timeline\Date::AMOUNT):?>red<?php endif;?>">
-                <b><?php echo $this->caption; ?> (<?php echo count($this->bugs); ?>)</b>
-                <?php echo $aTimes['spent'];?>h worked (<?php echo $aTimes['esti']; ?>h estimated) - Left: <?php echo $aTimes['left']; ?>h / <?php echo $aTimes['days']; ?>d
-            </span>
-            <div class="btn-group pull-right">
-                <a class="allBugs btn btn-small" href="javascript:;">All</a>
-                <a class="noBugs btn btn-small" href="javascript:;">None</a>
-                <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
-                    Ticket-List
-                    <span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu">
-                    <li><a href="#" class="changelist">Release-List (Trac)</a></li>
-                    <li><a href="#" class="changemail">Release-List (Mail)</a></li>
-                    <li><a href="#" class="mergelist">Merge-List</a></li>
-                    <li class="divider"></li>
-                    <li><a href="#" class="print-link">Print-View</a></li>
-                    <li><a href="#" class="bugzilla-link">Open in Bugzilla</a></li>
-                    <li class="divider"></li>
-                    <li><a href="#" class="modify-tickets">Modify Tickets</a></li>
-                </ul>
-            </div>
-        </td>
-    </tr>
-
-    <tr class="tableHeader">
-        <th>Prio</th>
-        <th>Bug No.</th>
-        <th>Resolution</th>
-        <th>Status</th>
-        <th class="{sorter: 'digit'}">Times</th>
-        <th>Summary</th>
-        <th></th>
-        <th>Component</th>
-    </tr>
-    </thead>
-    <tbody>
-    <?php
-        foreach($this->bugs as $bug) {
-            $this->bug = $bug;
-            $this->bReady = ($this->ready !== false and $bug->resolution === $this->ready);
-            echo $this->render('flightzilla/index/partial/bug.phtml');
-        }
-    ?>
-    </tbody>
-</table>
-<?php
+if (empty($this->sCssClass) === true) {
+    $this->sCssClass = '';
 }
+
+$iCount = count($this->bugs);
+$sCaption = '';
+if (empty($this->caption) !== true and empty($this->revisions) === true) {
+    $sCaption = sprintf('%s (%d)', $this->caption, $iCount);
+}
+elseif(empty($this->captionTicket) !== true and $this->captionTicket instanceof \Flightzilla\Model\Ticket\Type\Bug) {
+    /* @var $this->captionTicket \Flightzilla\Model\Ticket\Type\Bug */
+    $sCaption = sprintf('%s - <a target="_blank" href="%s/show_bug.cgi?id=%s">%s</a> (%d) %s', $this->captionTicket->id(), $this->layout()->sBugzilla, $this->captionTicket->id(), $this->captionTicket->title(), $iCount, $this->ticketicons($this->captionTicket));
+}
+
+$aTimes = $this->collectiontime($this->bugs);
+$sEstimation = sprintf('%.1fh worked (%.1fh estimated) - Left: %.1fh (%.1fd)', $aTimes['spent'], $aTimes['esti'], $aTimes['left'], $aTimes['days']);
+if (empty($this->revisions) !== true) {
+    $sEstimation = '';
+}
+
+if ($iCount > 0):?>
+    <table class="bugTable table-bordered table-condensed table tablesorter <?php echo $this->sCssClass; ?>" style="width: 100%; margin-bottom: 10px;">
+        <thead>
+        <tr class="tableHeader">
+            <td colspan="8">
+                <span class="caption <?php if ($this->mode === 'team' and $aTimes['left'] < \Flightzilla\Model\Timeline\Date::AMOUNT) { echo "red"; } ?>">
+                    <?php echo sprintf('<b>%s</b> - %s', $sCaption, $sEstimation); ?>
+                </span>
+                <div class="btn-group pull-right print-hide">
+                    <a class="allBugs btn btn-small" href="javascript:;">All</a>
+                    <a class="noBugs btn btn-small" href="javascript:;">None</a>
+                    <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+                        Ticket-List
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" class="changelist">Release-List (Trac)</a></li>
+                        <li><a href="#" class="changemail">Release-List (Mail)</a></li>
+                        <li><a href="#" class="mergelist">Merge-List</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#" class="print-link">Print-View</a></li>
+                        <li><a href="#" class="bugzilla-link">Open in Bugzilla</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#" class="modify-tickets">Modify Tickets</a></li>
+                    </ul>
+                </div>
+            </td>
+        </tr>
+
+        <tr class="tableHeader tableSort">
+            <th>Prio</th>
+            <th>Bug No.</th>
+            <?php if ($this->mode === 'project'):?>
+                <th>Status</th>
+                <th data-sorter="digit">Revenue</th>
+                <th data-sorter="digit">Dependency</th>
+                <th data-sorter="digit">Complexity</th>
+                <th data-sorter="digit">Risk</th>
+                <th>Team</th>
+            <?php else: ?>
+                <th>Resolution</th>
+                <th>Status</th>
+                <th data-sorter="digit">Times</th>
+            <?php endif; ?>
+            <th>Summary</th>
+            <th data-sorter="false"></th>
+            <th>Component</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php
+            if (empty($this->revisions) === true) {
+                foreach($this->bugs as $bug) {
+                    $this->bug = $bug;
+                    $this->bReady = ($this->ready !== false and $bug->resolution === $this->ready);
+
+                    echo $this->render('flightzilla/index/partial/bug.phtml');
+                }
+            }
+            else {
+                echo $this->render('flightzilla/mergy/partial/list.phtml');
+            }
+        ?>
+        </tbody>
+    </table>
+<?php endif;

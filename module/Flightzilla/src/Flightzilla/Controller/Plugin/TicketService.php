@@ -110,6 +110,9 @@ class TicketService extends AbstractPlugin {
         $oTicketService->getBugList();
         $oTicketService->getChangedTicketsWithinDays($oTicketService->getSearchTimeModifier($oTicketService->getLastRequestTime($iRefreshDays), $iRefreshDays));
 
+        // set the sprint-weeks
+        $oView->aWeeks = $oTicketService->getDate()->getWeeks(1);
+
         // gather the ticket-information
         if ($sMode !== 'history') {
             $oView->bugsReopened = $oTicketService->getReopenedBugs();
@@ -117,7 +120,7 @@ class TicketService extends AbstractPlugin {
             $oView->bugsBranch = $oTicketService->getFixedBugsInBranch();
             $oView->bugsTrunk = $oTicketService->getFixedBugsInTrunk();
             $oView->bugsFixed = $oTicketService->getFixedBugsUnknown();
-            $oView->bugsOpen = $oTicketService->getThemedOpenBugs();
+            $oView->bugsOpen = $oTicketService->getThemedTickets();
             $oView->bugsUnthemed = $oTicketService->getUnthemedBugs();
         }
 
@@ -145,6 +148,10 @@ class TicketService extends AbstractPlugin {
             // expose some those objects to the view
             $oView->oTicketService = $oTicketService;
             $oView->oResourceManager = $oTicketService->getResourceManager();
+
+            if ($sMode === 'sprint') {
+                $oView->aWeekTickets = $oTicketService->getWeekSprint($oView->aTeamBugs);
+            }
         }
 
         $oView->iTotal = $oTicketService->getCount();

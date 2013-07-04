@@ -63,7 +63,8 @@ class Deadlinestatus extends AbstractHelper {
      */
     public function __invoke(\Flightzilla\Model\Ticket\Type\Bug $oTicket) {
 
-        if ($oTicket->deadlineStatus()) {
+        $sDeadlineStatus = $oTicket->deadlineStatus();
+        if (empty($sDeadlineStatus) !== true) {
             $sIcon = 'ui-silk-flag-green';
             switch ($oTicket->deadlineStatus()) {
                 case \Flightzilla\Model\Ticket\Type\Bug::DEADLINE_PAST:
@@ -86,7 +87,14 @@ class Deadlinestatus extends AbstractHelper {
                     break;
             }
 
-            return sprintf('&nbsp;<span class="deadline ui-silk %s" title="%s">&nbsp;</span>', $sIcon, $oTicket->getDeadline());
+            $sWeek = $oTicket->getWeek();
+            $sDeadline = $oTicket->getDeadline();
+            if (empty($sWeek) !== true) {
+                $sDeadline = sprintf('%s (%s)', $sDeadline, $sWeek);
+            }
+
+
+            return sprintf('&nbsp;<span class="deadline ui-silk %s" title="%s">&nbsp;</span>', $sIcon, $sDeadline);
         }
 
         return '';

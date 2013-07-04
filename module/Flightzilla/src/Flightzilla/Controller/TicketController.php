@@ -65,11 +65,14 @@ class TicketController extends AbstractActionController {
         $oViewModel->setTerminal(true);
 
         $oViewModel->dropAction = $this->params()->fromPost('drop');
+        $oViewModel->week = $this->params()->fromPost('week');
         $oViewModel->user = $this->params()->fromPost('user');
         $sTickets = $this->params()->fromPost('tickets');
 
         $oTicketService = $this->getPluginManager()->get(TicketService::NAME)->getService();
         $oViewModel->oResourceManager = $oTicketService->getResourceManager();
+        $oViewModel->aWeeks = $oTicketService->getDate()->getWeeks(1);
+
         if (empty($sTickets) !== true) {
             $oViewModel->aTickets = $oTicketService->getBugListByIds($sTickets, false);
         }
@@ -86,20 +89,31 @@ class TicketController extends AbstractActionController {
 
         $aModify = $this->params()->fromPost('modify');
         $aSpecial = array(
+            'assigned',
             'estimation',
+            'sprint',
             'worked',
-            'comment',
-            'assigned'
+            'comment'
         );
         foreach ($aSpecial as $sSpecial) {
             $aTemp = $this->params()->fromPost($sSpecial);
             if (empty($aTemp) !== true) {
                 foreach ($aTemp as $iTicket => $aActions) {
                     foreach ($aActions as $mValue) {
-                        $aModify[$iTicket][] = array(
+
+                        $aAdd = array(
                             'action' => sprintf('set%s', ucfirst($sSpecial)),
                             'value' => $mValue,
                         );
+
+                        if (is_array($aModify[$iTicket]) === true) {
+                            array_unshift($aModify[$iTicket], $aAdd);
+                        }
+                        else {
+                            $aModify[$iTicket] = array(
+                                $aAdd
+                            );
+                        }
                     }
                 }
             }

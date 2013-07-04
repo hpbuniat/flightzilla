@@ -1,0 +1,33 @@
+<?php
+$aProjects = array();
+foreach ($this->aProjects as $oProject) {
+
+    /* @var \Flightzilla\Model\Ticket\Type\Project $oProject */
+    $fRevenue = $oProject->getRevenue();
+    $iComplexity = $oProject->getComplexity();
+    $iRisk = $oProject->getRisk();
+    $iDependency = $oProject->getRevenueProbability();
+
+    if (empty($fRevenue) !== true or (empty($iComplexity) !== true and empty($iRisk) !== true)) {
+        $aProjects[$oProject->id()] = array(
+            'id' => $oProject->id(),
+            'summary' => $oProject->title(),
+            'assignee' => $oProject->getAssignee(true),
+            'status' => ((isset($this->aKanban[$oProject->id()]) === true) ? \Flightzilla\Model\Kanban\Status::$aStatusText[$this->aKanban[$oProject->id()]] : '-'),
+            'revenue' => $fRevenue,
+            'complexity' => $iComplexity,
+            'risk' => $iRisk,
+            'dependency' => $iDependency,
+            'team' => $oProject->getDevelopmentTeam(),
+            'score-estimation' => $oProject->getRevenueScoreEstimation(),
+            'score-real' => $oProject->getRevenueScoreActual(),
+            'estimation' => $oProject->getEstimationTimeOfDependencies(),
+            'worked' => $oProject->getActualTimeOfDependencies(),
+            'left' => $oProject->getLeftTimeOfDependencies(),
+            'depends' => $oProject->getDependentProjects(),
+            'blocked' => $oProject->getBlockedProjects()
+        );
+    }
+}
+
+echo json_encode($aProjects);

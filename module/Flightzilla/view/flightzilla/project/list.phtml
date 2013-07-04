@@ -10,11 +10,10 @@
             <?php
             foreach ($this->aProjects as $iTicket => $oProject) {
                 echo $this->partial('flightzilla/index/partial/table.phtml', array(
-                      'caption' => sprintf('%s - <a target="_blank" href="%s/show_bug.cgi?id=%s">%s</a>', $iTicket, $this->layout()->sBugzilla, $iTicket, $oProject->title()),
+                      'captionTicket' => $oProject,
                       'sBugzilla' => $this->layout()->sBugzilla,
                       'bugs' => $oProject->getDependsAsStack(),
-                      'ready' => 'REVIEWED',
-                      'mode' => $this->mode
+                      'ready' => 'REVIEWED'
                  ));
             }
             ?>

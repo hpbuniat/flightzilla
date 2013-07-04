@@ -8,10 +8,10 @@
 <?php
     foreach ($aStack as $iDeadline => $aTickets) {
         echo $this->partial('flightzilla/index/partial/table.phtml', array(
-            'caption' => sprintf('Deadline at: %s', date('d.m.Y', $iDeadline)),
+            'caption' => sprintf('<span class="%s">Deadline at: %s</span>', (($iDeadline < time() + 86400) ? 'label label-important' : ''), date('d.m.Y', $iDeadline)),
             'sBugzilla' => $this->layout()->sBugzilla,
             'bugs' => $aTickets,
-            'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_REVIEWED
+            'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED
         ));
     }
 

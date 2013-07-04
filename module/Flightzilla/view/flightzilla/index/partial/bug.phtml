@@ -1,4 +1,4 @@
-<tr class="bug"
+<tr class="bug <?php echo sprintf('ticket%s', $this->bug->id()); ?>"
     data-type="<?php echo ucfirst(strtolower($this->bug->getType())); ?>"
     data-assignee="<?php echo (string) $this->bug->getResource() ?>"
     data-component="<?php echo $this->bug->getComponent() ?>"
@@ -16,21 +16,30 @@
         echo $this->deadlinestatus($this->bug);
         ?>
     </td>
-    <?php if (strlen($this->bug->resolution) == 0):?>
-        <td colspan="2" width="10%" class="<?php echo $this->bug->getStatus(); ?>"><?php echo $this->bug->getStatus(); ?></td>
-    <?php else:?>
-        <td width="5%" class="<?php echo $this->bug->getStatus(); ?>"><?php echo substr($this->bug->getStatus(),0,4); ?></td>
-        <td width="5%"><?php echo substr($this->bug->resolution,0,6); ?></td>
-    <?php endif?>
-    <td width="8%">
-        <?php echo $this->estimation($this->bug); ?>
-    </td>
+    <?php if ($this->mode === 'project'):?>
+        <td><?php echo (isset($this->aKanban[$this->bug->id()]) === true) ? \Flightzilla\Model\Kanban\Status::$aStatusText[$this->aKanban[$this->bug->id()]] : '-'; ?></td>
+        <td><?php echo number_format($this->bug->getRevenue(), 0, '', '.'); ?></td>
+        <td><?php echo $this->bug->getRevenueProbability(); ?></td>
+        <td><?php echo $this->bug->getComplexity(); ?></td>
+        <td><?php echo $this->bug->getRisk(); ?></td>
+        <td><?php echo $this->bug->getDevelopmentTeam(); ?></td>
+    <?php else: ?>
+        <?php if (strlen($this->bug->resolution) == 0):?>
+            <td colspan="2" width="10%" class="<?php echo $this->bug->getStatus(); ?>"><?php echo $this->bug->getStatus(); ?></td>
+        <?php else:?>
+            <td width="5%" class="<?php echo $this->bug->getStatus(); ?>"><?php echo substr($this->bug->getStatus(),0,4); ?></td>
+            <td width="5%"><?php echo substr($this->bug->resolution,0,6); ?></td>
+        <?php endif?>
+        <td width="8%">
+            <?php echo $this->estimation($this->bug); ?>
+        </td>
+    <?php endif; ?>
     <td class="bugDesc" data-release="<?php echo $this->escapeHtml($this->bug->getReleaseNote()); ?>" width="50%"><?php echo $this->escapeHtml($this->bug->title()); ?></td>
     <td width="2%">
         <input class="<?php echo $this->workflow($this->bug); ?>" type="checkbox" name="id[]" value="<?php echo $this->bug->id(); ?>"/>
     </td>
     <td class="bugProd" width="13%">
-        <?php echo substr($this->bug->component,0,8)?> <?php if($this->bug->version != 'unspecified') { echo '(' . $this->bug->version . ')'; } ?>
+        <?php echo substr($this->bug->component, 0, 8)?> <?php if ($this->bug->getVersion() !== '') { echo '(' . $this->bug->getVersion() . ')'; } ?>
         <span class="pull-right">
             <a href="javascript:;" data-ticket="<?php echo $this->bug->id(); ?>" class="ticket-detail icon-list"></a>
         </span>
