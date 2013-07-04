@@ -155,6 +155,7 @@ return array(
             'ticket' => 'Flightzilla\Controller\TicketController',
             'analytics' => 'Flightzilla\Controller\AnalyticsController',
             'team' => 'Flightzilla\Controller\TeamController',
+            'watchlist' => 'Flightzilla\Controller\WatchlistController',
         ),
     ),
     'controller_plugins' => array(
