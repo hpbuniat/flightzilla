@@ -162,6 +162,6 @@ class Ticketicons extends AbstractHelper {
             }
         }
 
-        return implode('&nbsp;', $aClasses);
+        return sprintf('&nbsp;%s', implode('&nbsp;', $aClasses));
     }
 }
