@@ -17,6 +17,7 @@
         ?>
     </td>
     <?php if ($this->mode === 'project'):?>
+        <td><?php echo date('Y-m-d', $this->bug->getLastActivityOfDependencies()); ?></td>
         <td><?php echo (isset($this->aKanban[$this->bug->id()]) === true) ? \Flightzilla\Model\Kanban\Status::$aStatusText[$this->aKanban[$this->bug->id()]] : '-'; ?></td>
         <td><?php echo number_format($this->bug->getRevenue(), 0, '', '.'); ?></td>
         <td><?php echo $this->bug->getRevenueProbability(); ?></td>

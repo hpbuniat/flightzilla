@@ -107,8 +107,9 @@ class TicketService extends AbstractPlugin {
         $oTicketService = $this->getService();
         /* @var $oTicketService \Flightzilla\Model\Ticket\Source\Bugzilla */
 
-        $oTicketService->getBugList();
-        $oTicketService->getChangedTicketsWithinDays($oTicketService->getSearchTimeModifier($oTicketService->getLastRequestTime($iRefreshDays), $iRefreshDays));
+        $oTicketService->getBugList()
+                       ->getChangedTicketsWithinDays($oTicketService->getSearchTimeModifier($oTicketService->getLastRequestTime($iRefreshDays), $iRefreshDays))
+                       ->warmUp();
 
         // set the sprint-weeks
         $oView->aWeeks = $oTicketService->getDate()->getWeeks(1);

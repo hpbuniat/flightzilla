@@ -313,11 +313,11 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     protected $_aFlagCache = array();
 
     /**
-     * This bugs theme
+     * This bugs container
      *
-     * @var int
+     * @var int|null
      */
-    protected $_iTheme = array();
+    protected $_iContainer = null;
 
     /**
      * The type of the bug
@@ -460,26 +460,35 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
-     * Set the theme
+     * Set the container of this ticket
      *
-     * @param  int $iTheme
+     * @param  int $iContainer
      *
      * @return Bug
      */
-    public function setTheme($iTheme) {
+    public function setContainer($iContainer) {
 
-        $this->_iTheme = $iTheme;
+        $this->_iContainer = $iContainer;
         return $this;
     }
 
     /**
-     * Get the theme
+     * Get the container of this ticket
      *
      * @return int
      */
-    public function getTheme() {
+    public function getContainer() {
 
-        return $this->_iTheme;
+        return $this->_iContainer;
+    }
+
+    /**
+     * Check if the ticket has a container
+     *
+     * @return boolean
+     */
+    public function hasContainer() {
+        return (empty($this->_iContainer) === false);
     }
 
     /**
@@ -792,8 +801,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         }
 
         if ($this->_iEndDate < $this->getStartDate($iCalled)) {
-            $this->_oBugzilla->getLogger()
-            ->info(sprintf('End-Date < Start-Date! -> Ticket: %s, Start: %s, End: %s', $this->id(), date('Y-m-d', $this->getStartDate()), date('Y-m-d', $this->_iEndDate)));
+            $this->_oBugzilla->getLogger()->info(sprintf('End-Date < Start-Date! -> Ticket: %s, Start: %s, End: %s', $this->id(), date('Y-m-d', $this->getStartDate()), date('Y-m-d', $this->_iEndDate)));
         }
 
         return $this->_iEndDate;
@@ -902,7 +910,6 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         }
 
         $this->_bContainer = ($this->isTheme() === true or $this->isProject() === true);
-
         return $this;
     }
 
@@ -1338,10 +1345,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             foreach ($aTickets as $oTicket) {
                 /* @var Bug $oTicket */
                 try {
-                    if ($oTicket->isContainer() === false) {
-                        if ($oTicket->isClosed() !== true) {
-                            $bReturn = true;
-                        }
+                    if ($oTicket->isContainer() === false and $oTicket->isClosed() !== true) {
+                        $bReturn = true;
                     }
 
                     $this->_aDepends[$oTicket->id()] = $oTicket->id();
@@ -1675,6 +1680,29 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     public function getLastActivity() {
 
         return strtotime($this->_data->delta_ts);
+    }
+
+    /**
+     * Get the date of the last-activity of the dependencies
+     *
+     * @return float
+     */
+    public function getLastActivityOfDependencies() {
+
+        $aTimes = array();
+        $aDepends = $this->getDependsAsStack();
+        foreach ($aDepends as $oTicket) {
+            /* @var $oTicket Bug */
+            $aTimes[] = $oTicket->getLastActivity();
+        }
+
+        rsort($aTimes);
+        $iActivity = reset($aTimes);
+        if (empty($iActivity) === true) {
+            $iActivity = $this->getLastActivity();
+        }
+
+        return $iActivity;
     }
 
     /**

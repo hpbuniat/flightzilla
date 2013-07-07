@@ -51,6 +51,7 @@
  */
 namespace Flightzilla\View\Helper;
 
+use Flightzilla\Model\Ticket\Source\Writer\Exception;
 use Zend\View\Helper\AbstractHelper;
 use Flightzilla\Model\Ticket\Type\Bug;
 use Flightzilla\Model\Ticket\Source\Bugzilla;
@@ -145,21 +146,8 @@ class Ticketicons extends AbstractHelper {
         if ($oBug->isType(Bug::TYPE_BUG) === true) {
             $aClasses[] = '<span class="ui-silk ui-silk-bug" title="' . Bug::TYPE_BUG . '">&nbsp;</span>';
         }
-        elseif ($oBug->isContainer() !== true) {
-            $aBlocks = $oBug->blocks();
-            $oService = $oBug->getTicketService();
-            $bHasContainer = false;
-            foreach ($aBlocks as $iBlocks) {
-                $oBlocks = $oService->getBugById($iBlocks);
-                if ($oBlocks->isContainer() === true) {
-                    $bHasContainer = true;
-                    break;
-                }
-            }
-
-            if ($bHasContainer === false) {
-                $aClasses[] = sprintf('<i class="%s" title="Feature with no container!">&nbsp;</i>', self::ICON_WARNING);
-            }
+        elseif ($oBug->isContainer() === false and $oBug->hasContainer() === false) {
+            $aClasses[] = sprintf('<i class="%s" title="Feature with no container!">&nbsp;</i>', self::ICON_WARNING);
         }
 
         return sprintf('&nbsp;%s', implode('&nbsp;', $aClasses));

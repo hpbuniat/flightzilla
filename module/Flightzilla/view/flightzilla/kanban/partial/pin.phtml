@@ -20,11 +20,11 @@
         <?php
         echo $this->estimation($this->oTicket, 'board');
 
-        $iTheme = $this->oTicket->getTheme();
-        if (empty($iTheme) !== true):
+        $iContainer = $this->oTicket->getContainer();
+        if (empty($iContainer) !== true):
             ?>
             <span class="pull-left theme label label-info">
-                <a class="bugLink" target="_blank" data-title="<?php echo $this->escapeHtml($this->aThemes[$iTheme]); ?>" href="<?php echo $this->layout()->sBugzilla; ?>/show_bug.cgi?id=<?php echo $iTheme; ?>"><?php echo $iTheme; ?></a>
+                <a class="bugLink" target="_blank" data-title="<?php echo $this->escapeHtml($this->aThemes[$iContainer]); ?>" href="<?php echo $this->layout()->sBugzilla; ?>/show_bug.cgi?id=<?php echo $iContainer; ?>"><?php echo $iContainer; ?></a>
             </span>
             <?php
         endif;
