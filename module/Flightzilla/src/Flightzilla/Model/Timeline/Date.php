@@ -130,6 +130,63 @@ class Date {
     );
 
     /**
+     * The holidays
+     */
+    protected $_aHolidays = array();
+
+    /**
+     * Create the date-helper and pre-calculate the holidays
+     */
+    public function __construct() {
+        // Static holidays
+        $iYear = date('Y');
+        $iNextYear = $iYear + 1;
+        $aHolidays['01.01.' . $iYear] = '01.01.' . $iYear; // Neujahrstag
+        $aHolidays['01.01.' . $iNextYear] = '01.01.' . $iNextYear; // Neujahrstag
+        $aHolidays['01.05.' . $iYear] = '01.05.' . $iYear; // Tag der Arbeit
+        $aHolidays['01.05.' . $iNextYear] = '01.05.' . $iNextYear; // Tag der Arbeit
+        $aHolidays['03.10.' . $iYear] = '03.10.' . $iYear; // Tag der Deutschen Einheit
+        $aHolidays['03.10.' . $iNextYear] = '03.10.' . $iNextYear; // Tag der Deutschen Einheit
+        $aHolidays['31.10.' . $iYear] = '31.10.' . $iYear; // Reformationstag
+        $aHolidays['31.10.' . $iNextYear] = '31.10.' . $iNextYear; // Reformationstag
+        $aHolidays['25.12.' . $iYear] = '25.12.' . $iYear; // Erster Weihnachtstag
+        $aHolidays['25.12.' . $iNextYear] = '25.12.' . $iNextYear; // Erster Weihnachtstag
+        $aHolidays['26.12.' . $iYear] = '26.12.' . $iYear; // Zweiter Weihnachtstag
+        $aHolidays['26.12.' . $iNextYear] = '26.12.' . $iNextYear; // Zweiter Weihnachtstag
+
+        // Bewegliche Feiertage berechnen
+        $days = 60 * 60 * 24;
+        $aYears = array(
+            $iYear,
+            $iNextYear
+        );
+
+        foreach ($aYears as $iTheYear) {
+            $easterSunday = easter_date($iTheYear);
+            $sKarFreitag = date("d.m.Y", $easterSunday - 2 * $days); // Karfreitag
+            $aHolidays[$sKarFreitag] = $sKarFreitag; // Karfreitag
+            $sOsterMontag = date("d.m.Y", $easterSunday + 1 * $days); // Ostermontag
+            $aHolidays[$sOsterMontag] = $sOsterMontag; // Ostermontag
+            $sHimmelfahrt = date("d.m.Y", $easterSunday + 39 * $days); // Himmelfahrt
+            $aHolidays[$sHimmelfahrt] = $sHimmelfahrt; // Himmelfahrt
+            $sPfingstMontag = date("d.m.Y", $easterSunday + 50 * $days); // Pfingstmontag
+            $aHolidays[$sPfingstMontag] = $sPfingstMontag; // Pfingstmontag
+
+            // get the wednesday before the 23rd of november
+            $iDate = mktime(0, 0, 0, 11, 23, $iTheYear);
+            do {
+                $iDate -= 86400;
+                $date = getdate($iDate);
+                $weekday = $date['wday'];
+            }
+            while ($weekday !== 3);
+
+            $sBettag = date('d.m.Y', $iDate);
+            $aHolidays[$sBettag] = $sBettag; // Buß - und Bettag
+        }
+    }
+
+    /**
      * Check if a day is a holiday or a day of the weekend.
      *
      * @param $iTimestamp
@@ -138,9 +195,12 @@ class Date {
      */
     public function isWorkFreeDay($iTimestamp) {
 
-        $day = date('d', $iTimestamp);
-        $month = date('m', $iTimestamp);
-        $year = date('Y', $iTimestamp);
+        $sDate = date('d.m.Y', $iTimestamp);
+        $aDate = explode('.', $sDate);
+        $day = $aDate[0];
+        $month = $aDate[1];
+        $year = $aDate[2];
+        unset($aDate);
 
         // Parameter in richtiges Format bringen
         if (strlen($day) === 1) {
@@ -154,41 +214,7 @@ class Date {
         $date = getdate(mktime(0, 0, 0, $month, $day, $year));
         $weekday = $date['wday'];
 
-        // Prüfen, ob Wochenende
-        if ($weekday == 0 or $weekday == 6) {
-            return true;
-        }
-
-        // Feste Feiertage werden nach dem Schema ddmm eingetragen
-        $aHolidays[] = "0101"; // Neujahrstag
-        $aHolidays[] = "0105"; // Tag der Arbeit
-        $aHolidays[] = "0310"; // Tag der Deutschen Einheit
-        $aHolidays[] = "3110"; // Reformationstag
-        $aHolidays[] = "2512"; // Erster Weihnachtstag
-        $aHolidays[] = "2612"; // Zweiter Weihnachtstag
-
-        // Bewegliche Feiertage berechnen
-        $days = 60 * 60 * 24;
-        $easterSunday = easter_date($year);
-        $aHolidays[] = date("dm", $easterSunday - 2 * $days); // Karfreitag
-        $aHolidays[] = date("dm", $easterSunday + 1 * $days); // Ostermontag
-        $aHolidays[] = date("dm", $easterSunday + 39 * $days); // Himmelfahrt
-        $aHolidays[] = date("dm", $easterSunday + 50 * $days); // Pfingstmontag
-
-        // get the wednesday before the 23rd of november
-        $iDate = mktime(0, 0, 0, 11, 23, date('Y'));
-        do {
-            $iDate -= 86400;
-            $date = getdate($iDate);
-            $weekday = $date['wday'];
-        }
-        while ($weekday !== 3);
-
-        $aHolidays[] = date('dm', $iDate); // Buß - und Bettag
-
-        // Prüfen, ob Feiertag
-        $code = $day . $month;
-        return (in_array($code, $aHolidays) === true) ? true : false;
+        return ($weekday == 0 or $weekday == 6 or isset($this->_aHolidays[$sDate]) === true) ? true : false;
     }
 
     /**
