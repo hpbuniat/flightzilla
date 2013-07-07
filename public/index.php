@@ -18,19 +18,11 @@ ini_set('memory_limit', '256M');
 include 'init_autoloader.php';
 
 /*
-include_once '/usr/share/php/xhprof_lib/utils/xhprof_lib.php';
-include_once '/usr/share/php/xhprof_lib/utils/xhprof_runs.php';
-xhprof_enable(XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY); // start function
+define('XHPROF_ACTIVE', true);
+require_once(APPLICATION_PATH . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'xhgui' . DIRECTORY_SEPARATOR . 'external' . DIRECTORY_SEPARATOR . 'header.php');
 /**/
 
 // Run flightzilla!
 Zend\Mvc\Application::init(include 'config/application.config.php')->run();
-
-/*
-$profiler_namespace = 'flightzilla';  // namespace for your application
-$xhprof_data = xhprof_disable();  // stop function
-$xhprof_runs = new XHProfRuns_Default();
-$run_id = $xhprof_runs->save_run($xhprof_data, $profiler_namespace);  // save
-/**/
 
 
