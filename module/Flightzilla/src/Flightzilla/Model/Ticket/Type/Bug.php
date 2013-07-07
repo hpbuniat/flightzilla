@@ -418,9 +418,11 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function __wakeup() {
 
-        $this->_data = simplexml_load_string($this->_sleep);
-        $this->_getFlags();
-        $this->_getProperties();
+        if (($this->_data instanceof \SimpleXMLElement ) !== true) {
+            $this->_data = simplexml_load_string($this->_sleep);
+            $this->_getFlags();
+            $this->_getProperties();
+        }
     }
 
     /**
@@ -494,7 +496,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             /* @var $oBlocked Bug */
 
             if ($oBlocked->isProject() === true) {
-                $aProjects[$oBlocked->id()] = $oBlocked;
+                $aProjects[$iBlocked] = $oBlocked;
             }
         }
 
@@ -863,10 +865,11 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function doesDependOn(Bug $oBug) {
 
-        if ($this->hasDependencies()) {
+        if ($this->hasDependencies() === true) {
+            $iTicket = $oBug->id();
             $aDependencies = $this->getDepends();
-            foreach ($aDependencies as $iTicket) {
-                if ($oBug->id() === $this->_oBugzilla->getBugById($iTicket)->id()) {
+            foreach ($aDependencies as $iDepends) {
+                if ($iTicket === $iDepends) {
                     return true;
                 }
             }
@@ -898,7 +901,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
             $this->_sType = ($this->isConcept() === true) ? self::TYPE_CONCEPT : self::TYPE_FEATURE;
         }
 
-        $this->_bContainer = ($this->isTheme() or $this->isProject());
+        $this->_bContainer = ($this->isTheme() === true or $this->isProject() === true);
 
         return $this;
     }
@@ -1185,11 +1188,11 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     public function getDependsAsStack($sStatusAtMost = Bug::STATUS_CLOSED) {
 
         $aStack = array();
-        foreach ($this->getDepends() as $iTicket) {
-
-            $oTicket = $this->_oBugzilla->getBugById($iTicket);
+        $aTickets = $this->_oBugzilla->getBugListByIds($this->getDepends());
+        foreach ($aTickets as $oTicket) {
+            /* @var $oTicket Bug */
             if ($oTicket->isStatusAtMost($sStatusAtMost) === true) {
-                $aStack[$iTicket] = $oTicket;
+                $aStack[$oTicket->id()] = $oTicket;
             }
         }
 
@@ -1219,11 +1222,13 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     public function getLeftTimeOfDependencies() {
 
         $fLeft    = 0;
-        $aDepends = $this->getDepends();
-        foreach ($aDepends as $iTicket) {
-            $fLeft += (float) $this->_oBugzilla->getBugById($iTicket)->getLeftHours();
+        $aDepends = $this->getDependsAsStack();
+        foreach ($aDepends as $oTicket) {
+            /* @var $oTicket Bug */
+            $fLeft += (float) $oTicket->getLeftHours();
         }
 
+        unset($aDepends);
         return $fLeft;
     }
 
@@ -1235,11 +1240,13 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     public function getEstimationTimeOfDependencies() {
 
         $fEstimation = 0;
-        $aDepends    = $this->getDepends();
-        foreach ($aDepends as $iTicket) {
-            $fEstimation += (float) $this->_oBugzilla->getBugById($iTicket)->getEstimation();
+        $aDepends = $this->getDependsAsStack();
+        foreach ($aDepends as $oTicket) {
+            /* @var $oTicket Bug */
+            $fEstimation += (float) $oTicket->getEstimation();
         }
 
+        unset($aDepends);
         return $fEstimation;
     }
 
@@ -1251,11 +1258,13 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     public function getActualTimeOfDependencies() {
 
         $fActual  = 0;
-        $aDepends = $this->getDepends();
-        foreach ($aDepends as $iTicket) {
-            $fActual += (float) $this->_oBugzilla->getBugById($iTicket)->getActualTime();
+        $aDepends = $this->getDependsAsStack();
+        foreach ($aDepends as $oTicket) {
+            /* @var $oTicket Bug */
+            $fActual += (float) $oTicket->getActualTime();
         }
 
+        unset($aDepends);
         return $fActual;
     }
 
@@ -1868,6 +1877,10 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     public function isStatusAtMost($sComparisonStatus) {
 
         $sStatus = $this->getStatus();
+        if ($sComparisonStatus === self::STATUS_CLOSED) {
+            return true;
+        }
+
         if (isset($this->_mappedStatus[$sComparisonStatus]) === false) {
             throw new BugException(sprintf(BugException::INVALID_STATUS, $this->id(), $sComparisonStatus));
         }
