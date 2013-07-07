@@ -179,40 +179,41 @@ class Human {
      */
     public function getNextHigherPriorityTicket(Bug $oTicket, $bOnlyActive = true) {
 
-        if (isset($this->_aNextHigherPrioTickets[$oTicket->id()]) === true) {
-            $this->_aTickets[$this->_aNextHigherPrioTickets[$oTicket->id()]];
+        $iTicketId = $oTicket->id();
+        if (isset($this->_aNextHigherPrioTickets[$iTicketId]) === true) {
+            $this->_aTickets[$this->_aNextHigherPrioTickets[$iTicketId]];
         }
 
         $nextPrioTicket = $oTicket;
-        foreach ($this->_aTickets as $ticket) {
-            $sStatus = $ticket->getStatus();
+        foreach ($this->_aTickets as $oIterate) {
+            $sStatus = $oIterate->getStatus();
             if (($bOnlyActive === true
                 and $sStatus !== Bug::STATUS_CONFIRMED
                 and $sStatus !== Bug::STATUS_ASSIGNED
                 and $sStatus !== Bug::STATUS_REOPENED)
-                    or $ticket->isContainer() === true
+                    or $oIterate->isContainer() === true
             ) {
 
                 continue;
             }
 
-            if ($ticket->isStatusAtMost(Bug::STATUS_REOPENED) === true and in_array($ticket->id(), $this->_aNextHigherPrioTickets) !== true) {
-                if ($ticket->getPriority(true) > $nextPrioTicket->getPriority(true)) {
-                    $nextPrioTicket = $ticket;
+            if ($oIterate->isStatusAtMost(Bug::STATUS_REOPENED) === true and in_array($oIterate->id(), $this->_aNextHigherPrioTickets) !== true) {
+                if ($oIterate->getPriority(true) > $nextPrioTicket->getPriority(true)) {
+                    $nextPrioTicket = $oIterate;
                 }
-                elseif ($ticket->getPriority(true) === $nextPrioTicket->getPriority(true)) {
-                    if ($ticket->getSeverity(true) > $nextPrioTicket->getSeverity(true)) {
-                        $nextPrioTicket = $ticket;
+                elseif ($oIterate->getPriority(true) === $nextPrioTicket->getPriority(true)) {
+                    if ($oIterate->getSeverity(true) > $nextPrioTicket->getSeverity(true)) {
+                        $nextPrioTicket = $oIterate;
                     }
                 }
             }
         }
 
-        if ($bOnlyActive === true and $oTicket->id() === $nextPrioTicket->id()) {
+        if ($bOnlyActive === true and $iTicketId === $nextPrioTicket->id()) {
             $nextPrioTicket = $this->getNextHigherPriorityTicket($oTicket, false);
         }
 
-        $this->_aNextHigherPrioTickets[$oTicket->id()] = $nextPrioTicket->id();
+        $this->_aNextHigherPrioTickets[$iTicketId] = $nextPrioTicket->id();
         return $nextPrioTicket;
     }
 
