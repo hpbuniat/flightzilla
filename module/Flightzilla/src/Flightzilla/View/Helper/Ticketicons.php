@@ -146,7 +146,7 @@ class Ticketicons extends AbstractHelper {
         if ($oBug->isType(Bug::TYPE_BUG) === true) {
             $aClasses[] = '<span class="ui-silk ui-silk-bug" title="' . Bug::TYPE_BUG . '">&nbsp;</span>';
         }
-        elseif ($oBug->isContainer() === false and $oBug->hasContainer() === false) {
+        elseif ($oBug->isContainer() === false and $oBug->hasContainer() === false and $oBug->isAdministrative() === false) {
             $aClasses[] = sprintf('<i class="%s" title="Feature with no container!">&nbsp;</i>', self::ICON_WARNING);
         }
 
