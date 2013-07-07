@@ -462,7 +462,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     /**
      * Set the container of this ticket
      *
-     * @param  int $iContainer
+     * @param  int|boolean $iContainer
      *
      * @return Bug
      */
@@ -488,7 +488,48 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return boolean
      */
     public function hasContainer() {
+        if (is_null($this->_iContainer) === true) {
+            $this->findContainer();
+        }
+
         return (empty($this->_iContainer) === false);
+    }
+
+    /**
+     * Find the theme to a ticket
+     *
+     * @return boolean
+     */
+    public function findContainer() {
+
+        if ($this->isContainer() === true) {
+            $this->setContainer(false);
+        }
+        elseif (is_null($this->_iContainer) === true) {
+            $bHasContainer = false;
+            foreach ($this->blocks() as $iBlocks) {
+                try {
+                    $oBlocks = $this->_oBugzilla->getBugById($iBlocks);
+                    if ($oBlocks->isContainer() === true) {
+                        $bHasContainer = true;
+                        $this->setContainer($iBlocks);
+                        $this->_oBugzilla->addTheme($oBlocks);
+                        break;
+                    }
+                }
+                catch (Bug\Exception $e) {
+                    /* nop */
+                    unset($e);
+                }
+            }
+
+            // to prevent an endless-loop with hasContainer()
+            if ($bHasContainer === false) {
+                $this->setContainer(false);
+            }
+        }
+
+        return $this->hasContainer();
     }
 
     /**
@@ -525,12 +566,12 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
 
         $mDuplicate = $this->getDupe();
         if ($mDuplicate !== false) {
-            $this->_aBlocks[] = (int) $mDuplicate;
+            $this->_aBlocks[(int) $mDuplicate] = (int) $mDuplicate;
         }
 
         if ($this->doesBlock() === true) {
             foreach ($this->_data->blocked as $iBlocked) {
-                $this->_aBlocks[] = (int) $iBlocked;
+                $this->_aBlocks[(int) $iBlocked] = (int) $iBlocked;
             }
         }
 

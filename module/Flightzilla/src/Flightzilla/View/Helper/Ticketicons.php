@@ -86,10 +86,10 @@ class Ticketicons extends AbstractHelper {
         $aClasses = array();
         if ($oBug->isStatusAtLeast(Bug::STATUS_RESOLVED) === true) {
             if ($oBug->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED) === true) {
-                $aClasses[] = sprintf('<i class="%s"></i>', self::ICON_CHECKED);
+                $aClasses[] = sprintf('<i class="%s" title="%s"></i>', self::ICON_CHECKED, Bug::FLAG_TESTING);
             }
             else {
-                $aClasses[] = sprintf('<i class="%s"></i>', self::ICON_RESOLVED);
+                $aClasses[] = sprintf('<i class="%s" title="%s"></i>', self::ICON_RESOLVED, Bug::STATUS_RESOLVED);
             }
         }
 

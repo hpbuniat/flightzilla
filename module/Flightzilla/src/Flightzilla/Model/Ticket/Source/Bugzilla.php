@@ -612,25 +612,23 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $bCache = ($bCache or $this->_config->bugzilla->useOnlyCache);
 
         foreach ($aBugIds as $iBugId) {
-            if ($bCache === true and empty($this->_allBugs[$iBugId]) !== true) {
-                $aTemp[]             = $this->_allBugs[$iBugId];
-                $aCacheHits[$iBugId] = $iBugId;
-            }
-            elseif ($bCache === false and empty($this->_aInternalCache[$iBugId]) !== true) {
-                $aTemp[]             = $this->_allBugs[$iBugId];
+            if (($bCache === true and empty($this->_allBugs[$iBugId]) !== true)
+                or ($bCache === false and empty($this->_aInternalCache[$iBugId]) !== true)) {
+                $aTemp[$iBugId]             = $this->_allBugs[$iBugId];
                 $aCacheHits[$iBugId] = $iBugId;
             }
             else {
                 if ($bCache === true and empty($this->_aInternalCache[$iBugId]) === true) {
                     $oBug = $this->_oCache->getItem($this->_getBugHash($iBugId));
                     if ($oBug instanceof \Flightzilla\Model\Ticket\AbstractType) {
-                        $aTemp[]             = $oBug;
+                        $aTemp[$iBugId]             = $oBug;
                         $aCacheHits[$iBugId] = $iBugId;
                     }
                 }
 
-                if ($bCache === false) {
+                if ($bCache === false or empty($aTemp[$iBugId]) === true) {
                     $aRequest[] = $iBugId;
+                    unset($aCacheHits[$iBugId]);
                 }
 
                 if (isset($this->_aInternalCache[$iBugId]) !== true) {
@@ -670,42 +668,13 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         foreach ($aTemp as $oBug) {
             /* @var $oBug Bug */
             $iId = $oBug->id();
+            $oBug->inject($this, $this->_oResource, $this->_oDate);
+            $this->_oResource->addTicket($oBug);
 
-            $bAdd = true;
-            foreach ($this->_aProject as $aProduct) {
-                if (strtolower($aProduct['name']) === strtolower($oBug->product)) {
-                    if (isset($aProduct['theme']) === true) {
-                        $bAdd     = false;
-                        $aBlocked = $oBug->blocks();
-                        if (is_array($aBlocked) === true) {
-                            foreach ($aBlocked as $sBlocks) {
-                                if ($aProduct['theme'] === $sBlocks) {
-                                    $bAdd = true;
-                                }
-                            }
-                        }
-                    }
-                    elseif (isset($aProduct['exclude_components']) === true) {
-                        if (in_array($oBug->component, $aProduct['exclude_components']) === true) {
-                            $bAdd = false;
-                        }
-                    }
-                }
-            }
-
-            if ($bAdd === true) {
-                $oBug->inject($this, $this->_oResource, $this->_oDate);
-                $this->_oResource->addTicket($oBug);
-
-                $aReturn[$iId] = $oBug;
-                $this->_allBugs[$iId] = $oBug;
-                if ($oBug->isContainer() === true) {
-                    $this->_aThemes[$iId] = $oBug;
-                }
-
-                if ($oBug->isProject() === true) {
-                    $this->_aProjects[$iId] = $oBug;
-                }
+            $aReturn[$iId] = $oBug;
+            $this->_allBugs[$iId] = $oBug;
+            if ($oBug->isContainer() === true) {
+                $this->addTheme($oBug);
             }
 
             if (empty($aCacheHits[$iId]) === true) {
@@ -715,6 +684,23 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         ksort($aReturn);
         return $aReturn;
+    }
+
+    /**
+     * Add a theme
+     *
+     * @param  Bug $oTheme
+     *
+     * @return $this
+     */
+    public function addTheme(Bug $oTheme) {
+        $iId = $oTheme->id();
+        $this->_aThemes[$iId] = $oTheme;
+        if ($oTheme->isProject() === true) {
+            $this->_aProjects[$iId] = $oTheme;
+        }
+
+        return $this;
     }
 
     /**
@@ -822,7 +808,6 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             }
         }
 
-
         ksort($this->_openBugs);
         ksort($this->_fixedBugs);
         ksort($this->_reopenedBugs);
@@ -841,7 +826,25 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             foreach ($this->_allBugs as $oTicket) {
                 foreach ($this->_aProject as $aProduct) {
                     if (strtolower($aProduct['name']) === strtolower($oTicket->product)) {
-                        $this->_aAllTicketsCurrentProject[$oTicket->id()] = $oTicket;
+                        $bAdd = true;
+                        if (isset($aProduct['theme']) === true) {
+                            $bAdd     = false;
+                            $aBlocked = $oTicket->blocks();
+                            foreach ($aBlocked as $sBlocks) {
+                                if ($aProduct['theme'] === $sBlocks) {
+                                    $bAdd = true;
+                                }
+                            }
+                        }
+                        elseif (isset($aProduct['exclude_components']) === true) {
+                            if (in_array($oTicket->component, $aProduct['exclude_components']) === true) {
+                                $bAdd = false;
+                            }
+                        }
+
+                        if ($bAdd === true) {
+                            $this->_aAllTicketsCurrentProject[$oTicket->id()] = $oTicket;
+                        }
                     }
                 }
             }
@@ -1400,10 +1403,9 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $aThemed = array();
         foreach ($aTickets as $oTicket) {
             /* @var $oTicket Bug */
-            $bHasContainer = $this->_findContainer($oTicket);
-            if ($bHasContainer === true) {
-                $iContainer                    = $oTicket->getContainer();
-                $oContainer                    = $this->getBugById($iContainer);
+            if ($oTicket->findContainer() === true) {
+                $iContainer = $oTicket->getContainer();
+                $oContainer = $this->getBugById($iContainer);
                 $aThemed[$oContainer->id() . ' ' . $oContainer->title()][$oTicket->id()] = $oTicket;
             }
         }
@@ -1427,17 +1429,17 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      */
     protected function _findUnthemedBugs() {
 
-        $openBugs         = $this->getOpenBugs();
+        $aOpenTickets     = $this->getOpenBugs();
         $this->_aUnthemed = array();
-        foreach ($openBugs as $oBug) {
-            /* @var $oBug Bug */
-            if ($oBug->isContainer() !== true) {
-                if ($oBug->doesBlock() !== true) {
-                    $this->_aUnthemed[$oBug->id()] = $oBug;
+        foreach ($aOpenTickets as $oTicket) {
+            /* @var $oTicket Bug */
+            if ($oTicket->isContainer() !== true) {
+                if ($oTicket->doesBlock() !== true) {
+                    $this->_aUnthemed[$oTicket->id()] = $oTicket;
                 }
                 else {
-                    if ($this->_findContainer($oBug) === false) {
-                        $this->_aUnthemed[$oBug->id()] = $oBug;
+                    if ($oTicket->findContainer() === false) {
+                        $this->_aUnthemed[$oTicket->id()] = $oTicket;
                     }
                 }
             }
@@ -1445,34 +1447,6 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         ksort($this->_aUnthemed);
         return $this;
-    }
-
-    /**
-     * Find the theme to a ticket
-     *
-     * @param  Bug $oTicket
-     *
-     * @return boolean
-     */
-    protected function _findContainer(Bug $oTicket) {
-
-        if ($oTicket->isContainer() === false or is_null($oTicket->hasContainer()) === true) {
-            foreach ($oTicket->blocks() as $iBlocks) {
-                try {
-                    $oBlocks = $this->getBugById($iBlocks);
-                    if ($oBlocks->isContainer() === true) {
-                        $oTicket->setContainer($iBlocks);
-                        break;
-                    }
-                }
-                catch (\Flightzilla\Model\Ticket\Type\Bug\Exception $e) {
-                    /* nop */
-                    unset($e);
-                }
-            }
-        }
-
-        return $oTicket->hasContainer();
     }
 
     /**
@@ -1498,7 +1472,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             unset($aList);
         }
 
-        if (empty($this->_allBugs[$iBug]) === true) {
+        if (isset($this->_allBugs[$iBug]) !== true) {
             throw new Bug\Exception(Bug\Exception::INSUFFICIENT_DATA);
         }
 

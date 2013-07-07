@@ -22,9 +22,10 @@
 
         $iContainer = $this->oTicket->getContainer();
         if (empty($iContainer) !== true):
+            $sTitle = (isset($this->aThemes[$iContainer]) === true) ? $this->aThemes[$iContainer] : '';
             ?>
             <span class="pull-left theme label label-info">
-                <a class="bugLink" target="_blank" data-title="<?php echo $this->escapeHtml($this->aThemes[$iContainer]); ?>" href="<?php echo $this->layout()->sBugzilla; ?>/show_bug.cgi?id=<?php echo $iContainer; ?>"><?php echo $iContainer; ?></a>
+                <a class="bugLink" target="_blank" data-title="<?php echo $this->escapeHtml($sTitle); ?>" href="<?php echo $this->layout()->sBugzilla; ?>/show_bug.cgi?id=<?php echo $iContainer; ?>"><?php echo $iContainer; ?></a>
             </span>
             <?php
         endif;
