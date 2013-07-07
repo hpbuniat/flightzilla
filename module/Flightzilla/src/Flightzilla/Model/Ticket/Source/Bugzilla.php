@@ -190,6 +190,13 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     private $_allBugs = array();
 
     /**
+     * Internal cache to prevent multi-cache-bypass
+     *
+     * @var Bug[]
+     */
+    private $_aInternalCache = array();
+
+    /**
      * The list of all tickets, relevant to the selected (current) project
      *
      * @var Bug[]
@@ -612,19 +619,32 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $bCache = ($bCache or $this->_config->bugzilla->useOnlyCache);
 
         foreach ($aBugIds as $iBugId) {
-            if ($bCache === true and empty($this->_allBugs[$iBugId]) !== true) {
-                $aTemp[]             = $this->_allBugs[$iBugId];
+            if ($bCache === true and (empty($this->_allBugs[$iBugId]) !== true or empty($this->_aThemes[$iBugId]) !== true)) {
+                $aTemp[]             = (empty($this->_allBugs[$iBugId]) !== true) ? $this->_allBugs[$iBugId] : $this->_aThemes[$iBugId];
+                $aCacheHits[$iBugId] = $iBugId;
+            }
+            elseif ($bCache === false and empty($this->_aInternalCache[$iBugId]) !== true) {
+                $aTemp[]             = (empty($this->_allBugs[$iBugId]) !== true) ? $this->_allBugs[$iBugId] : $this->_aThemes[$iBugId];
                 $aCacheHits[$iBugId] = $iBugId;
             }
             else {
-                $oBug = $this->_oCache->getItem($this->_getBugHash($iBugId));
-                if ($bCache === true and $oBug instanceof \Flightzilla\Model\Ticket\AbstractType) {
-                    $aTemp[]             = $oBug;
-                    $aCacheHits[$iBugId] = $iBugId;
+                if ($bCache === true and empty($this->_aInternalCache[$iBugId]) === true) {
+                    $oBug = $this->_oCache->getItem($this->_getBugHash($iBugId));
+                    if ($oBug instanceof \Flightzilla\Model\Ticket\AbstractType) {
+                        $aTemp[]             = $oBug;
+                        $aCacheHits[$iBugId] = $iBugId;
+                    }
                 }
-                else {
+
+                if ($bCache === false) {
                     $aRequest[] = $iBugId;
                 }
+
+                if (isset($this->_aInternalCache[$iBugId]) !== true) {
+                    $this->_aInternalCache[$iBugId] = 0;
+                }
+
+                $this->_aInternalCache[$iBugId]++;
             }
         }
 
@@ -685,17 +705,15 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                 $this->_oResource->addTicket($oBug);
 
                 $aReturn[$iId] = $oBug;
-                if ($oBug->isClosed() !== true) {
-                    if ($oBug->isTheme() !== true) {
-                        $this->_allBugs[$iId] = $oBug;
-                    }
-                    elseif ($oBug->isContainer() === true) {
-                        $this->_aThemes[$iId] = $oBug;
-                    }
+                if ($oBug->isTheme() !== true) {
+                    $this->_allBugs[$iId] = $oBug;
+                }
+                elseif ($oBug->isContainer() === true) {
+                    $this->_aThemes[$iId] = $oBug;
+                }
 
-                    if ($oBug->isProject() === true) {
-                        $this->_aProjects[$iId] = $oBug;
-                    }
+                if ($oBug->isProject() === true) {
+                    $this->_aProjects[$iId] = $oBug;
                 }
             }
 
