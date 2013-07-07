@@ -29,7 +29,13 @@
             <td colspan="2" width="10%" class="<?php echo $this->bug->getStatus(); ?>"><?php echo $this->bug->getStatus(); ?></td>
         <?php else:?>
             <td width="5%" class="<?php echo $this->bug->getStatus(); ?>"><?php echo substr($this->bug->getStatus(),0,4); ?></td>
-            <td width="5%"><?php echo substr($this->bug->resolution,0,6); ?></td>
+            <?php if ((string) $this->bug->resolution === \Flightzilla\Model\Ticket\Type\Bug::RESOLUTION_DUPLICATE): ?>
+                <td width="5%">
+                    <a class="bugLink tipper" target="_blank" data-title="<?php echo $this->escapeHtml($this->bug->getDupe()); ?>" href="<?php echo $this->layout()->sBugzilla; ?>/show_bug.cgi?id=<?php echo $this->bug->getDupe(); ?>"><?php echo substr($this->bug->resolution,0,6); ?></a>
+                </td>
+            <?php else: ?>
+                <td width="5%"><?php echo substr($this->bug->resolution,0,6); ?></td>
+            <?php endif; ?>
         <?php endif?>
         <td width="8%">
             <?php echo $this->estimation($this->bug); ?>

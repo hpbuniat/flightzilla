@@ -134,8 +134,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     );
 
     const RESOLUTION_FIXED = 'FIXED';
-
     const RESOLUTION_REVIEWED = 'REVIEWED';
+    const RESOLUTION_DUPLICATE = 'DUPLICATE';
 
     /**
      * Deadline status
