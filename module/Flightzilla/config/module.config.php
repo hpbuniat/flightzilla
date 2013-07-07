@@ -48,7 +48,13 @@ return array(
         'factories' => array(
             '_session' => function (\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
 
-                return new \Zend\Session\Container('flightzilla');
+                $oSessionStorage = new \Zend\Session\SaveHandler\Cache($oServiceManager->get('_cache'));
+                $oManager = new \Zend\Session\SessionManager();
+                $oManager->setSaveHandler($oSessionStorage);
+
+                $oSession = new \Zend\Session\Container('flightzilla');
+                $oSession->setDefaultManager($oManager);
+                return $oSession;
             },
             '_log' => function (\Zend\ServiceManager\ServiceLocatorInterface $oServiceManager) {
 
