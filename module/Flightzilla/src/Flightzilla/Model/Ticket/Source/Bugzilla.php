@@ -614,28 +614,29 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         foreach ($aBugIds as $iBugId) {
             if (($bCache === true and empty($this->_allBugs[$iBugId]) !== true)
                 or ($bCache === false and empty($this->_aInternalCache[$iBugId]) !== true)) {
-                $aTemp[$iBugId]             = $this->_allBugs[$iBugId];
+                $aTemp[$iBugId]      = $this->_allBugs[$iBugId];
                 $aCacheHits[$iBugId] = $iBugId;
             }
             else {
-                if ($bCache === true and empty($this->_aInternalCache[$iBugId]) === true) {
-                    $oBug = $this->_oCache->getItem($this->_getBugHash($iBugId));
-                    if ($oBug instanceof \Flightzilla\Model\Ticket\AbstractType) {
-                        $aTemp[$iBugId]             = $oBug;
-                        $aCacheHits[$iBugId] = $iBugId;
-                    }
-                }
-
-                if ($bCache === false or empty($aTemp[$iBugId]) === true) {
-                    $aRequest[] = $iBugId;
-                    unset($aCacheHits[$iBugId]);
-                }
-
+                // prevent infinite re-fetching single tickets by using a second-cache layer
                 if (isset($this->_aInternalCache[$iBugId]) !== true) {
                     $this->_aInternalCache[$iBugId] = 0;
                 }
 
-                $this->_aInternalCache[$iBugId]++;
+                if ($bCache === true and empty($this->_aInternalCache[$iBugId]) === true) {
+                    $oBug = $this->_oCache->getItem($this->_getBugHash($iBugId));
+                    if ($oBug instanceof \Flightzilla\Model\Ticket\AbstractType) {
+                        $aTemp[$iBugId]      = $oBug;
+                        $aCacheHits[$iBugId] = $iBugId;
+                    }
+                }
+
+                // if the cache is disabled or the ticket not present: request it
+                if ($bCache === false or empty($aTemp[$iBugId]) === true) {
+                    $aRequest[] = $iBugId;
+                    $this->_aInternalCache[$iBugId]++;
+                    unset($aCacheHits[$iBugId]);
+                }
             }
         }
 
@@ -651,7 +652,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                 if (empty($xml) !== true) {
                     foreach ($xml as $bug) {
                         $oBug    = \Flightzilla\Model\Ticket\Type::factory($bug);
-                        $aTemp[] = $oBug;
+                        $aTemp[$oBug->id()] = $oBug;
                     }
                 }
 
