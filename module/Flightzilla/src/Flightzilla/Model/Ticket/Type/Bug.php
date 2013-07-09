@@ -1068,7 +1068,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         if ($this->isEstimated() === true) {
             $fReturn = (float) (($this->hasWorkedHours() === true) ? $this->remaining_time : $this->getEstimation());
 
-            if ($fReturn === 0 and $this->isStatusAtLeast(self::STATUS_RESOLVED) !== true) {
+            if ($fReturn === 0.00 and $this->isStatusAtLeast(self::STATUS_RESOLVED) !== true) {
                 $fReturn = (float) ($this->getEstimation() - $this->getActualTime());
             }
         }
