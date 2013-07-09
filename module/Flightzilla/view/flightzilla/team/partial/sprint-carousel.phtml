@@ -23,7 +23,7 @@
 
                 foreach ($this->aMemberWeekTickets as $sTitle => $aWeek):
                     $this->aStack = $aWeek['tickets'];
-                    $aTimes = $this->collectiontime($this->aStack, false, ($iCount === 1) ? $iExpected : \Flightzilla\Model\Timeline\Date::WEEK, \Flightzilla\View\Helper\CollectionTime::TIME_LEFT);
+                    $aTimes = $this->collectiontime($this->aStack, \Flightzilla\View\Helper\CollectionTime::TIME_NORMAL, ($iCount === 1) ? $iExpected : \Flightzilla\Model\Timeline\Date::WEEK, \Flightzilla\View\Helper\CollectionTime::TIME_LEFT);
                     $sEstimationString = sprintf('%sh est. <i class="icon-time"></i> %sh',$aTimes['esti'], $aTimes['left']);
 
                     ?>

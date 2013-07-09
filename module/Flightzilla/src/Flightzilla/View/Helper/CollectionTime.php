@@ -59,6 +59,9 @@ class CollectionTime extends AbstractHelper {
     const TIME_LEFT = 'left';
     const TIME_ESTIMATED = 'esti';
 
+    const TIME_FOR_PROJECT = true;
+    const TIME_NORMAL = false;
+
     /**
      * Get the summarized times
      *
@@ -69,7 +72,7 @@ class CollectionTime extends AbstractHelper {
      *
      * @return string
      */
-    public function __invoke(array $aTickets, $bProject = false, $iFuture = Date::FUTURE, $sPlannedSource = self::TIME_LEFT) {
+    public function __invoke(array $aTickets, $bProject = self::TIME_NORMAL, $iFuture = Date::FUTURE, $sPlannedSource = self::TIME_LEFT) {
         $aTimes = array(
             'spent' => 0,
             'esti' => 0,

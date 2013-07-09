@@ -1064,12 +1064,16 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @return float
      */
     public function getLeftHours() {
-
+        $fReturn = 0;
         if ($this->isEstimated() === true) {
-            return (float) (($this->hasWorkedHours() === true) ? $this->remaining_time : $this->getEstimation());
+            $fReturn = (float) (($this->hasWorkedHours() === true) ? $this->remaining_time : $this->getEstimation());
+
+            if ($fReturn === 0 and $this->isStatusAtLeast(self::STATUS_RESOLVED) !== true) {
+                $fReturn = (float) ($this->getEstimation() - $this->getActualTime());
+            }
         }
 
-        return 0;
+        return (float) ($fReturn < 0) ? 0 : $fReturn;
     }
 
     /**
