@@ -25,17 +25,16 @@
 
     },
     "devDependencies": {
+        "grunt-release": "latest",
+        "grunt-compare-size": "latest",
+        "grunt-contrib-watch": "latest",
+        "grunt-contrib-jshint": "latest",
+        "grunt-contrib-uglify": "latest",
+        "grunt-contrib-concat": "latest",
+        "grunt-contrib-copy": "latest",
+        "grunt-shell": "latest",
         "grunt": "~0.4",
-        "bower": "~0.9",
-        "grunt-compare-size": "~0.4.0",
-        "grunt-contrib-concat": "~0.1",
-        "grunt-contrib-uglify": "~0.1",
-        "grunt-contrib-jshint": "~0.1",
-        "grunt-contrib-less": "~0.5",
-        "grunt-contrib-watch": "~0.2",
-        "grunt-contrib-copy": "~0.4",
-        "grunt-shell": "~0.2",
-        "grunt-bower-task": "~0.1"
+        "bower": "latest"
     },
     "engines": {
         "node": ">=0.8"
