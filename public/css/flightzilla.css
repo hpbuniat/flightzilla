@@ -252,8 +252,8 @@ h4.member-name, h3.table-toggle {
         display: none !important;
     }
 
-    .print-box {
-        font-size: 1.06em !important;
+    .badge, .label, .print-box {
+        font-size: 22px !important;
         line-height: 1em !important;
     }
 
@@ -270,8 +270,8 @@ h4.member-name, h3.table-toggle {
     }
 
     div.print-fullwidth {
-        width: 99%;
-        height: 99%;
+        width: 98%;
+        height: 98%;
         margin: 0;
         page-break-after: always;
         page-break-inside: avoid;
@@ -306,6 +306,7 @@ h4.member-name, h3.table-toggle {
 
     @page {
         margin: 0.5cm;
+        padding: 1cm;
     }
 }
 
