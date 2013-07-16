@@ -23,6 +23,11 @@ require_once(APPLICATION_PATH . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR
 /**/
 
 // Run flightzilla!
-Zend\Mvc\Application::init(include 'config/application.config.php')->run();
+try {
+    Zend\Mvc\Application::init(include 'config/application.config.php')->run();
+}
+catch (\InvalidArgumentException $oException) {
+    print_r(sprintf('%s (%s @ %s)', $oException->getMessage(), $oException->getFile(), $oException->getLine()));
+}
 
 
