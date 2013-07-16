@@ -634,7 +634,6 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                 // if the cache is disabled or the ticket not present: request it
                 if ($bCache === false or empty($aTemp[$iBugId]) === true) {
                     $aRequest[] = $iBugId;
-                    $this->_aInternalCache[$iBugId]++;
                     unset($aCacheHits[$iBugId]);
                 }
             }
@@ -680,6 +679,13 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
             if (empty($aCacheHits[$iId]) === true) {
                 $this->_oCache->setItem($this->_getBugHash($iId), $oBug);
+            }
+        }
+
+        // prevent infinite re-fetching single tickets by using a second-cache layer
+        foreach ($aRequest as $iRequest) {
+            if (empty($this->_allBugs[$iRequest]) !== true) {
+                $this->_aInternalCache[$iRequest]++;
             }
         }
 
@@ -1009,6 +1015,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         $aReturn = array();
         if (empty($mIds) !== true) {
+            $mIds = array_unique($mIds);
             sort($mIds);
             $sHash = md5(serialize($mIds));
             if ($bCache !== true or empty($this->_aBugsListCache[$sHash]) === true) {
