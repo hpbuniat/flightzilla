@@ -1506,10 +1506,27 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     public function isMergeable() {
 
         $sStatus = $this->getStatus();
-        $bTested = ($this->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED) === true and $this->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST) !== true);
 
-        return (($this->hasFlag(Bug::FLAG_MERGE, Bugzilla::BUG_FLAG_REQUEST) === true or ($this->hasFlag(Bug::FLAG_MERGE, Bugzilla::BUG_FLAG_GRANTED) !== true and $bTested === true))
+        return (($this->hasMergeRequest() === true or ($this->hasFlag(Bug::FLAG_MERGE, Bugzilla::BUG_FLAG_GRANTED) !== true and $this->isTested() === true))
             and ($sStatus === Bug::STATUS_RESOLVED or $sStatus === Bug::STATUS_VERIFIED));
+    }
+
+    /**
+     * Is there a request to merge this ticket?
+     *
+     * @return boolean
+     */
+    public function hasMergeRequest() {
+        return $this->hasFlag(Bug::FLAG_MERGE, Bugzilla::BUG_FLAG_REQUEST);
+    }
+
+    /**
+     * Was the ticket tested?
+     *
+     * @return boolean
+     */
+    public function isTested() {
+        return ($this->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED) === true and $this->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST) !== true);
     }
 
     /**
