@@ -1052,17 +1052,11 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             if (empty($this->_aFixedTrunk[$bug->id()]) === true) {
                 $aProjects = $bug->getProjects();
 
-                if ($bug->isMergeable() === true or ($bug->hasFlag(Bug::FLAG_MERGE, self::BUG_FLAG_GRANTED) !== true and $bug->hasFlag(Bug::FLAG_DBCHANGE, self::BUG_FLAG_REQUEST) === true)) {
+                $bMergeable = $bug->isMergeable();
+                if ($bMergeable === true or ($bug->hasFlag(Bug::FLAG_MERGE, self::BUG_FLAG_GRANTED) !== true and $bug->hasFlag(Bug::FLAG_DBCHANGE, self::BUG_FLAG_REQUEST) === true)) {
                     $aDepends = $this->getBugListByIds($bug->getDepends($this));
-                    $bMergeable = $bug->hasMergeRequest();
-                    foreach ($aDepends as $oDependBug) {
-                        /* @var $oDependBug Bug */
-                        if ($oDependBug->isMergeable() !== true and $oDependBug->couldBeInTrunk() !== true) {
-                            $bMergeable = false;
-                        }
-                    }
-
-                    if ($bMergeable === true and $bug->isMergeable() === true) {
+                    $bMergeRequest = $bug->hasMergeRequest();
+                    if ($bMergeRequest !== true and $bMergeable === true) {
                         foreach ($aProjects as $oProject) {
                             /* @var $oProject Bug */
                             foreach ($oProject->getDependsAsStack() as $oSibling) {
@@ -1071,6 +1065,15 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                                     $bMergeable = false;
                                     break 2;
                                 }
+                            }
+                        }
+                    }
+
+                    if ($bMergeable === true) {
+                        foreach ($aDepends as $oDependBug) {
+                            /* @var $oDependBug Bug */
+                            if ($oDependBug->isMergeable() !== true and $oDependBug->couldBeInTrunk() !== true) {
+                                $bMergeable = false;
                             }
                         }
                     }
