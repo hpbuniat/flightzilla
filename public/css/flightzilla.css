@@ -247,6 +247,18 @@ h4.member-name, h3.table-toggle {
     overflow: hidden;
 }
 
+.priority {
+    width: 5px;
+    height: 28px;
+    margin: -4px 5px -4px -5px;
+    float: left;
+}
+
+.priority-p1 { background-color: #a9302a; }
+.priority-p2 { background-color: #f88; }
+.priority-p3 { background-color: #ddd; }
+.priority-p4 { background-color: #bbb; }
+
 @media print {
     div.print-hide, div.navbar, #zend-developer-toolbar {
         display: none !important;
@@ -348,16 +360,4 @@ text {
 text.circle-label {
     text-anchor: middle;
 }
-
-.priority {
-    width: 5px;
-    height: 28px;
-    margin: -4px 5px -4px -5px;
-    float: left;
-}
-
-.priority-p1 { background-color: #a9302a; }
-.priority-p2 { background-color: #f88; }
-.priority-p3 { background-color: #ddd; }
-.priority-p4 { background-color: #bbb; }
 .priority-p5 { background-color: #999; }
