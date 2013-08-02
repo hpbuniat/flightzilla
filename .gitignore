@@ -6,7 +6,7 @@ nbproject
 .idea
 .project
 .settings
-components/
+bower_components/
 composer.lock
 config/autoload/flightzilla.local.php
 node_modules/
