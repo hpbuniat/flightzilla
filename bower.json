@@ -2,11 +2,12 @@
     "name": "flightzilla",
     "version": "0.1",
     "dependencies": {
-        "jquery": "~1.10",
-        "jquery-ui": "~1.10",
-        "bootstrap": ">=2.3",
+        "jquery": "latest",
+        "jquery-ui": "latest",
+        "bootstrap": "latest",
+        "bootstrap-glyphicons": "latest",
         "highcharts": "latest",
-        "jquery.tablesorter": "~2.10",
+        "jquery.tablesorter": "latest",
         "d3": "latest",
         "lodash": "latest"
     }

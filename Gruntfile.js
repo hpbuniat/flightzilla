@@ -46,41 +46,40 @@ module.exports = function (grunt) {
             },
             dist: {
                 src: [
-                    './components/jquery-ui/ui/minified/jquery.ui.core.min.js',
-                    './components/jquery-ui/ui/minified/jquery.ui.widget.min.js',
-                    './components/jquery-ui/ui/minified/jquery.ui.mouse.min.js',
-                    './components/jquery-ui/ui/minified/jquery.ui.position.min.js',
-                    './components/jquery-ui/ui/minified/jquery.ui.draggable.min.js',
-                    './components/jquery-ui/ui/minified/jquery.ui.droppable.min.js',
-                    './components/jquery-ui/ui/minified/jquery.ui.selectable.min.js',
-                    './components/jquery-ui/ui/minified/jquery.ui.autocomplete.min.js',
-                    './components/jquery-ui/ui/minified/jquery.ui.datepicker.min.js',
-                    './components/jquery-ui/ui/minified/jquery.ui.menu.min.js',
-                    './components/jquery-ui/ui/minified/jquery.ui.progressbar.min.js',
-                    './components/jquery-ui/ui/minified/jquery.ui.slider.min.js',
-                    './components/jquery-ui/ui/minified/jquery.ui.tooltip.min.js'
+                    './bower_components/jquery-ui/ui/minified/jquery.ui.core.min.js',
+                    './bower_components/jquery-ui/ui/minified/jquery.ui.widget.min.js',
+                    './bower_components/jquery-ui/ui/minified/jquery.ui.mouse.min.js',
+                    './bower_components/jquery-ui/ui/minified/jquery.ui.position.min.js',
+                    './bower_components/jquery-ui/ui/minified/jquery.ui.draggable.min.js',
+                    './bower_components/jquery-ui/ui/minified/jquery.ui.droppable.min.js',
+                    './bower_components/jquery-ui/ui/minified/jquery.ui.selectable.min.js',
+                    './bower_components/jquery-ui/ui/minified/jquery.ui.autocomplete.min.js',
+                    './bower_components/jquery-ui/ui/minified/jquery.ui.datepicker.min.js',
+                    './bower_components/jquery-ui/ui/minified/jquery.ui.menu.min.js',
+                    './bower_components/jquery-ui/ui/minified/jquery.ui.progressbar.min.js',
+                    './bower_components/jquery-ui/ui/minified/jquery.ui.slider.min.js',
+                    './bower_components/jquery-ui/ui/minified/jquery.ui.tooltip.min.js'
                 ],
-                dest: 'components/jquery-ui/jquery.ui.custom.min.js'
+                dest: 'bower_components/jquery-ui/jquery.ui.custom.min.js'
             }
         },
         copy: {
             bower: {
                 files: [
                     {src: [
-                        './components/bootstrap/docs/assets/js/bootstrap.min.js',
-                        './components/bootstrap/docs/assets/css/bootstrap-responsive.css' ,
-                        './components/bootstrap/docs/assets/css/bootstrap.css'
+                        './bower_components/bootstrap/dist/js/bootstrap.min.js',
+                        './bower_components/bootstrap/dist/css/bootstrap.css'
                     ], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
-                    {src: ['./components/d3/d3.min.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
-                    {src: ['./components/lodash/dist/lodash.min.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
-                    {src: ['./components/highcharts/highcharts.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
-                    {src: ['./components/jquery/jquery.min.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
+                    {src: ['./bower_components/d3/d3.min.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
+                    {src: ['./bower_components/lodash/dist/lodash.min.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
+                    {src: ['./bower_components/highcharts/highcharts.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
+                    {src: ['./bower_components/jquery/jquery.min.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
                     {src: [
-                        './components/jquery-ui/themes/smoothness/*.min.css',
-                        './components/jquery-ui/themes/smoothness/*.theme.css'
+                        './bower_components/jquery-ui/themes/smoothness/*.min.css',
+                        './bower_components/jquery-ui/themes/smoothness/*.theme.css'
                     ], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
-                    {src: ['./components/jquery-ui/jquery.ui.custom.min.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
-                    {src: ['./components/jquery.tablesorter/js/jquery.tablesorter.min.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true}
+                    {src: ['./bower_components/jquery-ui/jquery.ui.custom.min.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
+                    {src: ['./bower_components/jquery.tablesorter/js/jquery.tablesorter.min.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true}
                 ]
             }
         }
