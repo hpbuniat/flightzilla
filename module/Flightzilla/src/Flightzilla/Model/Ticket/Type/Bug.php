@@ -585,7 +585,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function isOnlyTranslation() {
 
-        return ($this->hasFlag(Bug::FLAG_TRANSLATION) and $this->isOrga() === true);
+        return ($this->hasFlag(Bug::FLAG_TRANSLATION) === true and $this->isOrga() === true);
     }
 
     /**
@@ -1165,7 +1165,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function isOrga() {
 
-        return ($this->hasKeyword('organisation') or $this->isAdministrative());
+        return ($this->hasKeyword('organisation') === true or $this->isAdministrative() === true or $this->getStatus() === Bug::STATUS_CLARIFICATION);
     }
 
     /**
