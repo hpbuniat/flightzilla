@@ -93,9 +93,12 @@ $oControllerViewModel = reset($aViewModels);
                     <b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu">
-                    <?php foreach ($this->layout()->aConfigProjects as $sConfigProjects): ?>
-                        <li><a href="<?php echo $this->url('flightzilla/default', array('controller' => 'index', 'action' => 'setproject', 'project' => $sConfigProjects)); ?>"><?php echo $sConfigProjects; ?></a></li>
-                    <?php endforeach; ?>
+                    <?php $aProjects = $this->layout()->aConfigProjects;
+                    if (is_array($aProjects) === true):
+                        foreach ($aProjects as $sConfigProjects): ?>
+                            <li><a href="<?php echo $this->url('flightzilla/default', array('controller' => 'index', 'action' => 'setproject', 'project' => $sConfigProjects)); ?>"><?php echo $sConfigProjects; ?></a></li>
+                        <?php endforeach;
+                    endif; ?>
                 </ul>
             </li>
             <li><a class="refresh-button" href="#"><i class="glyphicon glyphicon-refresh glyphicon-white"></i> Refresh</a></li>
