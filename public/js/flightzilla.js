@@ -89,11 +89,10 @@
          */
         dragging: function() {
             if ($('div.login').length === 0) {
-                var sSelector = '#ticket-dropper';
                 $.get(BASE_URL + '/flightzilla/team/members', function(msg) {
-                    if ($(sSelector).length === 0) {
+                    if ($('#ticket-dropper').length === 0) {
                         $('<div />', {
-                            id: sSelector.substr(1),
+                            id: 'ticket-dropper',
                             style: 'display:none'
                         }).html(msg).appendTo('body');
                     }
@@ -102,15 +101,18 @@
                         revert: true,
                         zIndex: 1000,
                         start: function(event, ui) {
-                            $(sSelector).show().position({
-                                of: ui.helper.parents('.row-fluid, tr').eq(0),
-                                my: "center top",
-                                at: "center bottom+10",
-                                collision: "flipfit"
-                            });
+                            var dropper = $('#ticket-dropper');
+                            if (dropper.length) {
+                                dropper.show().position({
+                                    of: ui.helper.parents('.row, tr').eq(0),
+                                    my: "center top",
+                                    at: "center bottom+10",
+                                    collision: "flipfit"
+                                });
+                            }
                         },
                         stop: function(event, ui) {
-                            $(sSelector).hide();
+                            $('#ticket-dropper').hide();
                         }
                     });
 
