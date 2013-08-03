@@ -72,14 +72,16 @@ module.exports = function (grunt) {
                     ], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
                     {src: ['./bower_components/d3/d3.min.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
                     {src: ['./bower_components/lodash/dist/lodash.min.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
-                    {src: ['./bower_components/highcharts/highcharts.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
+                    {src: ['./bower_components/highcharts.com/js/highcharts.src.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
                     {src: ['./bower_components/jquery/jquery.min.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
                     {src: [
                         './bower_components/jquery-ui/themes/smoothness/*.min.css',
                         './bower_components/jquery-ui/themes/smoothness/*.theme.css'
                     ], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
                     {src: ['./bower_components/jquery-ui/jquery.ui.custom.min.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
-                    {src: ['./bower_components/jquery.tablesorter/js/jquery.tablesorter.min.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true}
+                    {src: ['./bower_components/jquery.tablesorter/js/jquery.tablesorter.min.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
+                    {src: ['./bower_components/bootstrap-glyphicons/css/bootstrap-glyphicons.css'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
+                    {src: ['./bower_components/bootstrap-glyphicons/fonts/*'], dest: './public/fonts/', filter: 'isFile', expand: true, flatten: true}
                 ]
             }
         }

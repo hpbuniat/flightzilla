@@ -5,8 +5,8 @@
         "jquery": "latest",
         "jquery-ui": "latest",
         "bootstrap": "latest",
-        "bootstrap-glyphicons": "latest",
-        "highcharts": "latest",
+        "bootstrap-glyphicons": "gh-pages",
+        "highcharts.com": "latest",
         "jquery.tablesorter": "latest",
         "d3": "latest",
         "lodash": "latest"
