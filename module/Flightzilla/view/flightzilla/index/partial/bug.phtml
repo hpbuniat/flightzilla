@@ -49,7 +49,7 @@
     <td class="bugProd" width="13%">
         <?php echo substr($this->bug->component, 0, 8)?> <?php if ($this->bug->getVersion() !== '') { echo '(' . $this->bug->getVersion() . ')'; } ?>
         <span class="pull-right">
-            <a href="javascript:;" data-ticket="<?php echo $this->bug->id(); ?>" class="ticket-detail icon-list"></a>
+            <a href="javascript:;" data-ticket="<?php echo $this->bug->id(); ?>" class="ticket-detail glyphicon glyphicon-list"></a>
         </span>
     </td>
 </tr>

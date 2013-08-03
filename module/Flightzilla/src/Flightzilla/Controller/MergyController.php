@@ -61,7 +61,7 @@ class MergyController extends AbstractActionController {
      */
     public function indexAction() {
         $oViewModel = new ViewModel;
-        $oViewModel->mode = 'mergy';
+        $oViewModel->mode = 'sourcecode';
 
         $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel);
         $oViewModel->sRepositories = json_encode(array_keys($this->getServiceLocator()->get('mergy')->source->toArray()));
@@ -73,7 +73,7 @@ class MergyController extends AbstractActionController {
      */
     public function statusAction() {
         $oViewModel = new ViewModel;
-        $oViewModel->mode = 'mergy';
+        $oViewModel->mode = 'sourcecode';
 
         $oConfig = $this->getServiceLocator()->get('mergy');
         $oLogger = $this->getServiceLocator()->get('_log');
@@ -104,7 +104,7 @@ class MergyController extends AbstractActionController {
     public function mergeAction() {
         $oViewModel = new ViewModel;
         $oViewModel->setTerminal(true);
-        $oViewModel->mode = 'mergy';
+        $oViewModel->mode = 'sourcecode';
 
         $oParams = $this->params();
         $sRepository = $oParams->fromPost('repo');
@@ -139,7 +139,7 @@ class MergyController extends AbstractActionController {
     public function mergelistAction() {
         $oViewModel = new ViewModel;
         $oViewModel->setTerminal(true);
-        $oViewModel->mode = 'mergy';
+        $oViewModel->mode = 'sourcecode';
 
         $oConfig = $this->getServiceLocator()->get('mergy');
         $oLogger = $this->getServiceLocator()->get('_log');

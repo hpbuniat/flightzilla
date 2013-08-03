@@ -1,4 +1,4 @@
-<div class="row-fluid">
+<div class="row">
     <?php
     $aPins = array(
         'active' => '',
@@ -30,7 +30,7 @@
     $this->iSplit = ($this->sRowMode ==  'project' and $iActive === 0 and $iShowed === 0) ? 6 : $this->iSplit;
 
     ?>
-    <div class="span<?php echo (11 - $this->iSplit); ?>">
+    <div class="col-lg-<?php echo (11 - $this->iSplit); ?>">
         <?php if ($this->sRowMode ==  'project' and $iActive === 0 and $iShowed === 0): ?>
             <?php if ($this->oProject->hasDevelopment() === false): ?>
                 <div class="alert alert-error">
@@ -52,10 +52,10 @@
             <?php echo $aPins['active']; ?>
         <?php endif;?>
     </div>
-    <div class="span1 relative-box">
-        <strong class="large-number-gray"><?php echo $iCount;?> <br/> ...</strong>
+    <div class="col-lg-1 relative-box">
+        <strong class="large-number-gray"><?php echo $iCount;?></strong>
     </div>
-    <div class="span<?php echo $this->iSplit; ?> pending">
+    <div class="col-lg-<?php echo $this->iSplit; ?> pending">
         <?php echo $aPins['pending']; ?>
         <div class="hidden allTickets">
             <?php echo $aPins['not']; ?>

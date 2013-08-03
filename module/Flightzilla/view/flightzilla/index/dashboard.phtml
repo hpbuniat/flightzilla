@@ -1,5 +1,4 @@
 <?php
-    echo $this->render('flightzilla/index/partial/header.phtml');
     $this->sMemberName = $this->oResourceManager->getResourceByLogin($this->layout()->sCurrentUser);
     $this->oResource = $this->oResourceManager->getResource($this->sMemberName);
 ?>
@@ -11,7 +10,7 @@
 
 <div class="tab-content">
     <div class="tab-pane active" id="tab-sprint">
-        <div class="row-fluid kanban">
+        <div class="row kanban">
             <?php
             $this->sCarousel = sprintf('member-carousel-%s', 1);
             $this->aMemberWeekTickets = (isset($this->aWeekTickets[$this->sMemberName]) === true) ? $this->aWeekTickets[$this->sMemberName] : array();
@@ -20,7 +19,7 @@
         </div>
     </div>
     <div class="tab-pane" id="tab-tickets">
-        <div class="row-fluid kanban">
+        <div class="row kanban">
             <?php
             $this->aStack = (isset($this->aTeamBugs[$this->sMemberName]) === true) ? $this->aTeamBugs[$this->sMemberName] : array();
             echo $this->render('flightzilla/index/partial/member.phtml');
@@ -29,7 +28,7 @@
     </div>
 </div>
 
-<div class="row-fluid">
+<div class="row">
 <?php
     if ($this->iEntries > 0) {
         foreach ($this->aTasks as $this->aItems) {
@@ -55,9 +54,9 @@
 echo $this->render('flightzilla/index/partial/deadline.phtml');
 ?>
 
-<blockquote>
+<div class="callout callout-info">
     <h3 class="table-toggle">Untouched Tickets</h3>
-</blockquote>
+</div>
 <form style="display: none" id="buglist-form" method="get" target="_blank" action="#">
 <?php
 echo $this->partial('flightzilla/index/partial/table.phtml', array(

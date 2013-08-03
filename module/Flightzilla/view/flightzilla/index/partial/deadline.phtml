@@ -2,13 +2,13 @@
     $aStack = $this->userfilter($this->aDeadlineStack, $this->sMemberName);
     if (empty($aStack) !== true):
 ?>
-<blockquote>
+<div class="callout callout-info">
     <h3>Your tickets with deadlines</h3>
-</blockquote>
+</div>
 <?php
     foreach ($aStack as $iDeadline => $aTickets) {
         echo $this->partial('flightzilla/index/partial/table.phtml', array(
-            'caption' => sprintf('<span class="%s">Deadline at: %s</span>', (($iDeadline < time() + 86400) ? 'label label-important' : ''), date('d.m.Y', $iDeadline)),
+            'caption' => sprintf('<span class="%s">Deadline at: %s</span>', (($iDeadline < time() + 86400) ? 'label label-danger' : ''), date('d.m.Y', $iDeadline)),
             'sBugzilla' => $this->layout()->sBugzilla,
             'bugs' => $aTickets,
             'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED

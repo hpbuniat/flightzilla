@@ -1,17 +1,15 @@
-<?php echo $this->render('flightzilla/index/partial/header.phtml'); ?>
-
-<div class="row-fluid kanban">
-    <div class="span2 border-right">
+<div class="row kanban">
+    <div class="col-lg-2 border-right">
         <h4>Concept</h4>
-        <div class="row-fluid">
-            <div class="span6">
+        <div class="row">
+            <div class="col-lg-6">
                 <?php
                 $this->aStack =  $this->aKanban[\Flightzilla\Model\Kanban\Status::SCREEN_WIP];
                 $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
                 echo sprintf('<h5>wip (%d)</h5>%s', $this->iRendered, $sRender);
                 ?>
             </div>
-            <div class="span6">
+            <div class="col-lg-6">
                 <?php
                 $this->aStack =  $this->aKanban[\Flightzilla\Model\Kanban\Status::SCREEN_APPROVED];
                 $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
@@ -20,7 +18,7 @@
             </div>
         </div>
     </div>
-    <div class="span2 border-right">
+    <div class="col-lg-2 border-right">
         <h4>Stack</h4>
         <?php
             $this->aStack = $this->aKanban[\Flightzilla\Model\Kanban\Status::WAITING];
@@ -28,17 +26,17 @@
             echo sprintf('<h5 class="droppable tipper" data-title="Drop a pin, to set it to CONFIRMED" data-drop="%s">waiting (%d)</h5>%s', \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM, $this->iRendered, $sRender);
         ?>
     </div>
-    <div class="span4 border-right">
+    <div class="col-lg-4 border-right">
         <h4>Development</h4>
-        <div class="row-fluid">
-            <div class="span6">
+        <div class="row">
+            <div class="col-lg-6">
                 <?php
                     $this->aStack =  $this->aKanban[\Flightzilla\Model\Kanban\Status::DEV_WAITING];
                     $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
                     echo sprintf('<h5 class="droppable tipper" data-title="Drop a pin, to set it to CONFIRMED" data-drop="%s">waiting (%d)</h5>%s', \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM, $this->iRendered, $sRender);
                 ?>
             </div>
-            <div class="span6">
+            <div class="col-lg-6">
                 <?php
                     $this->aStack =  $this->aKanban[\Flightzilla\Model\Kanban\Status::DEV_WIP];
                     $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
@@ -47,7 +45,7 @@
             </div>
         </div>
     </div>
-    <div class="span1 border-right">
+    <div class="col-lg-1 border-right">
         <h4>Done</h4>
         <?php
         $this->aStack =  $this->aKanban[\Flightzilla\Model\Kanban\Status::DEV_READY];
@@ -55,17 +53,17 @@
         echo sprintf('<h5 class="droppable tipper" data-title="Drop a pin, to set it to RESOLVED" data-drop="%s">waiting (%d)</h5>%s', \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE, $this->iRendered, $sRender);
         ?>
     </div>
-    <div class="span2 border-right">
+    <div class="col-lg-2 border-right">
         <h4>Testing</h4>
-        <div class="row-fluid">
-            <div class="span6">
+        <div class="row">
+            <div class="col-lg-6">
                 <?php
                     $this->aStack =  $this->aKanban[\Flightzilla\Model\Kanban\Status::TEST_WAITING];
                     $sRender = $this->render('flightzilla/kanban/partial/column.phtml');
                     echo sprintf('<h5>wip (%d)</h5>%s', $this->iRendered, $sRender);
                 ?>
             </div>
-            <div class="span6">
+            <div class="col-lg-6">
                 <?php
                     $this->aStack = $this->aKanban[\Flightzilla\Model\Kanban\Status::TEST_READY];
                     $this->ready  = \Flightzilla\Model\Ticket\Type\Bug::STATUS_VERIFIED;
@@ -75,7 +73,7 @@
             </div>
         </div>
     </div>
-    <div class="span1">
+    <div class="col-lg-1">
         <h4>Staging</h4>
         <?php
             $this->aStack = $this->aKanban[\Flightzilla\Model\Kanban\Status::RELEASE];

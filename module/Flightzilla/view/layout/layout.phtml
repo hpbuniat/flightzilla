@@ -6,11 +6,12 @@
     <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0') ?>
 
     <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'))
-                    ->appendStylesheet($this->basePath() . '/vendor/bootstrap-responsive.css', 'all')
+                    ->appendStylesheet($this->basePath() . '/vendor/bootstrap-glyphicons.css', 'all')
                     ->appendStylesheet($this->basePath() . '/vendor/bootstrap.css', 'all')
                     ->appendStylesheet($this->basePath() . '/vendor/jquery-ui.min.css', 'all')
                     ->appendStylesheet($this->basePath() . '/vendor/jquery.ui.theme.css', 'all')
                     ->appendStylesheet($this->basePath() . '/css/flightzilla.css', 'all')
+                    ->appendStylesheet($this->basePath() . '/css/bootstrap-zilla.css', 'all')
                     ->appendStylesheet($this->basePath() . '/css/gantt.css', 'all')
                     ->appendStylesheet($this->basePath() . '/css/silk-sprite.css', 'all');
     ?>
@@ -46,7 +47,11 @@
         <?php echo $this->content; ?>
     </div>
 <?php else: ?>
-    <div class="wrapper <?php echo ($this->sRoute === 'login') ? 'container login' : 'container-fluid'; ?>">
+    <?php if ($this->sRoute !== 'login') {
+        echo $this->render('flightzilla/index/partial/header.phtml');
+    } ?>
+
+    <div class="wrapper <?php echo ($this->sRoute === 'login') ? 'container login' : 'fz-container'; ?>">
         <?php
             echo $this->content
         ?>
@@ -56,16 +61,20 @@
             <p id="footer-left"><?php echo $this->sName; ?>, based on <a href="https://github.com/hpbuniat/flightzilla">flightzilla</a> - <span id="spanYear">&copy; <?php echo date('Y'); ?></span> <a href="mailto:hpbuniat@googlemail.com">Hans-Peter Buniat</a>.</p>
         </footer>
     </div>
-    <div class="modal hide fade" id="flightzillaModal">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">×</button>
-            <h3></h3>
-        </div>
-        <div class="modal-body">
-            <p></p>
-        </div>
-        <div class="modal-footer">
-            <a href="#" class="btn" data-dismiss="modal">Close</a>
+    <div class="modal fade" id="flightzillaModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3></h3>
+                </div>
+                <div class="modal-body">
+                    <p></p>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-default" data-dismiss="modal">Close</a>
+                </div>
+            </div>
         </div>
     </div>
     <p id="loading" class="loading">

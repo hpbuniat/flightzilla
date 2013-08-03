@@ -1,11 +1,9 @@
-<?php echo $this->render('flightzilla/index/partial/header.phtml'); ?>
-
-<div class="row-fluid">
+<div class="row">
 <?php
 echo $this->render('flightzilla/index/partial/overview.phtml');
 ?>
 
-<div class="span10">
+<div class="col-lg-10">
 <form id="buglist-form" method="get" target="_blank" action="#">
 <?php
 foreach ($this->aMemberBugs as $sName => $aBugs) {

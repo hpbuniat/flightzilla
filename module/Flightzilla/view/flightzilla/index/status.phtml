@@ -1,7 +1,7 @@
 <?php if ($this->mode === 'status' and empty($this->aTasks) === false):?>
     <a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'dashboard')); ?>">
         <span href="#" class="j-popover" data-source="j-status-task" data-placement="bottom" data-toggle="popover" data-trigger="click">
-            <i class="icon-tasks icon-white"></i>
+            <i class="glyphicon glyphicon-tasks glyphicon-white"></i>
         </span>
         <span data-placement="bottom" data-title="<?php echo $this->aTasks[\Flightzilla\Model\Ticket\Task\Comment::NAME]['description']; ?>" class="tipper badge badge-inverse">
             <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Comment::NAME]['stack']); ?>
@@ -9,7 +9,7 @@
         <span data-placement="bottom" data-title="<?php echo $this->aTasks[\Flightzilla\Model\Ticket\Task\Testing::NAME]['description']; ?>" class="tipper badge badge-warning">
             <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Testing::NAME]['stack']); ?>
         </span>
-        <span data-placement="bottom" data-title="<?php echo $this->aTasks[\Flightzilla\Model\Ticket\Task\Review::NAME]['description']; ?>" class="tipper badge badge-important">
+        <span data-placement="bottom" data-title="<?php echo $this->aTasks[\Flightzilla\Model\Ticket\Task\Review::NAME]['description']; ?>" class="tipper badge badge-danger">
             <?php echo count($this->aTasks[\Flightzilla\Model\Ticket\Task\Review::NAME]['stack']); ?>
         </span>
         <span data-placement="bottom" data-title="<?php echo $this->aTasks[\Flightzilla\Model\Ticket\Task\Waiting::NAME]['description']; ?>" class="tipper badge badge-info">
@@ -24,7 +24,7 @@
     </a>
 <?php else: ?>
 <div class="progress progress-striped progress-heading active">
-    <div class="bar" style="width: 100%;"></div>
+    <div class="progress-bar" style="width: 100%;"></div>
 </div>
 <?php endif; ?>
 

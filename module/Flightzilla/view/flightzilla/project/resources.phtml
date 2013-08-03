@@ -1,6 +1,4 @@
-<?php echo $this->render('flightzilla/index/partial/header.phtml'); ?>
-
-<div class="row-fluid">
+<div class="row">
     <?php
     echo $this->partial('flightzilla/project/partial/sidebar.phtml', array(
         'sHeading' => 'Team',
@@ -8,7 +6,7 @@
     ));
     ?>
 
-    <div class="span10">
+    <div class="col-lg-10">
         <?php
         foreach ($this->aResources as $oResource) {
             echo sprintf('<div class="gantt t%s" data-target="%s"></div>', md5($oResource->getName()), $oResource->getName());

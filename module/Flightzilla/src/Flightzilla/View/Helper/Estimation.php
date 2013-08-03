@@ -111,10 +111,10 @@ class Estimation extends AbstractHelper {
 
             case self::TICKET_BOARD:
                 $bNew = ($oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_UNCONFIRMED or $oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_NEW);
-                $sIcon = ($bNew === true) ? '<i class="icon-folder-open"></i>' : (($bOvertime === true) ? '<i class="icon-time"></i>' : '');
+                $sIcon = ($bNew === true) ? '<i class="glyphicon glyphicon-folder-open"></i>' : (($bOvertime === true) ? '<i class="glyphicon glyphicon-time"></i>' : '');
 
                 if ($bEstimated === true) {
-                    $sReturn = sprintf('<span class="pull-right name label %s">%s %s</span>', ($bOvertime ? "label-important" : "label-success"), $sIcon, $oTicket->assignee_short);
+                    $sReturn = sprintf('<span class="pull-right name label %s">%s %s</span>', ($bOvertime ? "label-danger" : "label-success"), $sIcon, $oTicket->assignee_short);
                 }
                 else {
                     $sReturn = sprintf('<span class="pull-right name label %s">%s %s</span>', ($bOrga ? "label-success" : "label-warning"), $sIcon, $oTicket->assignee_short);

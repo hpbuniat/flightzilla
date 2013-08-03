@@ -39,9 +39,14 @@
  * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
+namespace Flightzilla\Controller;
+
+use Zend\Mvc\Controller\AbstractActionController,
+    Zend\View\Model\ViewModel,
+    Flightzilla\Controller\Plugin\TicketService;
 
 /**
- * View-Helper to get a color, based on the priority
+ * Access sourcecode-related methods
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -49,38 +54,16 @@
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-namespace Flightzilla\View\Helper;
-use Zend\View\Helper\AbstractHelper;
-
-class Prioritycolor extends AbstractHelper {
+class SourceController extends AbstractActionController {
 
     /**
-     * Get the color
      *
-     * @param  \Flightzilla\Model\Ticket\Type\Bug $oBug
-     *
-     * @return string
      */
-    public function __invoke(\Flightzilla\Model\Ticket\Type\Bug $oBug) {
+    public function indexAction() {
+        $oViewModel = new ViewModel;
+        $oViewModel->mode = 'sourcecode';
 
-        $sColor = '';
-        switch ($oBug->getPriority()) {
-            case \Flightzilla\Model\Ticket\Type\Bug::PRIORITY_1:
-                $sColor = 'label-danger';
-                break;
-
-            case \Flightzilla\Model\Ticket\Type\Bug::PRIORITY_2:
-                $sColor = 'label-warning';
-                break;
-
-            case \Flightzilla\Model\Ticket\Type\Bug::PRIORITY_3:
-                $sColor = 'label-info';
-                break;
-
-            default:
-                $sColor = '';
-        }
-
-        return $sColor;
+        return $oViewModel;
     }
 }
+

@@ -1,23 +1,23 @@
 <?php
 $aTimes = $this->collectiontime($this->aStack);
 $this->oResource = $this->oResourceManager->getResource($this->sMemberName);
-$sEstimationString = sprintf('%sh (%sh est.) <i class="icon-time"></i> %sh (%sd)', $aTimes['spent'], $aTimes['esti'] , $aTimes['left'] ,$aTimes['days']);
+$sEstimationString = sprintf('%sh (%sh est.) <i class="glyphicon glyphicon-time"></i> %sh (%sd)', $aTimes['spent'], $aTimes['esti'] , $aTimes['left'] ,$aTimes['days']);
 ?>
-<div class="row-fluid member-box">
-    <div class="span12 well">
-        <div class="span2">
+<div class="row member-box">
+    <div class="col-lg-12 well">
+        <div class="col-lg-2">
             <?php echo $this->render('flightzilla/team/partial/member.phtml'); ?>
         </div>
-        <div class="span10">
-            <div class="row-fluid">
-                <div class="span3">
+        <div class="col-lg-10">
+            <div class="row">
+                <div class="col-lg-3">
                     <blockquote>
                         <p><?php echo $sEstimationString; ?></p>
                     </blockquote>
                 </div>
-                <div class="span9">
-                    <div class="progress progress-<?php echo $aTimes['color'];?> progress-striped">
-                        <div class="bar" style="width: <?php echo $aTimes['planned']; ?>%"></div>
+                <div class="col-lg-9">
+                    <div class="progress progress-striped">
+                        <div class="progress-bar progress-bar-<?php echo $aTimes['color'];?>" style="width: <?php echo $aTimes['planned']; ?>%"></div>
                     </div>
                 </div>
             </div>

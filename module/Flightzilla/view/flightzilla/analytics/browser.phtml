@@ -1,12 +1,10 @@
-<?php echo $this->render('flightzilla/index/partial/header.phtml'); ?>
-
-<div class="row-fluid">
-<div class="span2">
+<div class="row">
+<div class="col-lg-2">
   <div class="well sidebar-nav">
     <ul class="nav nav-list">
       <li class="nav-header">
-          Portale
-          <a href="javascript:;" class="pull-right btn toggleNav">Alle</a>
+          Domains
+          <a href="javascript:;" class="pull-right btn toggleNav">All</a>
       </li>
       <?php foreach ($this->aPortals as $iId => $sPortal): ?>
           <li><a href="javascript:;" data-tab="<?php echo 't' . $iId;?>" data-container="<?php echo 't' . $iId;?>" data-mode="browser" data-target="<?php echo $sPortal?>" class="toggleChart">
@@ -16,7 +14,7 @@
     </ul>
   </div>
 </div>
-<div class="span10">
+<div class="col-lg-10">
 <?php foreach ($this->aPortals as $iId => $sPortal): ?>
     <div class="hidden" id="t<?php echo $iId; ?>"></div>
 <?php endforeach; ?>

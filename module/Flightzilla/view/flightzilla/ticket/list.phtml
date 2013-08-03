@@ -30,7 +30,7 @@
             if (empty($this->dropAction) !== true):
                 if ($this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_ASSIGN): ?>
                     <li>
-                        <div class="control-group">
+                        <div class="form-group">
                             <label class="control-label" for="timeEstimation">Estimation</label>
                             <div class="controls">
                                 <input type="text" id="timeEstimation" value="<?php echo $oTicket->getEstimation(); ?>" name="estimation[<?php echo $oTicket->id();?>][]" />
@@ -42,7 +42,7 @@
                     </li>
                 <?php elseif ($this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE or $this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM): ?>
                     <li>
-                        <div class="control-group">
+                        <div class="form-group">
                             <?php if ($this->dropAction === \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE or $oTicket->getStatus() === \Flightzilla\Model\Ticket\Type\Bug::STATUS_ASSIGNED): ?>
                                 <label class="control-label" for="timeWorked">Worked</label>
                                 <div class="controls">

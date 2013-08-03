@@ -27,14 +27,14 @@ if ($iCount > 0):?>
     <table class="bugTable table-bordered table-condensed table tablesorter <?php echo $this->sCssClass; ?>" style="width: 100%; margin-bottom: 10px;">
         <thead>
         <tr class="tableHeader">
-            <td colspan="8">
+            <td colspan="<?php echo ($this->mode === 'project') ? 12 : 8; ?>">
                 <span class="caption <?php if ($this->mode === 'team' and $aTimes['left'] < \Flightzilla\Model\Timeline\Date::AMOUNT) { echo "red"; } ?>">
                     <?php echo sprintf('<b>%s</b> - %s', $sCaption, $sEstimation); ?>
                 </span>
                 <div class="btn-group pull-right print-hide">
-                    <a class="allBugs btn btn-small" href="javascript:;">All</a>
-                    <a class="noBugs btn btn-small" href="javascript:;">None</a>
-                    <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+                    <a class="allBugs btn btn-mini btn-default" href="javascript:;">All</a>
+                    <a class="noBugs btn btn-mini btn-default" href="javascript:;">None</a>
+                    <a class="btn btn-mini btn-default dropdown-toggle" data-toggle="dropdown" href="#">
                         Ticket-List
                         <span class="caret"></span>
                     </a>

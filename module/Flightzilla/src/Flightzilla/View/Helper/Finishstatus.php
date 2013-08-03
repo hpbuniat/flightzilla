@@ -75,7 +75,7 @@ class Finishstatus extends AbstractHelper {
 
             $sClass = 'label-success';
             if ($iEndDate < $iTime) {
-                $sClass = 'label-important';
+                $sClass = 'label-danger';
             }
             elseif ($iEndDate < ($iTime + 172800)) {
                 // within the next 2 days
@@ -94,15 +94,15 @@ class Finishstatus extends AbstractHelper {
                 if ($oDate->isGreater($iEndDate, $iDays) === false) {
                     $sWhich = sprintf('%s, adjusted by %d days (was %s)', $sWhich, $iDays, $sDate);
                     $iEndDate = strtotime(sprintf('+%d days', $iDays), $oDate->getNextWorkday(time()));
-                    $sClass = 'label-important';
+                    $sClass = 'label-danger';
                 }
             }
 
             $sDate = date('Y-m-d', $iEndDate);
-            $sReturn = sprintf('<i class="icon-time"></i>&nbsp;<span data-title="%s" class="tipper label %s">%s</span>', $sWhich, $sClass, $sDate, $sDate);
+            $sReturn = sprintf('<i class="glyphicon glyphicon-time"></i>&nbsp;<span data-title="%s" class="tipper label %s">%s</span>', $sWhich, $sClass, $sDate, $sDate);
         }
         else {
-            $sReturn = sprintf('<span class="label label-important">No %s!</span>', $sWhich);
+            $sReturn = sprintf('<span class="label label-danger">No %s!</span>', $sWhich);
         }
 
         return $sReturn;

@@ -1,23 +1,23 @@
-<div class="hero-unit">
+<div class="jumbotron">
     <form class="form-horizontal" method="POST" action="<?php echo $this->url('login')?>">
         <legend>Login to <b><?php echo $this->layout()->sName; ?></b></legend>
         <fieldset>
-            <div class="control-group">
-                <label class="control-label" for="username">Username</label>
-                <div class="controls">
-                    <input id="username" type="text" name="username" />
+            <div class="form-group">
+                <label class="control-label col-lg-2" for="username">Username</label>
+                <div class="col-lg-4">
+                    <input id="username" class="form-control" type="text" name="username" />
                 </div>
             </div>
 
-            <div class="control-group">
-                <label class="control-label" for="password">Password</label>
-                <div class="controls">
-                    <input id="password" type="password" name="password" />
+            <div class="form-group">
+                <label class="control-label col-lg-2" for="password">Password</label>
+                <div class="col-lg-4">
+                    <input id="password" class="form-control" type="password" name="password" />
                 </div>
             </div>
 
-            <div class="control-group">
-                <div class="controls">
+            <div class="form-group">
+                <div class="col-offset-2 col-lg-4">
                     <button class="btn btn-primary btn-large">Login</button>
                 </div>
             </div>

@@ -63,16 +63,16 @@ class Ticketicons extends AbstractHelper {
      *
      * @var string
      */
-    const ICON_CHECKED = 'icon-thumbs-up';
-    const ICON_RESOLVED = 'icon-ok-circle';
-    const ICON_TESTING = 'icon-eye-open';
-    const ICON_COMMENT = 'icon-comment';
-    const ICON_REVENUE = 'icon-tags';
-    const ICON_WARNING = 'icon-warning-sign';
-    const ICON_UPDATE = 'icon-refresh';
-    const ICON_MERGABLE = 'icon-random';
-    const ICON_MERGED = 'icon-plus-sign';
-    const ICON_WATCHED = 'icon-camera';
+    const ICON_CHECKED = 'glyphicon glyphicon-thumbs-up';
+    const ICON_RESOLVED = 'glyphicon glyphicon-ok-circle';
+    const ICON_TESTING = 'glyphicon glyphicon-eye-open';
+    const ICON_COMMENT = 'glyphicon glyphicon-comment';
+    const ICON_REVENUE = 'glyphicon glyphicon-tags';
+    const ICON_WARNING = 'glyphicon glyphicon-warning-sign';
+    const ICON_UPDATE = 'glyphicon glyphicon-refresh';
+    const ICON_MERGABLE = 'glyphicon glyphicon-random';
+    const ICON_MERGED = 'glyphicon glyphicon-plus-sign';
+    const ICON_WATCHED = 'glyphicon glyphicon-camera';
 
     /**
      * Get the workflow-stats of the bug
