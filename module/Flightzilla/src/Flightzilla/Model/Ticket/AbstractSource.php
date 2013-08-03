@@ -130,6 +130,13 @@ abstract class AbstractSource {
     protected $_oDate;
 
     /**
+     * The statistic-service
+     *
+     * @var \Flightzilla\Model\Stats\Service
+     */
+    protected $_oStats;
+
+    /**
      * Set the cache
      *
      * @param  \Zend\Cache\Storage\StorageInterface $oCache
@@ -273,6 +280,30 @@ abstract class AbstractSource {
      */
     public function getDate() {
         return $this->_oDate;
+    }
+
+    /**
+     * Get the stats-service
+     *
+     * @return \Flightzilla\Model\Stats\Service
+     */
+    public function getStats() {
+        return $this->_oStats;
+    }
+
+    /**
+     * Set the stats-service
+     *
+     * @param  \Flightzilla\Model\Stats\Service $oStats
+     *
+     * @return $this
+     */
+    public function setStats(\Flightzilla\Model\Stats\Service $oStats = null) {
+        if (empty($oStats) === true) {
+            $this->_oStats = new \Flightzilla\Model\Stats\Service($this->_config);
+        }
+
+        return $this;
     }
 
     /**

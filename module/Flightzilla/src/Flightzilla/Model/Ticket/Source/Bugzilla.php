@@ -242,27 +242,6 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     private $_summary = null;
 
     /**
-     * Stats
-     *
-     * @var array
-     */
-    private $_aStats = array();
-
-    /**
-     * All available Bugzilla statuses
-     *
-     * @var array
-     */
-    private $_aStatuses = array();
-
-    /**
-     * Count for bugzilla-requests
-     *
-     * @var int
-     */
-    protected $_iCount = 0;
-
-    /**
      * The known team-members
      *
      * @var array
@@ -284,6 +263,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $this->_client->setEncType(\Zend\Http\Client::ENC_FORMDATA);
 
         $this->_oDate = new Date();
+        $this->setStats();
 
         $this->user($this->_config->bugzilla->login);
     }
@@ -318,16 +298,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return int
      */
     public function getCount() {
-
-        $iCount = 0;
-        foreach ($this->getAllBugs() as $oBug) {
-            /* @var $oBug Bug */
-            if ($oBug->isClosed() !== true and $oBug->isContainer() !== true) {
-                $iCount++;
-            }
-        }
-
-        return $iCount;
+        return $this->_oStats->getCount();
     }
 
     /**
@@ -508,8 +479,6 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return string
      */
     private function _request($option) {
-
-        $this->_iCount++;
 
         $queryString = rtrim($this->_getParameter, '&');
         $this->_client->setUri($this->_config->bugzilla->baseUrl . '/' . $option . '?' . $queryString);
@@ -1517,170 +1486,6 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     }
 
     /**
-     * Get the bug-stats
-     *
-     * @return array
-     */
-    public function getStats() {
-
-        if (empty($this->_aStats) === true) {
-            $iCount        = $this->getCount();
-            $this->_aStats = array(
-                Bug::WORKFLOW_ESTIMATED   => 0,
-                Bug::WORKFLOW_ORGA        => 0,
-                Bug::WORKFLOW_UNESTIMATED => 0,
-                Bug::WORKFLOW_INPROGRESS  => 0,
-                Bug::WORKFLOW_ACTIVE      => 0,
-                Bug::WORKFLOW_TESTING     => 0,
-                Bug::WORKFLOW_MERGE       => 0,
-                Bug::WORKFLOW_DEADLINE    => 0,
-                Bug::WORKFLOW_SCREEN      => 0,
-                Bug::WORKFLOW_COMMENT     => 0,
-                Bug::WORKFLOW_FAILED      => 0,
-                Bug::WORKFLOW_QUICK       => 0,
-                Bug::WORKFLOW_TRANSLATION => 0,
-                Bug::WORKFLOW_TRANSLATION_PENDING => 0,
-                Bug::WORKFLOW_TIMEDOUT    => 0,
-            );
-
-            $iTimeoutLimit = $this->_config->tickets->workflow->timeout;
-            foreach ($this->getAllBugs() as $oBug) {
-                /* @var $oBug Bug */
-                if ($oBug->isClosed() !== true and $oBug->isContainer() !== true) {
-                    $bShouldHaveEstimation = true;
-                    if ($oBug->isOrga() === true) {
-                        $this->_aStats[Bug::WORKFLOW_ORGA]++;
-                        $bShouldHaveEstimation = false;
-                    }
-
-                    if ($oBug->isEstimated()) {
-                        $this->_aStats[Bug::WORKFLOW_ESTIMATED]++;
-                    }
-                    elseif ($bShouldHaveEstimation === true) {
-                        $this->_aStats[Bug::WORKFLOW_UNESTIMATED]++;
-                    }
-
-                    if ($oBug->isWorkedOn()) {
-                        $this->_aStats[Bug::WORKFLOW_INPROGRESS]++;
-                    }
-
-                    if ($oBug->isActive()) {
-                        $this->_aStats[Bug::WORKFLOW_ACTIVE]++;
-                    }
-
-                    if ($oBug->hasFlag(Bug::FLAG_TESTING, self::BUG_FLAG_REQUEST) === true) {
-                        $this->_aStats[Bug::WORKFLOW_TESTING]++;
-                    }
-
-                    if ($oBug->isFailed()) {
-                        $this->_aStats[Bug::WORKFLOW_FAILED]++;
-                    }
-
-                    if ($oBug->isMergeable()) {
-                        $this->_aStats[Bug::WORKFLOW_MERGE]++;
-                    }
-
-                    if ($oBug->deadlineStatus()) {
-                        $this->_aStats[Bug::WORKFLOW_DEADLINE]++;
-                    }
-
-                    if ($oBug->hasFlag(Bug::FLAG_SCREEN, self::BUG_FLAG_REQUEST)) {
-                        $this->_aStats[Bug::WORKFLOW_SCREEN]++;
-                    }
-
-                    if ($oBug->hasFlag(Bug::FLAG_COMMENT, self::BUG_FLAG_REQUEST) or $oBug->getStatus() === Bug::STATUS_CLARIFICATION) {
-                        $this->_aStats[Bug::WORKFLOW_COMMENT]++;
-                    }
-
-                    if ($oBug->isQuickOne()) {
-                        $this->_aStats[Bug::WORKFLOW_QUICK]++;
-                    }
-
-                    if ($oBug->isOnlyTranslation()) {
-                        $this->_aStats[Bug::WORKFLOW_TRANSLATION]++;
-                    }
-
-                    if ($oBug->hasFlag(Bug::FLAG_TRANSLATION, Bugzilla::BUG_FLAG_REQUEST) === true) {
-                        $this->_aStats[Bug::WORKFLOW_TRANSLATION_PENDING]++;
-                    }
-
-                    if ($oBug->isChangedWithinLimit($iTimeoutLimit) !== true) {
-                        $this->_aStats[Bug::WORKFLOW_TIMEDOUT]++;
-                    }
-                }
-            }
-
-            $this->_percentify($this->_aStats, $iCount);
-        }
-
-        return $this->_aStats;
-    }
-
-    /**
-     * Return all statuses with percentage.
-     *
-     * @return array
-     */
-    public function getStatuses() {
-
-        if (empty($this->_aStatuses) === true) {
-            $this->_aStatuses = array();
-
-            $iCount = $this->getCount();
-            foreach ($this->getAllBugs() as $oBug) {
-                /* @var $oBug Bug */
-                if ($oBug->isClosed() !== true and $oBug->isContainer() !== true) {
-                    $sStatus = (string) $oBug->getStatus();
-                    if (empty($this->_aStatuses[$sStatus]) === true) {
-                        $this->_aStatuses[$sStatus] = 0;
-                    }
-
-                    $this->_aStatuses[$sStatus]++;
-                }
-            }
-
-            $this->_percentify($this->_aStatuses, $iCount);
-            ksort($this->_aStatuses);
-        }
-
-        return $this->_aStatuses;
-    }
-
-    /**
-     * Get the ticket-throughput-diff for this week
-     *
-     * @return int
-     */
-    public function getThroughPut() {
-
-        $iDiff = 0;
-        $iCompare = strtotime('last monday');
-        foreach ($this->getAllBugs() as $oTicket) {
-            /* @var $oTicket Bug */
-            if ($oTicket->isContainer() !== true) {
-                if ($oTicket->getCreationTime() > $iCompare) {
-                    $iDiff++;
-                }
-
-                if ($oTicket->isStatusAtLeast(Bug::STATUS_RESOLVED) === true and $oTicket->getLastActivity() > $iCompare) {
-                    $iDiff--;
-                }
-            }
-        }
-
-        return $iDiff;
-    }
-
-    /**
-     * Get the number of days which are used to determine the ticket-throughput
-     *
-     * @return int
-     */
-    public function getThroughPutDays() {
-        return ceil((time() - strtotime('last monday')) / 86400);
-    }
-
-    /**
      * Get all tickets with deadlines as stack
      *
      * @return array
@@ -1701,119 +1506,5 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
         ksort($aStack);
         return $aStack;
-    }
-
-    /**
-     * Get the chuck-status
-     *
-     * @return string
-     */
-    public function getChuckStatus() {
-
-        $sStatus = \Flightzilla\Model\Chuck::OK;
-        if (empty($this->_aStats[Bug::WORKFLOW_INPROGRESS]) === true) {
-            $this->getStats();
-            $this->getStatuses();
-        }
-
-        if (empty($this->_aStats[Bug::WORKFLOW_UNESTIMATED]) !== true and $this->_aStats[Bug::WORKFLOW_UNESTIMATED]['per'] > 10) {
-            $sStatus = \Flightzilla\Model\Chuck::WARN;
-        }
-        elseif (empty($this->_aStats[Bug::STATUS_UNCONFIRMED]) !== true and $this->_aStatuses[Bug::STATUS_UNCONFIRMED]['per'] > 10) {
-            $sStatus = \Flightzilla\Model\Chuck::WARN;
-        }
-
-        if (empty($this->_aStatuses[Bug::STATUS_REOPENED]) !== true and $this->_aStatuses[Bug::STATUS_REOPENED]['num'] > 1) {
-            $sStatus = \Flightzilla\Model\Chuck::ERROR;
-        }
-        elseif (empty($this->_aStats[Bug::WORKFLOW_FAILED]) !== true and $this->_aStats[Bug::WORKFLOW_FAILED]['per'] > 2) {
-            $sStatus = \Flightzilla\Model\Chuck::ERROR;
-        }
-        elseif (empty($this->_aStats[Bug::WORKFLOW_UNESTIMATED]) !== true and $this->_aStats[Bug::WORKFLOW_UNESTIMATED]['per'] > 15) {
-            $sStatus = \Flightzilla\Model\Chuck::WARN;
-        }
-        elseif (empty($this->_aStats[Bug::STATUS_UNCONFIRMED]) !== true and $this->_aStatuses[Bug::STATUS_UNCONFIRMED]['per'] > 15) {
-            $sStatus = \Flightzilla\Model\Chuck::WARN;
-        }
-
-        return $sStatus;
-    }
-
-    /**
-     * Get the priorities
-     *
-     * @return array
-     */
-    public function getPriorities() {
-
-        $aPriorities = array();
-
-        $iCount = $this->getCount();
-        foreach ($this->getAllBugs() as $oBug) {
-            /* @var $oBug Bug */
-            if ($oBug->isClosed() !== true and $oBug->isContainer() !== true) {
-                $sPriority = (string) $oBug->priority;
-                if (empty($aPriorities[$sPriority]) === true) {
-                    $aPriorities[$sPriority] = 0;
-                }
-
-                $aPriorities[$sPriority]++;
-            }
-        }
-
-        $this->_percentify($aPriorities, $iCount);
-        ksort($aPriorities);
-
-        return $aPriorities;
-    }
-
-    /**
-     * Get the priorities
-     *
-     * @return array
-     */
-    public function getSeverities() {
-
-        $aSeverities = array();
-
-        $iCount = $this->getCount();
-        foreach ($this->getAllBugs() as $oBug) {
-            /* @var $oBug Bug */
-            if ($oBug->isClosed() !== true and $oBug->isContainer() !== true) {
-                $sSeverity = (string) $oBug->bug_severity;
-                if (empty($aSeverities[$sSeverity]) === true) {
-                    $aSeverities[$sSeverity] = 0;
-                }
-
-                $aSeverities[$sSeverity]++;
-            }
-        }
-
-        $this->_percentify($aSeverities, $iCount);
-        ksort($aSeverities);
-
-        return $aSeverities;
-    }
-
-    /**
-     * Get the percentage of each type in the stack
-     *
-     * @param  array $aStack
-     * @param  int   $iCount
-     *
-     * @return Bugzilla
-     */
-    protected function _percentify(array &$aStack, $iCount) {
-
-        $mStat = null;
-        foreach ($aStack as &$mStat) {
-            $mStat = array(
-                'num' => $mStat,
-                'per' => ($iCount === 0) ? 0 : round(($mStat / $iCount) * 100, 2)
-            );
-        }
-
-        unset($mStat);
-        return $this;
     }
 }

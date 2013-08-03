@@ -194,10 +194,10 @@ class WatchlistService {
         //@TODO Create a status overview for the sidebar
 
         /*    $oView->iTotal = $oTicketService->getCount();
-            $oView->aStats = $oTicketService->getStats();
-            $oView->aStatuses = $oTicketService->getStatuses();
-            $oView->aPriorities = $oTicketService->getPriorities();
-            $oView->aSeverities = $oTicketService->getSeverities();*/
+            $oView->aStats = $oTicketService->getStats()->getWorkflowStats();
+            $oView->aStatuses = $oTicketService->getStats()->getStatuses();
+            $oView->aPriorities = $oTicketService->getStats()->getPriorities();
+            $oView->aSeverities = $oTicketService->getStats()->getSeverities();*/
 
         return $aWatchlist;
     }

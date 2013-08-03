@@ -142,8 +142,6 @@ class TicketService extends AbstractPlugin {
             $oView->aMemberBugs = $oTicketService->getMemberBugs();
             $oView->aTeamBugs = $oTicketService->getTeamBugs($oView->aMemberBugs);
             $oView->aDeadlineStack = $oTicketService->getDeadlineStack();
-
-            $oView->sChuck = $oTicketService->getChuckStatus();
             $oView->aThemes = $oTicketService->getThemesAsStack();
 
             // expose some those objects to the view
@@ -155,12 +153,18 @@ class TicketService extends AbstractPlugin {
             }
         }
 
+        $oTicketStats = $this->_oService->getStats();
+        if ($oTicketStats->isStackEmpty() === true) {
+            $oTicketStats->setStack($oTicketService->getAllBugs());
+        }
+
         $oView->iTotal = $oTicketService->getCount();
-        $oView->aStats = $oTicketService->getStats();
-        $oView->aStatuses = $oTicketService->getStatuses();
-        $oView->aPriorities = $oTicketService->getPriorities();
-        $oView->aSeverities = $oTicketService->getSeverities();
-        $oView->iThroughPut = $oTicketService->getThroughPut();
+        $oView->aStats = $oTicketStats->getWorkflowStats();
+        $oView->aStatuses = $oTicketStats->getStatuses();
+        $oView->aPriorities = $oTicketStats->getPriorities();
+        $oView->aSeverities = $oTicketStats->getSeverities();
+        $oView->sChuck = $oTicketStats->getChuckStatus();
+        $oView->iThroughPut = $oTicketStats->getThroughPut();
 
         $oTasks = new \Flightzilla\Model\Ticket\Task\Manager($oTicketService);
         $oView->aTasks = $oTasks->check($oTicketService->getAllBugs());

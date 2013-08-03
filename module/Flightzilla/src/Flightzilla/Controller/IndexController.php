@@ -119,7 +119,7 @@ class IndexController extends AbstractActionController {
 
         $oTicketPlugin = $this->getPluginManager()->get(TicketService::NAME);
         $oTicketService = $oTicketPlugin->getService();
-        $oTicketPlugin->init($oViewModel, $oViewModel->mode, $oTicketService->getThroughPutDays());
+        $oTicketPlugin->init($oViewModel, $oViewModel->mode, $oTicketService->getStats()->getThroughPutDays());
 
         $oViewModel->aTeam = $oTicketService->getTeam();
         $oViewModel->aWorked = $oTicketService->getResourceManager()->getActivitiesByResource(2);
