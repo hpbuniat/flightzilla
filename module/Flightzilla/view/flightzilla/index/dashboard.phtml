@@ -2,29 +2,24 @@
     $this->sMemberName = $this->oResourceManager->getResourceByLogin($this->layout()->sCurrentUser);
     $this->oResource = $this->oResourceManager->getResource($this->sMemberName);
 ?>
-
 <ul class="nav nav-tabs" id="ticket-tab">
     <li class="active"><a href="#tab-sprint" data-toggle="tab">Sprint</a></li>
     <li><a href="#tab-tickets" data-toggle="tab">Tickets</a></li>
 </ul>
 
 <div class="tab-content">
-    <div class="tab-pane active" id="tab-sprint">
-        <div class="row kanban">
-            <?php
-            $this->sCarousel = sprintf('member-carousel-%s', 1);
-            $this->aMemberWeekTickets = (isset($this->aWeekTickets[$this->sMemberName]) === true) ? $this->aWeekTickets[$this->sMemberName] : array();
-            echo $this->render('flightzilla/team/partial/sprint-carousel.phtml');
-            ?>
-        </div>
+    <div class="tab-pane active kanban" id="tab-sprint">
+        <?php
+        $this->sCarousel = sprintf('member-carousel-%s', 1);
+        $this->aMemberWeekTickets = (isset($this->aWeekTickets[$this->sMemberName]) === true) ? $this->aWeekTickets[$this->sMemberName] : array();
+        echo $this->render('flightzilla/team/partial/sprint-carousel.phtml');
+        ?>
     </div>
-    <div class="tab-pane" id="tab-tickets">
-        <div class="row kanban">
-            <?php
+    <div class="tab-pane kanban" id="tab-tickets">
+        <?php
             $this->aStack = (isset($this->aTeamBugs[$this->sMemberName]) === true) ? $this->aTeamBugs[$this->sMemberName] : array();
             echo $this->render('flightzilla/index/partial/member.phtml');
-            ?>
-        </div>
+        ?>
     </div>
 </div>
 
