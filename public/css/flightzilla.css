@@ -1,3 +1,8 @@
+.fz-container {
+    margin: 0 1%;
+    max-width: 98%;
+}
+
 img {
     border: none
 }
@@ -77,7 +82,7 @@ div.row-fluid div.center.chuck {
     width: 50px;
 }
 
-.input-xxxlarge {
+textarea.input-xxxlarge {
     width: 95%;
     height: 250px;
 }
@@ -87,11 +92,12 @@ div.row-fluid div.center.chuck {
 }
 
 .kanban h4, .kanban h5 {
-    margin: 0 0 10px;
+    margin: 10px 0;
 }
 
 .kanban .pin .label {
     padding: 2px 3px;
+    display: block;
 }
 
 .label .tooltip {
@@ -124,9 +130,10 @@ div.row-fluid div.center.chuck {
 }
 
 .kanban div.description {
-    height: 60px;
+    height: 50px;
     margin: 0 2px;
     overflow: hidden;
+    width: 100%;
 }
 
 .kanban .theme a {
@@ -137,16 +144,11 @@ div.row-fluid div.center.chuck {
     color: black;
 }
 
-div.modal {
-    left: 25%;
-    width: 75%;
-}
-
 .large-number-gray {
     font-size: 40px;
-    bottom: 0;
+    bottom: 30px;
     position: absolute;
-    color: #aaa;
+    color: #666;
     text-align: center;
     cursor: pointer;
 }
@@ -154,6 +156,7 @@ div.modal {
 .relative-box {
     position: relative;
     height: 75px;
+    text-align: center;
 }
 
 .member-background {
@@ -185,7 +188,27 @@ div.modal {
 }
 
 .member-box .carousel-control {
-    top: 165px;
+    top: 155px;
+}
+.member-box .carousel-indicators {
+    bottom: 0;
+    top: 155px;
+}
+
+.member-box .carousel-indicators li {
+    border-color: #666666;
+}
+
+.member-box .carousel-indicators .active {
+    background-color: #666666;
+}
+
+.member-box .carousel-control.left {
+    left: 295px;
+}
+
+.member-box blockquote {
+    margin: 0;
 }
 
 .member-thumbnail {
@@ -212,39 +235,8 @@ img.lazy {
     width: 120px;
 }
 
-div.progress-heading {
-    margin: 10px 15px;
-    width: 120px;
-}
-
-.progress-heading .bar {
-    background-color: #999;
-    background-repeat: repeat-x;
-}
-
 h4.member-name, h3.table-toggle {
     cursor: pointer;
-}
-
-.print-box {
-    padding: 5px;
-}
-
-.wide-definition .dl-horizontal dt {
-    width: 300px;
-}
-
-.wide-definition .dl-horizontal dd {
-    margin-left: 320px;
-}
-
-.small-definition .dl-horizontal dt {
-    width: 105px;
-}
-
-.small-definition .dl-horizontal dd {
-    margin-left: 110px;
-    overflow: hidden;
 }
 
 .priority {
@@ -273,7 +265,7 @@ h4.member-name, h3.table-toggle {
         content: "" !important;
     }
 
-    tr, img, .print-box {
+    tr, .print-box {
         page-break-inside: avoid;
     }
 
@@ -291,34 +283,6 @@ h4.member-name, h3.table-toggle {
 
     body {
         padding-top: 10px;
-    }
-
-    /* print.css from bootstrap 3 */
-    pre, blockquote {
-        border: 1px solid #999;
-        page-break-inside: avoid;
-    }
-
-    thead {
-        display: table-header-group;
-    }
-
-    img {
-        max-width: 100% !important;
-    }
-
-    p,h2, h3 {
-        orphans: 3;
-        widows: 3;
-    }
-
-    h2, h3 {
-        page-break-after: avoid;
-    }
-
-    @page {
-        margin: 0.5cm;
-        padding: 1cm;
     }
 }
 

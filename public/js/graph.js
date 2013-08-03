@@ -442,7 +442,7 @@
             $.each(t.filter, function(key, value) {
                 if (typeof t.bounds[key] !== 'undefined') {
                     $s = $('<select/>', {
-                        class: 'input-medium graph-filter',
+                        class: 'form-control graph-filter',
                         'data-filter': key,
                         'data-compare': value
                     }).on('change', function() {

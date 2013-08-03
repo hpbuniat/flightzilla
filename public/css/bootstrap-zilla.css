@@ -1,0 +1,178 @@
+/* overwrite/enhance some styles of twbs/bootstrap */
+
+.col-lg-6.well {
+    margin: 0.5%;
+    width: 49%;
+}
+
+.glyphicon-white {
+    color: white;
+}
+
+.nav .label {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.label-inverse {
+    background-color: #333333;
+}
+
+.sidebar-nav {
+    border-radius: 5px 5px 5px 5px;
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+
+.sidebar-nav .nav-header {
+    font-weight: bold;
+}
+
+.sidebar-nav li > a {
+    padding: 5px 15px;
+}
+
+.jumbotron {
+    font-size: inherit;
+}
+
+div.progress-heading {
+    margin: 15px;
+    width: 120px;
+}
+
+.progress-heading .progress-bar {
+    background-color: #999;
+    background-repeat: repeat-x;
+}
+
+.print-box {
+    padding: 5px;
+}
+
+.wide-definition .dl-horizontal dt {
+    width: 300px;
+}
+
+.wide-definition .dl-horizontal dd {
+    margin-left: 320px;
+}
+
+.small-definition .dl-horizontal dt {
+    width: 105px;
+}
+
+.small-definition .dl-horizontal dd {
+    margin-left: 110px;
+    overflow: hidden;
+}
+
+.modal-dialog {
+    left: 25%;
+    width: 75%;
+}
+
+/* restore badge-colors from bootstrap 2 */
+.badge-danger {
+    background-color: #d9534f;
+}
+
+.badge-success {
+    background-color: #5cb85c;
+}
+
+.badge-warning {
+    background-color: #f0ad4e;
+}
+
+.badge-info {
+    background-color: #5bc0de;
+}
+
+.badge-inverse {
+    background-color: #333333;
+}
+
+/* Base styles (regardless of theme) */
+.callout {
+    margin: 20px 0;
+    padding: 15px 5px 5px 15px;
+    border-left: 5px solid #eee;
+}
+.callout h3, .callout h4 {
+    margin-top: 0;
+}
+
+.callout p:last-child {
+    margin-bottom: 0;
+}
+
+.callout code,
+.callout .highlight {
+    background-color: #fff;
+}
+
+/* Themes for different contexts */
+.callout-danger {
+    background-color: #fcf2f2;
+    border-color: #dFb5b4;
+}
+
+.callout-warning {
+    background-color: #fefbed;
+    border-color: #f1e7bc;
+}
+
+.callout-info {
+    background-color: #f0f7fd;
+    border-color: #d0e3f0;
+}
+
+.callout-success {
+    background-color: #5cb85c;
+    border-color: #285c00;
+}
+
+/* carousel from bootstrap 2 */
+.carousel-control {
+    background: none repeat scroll 0 0 #222;
+    border: 3px solid #FFF;
+    border-radius: 23px 23px 23px 23px;
+    color: #FFF;
+    font-size: 60px;
+    font-weight: 100;
+    height: 40px;
+    left: 15px;
+    line-height: 25px;
+    margin-top: -20px;
+    opacity: 0.5;
+    position: absolute;
+    text-align: center;
+    top: 40%;
+    width: 40px;
+}
+
+.carousel-control.right, .carousel-control.left {
+    background-color: #222;
+}
+
+.carousel-control.right {
+    right: 15px;
+    padding-left: 5px;
+}
+
+/* media print */
+@media print {
+    * {
+        color: inherit !important;
+        text-shadow: inherit !important;
+        background: inherit !important;
+        box-shadow: inherit !important;
+    }
+
+    @page {
+        margin: 0.5cm;
+        padding: 1cm;
+    }
+}

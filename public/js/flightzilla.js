@@ -500,7 +500,7 @@
                 }
 
                 string += "|| '''Champion''' ||||||||  [[Image(pokal_icons.png)]]  '''" + name + "''' [[Image(pokal_icons.png)]]  ||";
-                f.modal('Release-Log', '<textarea class="input-xxxlarge">' + head.replace(/##LIST##/, bugs.join(',')) + '\n' + string + '</textarea>');
+                f.modal('Release-Log', '<textarea class="input-xxxlarge form-control">' + head.replace(/##LIST##/, bugs.join(',')) + '\n' + string + '</textarea>');
             });
 
             /**
