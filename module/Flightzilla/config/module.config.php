@@ -124,7 +124,7 @@ return array(
 
                 $oAnalytics = new \Flightzilla\Model\Analytics\Service($oGdataHttpClient, $oConfig);
                 $oAnalytics->setCache($oServiceManager->get('_cache'))
-                    ->setAuth($oServiceManager->get('_auth'));
+                            ->setAuth($oServiceManager->get('_auth'));
 
                 return $oAnalytics;
             },
@@ -162,6 +162,8 @@ return array(
             'analytics' => 'Flightzilla\Controller\AnalyticsController',
             'team' => 'Flightzilla\Controller\TeamController',
             'watchlist' => 'Flightzilla\Controller\WatchlistController',
+            'source' => 'Flightzilla\Controller\SourceController',
+            'stats' => 'Flightzilla\Controller\StatsController'
         ),
     ),
     'controller_plugins' => array(
