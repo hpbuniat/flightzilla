@@ -116,6 +116,13 @@ class Service {
     protected $_config = null;
 
     /**
+     * Is the http-client logged in?
+     *
+     * @var boolean
+     */
+    protected $_bLogin = false;
+
+    /**
      * Create the analytics-model
      *
      * @param \ZendGData\HttpClient $oHttpClient
@@ -174,15 +181,6 @@ class Service {
      */
     public function setAuth(\Flightzilla\Authentication\Adapter $oAuth) {
         $this->_oAuth = $oAuth;
-        if (empty($this->_config->password) !== true) {
-            $this->_oHttp = \ZendGData\ClientLogin::getHttpClient(
-                $this->_config->login,
-                $this->_oAuth->decrypt($this->getCipherKey(), $this->_config->password),
-                \ZendGData\Analytics::AUTH_SERVICE_NAME,
-                $this->_oHttp
-            );
-        }
-
         return $this;
     }
 
@@ -193,6 +191,26 @@ class Service {
      */
     public function getAuth() {
         return $this->_oAuth;
+    }
+
+    /**
+     * Perform login to analytics
+     *
+     * @return $this
+     */
+    public function login() {
+        if (empty($this->_config->password) !== true and $this->_bLogin === false) {
+            $this->_oHttp = \ZendGData\ClientLogin::getHttpClient(
+                $this->_config->login,
+                $this->_oAuth->decrypt($this->getCipherKey(), $this->_config->password),
+                \ZendGData\Analytics::AUTH_SERVICE_NAME,
+                $this->_oHttp
+            );
+
+            $this->_bLogin = true;
+        }
+
+        return $this;
     }
 
     /**

@@ -116,9 +116,8 @@ class AnalyticsController extends AbstractActionController {
 
         $oAnalytics = $this->getServiceLocator()->get('_analytics');
         $sKey = $oAnalytics->getCipherKey();
-        \Zend\Debug\Debug::dump($oAnalytics->getAuth()->encrypt($sKey, Zend_Registry::get('_Config')->model->analytics->unsecurepassword), 'Duration:' . (microtime(true) - STARTTIME) .  ' - ' . __FILE__ . ':' . __LINE__ . PHP_EOL);
-
-        return $oViewModel;
+        \Zend\Debug\Debug::dump($oAnalytics->getAuth()->encrypt($sKey, $this->getServiceLocator()->get('_serviceConfig')->analytics->unsecurepassword), 'Duration:' . (microtime(true) - STARTTIME) .  ' - ' . __FILE__ . ':' . __LINE__ . PHP_EOL);
+        exit;
     }
 }
 

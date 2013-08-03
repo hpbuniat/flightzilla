@@ -80,7 +80,7 @@ class AnalyticsService extends AbstractPlugin {
     /**
      * Get the ticket-service
      *
-     * @return \Flightzilla\Model\Ticket\AbstractSource
+     * @return \Flightzilla\Model\Analytics\Service
      */
     public function getService() {
         if (empty($this->_oService) === true) {
@@ -111,8 +111,8 @@ class AnalyticsService extends AbstractPlugin {
      * @return $this
      */
     public function init(\Zend\View\Model\ViewModel $oViewModel, $sPortal = '') {
-        $oAnalyticsService = $this->getService();
         /* @var $oAnalyticsService \Flightzilla\Model\Analytics\Service */
+        $oAnalyticsService = $this->getService()->login();
 
         $bPaid = ($oViewModel->which === 'sem') ? $oAnalyticsService::ONLY_PAID_TRAFFIC : $oAnalyticsService::ALL_TRAFFIC;
         switch ($oViewModel->mode) {
