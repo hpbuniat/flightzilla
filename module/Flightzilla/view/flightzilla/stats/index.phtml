@@ -1,0 +1,14 @@
+<div class="callout callout-info">
+    <h3>Feature/Bug-Rates</h3>
+</div>
+
+<?php foreach ($this->aStatsFeatureTickets as $sTime => $aStats): ?>
+    <div>
+        <span><?php echo $sTime; ?></span>
+        <div class="progress progress-striped">
+            <?php foreach ($aStats as $sTicketType => $aValues): ?>
+                <div title="<?php echo $sTicketType; ?>" class="tipper progress-bar progress-bar-<?php echo \Flightzilla\Model\Stats\Service::$aTypeColor[$sTicketType]; ?>" style="width: <?php echo $aValues['per']; ?>%"></div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+<?php endforeach; ?>

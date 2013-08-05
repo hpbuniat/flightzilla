@@ -39,14 +39,12 @@
  * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
-namespace Flightzilla\Controller;
+namespace Flightzilla\Model\Stats\Filter\Constraint;
 
-use Zend\Mvc\Controller\AbstractActionController,
-    Zend\View\Model\ViewModel,
-    Flightzilla\Controller\Plugin\TicketService;
+use \Flightzilla\Model\Ticket\Type\Bug;
 
 /**
- * Access statistics
+ * Interface for integrity-constraints
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -54,47 +52,15 @@ use Zend\Mvc\Controller\AbstractActionController,
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class StatsController extends AbstractActionController {
+interface ConstraintInterface {
 
     /**
+     * Check, if the Ticket passes the constraint
      *
+     * @param  Bug $oTicket
+     * @param  mixed $mPayload
+     *
+     * @return boolean If true, the ticket passes
      */
-    public function indexAction() {
-
-        $oViewModel = new ViewModel;
-        $oViewModel->mode = 'dashboard';
-
-        $oTicketPlugin = $this->getPluginManager()->get(TicketService::NAME);
-        $oTicketService = $oTicketPlugin->getService();
-        $oTicketPlugin->init($oViewModel, $oViewModel->mode, \Flightzilla\Model\Stats\Service::TIME_WINDOW_4WEEKS);
-
-        $oTicketStats = $oTicketService->getStats();
-        $oTicketStats->setStack($oTicketService->getAllBugs());
-
-        $aIterateFeatureTickets = array(
-            'last week' => \Flightzilla\Model\Stats\Service::TIME_WINDOW_1WEEK,
-            '2 weeks' => \Flightzilla\Model\Stats\Service::TIME_WINDOW_2WEEKS,
-            '3 weeks' => \Flightzilla\Model\Stats\Service::TIME_WINDOW_3WEEKS,
-            '4 weeks' => null,
-        );
-
-        $aStatsFeatureTickets = array();
-        foreach ($aIterateFeatureTickets as $sTime => $iFilter) {
-
-            $aStatsFeatureTickets[$sTime] = $oTicketStats->setConstraints(array(
-                 array(
-                     'name' => \Flightzilla\Model\Stats\Filter\Constraint\GenericMethodInverse::NAME,
-                     'payload' => 'isContainer',
-                 ),
-                 array(
-                     'name' => \Flightzilla\Model\Stats\Filter\Constraint\Activity::NAME,
-                     'payload' => $iFilter,
-                 )
-            ))->applyConstraints()->getFeatureBugRate();
-        }
-
-        $oViewModel->aStatsFeatureTickets = $aStatsFeatureTickets;
-        return $oViewModel;
-    }
+    public static function check(Bug $oTicket, $mPayload);
 }
-

@@ -154,6 +154,16 @@ class TicketService extends AbstractPlugin {
         }
 
         $oTicketStats = $this->_oService->getStats();
+        $oTicketStats->setConstraints(array(
+            array(
+                'name' => \Flightzilla\Model\Stats\Filter\Constraint\GenericMethodInverse::NAME,
+                'payload' => 'isClosed',
+            ),
+            array(
+                'name' => \Flightzilla\Model\Stats\Filter\Constraint\GenericMethodInverse::NAME,
+                'payload' => 'isContainer',
+            )
+        ));
         if ($oTicketStats->isStackEmpty() === true) {
             $oTicketStats->setStack($oTicketService->getAllBugs());
         }

@@ -39,14 +39,13 @@
  * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
-namespace Flightzilla\Controller;
+namespace Flightzilla\Model\Stats\Filter;
 
-use Zend\Mvc\Controller\AbstractActionController,
-    Zend\View\Model\ViewModel,
-    Flightzilla\Controller\Plugin\TicketService;
+use Flightzilla\Model\Reflector;
+use Flightzilla\Model\Ticket\Type\Bug;
 
 /**
- * Access statistics
+ * Handle the integrity of tickets & their workflow
  *
  * @author Hans-Peter Buniat <hpbuniat@googlemail.com>
  * @copyright 2012-2013 Hans-Peter Buniat <hpbuniat@googlemail.com>
@@ -54,47 +53,93 @@ use Zend\Mvc\Controller\AbstractActionController,
  * @version Release: @package_version@
  * @link https://github.com/hpbuniat/flightzilla
  */
-class StatsController extends AbstractActionController {
+class Manager {
 
     /**
+     * The active constraints
      *
+     * @var array
      */
-    public function indexAction() {
+    protected $_aConstraints = array();
 
-        $oViewModel = new ViewModel;
-        $oViewModel->mode = 'dashboard';
+    /**
+     * Number of stack-entries
+     *
+     * @var int
+     */
+    protected $_iEntries;
 
-        $oTicketPlugin = $this->getPluginManager()->get(TicketService::NAME);
-        $oTicketService = $oTicketPlugin->getService();
-        $oTicketPlugin->init($oViewModel, $oViewModel->mode, \Flightzilla\Model\Stats\Service::TIME_WINDOW_4WEEKS);
-
-        $oTicketStats = $oTicketService->getStats();
-        $oTicketStats->setStack($oTicketService->getAllBugs());
-
-        $aIterateFeatureTickets = array(
-            'last week' => \Flightzilla\Model\Stats\Service::TIME_WINDOW_1WEEK,
-            '2 weeks' => \Flightzilla\Model\Stats\Service::TIME_WINDOW_2WEEKS,
-            '3 weeks' => \Flightzilla\Model\Stats\Service::TIME_WINDOW_3WEEKS,
-            '4 weeks' => null,
+    /**
+     * Add a constraint to the constraint-stack
+     *
+     * @param  string $sConstraint
+     * @param  mixed $mPayload
+     *
+     * @return $this
+     */
+    public function addConstraint($sConstraint, $mPayload) {
+        $this->_aConstraints[] = array(
+            'callback' => array(__NAMESPACE__ . sprintf('\Constraint\%s', $sConstraint), 'check'),
+            'payload' => $mPayload
         );
+        return $this;
+    }
 
-        $aStatsFeatureTickets = array();
-        foreach ($aIterateFeatureTickets as $sTime => $iFilter) {
+    /**
+     * Get the registered constraints
+     *
+     * @return array
+     */
+    public function getConstraints() {
+        return $this->_aConstraints;
+    }
 
-            $aStatsFeatureTickets[$sTime] = $oTicketStats->setConstraints(array(
-                 array(
-                     'name' => \Flightzilla\Model\Stats\Filter\Constraint\GenericMethodInverse::NAME,
-                     'payload' => 'isContainer',
-                 ),
-                 array(
-                     'name' => \Flightzilla\Model\Stats\Filter\Constraint\Activity::NAME,
-                     'payload' => $iFilter,
-                 )
-            ))->applyConstraints()->getFeatureBugRate();
+    /**
+     * Reset the constraints
+     *
+     * @return $this
+     */
+    public function resetConstraints() {
+        $this->_aConstraints = array();
+        return $this;
+    }
+
+    /**
+     * Check a list of tickets, if they pass all constraints
+     *
+     * @param  array $aTickets
+     *
+     * @return array
+     */
+    public function check(array $aTickets = array()) {
+        $aStack = array();
+        $this->_iEntries = 0;
+
+        foreach ($aTickets as $oTicket) {
+            /* @var Bug $oTicket */
+
+            $bPass = true;
+            foreach ($this->_aConstraints as $aCallback) {
+                if (call_user_func_array($aCallback['callback'], array($oTicket, $aCallback['payload'])) === false) {
+                    $bPass = false;
+                }
+            }
+
+            if ($bPass === true) {
+                $this->_iEntries++;
+                $aStack[$oTicket->id()] = $oTicket;
+            }
         }
 
-        $oViewModel->aStatsFeatureTickets = $aStatsFeatureTickets;
-        return $oViewModel;
+        return $aStack;
+    }
+
+    /**
+     * Get the number of entries
+     *
+     * @return int
+     */
+    public function getEntryCount() {
+        return $this->_iEntries;
     }
 }
-

@@ -300,7 +300,7 @@ abstract class AbstractSource {
      */
     public function setStats(\Flightzilla\Model\Stats\Service $oStats = null) {
         if (empty($oStats) === true) {
-            $this->_oStats = new \Flightzilla\Model\Stats\Service($this->_config);
+            $this->_oStats = new \Flightzilla\Model\Stats\Service($this->_config, new \Flightzilla\Model\Stats\Filter\Manager());
         }
 
         return $this;

@@ -76,6 +76,27 @@ class Service {
     const THROUGHPUT_WINDOW = 'last monday';
 
     /**
+     * The number of days for stats
+     *
+     * @var int
+     */
+    const TIME_WINDOW_4WEEKS = 28;
+    const TIME_WINDOW_3WEEKS = 21;
+    const TIME_WINDOW_2WEEKS = 14;
+    const TIME_WINDOW_1WEEK = 7;
+
+    /**
+     * Mapping for ticket-types to progress-bar colors
+     *
+     * @var array
+     */
+    public static $aTypeColor = array(
+        Bug::TYPE_CONCEPT => 'info',
+        Bug::TYPE_BUG => 'warning',
+        Bug::TYPE_FEATURE => 'success',
+    );
+
+    /**
      * The ticket-stack
      *
      * @var array
@@ -111,12 +132,57 @@ class Service {
     protected $_config = null;
 
     /**
+     * The filter-manager
+     *
+     * @var Filter\Manager
+     */
+    protected $_oFilterManager = null;
+
+    /**
      * Create the stats-service
      *
      * @param  \Zend\Config\Config $oConfig
+     * @param  Filter\Manager $oFilterManager
      */
-    public function __construct(\Zend\Config\Config $oConfig) {
+    public function __construct(\Zend\Config\Config $oConfig, Filter\Manager $oFilterManager) {
         $this->_config = $oConfig;
+        $this->_oFilterManager = $oFilterManager;
+    }
+
+    /**
+     * Set the constraints for the filter-manager
+     *
+     * @param  array $aConstraints
+     *
+     * @return $this
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function setConstraints(array $aConstraints) {
+        $this->_oFilterManager->resetConstraints();
+        foreach ($aConstraints as $aConstraint) {
+            if (isset($aConstraint['name']) === true and (isset($aConstraint['payload']) === true or is_null($aConstraint['payload']) === true)) {
+                if (is_null($aConstraint['payload']) !== true) {
+                    $this->_oFilterManager->addConstraint($aConstraint['name'], $aConstraint['payload']);
+                }
+            }
+            else {
+                throw new \InvalidArgumentException('A constraint must contain name and payload!');
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Apply the registered constraints
+     *
+     * @return $this
+     */
+    public function applyConstraints() {
+        $this->_aFilteredStack = $this->_oFilterManager->check($this->_aStack);
+        $this->_iCount = $this->_oFilterManager->getEntryCount();
+        return $this;
     }
 
     /**
@@ -128,15 +194,7 @@ class Service {
      */
     public function setStack(array $aStack) {
         $this->_aStack = $aStack;
-        $this->_aFilteredStack = array();
-
-        foreach ($this->_aStack as $oBug) {
-            /* @var $oBug Bug */
-            if ($oBug->isClosed() !== true and $oBug->isContainer() !== true) {
-                $this->_iCount++;
-                $this->_aFilteredStack[] = $oBug;
-            }
-        }
+        $this->applyConstraints();
 
         // flush the cache
         $this->_aCache = array();
@@ -175,6 +233,28 @@ class Service {
      */
     public function getCount() {
         return $this->_iCount;
+    }
+
+    /**
+     * Get the rate of features and bugs
+     *
+     * @return array
+     */
+    public function getFeatureBugRate() {
+        $aResult = array();
+        foreach ($this->_aFilteredStack as $oTicket) {
+            /* @var Bug $oTicket */
+            $sType = $oTicket->getType();
+            if (empty($aResult[$sType]) === true) {
+                $aResult[$sType] = 0;
+            }
+
+            $aResult[$sType]++;
+        }
+
+        ksort($aResult);
+        $this->_percentify($aResult, $this->getCount());
+        return $aResult;
     }
 
     /**
