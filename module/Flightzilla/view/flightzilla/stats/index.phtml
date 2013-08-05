@@ -7,8 +7,22 @@
         <span><?php echo $sTime; ?></span>
         <div class="progress progress-striped">
             <?php foreach ($aStats as $sTicketType => $aValues): ?>
-                <div title="<?php echo $sTicketType; ?>" class="tipper progress-bar progress-bar-<?php echo \Flightzilla\Model\Stats\Service::$aTypeColor[$sTicketType]; ?>" style="width: <?php echo $aValues['per']; ?>%"></div>
+                <div title="<?php echo sprintf('%s (%d of %d tickets)', $sTicketType, $aValues['num'], $aValues['sum']); ?>" class="tipper progress-bar progress-bar-<?php echo \Flightzilla\Model\Stats\Service::$aTypeColor[$sTicketType]; ?>" style="width: <?php echo $aValues['per']; ?>%"></div>
             <?php endforeach; ?>
+        </div>
+    </div>
+<?php endforeach; ?>
+
+<div class="callout callout-info">
+    <h3>Ticket-Efficiency</h3>
+</div>
+
+<?php foreach ($this->aTicketEfficiency as $sTime => $aStats): ?>
+    <div>
+        <span><?php echo $sTime; ?></span>
+        <div class="progress progress-striped">
+            <div title="<?php echo sprintf('%s (%d of %d hours)', 'Returned', $aStats['returned']['num'], $aStats['returned']['sum']); ?>" class="tipper progress-bar progress-bar-success" style="width: <?php echo $aStats['returned']['per']; ?>%"></div>
+            <div title="<?php echo sprintf('%s (%d of %d hours)', 'Invested', $aStats['invested']['num'], $aStats['invested']['sum']); ?>" class="tipper progress-bar progress-bar-warning" style="width: <?php echo $aStats['invested']['per']; ?>%"></div>
         </div>
     </div>
 <?php endforeach; ?>

@@ -162,13 +162,27 @@ class Service {
         $this->_oFilterManager->resetConstraints();
         foreach ($aConstraints as $aConstraint) {
             if (isset($aConstraint['name']) === true and (isset($aConstraint['payload']) === true or is_null($aConstraint['payload']) === true)) {
-                if (is_null($aConstraint['payload']) !== true) {
-                    $this->_oFilterManager->addConstraint($aConstraint['name'], $aConstraint['payload']);
-                }
+                $this->addConstraint($aConstraint['name'], $aConstraint['payload']);
             }
             else {
                 throw new \InvalidArgumentException('A constraint must contain name and payload!');
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add a single constraint to the filter-manager
+     *
+     * @param  string $sName
+     * @param  mixed $mPayload
+     *
+     * @return $this
+     */
+    public function addConstraint($sName, $mPayload) {
+        if (is_null($mPayload) !== true) {
+            $this->_oFilterManager->addConstraint($sName, $mPayload);
         }
 
         return $this;
@@ -254,6 +268,30 @@ class Service {
 
         ksort($aResult);
         $this->_percentify($aResult, $this->getCount());
+        return $aResult;
+    }
+
+    /**
+     * Get the efficiency for tickets (which tickets are in production)
+     *
+     * @return array
+     */
+    public function getTicketEfficiency() {
+        $aResult = array(
+            'invested' => 0,
+            'returned' => 0
+        );
+        foreach ($this->_aFilteredStack as $oTicket) {
+            /* @var Bug $oTicket */
+            if ($oTicket->isClosed() === true) {
+                $aResult['returned'] += $oTicket->getActualTime();
+            }
+            else {
+                $aResult['invested'] += $oTicket->getActualTime();
+            }
+        }
+
+        $this->_percentify($aResult, ($aResult['invested'] + $aResult['returned']));
         return $aResult;
     }
 
@@ -529,7 +567,8 @@ class Service {
         foreach ($aStack as &$mStat) {
             $mStat = array(
                 'num' => $mStat,
-                'per' => ($iCount === 0) ? 0 : round(($mStat / $iCount) * 100, 2)
+                'per' => ($iCount === 0) ? 0 : round(($mStat / $iCount) * 100, 2),
+                'sum' => $iCount
             );
         }
 

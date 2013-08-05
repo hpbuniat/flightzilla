@@ -69,7 +69,10 @@ class StatsController extends AbstractActionController {
         $oTicketPlugin->init($oViewModel, $oViewModel->mode, \Flightzilla\Model\Stats\Service::TIME_WINDOW_4WEEKS);
 
         $oTicketStats = $oTicketService->getStats();
-        $oTicketStats->setStack($oTicketService->getAllBugs());
+        $oTicketStats->addConstraint(
+            \Flightzilla\Model\Stats\Filter\Constraint\GenericMethodInverse::NAME,
+            'isAdministrative'
+        )->setStack($oTicketService->getAllBugs());
 
         $aIterateFeatureTickets = array(
             'last week' => \Flightzilla\Model\Stats\Service::TIME_WINDOW_1WEEK,
@@ -78,21 +81,31 @@ class StatsController extends AbstractActionController {
             '4 weeks' => null,
         );
 
-        $aStatsFeatureTickets = array();
+        $aTicketEfficiency = array();
+        $aStatsFeatureTickets = array(
+            'current' => $oTicketStats->getFeatureBugRate()
+        );
         foreach ($aIterateFeatureTickets as $sTime => $iFilter) {
 
-            $aStatsFeatureTickets[$sTime] = $oTicketStats->setConstraints(array(
+            $oTicketStats->setConstraints(array(
                  array(
                      'name' => \Flightzilla\Model\Stats\Filter\Constraint\GenericMethodInverse::NAME,
                      'payload' => 'isContainer',
                  ),
                  array(
+                     'name' => \Flightzilla\Model\Stats\Filter\Constraint\GenericMethodInverse::NAME,
+                     'payload' => 'isAdministrative',
+                 ),
+                 array(
                      'name' => \Flightzilla\Model\Stats\Filter\Constraint\Activity::NAME,
                      'payload' => $iFilter,
                  )
-            ))->applyConstraints()->getFeatureBugRate();
+            ))->applyConstraints();
+            $aTicketEfficiency[$sTime] = $oTicketStats->getTicketEfficiency();
+            $aStatsFeatureTickets[$sTime] = $oTicketStats->getFeatureBugRate();
         }
 
+        $oViewModel->aTicketEfficiency = $aTicketEfficiency;
         $oViewModel->aStatsFeatureTickets = $aStatsFeatureTickets;
         return $oViewModel;
     }
