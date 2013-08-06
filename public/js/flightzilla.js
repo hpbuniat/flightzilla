@@ -483,7 +483,7 @@
                     $this = $(this).parents('.bug');
                     name = $this.data('assignee');
                     time =  parseFloat($this.find('.time.green').eq(0).data('time'));
-                    bug = $this.find('.bugLink');
+                    bug = $this.find('.bugLink').eq(0);
 
                     bugs.push(bug.text());
                     string += '|| [' + bug.attr('href') + ' Bug #' + bug.text() + ']|| ' + $.trim($this.find('.bugProd').text()) + ' |||| ' + $this.find('.bugDesc').text() + ' || ' + $this.data('assignee') + ' ||\n';
