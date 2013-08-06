@@ -212,7 +212,6 @@
         refresh: function() {
             var $dContent = this.dContent,
                 $loader = this.loader,
-                $hide = $('div.wrapper > *:not(:first)'),
                 aSema = this.aSemaphore;
 
             /* Hide the content on reload */
@@ -220,18 +219,17 @@
             $loader.css({
                 top:'20px'
             }).show();
-            $hide.hide();
+            $dContent.hide();
 
             if ($dContent.length && $dContent.data('data') && !aSema.list) {
                 aSema.list = true;
 
                 $.get($dContent.data('data'), function(s) {
                     $dContent.html(s).show();
-                    $hide.show();
 
                     f.init();
                 }).error(function() {
-                    $dContent.html('<div class="alert alert-error"><strong>The request-failed!</strong></div>').show();
+                    $dContent.html('<div class="alert alert-danger"><strong>The request-failed!</strong></div>').show();
 
                 }).complete(function() {
                     $loader.hide();
