@@ -14,7 +14,7 @@
         /* @var $oTicket \Flightzilla\Model\Ticket\Type\Bug */
         $bReassign = (empty($this->user) !== true and $sUser !== $oTicket->getAssignee() and $this->dropAction !== \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE);
     ?>
-    <blockquote data-ticket="<?php echo $oTicket->id(); ?>">
+    <blockquote class="bq-small" data-ticket="<?php echo $oTicket->id(); ?>">
     <?php
         $this->oTask = $oTicket;
         echo sprintf('<p>%s</p>', $this->render('flightzilla/index/partial/bug-line.phtml'));
@@ -156,8 +156,8 @@
     endforeach;
     ?>
     <hr />
-    <p class="pull-right">
-        <input type="submit" value="Change selected tickets" class="btn btn-primary btn-large" />
+    <p class="clearfix p-small">
+        <input type="submit" value="Change selected tickets" class="btn btn-primary btn-large pull-right" />
     </p>
 </form>
 

@@ -1,7 +1,7 @@
 <?php
     $iTicket = (empty($this->iTicket) === true) ? false : $this->iTicket;
 ?>
-<blockquote class="toggleNext" data-toggleNext="dl">
+<blockquote class="toggleNext bq-small" data-toggleNext="dl">
     <p><?php echo $this->oStack->getRevisions(\Flightzilla\Model\Mergy\Revision\Stack::REVISIONS_AS_STRING, $iTicket); ?></p>
     <small>svn merge -c <?php echo $this->oStack->getRevisions(\Flightzilla\Model\Mergy\Revision\Stack::REVISIONS_AS_STRING, $iTicket); ?> <?php echo $this->oStack->getRemote() ?></small>
 </blockquote>

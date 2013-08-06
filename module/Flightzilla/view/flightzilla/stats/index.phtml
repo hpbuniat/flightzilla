@@ -7,7 +7,7 @@
         <span><?php echo $sTime; ?></span>
         <div class="progress progress-striped">
             <?php foreach ($aStats as $sTicketType => $aValues): ?>
-                <div title="<?php echo sprintf('%s (%d of %d tickets)', $sTicketType, $aValues['num'], $aValues['sum']); ?>" class="tipper progress-bar progress-bar-<?php echo \Flightzilla\Model\Stats\Service::$aTypeColor[$sTicketType]; ?>" style="width: <?php echo $aValues['per']; ?>%"></div>
+                <div title="<?php echo sprintf('%s: %s%% (%d of %d tickets)', $sTicketType, $aValues['per'], $aValues['num'], $aValues['sum']); ?>" class="tipper progress-bar progress-bar-<?php echo \Flightzilla\Model\Stats\Service::$aTypeColor[$sTicketType]; ?>" style="width: <?php echo $aValues['per']; ?>%"></div>
             <?php endforeach; ?>
         </div>
     </div>
@@ -21,8 +21,8 @@
     <div>
         <span><?php echo $sTime; ?></span>
         <div class="progress progress-striped">
-            <div title="<?php echo sprintf('%s (%d of %d hours)', 'Returned', $aStats['returned']['num'], $aStats['returned']['sum']); ?>" class="tipper progress-bar progress-bar-success" style="width: <?php echo $aStats['returned']['per']; ?>%"></div>
-            <div title="<?php echo sprintf('%s (%d of %d hours)', 'Invested', $aStats['invested']['num'], $aStats['invested']['sum']); ?>" class="tipper progress-bar progress-bar-warning" style="width: <?php echo $aStats['invested']['per']; ?>%"></div>
+            <div title="<?php echo sprintf('%s: %s%% (%d of %d hours)', 'Returned', $aStats['returned']['per'], $aStats['returned']['num'], $aStats['returned']['sum']); ?>" class="tipper progress-bar progress-bar-success" style="width: <?php echo $aStats['returned']['per']; ?>%"></div>
+            <div title="<?php echo sprintf('%s: %s%% (%d of %d hours)', 'Invested', $aStats['invested']['per'], $aStats['invested']['num'], $aStats['invested']['sum']); ?>" class="tipper progress-bar progress-bar-warning" style="width: <?php echo $aStats['invested']['per']; ?>%"></div>
         </div>
     </div>
 <?php endforeach; ?>

@@ -207,7 +207,7 @@ textarea.input-xxxlarge {
     left: 295px;
 }
 
-.member-box blockquote {
+blockquote.bq-small, p.p-small {
     margin: 0;
 }
 

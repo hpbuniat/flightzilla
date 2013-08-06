@@ -529,7 +529,7 @@ class Service {
             $iCompare = strtotime(self::THROUGHPUT_WINDOW);
             foreach ($this->_aStack as $oTicket) {
                 /* @var $oTicket Bug */
-                if ($oTicket->isContainer() !== true) {
+                if ($oTicket->isAdministrative() !== true) {
                     if ($oTicket->getCreationTime() > $iCompare) {
                         $this->_aCache[self::STATS_THROUGHPUT]++;
                     }

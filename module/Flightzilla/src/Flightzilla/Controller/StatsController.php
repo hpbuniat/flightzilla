@@ -43,7 +43,8 @@ namespace Flightzilla\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController,
     Zend\View\Model\ViewModel,
-    Flightzilla\Controller\Plugin\TicketService;
+    Flightzilla\Controller\Plugin\TicketService,
+    Flightzilla\Model\Stats\Service as StatsService;
 
 /**
  * Access statistics
@@ -66,8 +67,9 @@ class StatsController extends AbstractActionController {
 
         $oTicketPlugin = $this->getPluginManager()->get(TicketService::NAME);
         $oTicketService = $oTicketPlugin->getService();
-        $oTicketPlugin->init($oViewModel, $oViewModel->mode, \Flightzilla\Model\Stats\Service::TIME_WINDOW_4WEEKS);
+        $oTicketPlugin->init($oViewModel, $oViewModel->mode, StatsService::TIME_WINDOW_4WEEKS);
 
+        /* @var $oTicketStats StatsService */
         $oTicketStats = $oTicketService->getStats();
         $oTicketStats->addConstraint(
             \Flightzilla\Model\Stats\Filter\Constraint\GenericMethodInverse::NAME,
@@ -75,10 +77,10 @@ class StatsController extends AbstractActionController {
         )->setStack($oTicketService->getAllBugs());
 
         $aIterateFeatureTickets = array(
-            'last week' => \Flightzilla\Model\Stats\Service::TIME_WINDOW_1WEEK,
-            '2 weeks' => \Flightzilla\Model\Stats\Service::TIME_WINDOW_2WEEKS,
-            '3 weeks' => \Flightzilla\Model\Stats\Service::TIME_WINDOW_3WEEKS,
-            '4 weeks' => null,
+            'last week' => StatsService::TIME_WINDOW_1WEEK,
+            '2 weeks' => StatsService::TIME_WINDOW_2WEEKS,
+            '3 weeks' => StatsService::TIME_WINDOW_3WEEKS,
+            '4 weeks' => StatsService::TIME_WINDOW_4WEEKS
         );
 
         $aTicketEfficiency = array();

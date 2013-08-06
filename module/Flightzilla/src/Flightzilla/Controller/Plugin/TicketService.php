@@ -174,6 +174,7 @@ class TicketService extends AbstractPlugin {
         $oView->aPriorities = $oTicketStats->getPriorities();
         $oView->aSeverities = $oTicketStats->getSeverities();
         $oView->sChuck = $oTicketStats->getChuckStatus();
+
         $oView->iThroughPut = $oTicketStats->getThroughPut();
 
         $oTasks = new \Flightzilla\Model\Ticket\Task\Manager($oTicketService);
