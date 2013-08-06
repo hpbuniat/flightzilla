@@ -33,7 +33,7 @@
     <div class="col-lg-<?php echo (11 - $this->iSplit); ?>">
         <?php if ($this->sRowMode ==  'project' and $iActive === 0 and $iShowed === 0): ?>
             <?php if ($this->oProject->hasDevelopment() === false): ?>
-                <div class="alert alert-error">
+                <div class="alert alert-danger">
                     There are no development-tickets for this project!
                 </div>
             <?php else: ?>

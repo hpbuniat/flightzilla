@@ -22,7 +22,7 @@ foreach ($this->aData as $sKey => $fValue) {
     }
 }
 ?>
-<tr class="<?php echo ($aDiff['conversion'] < 0 ? 'alert-error' : ''); ?>">
+<tr class="<?php echo ($aDiff['conversion'] < 0 ? 'alert-danger' : ''); ?>">
     <td><?php echo $this->sCompareDate; ?></td>
     <td><?php echo sprintf("%d (%+01.2f%%)", $this->aCompareData['visits'], $aDiff['visits']); ?></td>
     <td><?php echo sprintf("%d (%+01.2f%%)", $this->aCompareData['transactions'], $aDiff['transactions']); ?></td>
