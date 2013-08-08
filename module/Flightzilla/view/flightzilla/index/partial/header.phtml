@@ -102,10 +102,10 @@ $oControllerViewModel = reset($aViewModels);
                     endif; ?>
                 </ul>
             </li>
-            <li><a class="refresh-button" href="#"><i class="glyphicon glyphicon-refresh glyphicon-white"></i> Refresh</a></li>
-            <li class="dropdown">
+            <li class="tipper" data-title="Refresh"><a class="refresh-button" href="#"><i class="glyphicon glyphicon-refresh glyphicon-white"></i></a></li>
+            <li class="dropdown tipper" data-title="<?php echo $this->layout()->sCurrentUser; ?>">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    <i class="glyphicon glyphicon-user glyphicon-white"></i> <?php echo $this->layout()->sCurrentUser; ?>
+                    <i class="glyphicon glyphicon-user glyphicon-white"></i>
                     <b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu">

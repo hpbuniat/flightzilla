@@ -211,6 +211,10 @@ blockquote.bq-small, p.p-small {
     margin: 0;
 }
 
+blockquote.bq-small {
+    padding: 10px;
+}
+
 .member-thumbnail {
     padding-right: 10px;
     width: 40%;
