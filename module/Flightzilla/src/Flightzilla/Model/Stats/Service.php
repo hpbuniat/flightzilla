@@ -67,6 +67,7 @@ class Service {
     const STATS_STATUS = 'status';
     const STATS_THROUGHPUT = 'throughput';
     const STATS_TYPE = 'throughput';
+    const STATS_DIFF = 'difference';
 
     /**
      * The time window for the ticket-throughput
@@ -74,6 +75,14 @@ class Service {
      * @var string
      */
     const THROUGHPUT_WINDOW = 'last monday';
+
+    /**
+     * Identifier for diff-chart
+     *
+     * @var string
+     */
+    const DIFF_CREATED = 'created';
+    const DIFF_RESOLVED = 'resolved';
 
     /**
      * The number of days for stats
@@ -247,6 +256,42 @@ class Service {
      */
     public function getCount() {
         return $this->_iCount;
+    }
+
+    /**
+     * Get the data for a daily-diff-chart
+     *
+     * @return array
+     */
+    public function getDailyDifference() {
+        if (empty($this->_aCache[self::STATS_DIFF]) === true) {
+            $aResult = array();
+            $iRef = strtotime(sprintf('-%d days', self::TIME_WINDOW_4WEEKS), strtotime(date('Y-m-d')));
+            foreach ($this->_aFilteredStack as $oTicket) {
+                /* @var Bug $oTicket */
+                if ($oTicket->getCreationTime() >= $iRef) {
+                    $sCreationDate = date('Ymd', $oTicket->getCreationTime());
+                    if (empty($aResult[self::DIFF_CREATED][$sCreationDate]) === true) {
+                        $aResult[self::DIFF_CREATED][$sCreationDate] = 0;
+                    }
+
+                    $aResult[self::DIFF_CREATED][$sCreationDate]++;
+
+                    if ($oTicket->isStatusAtLeast(Bug::STATUS_RESOLVED) === true) {
+                        $sResolveDate = date('Ymd', $oTicket->getLastActivity());
+                        if (empty($aResult[self::DIFF_RESOLVED][$sResolveDate]) === true) {
+                            $aResult[self::DIFF_RESOLVED][$sResolveDate] = 0;
+                        }
+
+                        $aResult[self::DIFF_RESOLVED][$sResolveDate]++;
+                    }
+                }
+            }
+
+            $this->_aCache[self::STATS_DIFF] = $aResult;
+        }
+
+        return $this->_aCache[self::STATS_DIFF];
     }
 
     /**

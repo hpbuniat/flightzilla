@@ -1,4 +1,30 @@
 <div class="callout callout-info">
+    <h3>Created vs. Resolved Issues</h3>
+</div>
+
+<div id="project-canvas" class="print-fullwidth"></div>
+
+<?php $this->inlineScript()
+    ->appendFile($this->basePath() . '/vendor/d3.min.js')
+    ->appendFile($this->basePath() . '/js/graph.js');
+?>
+<script type="text/javascript">
+    $(function() {
+        f.loader.css({
+            top:'-130px'
+        }).show();
+
+        d3.json(<?php echo json_encode($this->aDailyDifference); ?>, function(data) {
+            f.loader.hide();
+
+            // draw
+            diffChart.draw(data);
+        });
+    });
+</script>
+
+
+<div class="callout callout-info">
     <h3>Feature/Bug-Rates</h3>
 </div>
 

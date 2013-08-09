@@ -76,6 +76,8 @@ class StatsController extends AbstractActionController {
             'isAdministrative'
         )->setStack($oTicketService->getAllBugs());
 
+        $oViewModel->aDailyDifference = $oTicketStats->getDailyDifference();
+
         $aIterateFeatureTickets = array(
             'last week' => StatsService::TIME_WINDOW_1WEEK,
             '2 weeks' => StatsService::TIME_WINDOW_2WEEKS,

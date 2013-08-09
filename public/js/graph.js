@@ -517,5 +517,90 @@
 
             return data;
         }
-    }
+    };
+
+    window.diffChart = {
+
+        draw: function(data) {
+            var margin = {top: 20, right: 20, bottom: 30, left: 50},
+                width = 960 - margin.left - margin.right,
+                height = 500 - margin.top - margin.bottom;
+
+            var parseDate = d3.time.format("%Y%m%d").parse;
+
+            var x = d3.time.scale()
+                .range([0, width]);
+
+            var y = d3.scale.linear()
+                .range([height, 0]);
+
+            var xAxis = d3.svg.axis()
+                .scale(x)
+                .orient("bottom");
+
+            var yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("left");
+
+            var line = d3.svg.area()
+                .interpolate("basis")
+                .x(function(d) { return x(d.date); })
+                .y(function(d) { return y(d["created"]); });
+
+            var area = d3.svg.area()
+                .interpolate("basis")
+                .x(function(d) { return x(d.date); })
+                .y1(function(d) { return y(d["created"]); });
+
+            var svg = d3.select("#project-canvas").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            data.forEach(function(d) {
+                d.date = parseDate(d.date);
+                d["created"]= +d["created"];
+                d["resolved"] = +d["resolved"];
+            });
+
+            x.domain(d3.extent(data, function(d) { return d.date; }));
+
+            y.domain([
+                d3.min(data, function(d) { return Math.min(d["created"], d["resolved"]); }),
+                d3.max(data, function(d) { return Math.max(d["created"], d["resolved"]); })
+            ]);
+
+            svg.datum(data);
+
+            svg.append("clipPath")
+                .attr("id", "clip-below")
+                .append("path")
+                .attr("d", area.y0(height));
+
+            svg.append("clipPath")
+                .attr("id", "clip-above")
+                .append("path")
+                .attr("d", area.y0(0));
+
+            svg.append("path")
+                .attr("class", "area above")
+                .attr("clip-path", "url(#clip-above)")
+                .attr("d", area.y0(function(d) { return y(d["resolved"]); }));
+
+            svg.append("path")
+                .attr("class", "area below")
+                .attr("clip-path", "url(#clip-below)")
+                .attr("d", area);
+
+            svg.append("path")
+                .attr("class", "line")
+                .attr("d", line);
+
+            svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis);
+        }
+    };
 }(jQuery));
