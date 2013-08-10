@@ -382,6 +382,16 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     protected $_aWorked = array();
 
+    /**
+     * Cache for various methods
+     *
+     * @var array
+     */
+    protected $_aMethodCache = array();
+    const CACHE_ISMOSTLIKELYINTRUNK  = 'ismostlikelyintrunk';
+    const CACHE_HASDEVELOPMENT  = 'hasdevelopment';
+    const CACHE_ISMERGED  = 'ismerged';
+
 
     /**
      * Create the bug
@@ -906,11 +916,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function doesBlock() {
 
-        if (isset($this->_data->blocked) === true) {
-            return true;
-        }
-
-        return false;
+        return (isset($this->_data->blocked) === true);
     }
 
     /**
@@ -1475,27 +1481,36 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function isMostLikelyInTrunk() {
 
-        $bIsMostLikelyInTrunk = false;
-        if ($this->couldBeInTrunk() === true) {
-            $aBlocked                 = $this->_oBugzilla->getBugListByIds($this->blocks());
-            $bTrunk                   = (empty($aBlocked) === true and $this->hasFlag(Bug::FLAG_SCREEN, Bugzilla::BUG_FLAG_GRANTED) === true) ? false : true;
-            $bOnlyOrganizationTickets = (empty($aBlocked) === true) ? false : true;
+        if (isset($this->_aMethodCache[self::CACHE_ISMOSTLIKELYINTRUNK]) === false) {
+            $bIsMostLikelyInTrunk = false;
+            if ($this->couldBeInTrunk() === true) {
+                $aBlocked                 = $this->_oBugzilla->getBugListByIds($this->blocks());
+                $bTrunk                   = (empty($aBlocked) === true and $this->hasFlag(Bug::FLAG_SCREEN, Bugzilla::BUG_FLAG_GRANTED) === true) ? false : true;
+                $bOnlyOrganizationTickets = (empty($aBlocked) === true) ? false : true;
 
-            foreach ($aBlocked as $oBlocked) {
-                /* @var $oBlocked Bug */
-                if ($oBlocked->isContainer() !== true and $oBlocked->isConcept() !== true) {
-                    $bOnlyOrganizationTickets = false;
+                foreach ($aBlocked as $oBlocked) {
+                    /* @var $oBlocked Bug */
+                    if ($oBlocked->isContainer() !== true and $oBlocked->isConcept() !== true) {
+                        $bOnlyOrganizationTickets = false;
+                    }
+
+                    if ($oBlocked->isContainer() === true) {
+                        if ($oBlocked->isMerged() !== true) {
+                            $bTrunk = false;
+                        }
+                    }
+                    else if ($oBlocked->couldBeInTrunk() !== true and $oBlocked->isMerged() !== true) {
+                        $bTrunk = false;
+                    }
                 }
 
-                if ($oBlocked->couldBeInTrunk() !== true and $oBlocked->isMerged() !== true) {
-                    $bTrunk = false;
-                }
+                $bIsMostLikelyInTrunk = ($bTrunk === true and $bOnlyOrganizationTickets === false);
             }
 
-            $bIsMostLikelyInTrunk = ($bTrunk === true and $bOnlyOrganizationTickets === false);
+            $this->_aMethodCache[self::CACHE_ISMOSTLIKELYINTRUNK] = $bIsMostLikelyInTrunk;
         }
 
-        return $bIsMostLikelyInTrunk;
+        return $this->_aMethodCache[self::CACHE_ISMOSTLIKELYINTRUNK];
     }
 
     /**

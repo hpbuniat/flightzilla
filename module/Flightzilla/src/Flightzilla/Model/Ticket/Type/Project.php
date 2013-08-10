@@ -275,16 +275,20 @@ class Project extends Bug {
      */
     public function isMerged() {
 
-        $bReady = true;
-        foreach ($this->getDependsAsStack() as $oTicket) {
-            /* @var Bug $oTicket */
-            if ($oTicket->couldBeInTrunk() === false) {
-                $bReady = false;
-                break;
+        if (isset($this->_aMethodCache[Bug::CACHE_ISMERGED]) === false) {
+            $bReady = true;
+            foreach ($this->getDependsAsStack() as $oTicket) {
+                /* @var Bug $oTicket */
+                if ($oTicket->couldBeInTrunk() === false) {
+                    $bReady = false;
+                    break;
+                }
             }
+
+            $this->_aMethodCache[Bug::CACHE_ISMERGED] = ($this->hasDevelopment() === true and $bReady === true and empty($this->_aDepends) === false);
         }
 
-        return ($this->hasDevelopment() === true and $bReady === true and empty($this->_aDepends) === false);
+        return $this->_aMethodCache[Bug::CACHE_ISMERGED];
     }
 
     /**
@@ -293,17 +297,17 @@ class Project extends Bug {
      * @return boolean
      */
     public function hasDevelopment() {
-        if (is_null($this->_bOnlyConcepts) === true) {
-            $this->_bOnlyConcepts = true;
+        if (isset($this->_aMethodCache[Bug::CACHE_HASDEVELOPMENT]) === false) {
+            $this->_aMethodCache[Bug::CACHE_HASDEVELOPMENT] = true;
             foreach ($this->getDependsAsStack() as $oTicket) {
                 /* @var Bug $oTicket */
                 if ($oTicket->isConcept() === false) {
-                    $this->_bOnlyConcepts = false;
+                    $this->_aMethodCache[Bug::CACHE_HASDEVELOPMENT] = false;
                 }
             }
         }
 
-        return ($this->_bOnlyConcepts === false);
+        return ($this->_aMethodCache[Bug::CACHE_HASDEVELOPMENT] === false);
     }
 
     /**
