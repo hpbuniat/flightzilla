@@ -71,6 +71,7 @@ class StatsController extends AbstractActionController {
 
         /* @var $oTicketStats StatsService */
         $oTicketStats = $oTicketService->getStats();
+        $oViewModel->oTicketService = $oTicketService;
 
         // use the "current" stack to get the feature/bug-rate for the current-ticket-list
         $aAdministrativeConstraint = array(
@@ -106,16 +107,18 @@ class StatsController extends AbstractActionController {
             '4 weeks' => StatsService::TIME_WINDOW_4WEEKS
         );
 
-        $aTicketEfficiency = array();
+        $aTicketEfficiency = $aProjectTimes = array();
         foreach ($aIterateFeatureTickets as $sTime => $iFilter) {
             $aConstraints[\Flightzilla\Model\Stats\Filter\Constraint\Activity::NAME]['payload'] = $iFilter;
             $oTicketStats->setConstraints($aConstraints)->applyConstraints();
             $aTicketEfficiency[$sTime] = $oTicketStats->getTicketEfficiency();
             $aStatsFeatureTickets[$sTime] = $oTicketStats->getFeatureBugRate();
+            $aProjectTimes[$sTime] = $oTicketStats->getProjectTimes($iFilter);
         }
 
         $oViewModel->aTicketEfficiency = $aTicketEfficiency;
         $oViewModel->aStatsFeatureTickets = $aStatsFeatureTickets;
+        $oViewModel->aProjectTimes = $aProjectTimes;
         return $oViewModel;
     }
 }

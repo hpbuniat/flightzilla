@@ -48,3 +48,37 @@
         </div>
     <?php endforeach; ?>
 </div>
+
+<div class="callout callout-info toggle" data-target="project-times">
+    <h3>Project-Times</h3>
+</div>
+
+<div class="project-times">
+    <ul class="nav nav-tabs" id="myTab">
+        <?php foreach ($this->aProjectTimes as $sTime => $aStats): ?>
+            <li><a data-toggle="tab" href="#a<?php echo substr(md5($sTime), 0, 6); ?>"><?php echo $sTime; ?></a></li>
+        <?php endforeach; ?>
+    </ul>
+
+    <div class="tab-content">
+        <?php foreach ($this->aProjectTimes as $sTime => $aStats): ?>
+            <div class="tab-pane" id="a<?php echo substr(md5($sTime), 0, 6); ?>">
+                <?php foreach ($aStats as $iTicket => $aHours):
+                    if ($aHours['hoursWindow'] > 0):
+                        $fWidth = (100 * round($aHours['hoursWindow'] / $aHours['hours'], 2));
+                        ?>
+                        <div class="col-lg-4">
+                            <span><?php echo (is_numeric($iTicket) === true) ? $this->oTicketService->getBugById($iTicket)->title() : ucwords($iTicket); ?></span>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="progress progress-striped">
+                                <div title="<?php echo sprintf('%s: %d hours', 'Time-Window', $aHours['hoursWindow']); ?>" class="tipper progress-bar progress-bar-success" style="width: <?php echo $fWidth; ?>%"></div>
+                                <div title="<?php echo sprintf('%s: %d hours', 'Total', $aHours['hours']); ?>" class="tipper progress-bar progress-bar-warning" style="width: <?php echo 100 - $fWidth; ?>%"></div>
+                            </div>
+                        </div>
+                <?php endif;
+                endforeach; ?>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</div>

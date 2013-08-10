@@ -68,6 +68,7 @@ class Service {
     const STATS_THROUGHPUT = 'throughput';
     const STATS_TYPE = 'throughput';
     const STATS_DIFF = 'difference';
+    const STATS_PROJECT = 'project-times';
 
     /**
      * The time window for the ticket-throughput
@@ -259,6 +260,106 @@ class Service {
     }
 
     /**
+     * Get time-stats for projects
+     *
+     * @param  int $iTimeWindow
+     *
+     * @return array
+     */
+    public function getProjectTimes($iTimeWindow = null) {
+        $aResult = array(
+            Bug::TYPE_BUG => array(
+                'hours' => 0,
+                'hoursWindow' => 0
+            )
+        );
+        foreach ($this->_aFilteredStack as $oTicket) {
+            /* @var Bug $oTicket */
+            $aProjects = $oTicket->getProjects();
+            $iTotalTime = $oTicket->getActualTime();
+            if ($iTotalTime > 0) {
+                $iHoursWindow = (empty($iTimeWindow) === true) ? $iTotalTime : $this->_getWorkedHoursOfTimeWindow($oTicket->getWorkedHours(), $this->_getUnixTimeFromWindow($iTimeWindow));
+                if (empty($aProjects) === true) {
+                    if ($oTicket->isType(Bug::TYPE_BUG) === true) {
+                        $aResult[Bug::TYPE_BUG]['hours'] += $iTotalTime;
+                        $aResult[Bug::TYPE_BUG]['hoursWindow'] += $iHoursWindow;
+                    }
+                }
+                else {
+                    foreach ($aProjects as $iProject => $oProject) {
+                        if (empty($aResult[$iProject]) === true) {
+                            $aResult[$iProject] = array(
+                                'hours' => 0,
+                                'hoursWindow' => 0
+                            );
+                        }
+
+                        $aResult[$iProject]['hours'] += $iTotalTime;
+                        $aResult[$iProject]['hoursWindow'] += $iHoursWindow;
+                    }
+                }
+            }
+        }
+
+        return $this->_sortHelper($aResult, 'hoursWindow', true);
+    }
+
+    /**
+     * Sort a multi-dimensional array
+     *
+     * @param  array $aHaystack
+     * @param  string $sKey
+     * @param  boolean $bReverse
+     *
+     * @return array
+     */
+    protected function _sortHelper($aHaystack, $sKey, $bReverse = false) {
+        $aSort = $aResult = array();
+        foreach ($aHaystack as $mIndex => $aNeedle) {
+            $aSort[$mIndex] = $aNeedle[$sKey];
+        }
+
+        ($bReverse === true) ? arsort($aSort) : asort($aSort);
+        foreach ($aSort as $mIndex => $mNeedle) {
+            $aResult[$mIndex] = $aHaystack[$mIndex];
+        }
+
+        unset($aSort);
+        return $aResult;
+    }
+
+    /**
+     * Get the worked hours in a particular time-frame
+     *
+     * @param  array $aHours
+     * @param  int $iTimeWindow
+     *
+     * @return float
+     */
+    protected function _getWorkedHoursOfTimeWindow($aHours, $iTimeWindow) {
+        $fHours = 0;
+        foreach ($aHours as $aHour) {
+            if ($aHour['datetime'] >= $iTimeWindow) {
+                $fHours += $aHour['duration'];
+            }
+        }
+
+        return $fHours;
+    }
+
+    /**
+     * Get the unix-timestamp for a date X days in the past
+     *
+     * @param  int $iWindow
+     *
+     * @return int
+     */
+    protected function _getUnixTimeFromWindow($iWindow) {
+        return strtotime(sprintf('-%d days', $iWindow), strtotime(date('Y-m-d')));
+    }
+
+
+    /**
      * Get the data for a daily-diff-chart
      *
      * @return array
@@ -266,7 +367,7 @@ class Service {
     public function getDailyDifference() {
         if (empty($this->_aCache[self::STATS_DIFF]) === true) {
             $aResult = array();
-            $iRef = strtotime(sprintf('-%d days', self::TIME_WINDOW_4WEEKS), strtotime(date('Y-m-d')));
+            $iRef = $this->_getUnixTimeFromWindow(self::TIME_WINDOW_4WEEKS);
 
             foreach ($this->_aFilteredStack as $oTicket) {
                 /* @var Bug $oTicket */

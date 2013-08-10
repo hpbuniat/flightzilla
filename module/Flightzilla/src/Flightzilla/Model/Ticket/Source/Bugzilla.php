@@ -688,7 +688,13 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      */
     public function getChangedTicketsWithinDays($sDays = '0d') {
         $sToken = md5('get-changed-tickets' . $sDays . serialize($this->_aProject) . date('dmy'));
-        $bugIds = (empty($this->_aBugsListCache[$sToken]) === true) ? array() : $this->_aBugsListCache[$sToken];
+        $bugIds = array();
+        if ($sDays === '0d') {
+            $bugIds = (empty($this->_aBugsListCache[$sToken]) === true) ? array() : $this->_aBugsListCache[$sToken];
+        }
+        else {
+            $bugIds = $this->_oCache->getItem($sToken);
+        }
 
         if (empty($bugIds) === true and empty($sDays) !== true) {
             $this->_addParams();
@@ -706,10 +712,15 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             $page   = $this->_request(self::BUG_LIST);
             $bugIds = $this->_getBugIdsFromPage($page);
 
-            $this->_aBugsListCache[$sToken] = $bugIds;
+            if ($sDays === '0d') {
+                $this->_aBugsListCache[$sToken] = $bugIds;
+            }
+            else {
+                $this->_oCache->setItem($sToken, $bugIds);
+            }
         }
 
-        $bugs = $this->getBugListByIds($bugIds, false);
+        $bugs = $this->getBugListByIds($bugIds, ($sDays !== '0d'));
         $this->_preSort($bugs);
 
         unset($page, $bugIds, $bugs);
