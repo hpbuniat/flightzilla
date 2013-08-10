@@ -687,7 +687,10 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
      * @return $this
      */
     public function getChangedTicketsWithinDays($sDays = '0d') {
-        if (empty($sDays) !== true) {
+        $sToken = md5('get-changed-tickets' . $sDays . serialize($this->_aProject) . date('dmy'));
+        $bugIds = (empty($this->_aBugsListCache[$sToken]) === true) ? array() : $this->_aBugsListCache[$sToken];
+
+        if (empty($bugIds) === true and empty($sDays) !== true) {
             $this->_addParams();
             $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_CLARIFICATION);
             $this->_setGetParameter(self::BUG_PARAM_STATUS, Bug::STATUS_REOPENED);
@@ -703,11 +706,13 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             $page   = $this->_request(self::BUG_LIST);
             $bugIds = $this->_getBugIdsFromPage($page);
 
-            $bugs = $this->getBugListByIds($bugIds, false);
-            $this->_preSort($bugs);
-
-            unset($page, $bugIds, $bugs);
+            $this->_aBugsListCache[$sToken] = $bugIds;
         }
+
+        $bugs = $this->getBugListByIds($bugIds, false);
+        $this->_preSort($bugs);
+
+        unset($page, $bugIds, $bugs);
 
         return $this;
     }
@@ -775,6 +780,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
 
                 case Bug::STATUS_VERIFIED:
                 case Bug::STATUS_RESOLVED:
+                case Bug::STATUS_CLOSED:
                     $this->_fixedBugs[$oTicket->id()] = $oTicket;
                     break;
 
@@ -988,7 +994,14 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             sort($mIds);
             $sHash = md5(serialize($mIds));
             if ($bCache !== true or empty($this->_aBugsListCache[$sHash]) === true) {
-                $this->_aBugsListCache[$sHash] = $this->_getXmlFromBugIds($mIds, $bCache);
+                $aListCache = array();
+                $aChunks = array_chunk($mIds, 750);
+                foreach ($aChunks as $aChunk) {
+                    $aListCache = array_merge($aListCache, $this->_getXmlFromBugIds($aChunk, $bCache));
+                }
+
+                $this->_aBugsListCache[$sHash] = $aListCache;
+                unset($aChunks);
             }
 
             $aReturn = $this->_aBugsListCache[$sHash];
