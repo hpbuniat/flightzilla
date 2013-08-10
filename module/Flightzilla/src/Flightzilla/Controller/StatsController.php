@@ -71,11 +71,32 @@ class StatsController extends AbstractActionController {
 
         /* @var $oTicketStats StatsService */
         $oTicketStats = $oTicketService->getStats();
-        $oTicketStats->addConstraint(
-            \Flightzilla\Model\Stats\Filter\Constraint\GenericMethodInverse::NAME,
-            'isAdministrative'
-        )->setStack($oTicketService->getAllBugs());
 
+        // use the "current" stack to get the feature/bug-rate for the current-ticket-list
+        $aAdministrativeConstraint = array(
+            'name' => \Flightzilla\Model\Stats\Filter\Constraint\GenericMethodInverse::NAME,
+            'payload' => 'isAdministrative',
+        );
+
+        $oTicketStats->addConstraint($aAdministrativeConstraint['name'], $aAdministrativeConstraint['payload'])->setStack($oTicketService->getAllBugs());
+        $aStatsFeatureTickets = array(
+            'current' => $oTicketStats->getFeatureBugRate()
+        );
+
+        // set the 4 week-constraints to get the daily-diff for 4 weeks
+        $aConstraints = array(
+            array(
+                'name' => \Flightzilla\Model\Stats\Filter\Constraint\GenericMethodInverse::NAME,
+                'payload' => 'isContainer',
+            ),
+            $aAdministrativeConstraint,
+            \Flightzilla\Model\Stats\Filter\Constraint\Activity::NAME => array(
+                'name' => \Flightzilla\Model\Stats\Filter\Constraint\Activity::NAME,
+                'payload' => StatsService::TIME_WINDOW_4WEEKS,
+            )
+        );
+
+        $oTicketStats->setConstraints($aConstraints)->setStack($oTicketService->getAllBugs());
         $oViewModel->aDailyDifference = $oTicketStats->getDailyDifference();
 
         $aIterateFeatureTickets = array(
@@ -86,25 +107,9 @@ class StatsController extends AbstractActionController {
         );
 
         $aTicketEfficiency = array();
-        $aStatsFeatureTickets = array(
-            'current' => $oTicketStats->getFeatureBugRate()
-        );
         foreach ($aIterateFeatureTickets as $sTime => $iFilter) {
-
-            $oTicketStats->setConstraints(array(
-                 array(
-                     'name' => \Flightzilla\Model\Stats\Filter\Constraint\GenericMethodInverse::NAME,
-                     'payload' => 'isContainer',
-                 ),
-                 array(
-                     'name' => \Flightzilla\Model\Stats\Filter\Constraint\GenericMethodInverse::NAME,
-                     'payload' => 'isAdministrative',
-                 ),
-                 array(
-                     'name' => \Flightzilla\Model\Stats\Filter\Constraint\Activity::NAME,
-                     'payload' => $iFilter,
-                 )
-            ))->applyConstraints();
+            $aConstraints[\Flightzilla\Model\Stats\Filter\Constraint\Activity::NAME]['payload'] = $iFilter;
+            $oTicketStats->setConstraints($aConstraints)->applyConstraints();
             $aTicketEfficiency[$sTime] = $oTicketStats->getTicketEfficiency();
             $aStatsFeatureTickets[$sTime] = $oTicketStats->getFeatureBugRate();
         }

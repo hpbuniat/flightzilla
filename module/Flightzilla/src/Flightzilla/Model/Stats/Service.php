@@ -267,6 +267,7 @@ class Service {
         if (empty($this->_aCache[self::STATS_DIFF]) === true) {
             $aResult = array();
             $iRef = strtotime(sprintf('-%d days', self::TIME_WINDOW_4WEEKS), strtotime(date('Y-m-d')));
+
             foreach ($this->_aFilteredStack as $oTicket) {
                 /* @var Bug $oTicket */
                 if ($oTicket->getLastActivity() >= $iRef) {
