@@ -329,3 +329,23 @@ text.circle-label {
     text-anchor: middle;
 }
 .priority-p5 { background-color: #999; }
+
+.diff-graph .axis path, .diff-graph .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.diff-graph .area.above {
+    fill: rgb(252,141,89);
+}
+
+.diff-graph .area.below {
+    fill: rgb(145,207,96);
+}
+
+.diff-graph .line {
+    fill: none;
+    stroke: #000;
+    stroke-width: 1.5px;
+}

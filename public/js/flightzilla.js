@@ -625,6 +625,11 @@
                 $('#buglist-form').prop('target', '_blank').prop('action', GO_BUGZILLA).submit();
             });
 
+            /**
+             * Toggle-helper
+             *
+             * Link gets class "toggle", target should have the class in triggers data-target
+             */
             $('.toggle').on('click', function() {
                 $('.' + $(this).data('target')).toggle();
             });

@@ -520,13 +520,17 @@
     };
 
     window.diffChart = {
-
         draw: function(data) {
             var margin = {top: 20, right: 20, bottom: 30, left: 50},
                 width = 960 - margin.left - margin.right,
-                height = 500 - margin.top - margin.bottom;
+                height = 400 - margin.top - margin.bottom;
 
             var parseDate = d3.time.format("%Y%m%d").parse;
+            data.forEach(function(d) {
+                d.date = parseDate(d.date.toString());
+                d["resolved"]= +d["resolved"];
+                d["created"] = +d["created"];
+            });
 
             var x = d3.time.scale()
                 .range([0, width]);
@@ -545,12 +549,12 @@
             var line = d3.svg.area()
                 .interpolate("basis")
                 .x(function(d) { return x(d.date); })
-                .y(function(d) { return y(d["created"]); });
+                .y(function(d) { return y(d["resolved"]); });
 
             var area = d3.svg.area()
                 .interpolate("basis")
                 .x(function(d) { return x(d.date); })
-                .y1(function(d) { return y(d["created"]); });
+                .y1(function(d) { return y(d["resolved"]); });
 
             var svg = d3.select("#project-canvas").append("svg")
                 .attr("width", width + margin.left + margin.right)
@@ -558,17 +562,11 @@
                 .append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-            data.forEach(function(d) {
-                d.date = parseDate(d.date);
-                d["created"]= +d["created"];
-                d["resolved"] = +d["resolved"];
-            });
-
             x.domain(d3.extent(data, function(d) { return d.date; }));
 
             y.domain([
-                d3.min(data, function(d) { return Math.min(d["created"], d["resolved"]); }),
-                d3.max(data, function(d) { return Math.max(d["created"], d["resolved"]); })
+                d3.min(data, function(d) { return Math.min(d["resolved"], d["created"]); }),
+                d3.max(data, function(d) { return Math.max(d["resolved"], d["created"]); })
             ]);
 
             svg.datum(data);
@@ -586,7 +584,7 @@
             svg.append("path")
                 .attr("class", "area above")
                 .attr("clip-path", "url(#clip-above)")
-                .attr("d", area.y0(function(d) { return y(d["resolved"]); }));
+                .attr("d", area.y0(function(d) { return y(d["created"]); }));
 
             svg.append("path")
                 .attr("class", "area below")
@@ -601,6 +599,11 @@
                 .attr("class", "x axis")
                 .attr("transform", "translate(0," + height + ")")
                 .call(xAxis);
+
+            svg.append("g")
+                .attr("class", "y axis")
+                .attr("transform", "translate(" + -width + ", 0)")
+                .call(yAxis);
         }
     };
 }(jQuery));

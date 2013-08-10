@@ -271,24 +271,38 @@ class Service {
                 /* @var Bug $oTicket */
                 if ($oTicket->getCreationTime() >= $iRef) {
                     $sCreationDate = date('Ymd', $oTicket->getCreationTime());
-                    if (empty($aResult[self::DIFF_CREATED][$sCreationDate]) === true) {
-                        $aResult[self::DIFF_CREATED][$sCreationDate] = 0;
+                    if (empty($aResult[$sCreationDate]) === true) {
+                        $aResult[$sCreationDate] = array(
+                            self::DIFF_CREATED => 0,
+                            self::DIFF_RESOLVED => 0,
+                        );
                     }
 
-                    $aResult[self::DIFF_CREATED][$sCreationDate]++;
+                    $aResult[$sCreationDate][self::DIFF_CREATED]++;
 
                     if ($oTicket->isStatusAtLeast(Bug::STATUS_RESOLVED) === true) {
                         $sResolveDate = date('Ymd', $oTicket->getLastActivity());
-                        if (empty($aResult[self::DIFF_RESOLVED][$sResolveDate]) === true) {
-                            $aResult[self::DIFF_RESOLVED][$sResolveDate] = 0;
+                        if (empty($aResult[$sResolveDate]) === true) {
+                            $aResult[$sResolveDate] = array(
+                                self::DIFF_CREATED => 0,
+                                self::DIFF_RESOLVED => 0,
+                            );
                         }
 
-                        $aResult[self::DIFF_RESOLVED][$sResolveDate]++;
+                        $aResult[$sResolveDate][self::DIFF_RESOLVED]++;
                     }
                 }
             }
 
-            $this->_aCache[self::STATS_DIFF] = $aResult;
+            // transform this to a structure which gives a nice json
+            ksort($aResult);
+            $this->_aCache[self::STATS_DIFF] = array();
+            foreach ($aResult as $sDate => $aValue) {
+                $aValue['date'] = $sDate;
+                $this->_aCache[self::STATS_DIFF][] = $aValue;
+            }
+
+            unset($aResult);
         }
 
         return $this->_aCache[self::STATS_DIFF];
