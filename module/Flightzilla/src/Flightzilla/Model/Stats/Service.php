@@ -269,16 +269,18 @@ class Service {
             $iRef = strtotime(sprintf('-%d days', self::TIME_WINDOW_4WEEKS), strtotime(date('Y-m-d')));
             foreach ($this->_aFilteredStack as $oTicket) {
                 /* @var Bug $oTicket */
-                if ($oTicket->getCreationTime() >= $iRef) {
-                    $sCreationDate = date('Ymd', $oTicket->getCreationTime());
-                    if (empty($aResult[$sCreationDate]) === true) {
-                        $aResult[$sCreationDate] = array(
-                            self::DIFF_CREATED => 0,
-                            self::DIFF_RESOLVED => 0,
-                        );
-                    }
+                if ($oTicket->getLastActivity() >= $iRef) {
+                    if ($oTicket->getCreationTime() >= $iRef) {
+                        $sCreationDate = date('Ymd', $oTicket->getCreationTime());
+                        if (empty($aResult[$sCreationDate]) === true) {
+                            $aResult[$sCreationDate] = array(
+                                self::DIFF_CREATED => 0,
+                                self::DIFF_RESOLVED => 0,
+                            );
+                        }
 
-                    $aResult[$sCreationDate][self::DIFF_CREATED]++;
+                        $aResult[$sCreationDate][self::DIFF_CREATED]++;
+                    }
 
                     if ($oTicket->isStatusAtLeast(Bug::STATUS_RESOLVED) === true) {
                         $sResolveDate = date('Ymd', $oTicket->getLastActivity());
@@ -296,10 +298,23 @@ class Service {
 
             // transform this to a structure which gives a nice json
             ksort($aResult);
-            $this->_aCache[self::STATS_DIFF] = array();
+            $this->_aCache[self::STATS_DIFF] = array(
+                'daily' => array(),
+                'total' => array(
+                    self::DIFF_CREATED => 0,
+                    self::DIFF_RESOLVED => 0
+                )
+            );
             foreach ($aResult as $sDate => $aValue) {
                 $aValue['date'] = $sDate;
-                $this->_aCache[self::STATS_DIFF][] = $aValue;
+                $this->_aCache[self::STATS_DIFF]['daily'][] = $aValue;
+                if (isset($aValue[self::DIFF_CREATED]) === true) {
+                    $this->_aCache[self::STATS_DIFF]['total'][self::DIFF_CREATED] += $aValue[self::DIFF_CREATED];
+                }
+
+                if (isset($aValue[self::DIFF_RESOLVED]) === true) {
+                    $this->_aCache[self::STATS_DIFF]['total'][self::DIFF_RESOLVED] += $aValue[self::DIFF_RESOLVED];
+                }
             }
 
             unset($aResult);

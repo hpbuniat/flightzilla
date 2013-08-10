@@ -1,5 +1,5 @@
 <div class="callout callout-info toggle" data-target="diff-graph">
-    <h3>Created vs. Resolved Issues</h3>
+    <h3>Created vs. Resolved Issues (<?php echo sprintf('%d created ~ %d resolved', $this->aDailyDifference['total']['created'], $this->aDailyDifference['total']['resolved']);?>)</h3>
 </div>
 
 <div id="project-canvas" class="diff-graph print-fullwidth"></div>
@@ -11,7 +11,7 @@
 <script type="text/javascript">
     $(function() {
         // draw
-        diffChart.draw(<?php echo json_encode($this->aDailyDifference); ?>);
+        diffChart.draw(<?php echo json_encode($this->aDailyDifference['daily']); ?>);
     });
 </script>
 

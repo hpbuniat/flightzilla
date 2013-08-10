@@ -602,7 +602,7 @@
 
             svg.append("g")
                 .attr("class", "y axis")
-                .attr("transform", "translate(" + -width + ", 0)")
+                .attr("transform", "translate(0, 0)")
                 .call(yAxis);
         }
     };
