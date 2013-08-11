@@ -53,7 +53,7 @@
     <h3>Project-Times</h3>
 </div>
 
-<div class="project-times">
+<div class="project-times clearfix">
     <ul class="nav nav-tabs">
         <?php foreach ($this->aProjectTimes as $sTime => $aStats): ?>
             <li><a data-toggle="tab" href="#a<?php echo substr(md5($sTime), 0, 6); ?>"><?php echo $sTime; ?></a></li>
@@ -107,3 +107,57 @@
         <?php endforeach; ?>
     </div>
 </div>
+
+<div class="callout callout-info toggle" data-target="resource-times">
+    <h3>Resource-Times</h3>
+</div>
+
+<div class="resource-times clearfix">
+    <ul class="nav nav-tabs">
+        <?php foreach ($this->aResourceTimes as $sTime => $aStats): ?>
+            <li><a data-toggle="tab" href="#b<?php echo substr(md5($sTime), 0, 6); ?>"><?php echo $sTime; ?></a></li>
+        <?php endforeach; ?>
+    </ul>
+
+    <div class="tab-content mt10">
+        <?php foreach ($this->aResourceTimes as $sTime => $aStats): ?>
+            <div class="tab-pane" id="b<?php echo substr(md5($sTime), 0, 6); ?>">
+                <?php foreach ($aStats['resources'] as $sResource => $aHours):
+                    if ($aHours['hoursWindow'] > 0):
+                        $fWidth = (100 * round($aHours['hoursWindow'] / $aStats['totalHours'], 2));
+                        $fWidth = ($fWidth < 1) ? 1 : $fWidth;
+                        ?>
+                        <div class="col-lg-4">
+                            <span class="toggle" data-target="ticket-toggle-<?php echo md5($sResource);?>">
+                                <?php echo $sResource; ?>
+                            </span>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="progress progress-striped">
+                                <div title="<?php echo sprintf('%.1f hours of %.1f hours (total)', $aHours['hoursWindow'], $aHours['hours']); ?>" class="tipper progress-bar progress-bar-success" style="width: <?php echo $fWidth; ?>%"></div>
+                            </div>
+                        </div>
+
+                        <div style="display:none" class="ticket-toggle-<?php echo md5($sResource);?>">
+                            <?php foreach ($aHours['projects'] as $mProject => $fHours):
+                                $fWidth = (100 * round($fHours / $aHours['hoursWindow'], 2));
+                                $fWidth = ($fWidth < 1) ? 1 : $fWidth;
+                                $sText = sprintf('%.1f hours of %.1f hours (total)', $fHours, $aHours['hoursWindow']);
+                                ?>
+                                <div class="col-lg-4">
+                                    <span class="pl10"><?php echo sprintf('%s: %s', $mProject, $sText) ?></span>
+                                </div>
+                                <div class="col-lg-8">
+                                    <div class="progress progress-striped">
+                                        <div title="<?php echo $sText; ?>" class="tipper progress-bar progress-bar-success" style="width: <?php echo $fWidth; ?>%"></div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif;
+                endforeach; ?>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+

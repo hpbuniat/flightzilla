@@ -379,6 +379,42 @@ class Service {
     }
 
     /**
+     * Get times sorted by resource from project-times
+     *
+     * @param  array $aProjects
+     *
+     * @return array
+     */
+    public function getResourceTimesFromProjectTimes($aProjects) {
+        $aResult = array();
+        foreach ($aProjects['projects'] as $mProject => $aProject) {
+            if (isset($aProject['users']) === true) {
+                foreach ($aProject['users'] as $sUser => $fTime) {
+                    if (empty($aResult[$sUser]) === true) {
+                        $aResult[$sUser] = array(
+                            'hours' => 0,
+                            'hoursWindow' => 0
+                        );
+                    }
+
+                    $aResult[$sUser]['hours'] += $fTime;
+                    $aResult[$sUser]['hoursWindow'] += $fTime;
+                    if (empty($aResult[$sUser]['projects'][$mProject]) === true) {
+                        $aResult[$sUser]['projects'][$mProject] = 0;
+                    }
+
+                    $aResult[$sUser]['hoursWindow'] += $fTime;
+                }
+            }
+        }
+
+        return array(
+            'resources' => $this->_sortHelper($aResult, 'hoursWindow', true),
+            'totalHours' => $aProjects['totalHours']
+        );
+    }
+
+    /**
      * Sort a multi-dimensional array
      *
      * @param  array $aHaystack

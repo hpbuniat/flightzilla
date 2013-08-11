@@ -107,19 +107,22 @@ class StatsController extends AbstractActionController {
             '4 weeks' => StatsService::TIME_WINDOW_4WEEKS
         );
 
-        $aTicketEfficiency = $aProjectTimes = array();
+        $aResourceTimes = $aTicketEfficiency = $aProjectTimes = array();
         foreach ($aIterateFeatureTickets as $sTime => $iFilter) {
             $aConstraints[\Flightzilla\Model\Stats\Filter\Constraint\Activity::NAME]['payload'] = $iFilter;
             $oTicketStats->setConstraints($aConstraints)->applyConstraints();
             $aTicketEfficiency[$sTime] = $oTicketStats->getTicketEfficiency();
             $aStatsFeatureTickets[$sTime] = $oTicketStats->getFeatureBugRate();
             $aProjectTimes[$sTime] = $oTicketStats->getProjectTimes($iFilter);
+            $aResourceTimes[$sTime] = $oTicketStats->getResourceTimesFromProjectTimes($aProjectTimes[$sTime]);
         }
 
         foreach ($oViewModel->aWeeks as $sWeek => $aWeek) {
             $aProjectTimes[$sWeek] = $oTicketStats->getFutureProjectTimes($aWeek['title']);
+            $aResourceTimes[$sWeek] = $oTicketStats->getResourceTimesFromProjectTimes($aProjectTimes[$sWeek]);
         }
 
+        $oViewModel->aResourceTimes = $aResourceTimes;
         $oViewModel->aTicketEfficiency = $aTicketEfficiency;
         $oViewModel->aStatsFeatureTickets = $aStatsFeatureTickets;
         $oViewModel->aProjectTimes = $aProjectTimes;
