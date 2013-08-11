@@ -338,6 +338,38 @@ class Service {
 
         foreach ($this->_aStack as $oTicket) {
             /* @var Bug $oTicket */
+            $fLeftHours = $oTicket->getLeftHours();
+            $fTotalTime = $oTicket->getEstimation();
+            if ($oTicket->getWeek() === $sWeek) {
+                $aProjects = $oTicket->getProjects();
+                $sUser = $oTicket->getAssignee(true);
+
+                if (empty($aProjects) === true) {
+                    if ($oTicket->isType(Bug::TYPE_BUG) === true) {
+                        $aProjects[Bug::TYPE_BUG] = $oTicket;
+                    }
+                }
+
+                if (empty($aProjects) !== true) {
+                    $fTotalHours += $fLeftHours;
+                    foreach ($aProjects as $mProject => $oProject) {
+                        if (empty($aResult[$mProject]) === true) {
+                            $aResult[$mProject] = array(
+                                'hours' => 0,
+                                'hoursWindow' => 0
+                            );
+                        }
+
+                        $aResult[$mProject]['hours'] += $fTotalTime;
+                        $aResult[$mProject]['hoursWindow'] += $fLeftHours;
+                        if (empty($aResult[$mProject]['users'][$sUser]) === true) {
+                            $aResult[$mProject]['users'][$sUser] = 0;
+                        }
+
+                        $aResult[$mProject]['users'][$sUser] += $fLeftHours;
+                    }
+                }
+            }
         }
 
         return array(

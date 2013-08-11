@@ -116,6 +116,10 @@ class StatsController extends AbstractActionController {
             $aProjectTimes[$sTime] = $oTicketStats->getProjectTimes($iFilter);
         }
 
+        foreach ($oViewModel->aWeeks as $sWeek => $aWeek) {
+            $aProjectTimes[$sWeek] = $oTicketStats->getFutureProjectTimes($aWeek['title']);
+        }
+
         $oViewModel->aTicketEfficiency = $aTicketEfficiency;
         $oViewModel->aStatsFeatureTickets = $aStatsFeatureTickets;
         $oViewModel->aProjectTimes = $aProjectTimes;
