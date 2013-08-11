@@ -267,6 +267,8 @@ class Service {
      * @return array
      */
     public function getProjectTimes($iTimeWindow = null) {
+
+        $fTotalHours = 0;
         $aResult = array(
             Bug::TYPE_BUG => array(
                 'hours' => 0,
@@ -275,33 +277,73 @@ class Service {
         );
         foreach ($this->_aFilteredStack as $oTicket) {
             /* @var Bug $oTicket */
-            $aProjects = $oTicket->getProjects();
             $iTotalTime = $oTicket->getActualTime();
             if ($iTotalTime > 0) {
-                $iHoursWindow = (empty($iTimeWindow) === true) ? $iTotalTime : $this->_getWorkedHoursOfTimeWindow($oTicket->getWorkedHours(), $this->_getUnixTimeFromWindow($iTimeWindow));
+                $aProjects = $oTicket->getProjects();
+
+                $aHoursPerUser = $this->_getWorkedHoursOfTimeWindow($oTicket->getWorkedHours(), $this->_getUnixTimeFromWindow($iTimeWindow));
+                $iHoursWindow = $aHoursPerUser['total'];
+
                 if (empty($aProjects) === true) {
                     if ($oTicket->isType(Bug::TYPE_BUG) === true) {
-                        $aResult[Bug::TYPE_BUG]['hours'] += $iTotalTime;
-                        $aResult[Bug::TYPE_BUG]['hoursWindow'] += $iHoursWindow;
+                        $aProjects[Bug::TYPE_BUG] = $oTicket;
                     }
                 }
-                else {
-                    foreach ($aProjects as $iProject => $oProject) {
-                        if (empty($aResult[$iProject]) === true) {
-                            $aResult[$iProject] = array(
+
+                if (empty($aProjects) !== true) {
+                    $fTotalHours += $iHoursWindow;
+                    foreach ($aProjects as $mProject => $oProject) {
+                        if (empty($aResult[$mProject]) === true) {
+                            $aResult[$mProject] = array(
                                 'hours' => 0,
                                 'hoursWindow' => 0
                             );
                         }
 
-                        $aResult[$iProject]['hours'] += $iTotalTime;
-                        $aResult[$iProject]['hoursWindow'] += $iHoursWindow;
+                        $aResult[$mProject]['hours'] += $iTotalTime;
+                        $aResult[$mProject]['hoursWindow'] += $iHoursWindow;
+                        foreach ($aHoursPerUser['user'] as $sUser => $fHours) {
+                            if (empty($aResult[$mProject]['users'][$sUser]) === true) {
+                                $aResult[$mProject]['users'][$sUser] = 0;
+                            }
+
+                            $aResult[$mProject]['users'][$sUser] += $fHours;
+                        }
                     }
                 }
             }
         }
 
-        return $this->_sortHelper($aResult, 'hoursWindow', true);
+        return array(
+            'projects' => $this->_sortHelper($aResult, 'hoursWindow', true),
+            'totalHours' => $fTotalHours
+        );
+    }
+
+    /**
+     * Get the planned hours per project & user
+     *
+     * @param  string $sWeek
+     *
+     * @return array
+     */
+    public function getFutureProjectTimes($sWeek) {
+        $fTotalHours = 0;
+        $aResult = array(
+            Bug::TYPE_BUG => array(
+                'hours' => 0,
+                'hoursWindow' => 0
+            )
+        );
+
+        foreach ($this->_aStack as $oTicket) {
+            /* @var Bug $oTicket */
+        }
+
+        return array(
+            'projects' => $this->_sortHelper($aResult, 'hoursWindow', true),
+            'totalHours' => $fTotalHours
+        );
     }
 
     /**
@@ -334,17 +376,25 @@ class Service {
      * @param  array $aHours
      * @param  int $iTimeWindow
      *
-     * @return float
+     * @return array
      */
     protected function _getWorkedHoursOfTimeWindow($aHours, $iTimeWindow) {
-        $fHours = 0;
+        $aWindowHours = array(
+            'total' => 0,
+            'user' => array()
+        );
         foreach ($aHours as $aHour) {
-            if ($aHour['datetime'] >= $iTimeWindow) {
-                $fHours += $aHour['duration'];
+            if (empty($iTimeWindow) === true or $aHour['datetime'] >= $iTimeWindow) {
+                if (empty($aWindowHours['user'][$aHour['user']]) === true) {
+                    $aWindowHours['user'][$aHour['user']] = 0;
+                }
+
+                $aWindowHours['total'] += $aHour['duration'];
+                $aWindowHours['user'][$aHour['user']] += $aHour['duration'];
             }
         }
 
-        return $fHours;
+        return $aWindowHours;
     }
 
     /**

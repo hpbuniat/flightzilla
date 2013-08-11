@@ -11,11 +11,15 @@ img {
     padding-left:10px;
 }
 
+.mt10 {
+    margin-top:10px;
+}
+
 .table th, .table td {
     vertical-align: middle !important;
 }
 
-.table th:hover {
+.toggle, .table th:hover {
     cursor: pointer;
 }
 

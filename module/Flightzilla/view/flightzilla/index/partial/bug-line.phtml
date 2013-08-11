@@ -1,5 +1,5 @@
 <?php
-echo sprintf('(%s) %s %s (%s, <a class="bugLink" target="_blank" href="%s/show_bug.cgi?id=%s">%s</a>, %s @ %s)',
+$sPrint = sprintf('(%s) %s %s (%s, <a class="bugLink" target="_blank" href="%s/show_bug.cgi?id=%s">%s</a>, %s',
     $this->oTask->getPriority(),
     $this->ticketicons($this->oTask),
     $this->oTask->title(),
@@ -7,6 +7,7 @@ echo sprintf('(%s) %s %s (%s, <a class="bugLink" target="_blank" href="%s/show_b
     $this->layout()->sBugzilla,
     $this->oTask->id(),
     $this->oTask->id(),
-    $this->oTask->getStatus(),
-    $this->estimation($this->oTask)
+    $this->oTask->getStatus()
 );
+
+echo sprintf('%s%s%s', $sPrint, (($this->oTask->isContainer() === true) ? '' : sprintf(' @ %s', $this->estimation($this->oTask))), ')');
