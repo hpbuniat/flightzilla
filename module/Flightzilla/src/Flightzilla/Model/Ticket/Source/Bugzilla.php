@@ -1081,6 +1081,10 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                     $this->_aFixed[$bug->id()] = $bug;
                 }
             }
+
+            if (empty($this->_aFixedTrunk[$bug->id()]) !== true and $bug->getStatus() === Bug::STATUS_CLOSED) {
+                unset($this->_aFixedTrunk[$bug->id()]);
+            }
         }
 
         ksort($this->_aFixedTrunk);
