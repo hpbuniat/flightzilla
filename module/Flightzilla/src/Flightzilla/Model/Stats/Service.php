@@ -403,7 +403,7 @@ class Service {
                         $aResult[$sUser]['projects'][$mProject] = 0;
                     }
 
-                    $aResult[$sUser]['hoursWindow'] += $fTime;
+                    $aResult[$sUser]['projects'][$mProject] += $fTime;
                 }
             }
         }

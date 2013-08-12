@@ -145,7 +145,18 @@
                                 $sText = sprintf('%.1f hours of %.1f hours (total)', $fHours, $aHours['hoursWindow']);
                                 ?>
                                 <div class="col-lg-4">
-                                    <span class="pl10"><?php echo sprintf('%s: %s', $mProject, $sText) ?></span>
+                                    <span class="pl10">
+                                        <?php $sLabel = '';
+                                        if (is_numeric($mProject) === true) {
+                                            $this->oTask = $this->oTicketService->getBugById($mProject);
+                                            $sLabel = $this->render('flightzilla/index/partial/bug-line.phtml');
+                                        }
+                                        else {
+                                            $sLabel = ucwords($mProject);
+                                        }
+
+                                        echo sprintf('%s: %s', $sLabel, $sText)
+                                    ?></span>
                                 </div>
                                 <div class="col-lg-8">
                                     <div class="progress progress-striped">

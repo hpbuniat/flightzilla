@@ -108,7 +108,7 @@ class Ticketicons extends AbstractHelper {
         if ($oBug->hasFlag(Bug::FLAG_COMMENT, Bugzilla::BUG_FLAG_REQUEST) === true or $oBug->getStatus() === Bug::STATUS_CLARIFICATION) {
             $aClasses[] = sprintf('<i class="%s" title="Awaiting %s">&nbsp;</i>', self::ICON_COMMENT, Bug::FLAG_COMMENT);
             if (strlen($oBug->commentrequest_user) > 0) {
-                $aClasses[] = '<span class="red"> ' . $oBug->commentrequest_user . '</span>';
+                $aClasses[] = '<span class="red">' . $oBug->commentrequest_user . '</span>';
             }
         }
 
@@ -130,7 +130,7 @@ class Ticketicons extends AbstractHelper {
         if ($oBug->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST) === true) {
             $aClasses[] = sprintf('<i class="%s" title="Awaiting %s">&nbsp;</i>', self::ICON_TESTING, Bug::FLAG_TESTING);
             if (strlen($oBug->testingrequest_user) > 0) {
-                $aClasses[] = '<span class="red"> ' . $oBug->testingrequest_user . '</span>';
+                $aClasses[] = '<span class="red">' . $oBug->testingrequest_user . '</span>';
             }
         }
 

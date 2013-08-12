@@ -79,6 +79,11 @@ class StatsController extends AbstractActionController {
             'payload' => 'isAdministrative',
         );
 
+        $aContainerConstraint = array(
+            'name' => \Flightzilla\Model\Stats\Filter\Constraint\GenericMethodInverse::NAME,
+            'payload' => 'isContainer',
+        );
+
         $oTicketStats->addConstraint($aAdministrativeConstraint['name'], $aAdministrativeConstraint['payload'])->setStack($oTicketService->getAllBugs());
         $aStatsFeatureTickets = array(
             'current' => $oTicketStats->getFeatureBugRate()
@@ -86,10 +91,7 @@ class StatsController extends AbstractActionController {
 
         // set the 4 week-constraints to get the daily-diff for 4 weeks
         $aConstraints = array(
-            array(
-                'name' => \Flightzilla\Model\Stats\Filter\Constraint\GenericMethodInverse::NAME,
-                'payload' => 'isContainer',
-            ),
+            $aContainerConstraint,
             $aAdministrativeConstraint,
             \Flightzilla\Model\Stats\Filter\Constraint\Activity::NAME => array(
                 'name' => \Flightzilla\Model\Stats\Filter\Constraint\Activity::NAME,
@@ -117,6 +119,16 @@ class StatsController extends AbstractActionController {
             $aResourceTimes[$sTime] = $oTicketStats->getResourceTimesFromProjectTimes($aProjectTimes[$sTime]);
         }
 
+        // reset the stats to get current values
+        $aConstraints = array(
+            $aContainerConstraint,
+            $aAdministrativeConstraint
+        );
+
+        $oTicketStats->setConstraints($aConstraints)->setStack($oTicketService->getAllBugs());
+
+        $aProjectTimes = array_reverse($aProjectTimes, true);
+        $aResourceTimes = array_reverse($aResourceTimes, true);
         foreach ($oViewModel->aWeeks as $sWeek => $aWeek) {
             $aProjectTimes[$sWeek] = $oTicketStats->getFutureProjectTimes($aWeek['title']);
             $aResourceTimes[$sWeek] = $oTicketStats->getResourceTimesFromProjectTimes($aProjectTimes[$sWeek]);
