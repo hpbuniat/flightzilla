@@ -770,7 +770,7 @@ class Service {
             foreach ($this->_aFilteredStack as $oBug) {
                 /* @var $oBug Bug */
                 $sPriority = $oBug->getPriority();
-                if (empty($aPriorities[$sPriority]) === true) {
+                if (empty($this->_aCache[self::STATS_PRIORITIES][$sPriority]) === true) {
                     $this->_aCache[self::STATS_PRIORITIES][$sPriority] = 0;
                 }
 
