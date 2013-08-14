@@ -18,19 +18,19 @@
         <div class="pull-left btn-column">
             <?php foreach ($this->aWeeks as $sAlias => $aWeek): ?>
             <div class="btn-toolbar">
-                <a href="#" disabled="disabled" class="btn btn-default btn-small droppable tipper" data-user="<?php echo $this->oResource->getEmail(); ?>" data-title="Drop a pin, assign this ticket to the <?php echo $sAlias; ?> Week" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM; ?>" data-week="<?php echo $aWeek['title']; ?>"><?php echo sprintf('%s', substr($aWeek['title'], -2)); ?></a>
+                <a href="#" disabled="disabled" class="btn btn-default btn-sm droppable tipper" data-user="<?php echo $this->oResource->getEmail(); ?>" data-title="Drop a pin, assign this ticket to the <?php echo $sAlias; ?> Week" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM; ?>" data-week="<?php echo $aWeek['title']; ?>"><?php echo sprintf('%s', substr($aWeek['title'], -2)); ?></a>
             </div>
             <?php endforeach; ?>
         </div>
         <div class="pull-left btn-column">
             <div class="btn-toolbar">
-                <a href="#" disabled="disabled" class="btn btn-default btn-small droppable tipper" data-title="Drop a pin, to set it to ASSIGNED" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_ASSIGN; ?>"><i class="glyphicon glyphicon-wrench"></i></a>
+                <a href="#" disabled="disabled" class="btn btn-default btn-sm droppable tipper" data-title="Drop a pin, to set it to ASSIGNED" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_ASSIGN; ?>"><i class="glyphicon glyphicon-wrench"></i></a>
             </div>
             <div class="btn-toolbar">
-                <a href="#" disabled="disabled" class="btn btn-default btn-small droppable tipper" data-title="Drop a pin, to set it to CONFIRMED" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM; ?>" data-user="<?php echo $this->oResource->getEmail(); ?>"><i class="glyphicon glyphicon-pause"></i></a>
+                <a href="#" disabled="disabled" class="btn btn-default btn-sm droppable tipper" data-title="Drop a pin, to set it to CONFIRMED" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM; ?>" data-user="<?php echo $this->oResource->getEmail(); ?>"><i class="glyphicon glyphicon-pause"></i></a>
             </div>
             <div class="btn-toolbar">
-                <a href="#" disabled="disabled" class="btn btn-default btn-small droppable tipper" data-title="Drop a pin, to set it to RESOLVED" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE; ?>" data-user="<?php echo $this->oResource->getEmail(); ?>"><i class="glyphicon glyphicon-ok-circle"></i></a>
+                <a href="#" disabled="disabled" class="btn btn-default btn-sm droppable tipper" data-title="Drop a pin, to set it to RESOLVED" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE; ?>" data-user="<?php echo $this->oResource->getEmail(); ?>"><i class="glyphicon glyphicon-ok-circle"></i></a>
             </div>
         </div>
     </blockquote>
@@ -44,19 +44,19 @@ else:
     <div class="btn-toolbar">
         <?php foreach ($this->aWeeks as $sAlias => $aWeek): ?>
         <div class="btn-group">
-            <a href="#" disabled="disabled" class="btn btn-default btn-mini droppable tipper" data-title="Drop a pin, assign this ticket to the <?php echo $sAlias; ?> Week" data-user="<?php echo $this->oResource->getEmail(); ?>" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM; ?>" data-week="<?php echo $aWeek['title']; ?>"><?php echo sprintf('%s', substr($aWeek['title'], -2)); ?></a>
+            <a href="#" disabled="disabled" class="btn btn-default btn-xs droppable tipper" data-title="Drop a pin, assign this ticket to the <?php echo $sAlias; ?> Week" data-user="<?php echo $this->oResource->getEmail(); ?>" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM; ?>" data-week="<?php echo $aWeek['title']; ?>"><?php echo sprintf('%s', substr($aWeek['title'], -2)); ?></a>
         </div>
         <?php endforeach; ?>
     </div>
     <div class="btn-toolbar">
         <div class="btn-group">
-            <a href="#" disabled="disabled" class="btn btn-default btn-mini droppable tipper" data-title="Drop a pin, to set it to ASSIGNED" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_ASSIGN; ?>"><i class="glyphicon glyphicon-wrench"></i></a>
+            <a href="#" disabled="disabled" class="btn btn-default btn-xs droppable tipper" data-title="Drop a pin, to set it to ASSIGNED" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_ASSIGN; ?>"><i class="glyphicon glyphicon-wrench"></i></a>
         </div>
         <div class="btn-group">
-            <a href="#" disabled="disabled" class="btn btn-default btn-mini droppable tipper" data-title="Drop a pin, to set it to CONFIRMED" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM; ?>" data-user="<?php echo $this->oResource->getEmail(); ?>"><i class="glyphicon glyphicon-pause"></i></a>
+            <a href="#" disabled="disabled" class="btn btn-default btn-xs droppable tipper" data-title="Drop a pin, to set it to CONFIRMED" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_CONFIRM; ?>" data-user="<?php echo $this->oResource->getEmail(); ?>"><i class="glyphicon glyphicon-pause"></i></a>
         </div>
         <div class="btn-group">
-            <a href="#" disabled="disabled" class="btn btn-default btn-mini droppable tipper" data-title="Drop a pin, to set it to RESOLVED" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE; ?>" data-user="<?php echo $this->oResource->getEmail(); ?>"><i class="glyphicon glyphicon-ok-circle"></i></a>
+            <a href="#" disabled="disabled" class="btn btn-default btn-xs droppable tipper" data-title="Drop a pin, to set it to RESOLVED" data-drop="<?php echo \Flightzilla\Model\Ticket\Source\AbstractWriter::TICKET_RESOLVE; ?>" data-user="<?php echo $this->oResource->getEmail(); ?>"><i class="glyphicon glyphicon-ok-circle"></i></a>
         </div>
     </div>
 </blockquote>

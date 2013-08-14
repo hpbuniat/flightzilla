@@ -3,30 +3,28 @@ $aTimes = $this->collectiontime($this->aStack);
 $this->oResource = $this->oResourceManager->getResource($this->sMemberName);
 $sEstimationString = sprintf('%sh (%sh est.) <i class="glyphicon glyphicon-time"></i> %sh (%sd)', $aTimes['spent'], $aTimes['esti'] , $aTimes['left'] ,$aTimes['days']);
 ?>
-<div class="row member-box">
-    <div class="col-lg-12 well">
-        <div class="col-lg-2">
-            <?php echo $this->render('flightzilla/team/partial/member.phtml'); ?>
-        </div>
-        <div class="col-lg-10">
-            <div class="row">
-                <div class="col-lg-3">
-                    <blockquote class="bq-small">
-                        <p><?php echo $sEstimationString; ?></p>
-                    </blockquote>
-                </div>
-                <div class="col-lg-9">
-                    <div class="progress progress-striped">
-                        <div class="progress-bar progress-bar-<?php echo $aTimes['color'];?>" style="width: <?php echo $aTimes['planned']; ?>%"></div>
-                    </div>
+<div class="row member-box well">
+    <div class="col-lg-2">
+        <?php echo $this->render('flightzilla/team/partial/member.phtml'); ?>
+    </div>
+    <div class="col-lg-10">
+        <div class="row">
+            <div class="col-lg-3">
+                <blockquote class="bq-small">
+                    <p><?php echo $sEstimationString; ?></p>
+                </blockquote>
+            </div>
+            <div class="col-lg-9">
+                <div class="progress progress-striped">
+                    <div class="progress-bar progress-bar-<?php echo $aTimes['color'];?>" style="width: <?php echo $aTimes['planned']; ?>%"></div>
                 </div>
             </div>
-            <?php
-                $this->iLimit = 9;
-                $this->iSplit = 9;
-                $this->sRowMode = 'resource';
-                echo $this->render('flightzilla/index/partial/pin-row.phtml');
-            ?>
         </div>
+        <?php
+            $this->iLimit = 9;
+            $this->iSplit = 9;
+            $this->sRowMode = 'resource';
+            echo $this->render('flightzilla/index/partial/pin-row.phtml');
+        ?>
     </div>
 </div>
