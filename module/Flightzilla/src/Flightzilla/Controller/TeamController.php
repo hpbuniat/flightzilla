@@ -45,7 +45,8 @@ namespace Flightzilla\Controller;
 use Zend\Mvc\Controller\AbstractActionController,
     Zend\View\Model\ViewModel,
     Flightzilla\Controller\Plugin\Authenticate,
-    Flightzilla\Controller\Plugin\TicketService;
+    Flightzilla\Controller\Plugin\TicketService,
+    Flightzilla\Model\Stats\Service as StatsService;
 
 /**
  * Team-related controller
@@ -137,9 +138,8 @@ class TeamController extends AbstractActionController {
         $oViewModel = new ViewModel;
         $oViewModel->mode = 'team';
 
-        $iDays = 7;
-        $oTicketService = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'list', $iDays)->getService();
-        $oViewModel->sResource = json_encode($oTicketService->getResourceManager()->getActivities($iDays));
+        $oTicketService = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel, 'list', StatsService::TIME_WINDOW_1WEEK)->getService();
+        $oViewModel->sResource = json_encode($oTicketService->getResourceManager()->getActivities(StatsService::TIME_WINDOW_1WEEK));
 
         return $oViewModel;
     }

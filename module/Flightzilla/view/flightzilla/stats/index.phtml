@@ -69,7 +69,7 @@
                         $fWidth = ($fWidth < 1) ? 1 : $fWidth;
                         ?>
                         <div class="col-lg-4">
-                            <span class="toggle" data-target="ticket-toggle-<?php echo $mTicket;?>">
+                            <span class="toggle" data-target="ticket-toggle-<?php echo md5($mTicket);?>">
                                 <?php if (is_numeric($mTicket) === true) {
                                     $this->oTask = $this->oTicketService->getBugById($mTicket);
                                     echo $this->render('flightzilla/index/partial/bug-line.phtml');
@@ -85,11 +85,11 @@
                             </div>
                         </div>
 
-                        <div style="display:none" class="ticket-toggle-<?php echo $mTicket;?>">
-                            <?php foreach ($aHours['users'] as $sUser => $fHours):
-                                $fWidth = (100 * round($fHours / $aHours['hoursWindow'], 2));
+                        <div style="display:none" class="ticket-toggle-<?php echo md5($mTicket);?>">
+                            <?php foreach ($aHours['users'] as $sUser => $aUserHours):
+                                $fWidth = (100 * round($aUserHours['left'] / $aHours['hoursWindow'], 2));
                                 $fWidth = ($fWidth < 1) ? 1 : $fWidth;
-                                $sText = sprintf('%.1f hours of %.1f hours (total)', $fHours, $aHours['hoursWindow']);
+                                $sText = sprintf('%.1f/%.1f hours of %.1f hours (total)', $aUserHours['worked'], $aUserHours['left'], $aHours['hoursWindow']);
                                 ?>
                                 <div class="col-lg-4">
                                     <span class="pl10"><?php echo sprintf('%s: %s', $sUser, $sText) ?></span>
@@ -139,10 +139,10 @@
                         </div>
 
                         <div style="display:none" class="ticket-toggle-<?php echo md5($sResource);?>">
-                            <?php foreach ($aHours['projects'] as $mProject => $fHours):
-                                $fWidth = (100 * round($fHours / $aHours['hoursWindow'], 2));
+                            <?php foreach ($aHours['projects'] as $mProject => $aProjectHours):
+                                $fWidth = (100 * round($aProjectHours['left'] / $aHours['hoursWindow'], 2));
                                 $fWidth = ($fWidth < 1) ? 1 : $fWidth;
-                                $sText = sprintf('%.1f hours of %.1f hours (total)', $fHours, $aHours['hoursWindow']);
+                                $sText = sprintf('%.1f/%.1f hours of %.1f hours (total)', $aProjectHours['worked'], $aProjectHours['left'], $aHours['hoursWindow']);
                                 ?>
                                 <div class="col-lg-4">
                                     <span class="pl10">

@@ -84,7 +84,10 @@ class StatsController extends AbstractActionController {
             'payload' => 'isContainer',
         );
 
-        $oTicketStats->addConstraint($aAdministrativeConstraint['name'], $aAdministrativeConstraint['payload'])->setStack($oTicketService->getAllBugs());
+        $oTicketStats->setConstraints(array(
+            $aContainerConstraint,
+            $aAdministrativeConstraint
+        ))->setStack($oTicketService->getAllBugs());
         $aStatsFeatureTickets = array(
             'current' => $oTicketStats->getFeatureBugRate()
         );

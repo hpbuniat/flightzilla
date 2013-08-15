@@ -62,22 +62,17 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @var string
      */
     const FLAG_MERGE = 'MergeRequest';
-
     const FLAG_SCREEN = 'ScreenApproval';
-
     const FLAG_TESTSERVER = 'UpdateTestserver';
-
     const FLAG_TESTING = 'TestingRequest';
-
     const FLAG_TRANSLATION = 'TranslationRequest';
-
     const FLAG_DBCHANGE = 'DBChangeRequest_Live';
-
     const FLAG_DBCHANGE_TEST = 'DBChangeRequest_Test';
-
     const FLAG_COMMENT = 'CommentRequest';
 
     /**
+     * Flag-Mapping for bugzilla
+     *
      * @TODO: Move to configuration!
      */
     protected $_mappedFlags = array(
@@ -95,7 +90,6 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * Flag user-fields
      */
     const FLAG_USER_SETTER = 'setter';
-
     const FLAG_USER_REQUESTEE = 'requestee_mail';
 
     /**
@@ -104,21 +98,13 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @var string
      */
     const STATUS_NEW = 'NEW';
-
     const STATUS_UNCONFIRMED = 'UNCONFIRMED';
-
     const STATUS_CLARIFICATION = 'CLARIFICATION';
-
     const STATUS_CONFIRMED = 'CONFIRMED';
-
     const STATUS_ASSIGNED = 'ASSIGNED';
-
     const STATUS_REOPENED = 'REOPENED';
-
     const STATUS_RESOLVED = 'RESOLVED';
-
     const STATUS_VERIFIED = 'VERIFIED';
-
     const STATUS_CLOSED = 'CLOSED';
 
     protected $_mappedStatus = array(
@@ -141,13 +127,9 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * Deadline status
      */
     const DEADLINE_PAST = 'long gone';
-
     const DEADLINE_TODAY = 'today';
-
     const DEADLINE_NEAR = 'near (within the week)';
-
     const DEADLINE_WEEK = 'next week';
-
     const DEADLINE_FAR = 'far away';
 
     /**
@@ -156,35 +138,20 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @var string
      */
     const WORKFLOW_ESTIMATED = 'estimated';
-
     const WORKFLOW_ORGA = 'orga';
-
     const WORKFLOW_UNESTIMATED = 'unestimated';
-
     const WORKFLOW_INPROGRESS = 'working';
-
     const WORKFLOW_ACTIVE = 'Active';
-
     const WORKFLOW_TESTING = 'testing';
-
     const WORKFLOW_MERGE = 'mergeable';
-
     const WORKFLOW_MERGED = 'merged';
-
     const WORKFLOW_DEADLINE = 'deadline';
-
     const WORKFLOW_SCREEN = 'screen';
-
     const WORKFLOW_COMMENT = 'comment';
-
     const WORKFLOW_FAILED = 'failed';
-
     const WORKFLOW_QUICK = 'quick';
-
     const WORKFLOW_TRANSLATION = 'only-i18n';
-
     const WORKFLOW_TRANSLATION_PENDING = 'i18n-pending';
-
     const WORKFLOW_TIMEDOUT = 'timedout';
 
     /**
@@ -199,37 +166,28 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      *
      * @var string
      */
-    CONST TYPE_STRING_BUG = 'MTB';
+    const TYPE_STRING_BUG = 'MTB';
+    const TYPE_STRING_THEME = 'Theme,Thema,Projekt';
+    const TYPE_STRING_PROJECT = 'Projekt';
+    const TYPE_STRING_FEATURE = '';
+    const TYPE_STRING_CONCEPT = 'Screen';
 
-    CONST TYPE_STRING_THEME = 'Theme,Thema,Projekt';
-
-    CONST TYPE_STRING_PROJECT = 'Projekt';
-
-    CONST TYPE_STRING_FEATURE = '';
-
-    CONST TYPE_STRING_CONCEPT = 'Screen';
-
-    CONST TYPE_BUG = 'bug';
-
-    CONST TYPE_THEME = 'theme';
-
-    CONST TYPE_PROJECT = 'project';
-
-    CONST TYPE_FEATURE = 'feature';
-
-    CONST TYPE_CONCEPT = 'screen';
+    const TYPE_BUG = 'bug';
+    const TYPE_THEME = 'theme';
+    const TYPE_PROJECT = 'project';
+    const TYPE_FEATURE = 'feature';
+    const TYPE_CONCEPT = 'screen';
+    const TYPE_HOMELESS_FEATURE = 'feature without container';
 
     /**
      * Bugzilla priorities
+     *
+     * @var string
      */
     const PRIORITY_1 = 'P1';
-
     const PRIORITY_2 = 'P2';
-
     const PRIORITY_3 = 'P3';
-
     const PRIORITY_4 = 'P4';
-
     const PRIORITY_5 = 'P5';
 
     protected $_mappedPriorities = array(
@@ -242,21 +200,16 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
 
     /**
      * Bugzilla severities
+     *
+     * @var string
      */
     const SEVERITY_BLOCKER = 'Blocker';
-
     const SEVERITY_CRITICAL = 'Critical';
-
     const SEVERITY_MAJOR = 'Major';
-
     const SEVERITY_NORMAL = 'Normal';
-
     const SEVERITY_MINOR = 'Minor';
-
     const SEVERITY_TRIVIAL = 'Trivial';
-
     const SEVERITY_ENHANCEMENT = 'Enhancement';
-
     const SEVERITY_IMPROVEMENT = 'Improvement';
 
     protected $_mappedSeverities = array(

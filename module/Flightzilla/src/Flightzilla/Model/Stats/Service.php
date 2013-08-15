@@ -269,12 +269,7 @@ class Service {
     public function getProjectTimes($iTimeWindow = null) {
 
         $fTotalHours = 0;
-        $aResult = array(
-            Bug::TYPE_BUG => array(
-                'hours' => 0,
-                'hoursWindow' => 0
-            )
-        );
+        $aResult = array();
         foreach ($this->_aFilteredStack as $oTicket) {
             /* @var Bug $oTicket */
             $iTotalTime = $oTicket->getActualTime();
@@ -287,6 +282,9 @@ class Service {
                 if (empty($aProjects) === true) {
                     if ($oTicket->isType(Bug::TYPE_BUG) === true) {
                         $aProjects[Bug::TYPE_BUG] = $oTicket;
+                    }
+                    else {
+                        $aProjects[Bug::TYPE_HOMELESS_FEATURE] = $oTicket;
                     }
                 }
 
@@ -302,12 +300,16 @@ class Service {
 
                         $aResult[$mProject]['hours'] += $iTotalTime;
                         $aResult[$mProject]['hoursWindow'] += $iHoursWindow;
-                        foreach ($aHoursPerUser['user'] as $sUser => $fHours) {
+                        foreach ($aHoursPerUser['user'] as $sUser => $aHours) {
                             if (empty($aResult[$mProject]['users'][$sUser]) === true) {
-                                $aResult[$mProject]['users'][$sUser] = 0;
+                                $aResult[$mProject]['users'][$sUser] = array(
+                                    'left' => 0,
+                                    'worked' => 0
+                                );
                             }
 
-                            $aResult[$mProject]['users'][$sUser] += $fHours;
+                            $aResult[$mProject]['users'][$sUser]['left'] += $aHours['left'];
+                            $aResult[$mProject]['users'][$sUser]['worked'] += $aHours['worked'];
                         }
                     }
                 }
@@ -329,24 +331,23 @@ class Service {
      */
     public function getFutureProjectTimes($sWeek) {
         $fTotalHours = 0;
-        $aResult = array(
-            Bug::TYPE_BUG => array(
-                'hours' => 0,
-                'hoursWindow' => 0
-            )
-        );
+        $aResult = array();
 
         foreach ($this->_aStack as $oTicket) {
             /* @var Bug $oTicket */
-            $fLeftHours = $oTicket->getLeftHours();
             $fTotalTime = $oTicket->getEstimation();
-            if ($oTicket->getWeek() === $sWeek) {
+            $fLeftHours = $oTicket->getLeftHours();
+            $fActualHours = $this->_getWorkedHoursFromTicketOfWeek($oTicket, $sWeek);
+            if ($oTicket->getWeek() === $sWeek or $fActualHours > 0) {
                 $aProjects = $oTicket->getProjects();
                 $sUser = $oTicket->getAssignee(true);
 
                 if (empty($aProjects) === true) {
                     if ($oTicket->isType(Bug::TYPE_BUG) === true) {
                         $aProjects[Bug::TYPE_BUG] = $oTicket;
+                    }
+                    else {
+                        $aProjects[Bug::TYPE_HOMELESS_FEATURE] = $oTicket;
                     }
                 }
 
@@ -356,17 +357,23 @@ class Service {
                         if (empty($aResult[$mProject]) === true) {
                             $aResult[$mProject] = array(
                                 'hours' => 0,
-                                'hoursWindow' => 0
+                                'hoursWindow' => 0,
+                                'hoursWorked' => 0
                             );
                         }
 
                         $aResult[$mProject]['hours'] += $fTotalTime;
                         $aResult[$mProject]['hoursWindow'] += $fLeftHours;
+                        $aResult[$mProject]['hoursWorked'] += $fActualHours;
                         if (empty($aResult[$mProject]['users'][$sUser]) === true) {
-                            $aResult[$mProject]['users'][$sUser] = 0;
+                            $aResult[$mProject]['users'][$sUser] = array(
+                                'left' => 0,
+                                'worked' => 0
+                            );
                         }
 
-                        $aResult[$mProject]['users'][$sUser] += $fLeftHours;
+                        $aResult[$mProject]['users'][$sUser]['left'] += $fLeftHours;
+                        $aResult[$mProject]['users'][$sUser]['worked'] += $fActualHours;
                     }
                 }
             }
@@ -389,21 +396,27 @@ class Service {
         $aResult = array();
         foreach ($aProjects['projects'] as $mProject => $aProject) {
             if (isset($aProject['users']) === true) {
-                foreach ($aProject['users'] as $sUser => $fTime) {
+                foreach ($aProject['users'] as $sUser => $aHours) {
                     if (empty($aResult[$sUser]) === true) {
                         $aResult[$sUser] = array(
                             'hours' => 0,
-                            'hoursWindow' => 0
+                            'hoursWindow' => 0,
+                            'hoursWorked' => 0
                         );
                     }
 
-                    $aResult[$sUser]['hours'] += $fTime;
-                    $aResult[$sUser]['hoursWindow'] += $fTime;
+                    $aResult[$sUser]['hours'] += $aHours['left'];
+                    $aResult[$sUser]['hoursWindow'] += $aHours['left'];
+                    $aResult[$sUser]['hoursWorked'] += $aHours['worked'];
                     if (empty($aResult[$sUser]['projects'][$mProject]) === true) {
-                        $aResult[$sUser]['projects'][$mProject] = 0;
+                        $aResult[$sUser]['projects'][$mProject] = array(
+                            'left' => 0,
+                            'worked' => 0
+                        );
                     }
 
-                    $aResult[$sUser]['projects'][$mProject] += $fTime;
+                    $aResult[$sUser]['projects'][$mProject]['left'] += $aHours['left'];
+                    $aResult[$sUser]['projects'][$mProject]['worked'] += $aHours['worked'];
                 }
             }
         }
@@ -463,6 +476,28 @@ class Service {
         }
 
         return $aWindowHours;
+    }
+
+    /**
+     * Determine if a ticket was worked on in a particular week
+     *
+     * @param  Bug $oTicket
+     * @param  string $sWeek
+     *
+     * @return float
+     */
+    protected function _getWorkedHoursFromTicketOfWeek(Bug $oTicket, $sWeek) {
+        $fWorkedHours = 0;
+        $aHours = $oTicket->getWorkedHours();
+        foreach ($aHours as $aHour) {
+            $sWorkedWeek = date('Y/W', $aHour['datetime']);
+            if ($sWorkedWeek === $sWeek) {
+                $fWorkedHours += $aHour['duration'];
+            }
+        }
+
+        unset($aHours);
+        return $fWorkedHours;
     }
 
     /**
