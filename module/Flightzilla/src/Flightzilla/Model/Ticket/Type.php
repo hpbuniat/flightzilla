@@ -62,8 +62,8 @@ abstract class Type {
      */
     public static $aTypes = array(
         Bug::TYPE_STRING_BUG => Bug::TYPE_BUG,
-        Bug::TYPE_STRING_PROJECT  => Bug::TYPE_PROJECT,
         Bug::TYPE_STRING_THEME  => Bug::TYPE_THEME,
+        Bug::TYPE_STRING_PROJECT  => Bug::TYPE_PROJECT,
         Bug::TYPE_STRING_CONCEPT  => Bug::TYPE_CONCEPT,
         Bug::TYPE_STRING_FEATURE  => Bug::TYPE_FEATURE,
     );
@@ -77,11 +77,11 @@ abstract class Type {
      */
     public static function factory(\SimpleXMLElement $oXml) {
         $sType = self::getType($oXml);
-        if ($sType === Bug::TYPE_PROJECT) {
-            return new Type\Project($oXml);
-        }
-        elseif ($sType === Bug::TYPE_THEME) {
+        if ($sType === Bug::TYPE_THEME) {
             return new Type\Theme($oXml);
+        }
+        elseif ($sType === Bug::TYPE_PROJECT) {
+            return new Type\Project($oXml);
         }
 
         return new Type\Bug($oXml);
