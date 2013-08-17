@@ -997,6 +997,8 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
             if (empty($aMatch[0]) !== true) {
                 $mIds = $aMatch[0];
             }
+
+            unset($aMatch);
         }
 
         $aReturn = array();
@@ -1012,7 +1014,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                 }
 
                 $this->_aBugsListCache[$sHash] = $aListCache;
-                unset($aChunks);
+                unset($aChunks, $aListCache);
             }
 
             $aReturn = $this->_aBugsListCache[$sHash];
@@ -1070,22 +1072,27 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
                         }
                     }
 
+                    unset($aDepends);
                     if ($bMergeable === true) {
                         $this->_aFixedToMerge[$bug->id()] = $bug;
                     }
-                    else {
+                    elseif (empty($aProjects) === true) {
                         $this->_aFixed[$bug->id()] = $bug;
                     }
                 }
                 elseif (empty($aProjects) === true) {
                     $this->_aFixed[$bug->id()] = $bug;
                 }
+
+                unset($aProjects);
             }
 
             if (empty($this->_aFixedTrunk[$bug->id()]) !== true and $bug->getStatus() === Bug::STATUS_CLOSED) {
                 unset($this->_aFixedTrunk[$bug->id()]);
             }
         }
+
+        unset($fixedBugs);
 
         ksort($this->_aFixedTrunk);
         ksort($this->_aFixed);

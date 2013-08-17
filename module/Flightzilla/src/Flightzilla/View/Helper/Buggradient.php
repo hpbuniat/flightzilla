@@ -113,12 +113,14 @@ class Buggradient extends AbstractHelper {
                 'background-image: -linear-gradient(0deg, ' . $sColors . ');',
             );
             $sStyle = implode($aBackgrounds);
+            unset($aBackgrounds);
         }
 
         if ($oTicket->isClosed() === true) {
             $sStyle .= ' opacity: 0.25;';
         }
 
+        unset($aColors);
         return $sStyle;
     }
 }

@@ -127,6 +127,7 @@ class Estimation extends AbstractHelper {
                 break;
         }
 
+        unset($fActual, $fEstimated, $bEstimated, $bOrga, $bOvertime);
         return $sReturn;
     }
 }
