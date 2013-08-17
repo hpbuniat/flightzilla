@@ -167,7 +167,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      * @var string
      */
     const TYPE_STRING_BUG = 'MTB';
-    const TYPE_STRING_THEME = 'Theme,Thema,Projekt';
+    const TYPE_STRING_THEME = 'Theme,Thema';
     const TYPE_STRING_PROJECT = 'Projekt';
     const TYPE_STRING_FEATURE = '';
     const TYPE_STRING_CONCEPT = 'Screen';
