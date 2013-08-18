@@ -93,12 +93,14 @@ class Ticketicons extends AbstractHelper {
             }
         }
 
-        if ($oBug->isMergeable() === true) {
-            $aClasses[] = sprintf('<i class="%s" title="%s"></i>', self::ICON_MERGABLE, Bug::WORKFLOW_MERGE);
-        }
+        if ($oBug->isContainer() !== true) {
+            if ($oBug->isMergeable() === true) {
+                $aClasses[] = sprintf('<i class="%s" title="%s"></i>', self::ICON_MERGABLE, Bug::WORKFLOW_MERGE);
+            }
 
-        if ($oBug->isMerged() === true) {
-            $aClasses[] = sprintf('<i class="%s" title="%s"></i>', self::ICON_MERGED, Bug::WORKFLOW_MERGED);
+            if ($oBug->isMerged() === true) {
+                $aClasses[] = sprintf('<i class="%s" title="%s"></i>', self::ICON_MERGED, Bug::WORKFLOW_MERGED);
+            }
         }
 
         if ($oBug->isOnWatchlist() === true) {

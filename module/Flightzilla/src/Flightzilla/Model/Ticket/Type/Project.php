@@ -368,4 +368,12 @@ class Project extends Bug {
         return $fReturn;
     }
 
+    /**
+     * Get the remaining hours of the project
+     *
+     * @return float
+     */
+    public function getLeftHours() {
+        return $this->getLeftTimeOfDependencies();
+    }
 }

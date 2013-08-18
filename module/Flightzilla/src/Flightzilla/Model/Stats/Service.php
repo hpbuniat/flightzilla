@@ -283,6 +283,10 @@ class Service {
                     if ($oTicket->isType(Bug::TYPE_BUG) === true) {
                         $aProjects[Bug::TYPE_BUG] = $oTicket;
                     }
+                    elseif ($oTicket->hasContainer() === true) {
+                        $iContainer = $oTicket->getContainer();
+                        $aProjects[$iContainer] = $oTicket;
+                    }
                     else {
                         $aProjects[Bug::TYPE_HOMELESS_FEATURE] = $oTicket;
                     }
@@ -291,16 +295,21 @@ class Service {
                 if (empty($aProjects) !== true) {
                     $fTotalHours += $iHoursWindow;
                     foreach ($aProjects as $mProject => $oProject) {
+                        /* @var Bug $oProject */
                         if (empty($aResult[$mProject]) === true) {
                             $aResult[$mProject] = array(
                                 'hours' => 0,
-                                'hoursWindow' => 0
+                                'hoursWindow' => 0,
+                                'hoursWorked' => 0,
+                                'hoursLeft' => 0
                             );
                         }
 
                         $aResult[$mProject]['hours'] += $iTotalTime;
                         $aResult[$mProject]['hoursWindow'] += $iHoursWindow;
-                        foreach ($aHoursPerUser['user'] as $sUser => $aHours) {
+                        $aResult[$mProject]['hoursWorked'] += $iHoursWindow;
+                        $aResult[$mProject]['hoursLeft'] += $oTicket->getLeftHours();
+                        foreach ($aHoursPerUser['user'] as $sUser => $fHours) {
                             if (empty($aResult[$mProject]['users'][$sUser]) === true) {
                                 $aResult[$mProject]['users'][$sUser] = array(
                                     'left' => 0,
@@ -308,17 +317,29 @@ class Service {
                                 );
                             }
 
-                            $aResult[$mProject]['users'][$sUser]['left'] += $aHours['left'];
-                            $aResult[$mProject]['users'][$sUser]['worked'] += $aHours['worked'];
+                            $aResult[$mProject]['users'][$sUser]['worked'] += $fHours;
                         }
+
+                        $sUser = $oTicket->getAssignee(true);
+                        if (empty($aResult[$mProject]['users'][$sUser]) === true) {
+                            $aResult[$mProject]['users'][$sUser] = array(
+                                'left' => 0,
+                                'worked' => 0
+                            );
+                        }
+
+                        $aResult[$mProject]['users'][$sUser]['left'] += $oTicket->getLeftHours();
                     }
                 }
+
+                unset ($aProjects, $aHoursPerUser);
             }
         }
 
         return array(
             'projects' => $this->_sortHelper($aResult, 'hoursWindow', true),
-            'totalHours' => $fTotalHours
+            'totalHours' => $fTotalHours,
+            'future' => false
         );
     }
 
@@ -335,16 +356,22 @@ class Service {
 
         foreach ($this->_aStack as $oTicket) {
             /* @var Bug $oTicket */
-            $fTotalTime = $oTicket->getEstimation();
-            $fLeftHours = $oTicket->getLeftHours();
             $fActualHours = $this->_getWorkedHoursFromTicketOfWeek($oTicket, $sWeek);
+
             if ($oTicket->getWeek() === $sWeek or $fActualHours > 0) {
+                $fTotalTime = $oTicket->getEstimation();
+                $fLeftHours = $oTicket->getLeftHours();
+
                 $aProjects = $oTicket->getProjects();
                 $sUser = $oTicket->getAssignee(true);
 
                 if (empty($aProjects) === true) {
                     if ($oTicket->isType(Bug::TYPE_BUG) === true) {
                         $aProjects[Bug::TYPE_BUG] = $oTicket;
+                    }
+                    elseif ($oTicket->hasContainer() === true) {
+                        $iContainer = $oTicket->getContainer();
+                        $aProjects[$iContainer] = $oTicket;
                     }
                     else {
                         $aProjects[Bug::TYPE_HOMELESS_FEATURE] = $oTicket;
@@ -358,13 +385,15 @@ class Service {
                             $aResult[$mProject] = array(
                                 'hours' => 0,
                                 'hoursWindow' => 0,
-                                'hoursWorked' => 0
+                                'hoursWorked' => 0,
+                                'hoursLeft' => 0
                             );
                         }
 
                         $aResult[$mProject]['hours'] += $fTotalTime;
-                        $aResult[$mProject]['hoursWindow'] += $fLeftHours;
+                        $aResult[$mProject]['hoursWindow'] += $fActualHours;
                         $aResult[$mProject]['hoursWorked'] += $fActualHours;
+                        $aResult[$mProject]['hoursLeft'] += $fLeftHours;
                         if (empty($aResult[$mProject]['users'][$sUser]) === true) {
                             $aResult[$mProject]['users'][$sUser] = array(
                                 'left' => 0,
@@ -376,12 +405,15 @@ class Service {
                         $aResult[$mProject]['users'][$sUser]['worked'] += $fActualHours;
                     }
                 }
+
+                unset ($aProjects, $sUser);
             }
         }
 
         return array(
             'projects' => $this->_sortHelper($aResult, 'hoursWindow', true),
-            'totalHours' => $fTotalHours
+            'totalHours' => $fTotalHours,
+            'future' => true
         );
     }
 
@@ -401,12 +433,14 @@ class Service {
                         $aResult[$sUser] = array(
                             'hours' => 0,
                             'hoursWindow' => 0,
-                            'hoursWorked' => 0
+                            'hoursWorked' => 0,
+                            'hoursLeft' => 0
                         );
                     }
 
-                    $aResult[$sUser]['hours'] += $aHours['left'];
-                    $aResult[$sUser]['hoursWindow'] += $aHours['left'];
+                    $aResult[$sUser]['hours'] += ($aHours['worked'] + $aHours['left']);
+                    $aResult[$sUser]['hoursLeft'] += $aHours['left'];
+                    $aResult[$sUser]['hoursWindow'] += $aHours['worked'];
                     $aResult[$sUser]['hoursWorked'] += $aHours['worked'];
                     if (empty($aResult[$sUser]['projects'][$mProject]) === true) {
                         $aResult[$sUser]['projects'][$mProject] = array(
@@ -423,7 +457,8 @@ class Service {
 
         return array(
             'resources' => $this->_sortHelper($aResult, 'hoursWindow', true),
-            'totalHours' => $aProjects['totalHours']
+            'totalHours' => $aProjects['totalHours'],
+            'future' => $aProjects['future']
         );
     }
 

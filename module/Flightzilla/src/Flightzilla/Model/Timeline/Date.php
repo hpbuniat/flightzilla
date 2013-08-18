@@ -62,7 +62,7 @@ class Date {
     const AMOUNT = 6.0;
 
     /**
-     * Amount of hours which should be planne for a sprint per week
+     * Amount of hours which should be planned for a sprint per week
      *
      * @var int
      *
@@ -287,7 +287,7 @@ class Date {
      *
      * @return int
      */
-    public function getDateFromWeek($sWeek, $sDay = 'thursday') {
+    public function getDateFromWeek($sWeek, $sDay = 'friday') {
         $aDate = explode('/', $sWeek);
         return strtotime(sprintf('%s-W%s %s %s', $aDate[0], $aDate[1], $sDay, self::END));
     }

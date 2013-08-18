@@ -133,8 +133,9 @@ class StatsController extends AbstractActionController {
         $aProjectTimes = array_reverse($aProjectTimes, true);
         $aResourceTimes = array_reverse($aResourceTimes, true);
         foreach ($oViewModel->aWeeks as $sWeek => $aWeek) {
-            $aProjectTimes[$sWeek] = $oTicketStats->getFutureProjectTimes($aWeek['title']);
-            $aResourceTimes[$sWeek] = $oTicketStats->getResourceTimesFromProjectTimes($aProjectTimes[$sWeek]);
+            $sTitle = sprintf('%s (%s)', $sWeek, $aWeek['title']);
+            $aProjectTimes[$sTitle] = $oTicketStats->getFutureProjectTimes($aWeek['title']);
+            $aResourceTimes[$sTitle] = $oTicketStats->getResourceTimesFromProjectTimes($aProjectTimes[$sTitle]);
         }
 
         $oViewModel->aResourceTimes = $aResourceTimes;

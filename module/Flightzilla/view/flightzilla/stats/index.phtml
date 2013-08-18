@@ -64,9 +64,11 @@
         <?php foreach ($this->aProjectTimes as $sTime => $aStats): ?>
             <div class="tab-pane" id="a<?php echo substr(md5($sTime), 0, 6); ?>">
                 <?php foreach ($aStats['projects'] as $mTicket => $aHours):
-                    if ($aHours['hoursWindow'] > 0):
-                        $fWidth = (100 * round($aHours['hoursWindow'] / $aStats['totalHours'], 2));
-                        $fWidth = ($fWidth < 1) ? 1 : $fWidth;
+                    if ($aHours['hoursWindow'] > 0 or $aStats['future'] === true):
+                        $fSum = ($aHours['hoursWorked'] + $aHours['hoursLeft']);
+                        $fWidthWorked = ($fSum > 0) ? (100 * round($aHours['hoursWorked'] / $fSum, 2)) : 0;
+                        $fWidthLeft = ($fSum > 0) ? (100 * round($aHours['hoursLeft'] / $fSum, 2)) : 0;
+                        $sText = sprintf('%.1f (%.1f hours left) of %.1f hours (%.1f total)', $aHours['hoursWorked'], $aHours['hoursLeft'], $aHours['hoursWindow'], $aHours['hours']);
                         ?>
                         <div class="col-lg-4">
                             <span class="toggle" data-target="ticket-toggle-<?php echo md5($mTicket);?>">
@@ -81,22 +83,25 @@
                         </div>
                         <div class="col-lg-8">
                             <div class="progress progress-striped">
-                                <div title="<?php echo sprintf('%.1f hours of %.1f hours (total)', $aHours['hoursWindow'], $aHours['hours']); ?>" class="tipper progress-bar progress-bar-success" style="width: <?php echo $fWidth; ?>%"></div>
+                                <div title="<?php echo $sText ?>" class="tipper progress-bar progress-bar-success" style="width: <?php echo $fWidthWorked; ?>%"></div>
+                                <div title="<?php echo $sText ?>" class="tipper progress-bar progress-bar-warning" style="width: <?php echo $fWidthLeft; ?>%"></div>
                             </div>
                         </div>
 
                         <div style="display:none" class="ticket-toggle-<?php echo md5($mTicket);?>">
                             <?php foreach ($aHours['users'] as $sUser => $aUserHours):
-                                $fWidth = (100 * round($aUserHours['left'] / $aHours['hoursWindow'], 2));
-                                $fWidth = ($fWidth < 1) ? 1 : $fWidth;
-                                $sText = sprintf('%.1f/%.1f hours of %.1f hours (total)', $aUserHours['worked'], $aUserHours['left'], $aHours['hoursWindow']);
+                                $fSum = ($aUserHours['worked'] + $aUserHours['left']);
+                                $fWidthWorked = ($fSum > 0) ? (100 * round($aUserHours['worked'] / $fSum, 2)) : 0;
+                                $fWidthLeft = ($fSum > 0) ? (100 * round($aUserHours['left'] / $fSum, 2)) : 0;
+                                $sText = sprintf('%.1f (%.1f hours left) of %.1f hours (%.1f total)', $aUserHours['worked'], $aUserHours['left'], $aHours['hoursWindow'], $aHours['hours']);
                                 ?>
                                 <div class="col-lg-4">
                                     <span class="pl10"><?php echo sprintf('%s: %s', $sUser, $sText) ?></span>
                                 </div>
                                 <div class="col-lg-8">
                                     <div class="progress progress-striped">
-                                        <div title="<?php echo $sText; ?>" class="tipper progress-bar progress-bar-success" style="width: <?php echo $fWidth; ?>%"></div>
+                                        <div title="<?php echo $sText; ?>" class="tipper progress-bar progress-bar-success" style="width: <?php echo $fWidthWorked; ?>%"></div>
+                                        <div title="<?php echo $sText; ?>" class="tipper progress-bar progress-bar-warning" style="width: <?php echo $fWidthLeft; ?>%"></div>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -123,9 +128,11 @@
         <?php foreach ($this->aResourceTimes as $sTime => $aStats): ?>
             <div class="tab-pane" id="b<?php echo substr(md5($sTime), 0, 6); ?>">
                 <?php foreach ($aStats['resources'] as $sResource => $aHours):
-                    if ($aHours['hoursWindow'] > 0):
-                        $fWidth = (100 * round($aHours['hoursWindow'] / $aStats['totalHours'], 2));
-                        $fWidth = ($fWidth < 1) ? 1 : $fWidth;
+                    if ($aHours['hoursWindow'] > 0 or $aStats['future'] === true):
+                        $fSum = ($aHours['hoursWorked'] + $aHours['hoursLeft']);
+                        $fWidthWorked = ($fSum > 0) ? (100 * round($aHours['hoursWorked'] / $fSum, 2)) : 0;
+                        $fWidthLeft = ($fSum > 0) ? (100 * round($aHours['hoursLeft'] / $fSum, 2)) : 0;
+                        $sText = sprintf('%.1f (%.1f hours left) of %.1f hours (%.1f total)', $aHours['hoursWorked'], $aHours['hoursLeft'], $aHours['hoursWindow'], $aHours['hours']);
                         ?>
                         <div class="col-lg-4">
                             <span class="toggle" data-target="ticket-toggle-<?php echo md5($sResource);?>">
@@ -134,15 +141,17 @@
                         </div>
                         <div class="col-lg-8">
                             <div class="progress progress-striped">
-                                <div title="<?php echo sprintf('%.1f hours of %.1f hours (total)', $aHours['hoursWindow'], $aHours['hours']); ?>" class="tipper progress-bar progress-bar-success" style="width: <?php echo $fWidth; ?>%"></div>
+                                <div title="<?php echo $sText ?>" class="tipper progress-bar progress-bar-success" style="width: <?php echo $fWidthWorked; ?>%"></div>
+                                <div title="<?php echo $sText ?>" class="tipper progress-bar progress-bar-warning" style="width: <?php echo $fWidthLeft; ?>%"></div>
                             </div>
                         </div>
 
                         <div style="display:none" class="ticket-toggle-<?php echo md5($sResource);?>">
                             <?php foreach ($aHours['projects'] as $mProject => $aProjectHours):
-                                $fWidth = (100 * round($aProjectHours['left'] / $aHours['hoursWindow'], 2));
-                                $fWidth = ($fWidth < 1) ? 1 : $fWidth;
-                                $sText = sprintf('%.1f/%.1f hours of %.1f hours (total)', $aProjectHours['worked'], $aProjectHours['left'], $aHours['hoursWindow']);
+                                $fSum = ($aProjectHours['worked'] + $aProjectHours['left']);
+                                $fWidthWorked = ($fSum > 0) ? (100 * round($aProjectHours['worked'] / $fSum, 2)) : 0;
+                                $fWidthLeft = ($fSum > 0) ? (100 * round($aProjectHours['left'] / $fSum, 2)) : 0;
+                                $sText = sprintf('%.1f (%.1f hours left) of %.1f hours (%.1f total)', $aProjectHours['worked'], $aProjectHours['left'], $aHours['hoursWindow'], $aHours['hours']);
                                 ?>
                                 <div class="col-lg-4">
                                     <span class="pl10">
@@ -160,7 +169,8 @@
                                 </div>
                                 <div class="col-lg-8">
                                     <div class="progress progress-striped">
-                                        <div title="<?php echo $sText; ?>" class="tipper progress-bar progress-bar-success" style="width: <?php echo $fWidth; ?>%"></div>
+                                        <div title="<?php echo $sText; ?>" class="tipper progress-bar progress-bar-success" style="width: <?php echo $fWidthWorked; ?>%"></div>
+                                        <div title="<?php echo $sText; ?>" class="tipper progress-bar progress-bar-warning" style="width: <?php echo $fWidthLeft; ?>%"></div>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
