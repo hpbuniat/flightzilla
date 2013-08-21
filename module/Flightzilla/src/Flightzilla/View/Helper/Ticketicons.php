@@ -108,7 +108,7 @@ class Ticketicons extends AbstractHelper {
         }
 
         if ($oBug->hasFlag(Bug::FLAG_COMMENT, Bugzilla::BUG_FLAG_REQUEST) === true or $oBug->getStatus() === Bug::STATUS_CLARIFICATION) {
-            $aClasses[] = sprintf('<i class="%s" title="Awaiting %s">&nbsp;</i>', self::ICON_COMMENT, Bug::FLAG_COMMENT);
+            $aClasses[] = sprintf('<i class="%s" title="Awaiting %s"></i>', self::ICON_COMMENT, Bug::FLAG_COMMENT);
             if (strlen($oBug->commentrequest_user) > 0) {
                 $aClasses[] = '<span class="red">' . $oBug->commentrequest_user . '</span>';
             }
@@ -119,10 +119,10 @@ class Ticketicons extends AbstractHelper {
         }
 
         if ($oBug->hasFlag(Bug::FLAG_SCREEN, Bugzilla::BUG_FLAG_GRANTED) === true and $oBug->hasFlag(Bug::FLAG_SCREEN, Bugzilla::BUG_FLAG_REQUEST) === false) {
-            $aClasses[] = sprintf('<i class="%s" title="%s">&nbsp;</i>', self::ICON_CHECKED, Bug::FLAG_SCREEN);
+            $aClasses[] = sprintf('<i class="%s" title="%s"></i>', self::ICON_CHECKED, Bug::FLAG_SCREEN);
         }
         elseif ($oBug->hasFlag(Bug::FLAG_SCREEN, Bugzilla::BUG_FLAG_REQUEST) === true) {
-            $aClasses[] = sprintf('<i class="%s" title="Awaiting %s">&nbsp;</i>', self::ICON_TESTING, Bug::FLAG_SCREEN);
+            $aClasses[] = sprintf('<i class="%s" title="Awaiting %s"></i>', self::ICON_TESTING, Bug::FLAG_SCREEN);
         }
 
         if ($oBug->hasFlag(Bug::FLAG_DBCHANGE, Bugzilla::BUG_FLAG_GRANTED) === true) {
@@ -130,7 +130,7 @@ class Ticketicons extends AbstractHelper {
         }
 
         if ($oBug->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST) === true) {
-            $aClasses[] = sprintf('<i class="%s" title="Awaiting %s">&nbsp;</i>', self::ICON_TESTING, Bug::FLAG_TESTING);
+            $aClasses[] = sprintf('<i class="%s" title="Awaiting %s"></i>', self::ICON_TESTING, Bug::FLAG_TESTING);
             if (strlen($oBug->testingrequest_user) > 0) {
                 $aClasses[] = '<span class="red">' . $oBug->testingrequest_user . '</span>';
             }
@@ -142,14 +142,14 @@ class Ticketicons extends AbstractHelper {
         }
 
         if ($oBug->hasFlag(Bug::FLAG_TESTSERVER, Bugzilla::BUG_FLAG_REQUEST) === true) {
-            $aClasses[] = sprintf('<i class="%s" title="Awaiting %s">&nbsp;</i>', self::ICON_UPDATE, Bug::FLAG_TESTSERVER);
+            $aClasses[] = sprintf('<i class="%s" title="Awaiting %s"></i>', self::ICON_UPDATE, Bug::FLAG_TESTSERVER);
         }
 
         if ($oBug->isType(Bug::TYPE_BUG) === true) {
             $aClasses[] = '<span class="ui-silk ui-silk-bug" title="' . Bug::TYPE_BUG . '">&nbsp;</span>';
         }
         elseif ($oBug->isContainer() === false and $oBug->hasContainer() === false and $oBug->isAdministrative() === false) {
-            $aClasses[] = sprintf('<i class="%s" title="Feature with no container!">&nbsp;</i>', self::ICON_WARNING);
+            $aClasses[] = sprintf('<i class="%s" title="Feature with no container!"></i>', self::ICON_WARNING);
         }
 
         return sprintf('&nbsp;%s', implode('&nbsp;', $aClasses));
