@@ -178,6 +178,8 @@ class TicketService extends AbstractPlugin {
         $oView->aStatuses = $oTicketStats->getStatuses();
         $oView->aPriorities = $oTicketStats->getPriorities();
         $oView->aSeverities = $oTicketStats->getSeverities();
+        $oView->aDaysCreated = $oTicketStats->getTicketsCreatedWithinDays();
+        $oView->aDaysActive = $oTicketStats->getTicketsActiveWithinDays();
         $oView->sChuck = $oTicketStats->getChuckStatus();
 
         $oView->iThroughPut = $oTicketStats->getThroughPut();

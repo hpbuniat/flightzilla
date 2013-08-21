@@ -344,6 +344,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     const CACHE_ISMOSTLIKELYINTRUNK  = 'ismostlikelyintrunk';
     const CACHE_HASDEVELOPMENT  = 'hasdevelopment';
     const CACHE_ISMERGED  = 'ismerged';
+    const CACHE_CREATION_TIME = 'creationtime';
+    const CACHE_LAST_ACTIVITY = 'lastactiviy';
 
 
     /**
@@ -931,6 +933,9 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         }
 
         $this->_bContainer = ($this->isTheme() === true or $this->isProject() === true);
+        $this->_aMethodCache[self::CACHE_CREATION_TIME] = strtotime($this->_data->creation_ts);
+        $this->_aMethodCache[self::CACHE_LAST_ACTIVITY] = strtotime($this->_data->delta_ts);
+
         return $this;
     }
 
@@ -1742,7 +1747,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function getLastActivity() {
 
-        return strtotime($this->_data->delta_ts);
+        return $this->_aMethodCache[self::CACHE_LAST_ACTIVITY];
     }
 
     /**
@@ -1761,6 +1766,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
 
         rsort($aTimes);
         $iActivity = reset($aTimes);
+
+
         if (empty($iActivity) === true) {
             $iActivity = $this->getLastActivity();
         }
@@ -1775,7 +1782,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function getCreationTime() {
 
-        return strtotime($this->_data->creation_ts);
+        return $this->_aMethodCache[self::CACHE_CREATION_TIME];
     }
 
     /**

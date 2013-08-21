@@ -69,6 +69,8 @@ class Service {
     const STATS_TYPE = 'throughput';
     const STATS_DIFF = 'difference';
     const STATS_PROJECT = 'project-times';
+    const STATS_ACTIVE_DAYS = 'days-active';
+    const STATS_CREATE_DAYS = 'days-created';
 
     /**
      * The time window for the ticket-throughput
@@ -686,67 +688,67 @@ class Service {
             );
 
             $iTimeoutLimit = $this->_config->tickets->workflow->timeout;
-            foreach ($this->_aFilteredStack as $oBug) {
-                /* @var $oBug Bug */
+            foreach ($this->_aFilteredStack as $oTicket) {
+                /* @var $oTicket Bug */
 
                 $bShouldHaveEstimation = true;
-                if ($oBug->isOrga() === true) {
+                if ($oTicket->isOrga() === true) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_ORGA]++;
                     $bShouldHaveEstimation = false;
                 }
 
-                if ($oBug->isEstimated()) {
+                if ($oTicket->isEstimated()) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_ESTIMATED]++;
                 }
                 elseif ($bShouldHaveEstimation === true) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_UNESTIMATED]++;
                 }
 
-                if ($oBug->isWorkedOn()) {
+                if ($oTicket->isWorkedOn()) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_INPROGRESS]++;
                 }
 
-                if ($oBug->isActive()) {
+                if ($oTicket->isActive()) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_ACTIVE]++;
                 }
 
-                if ($oBug->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST) === true) {
+                if ($oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST) === true) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_TESTING]++;
                 }
 
-                if ($oBug->isFailed()) {
+                if ($oTicket->isFailed()) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_FAILED]++;
                 }
 
-                if ($oBug->isMergeable()) {
+                if ($oTicket->isMergeable()) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_MERGE]++;
                 }
 
-                if ($oBug->deadlineStatus()) {
+                if ($oTicket->deadlineStatus()) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_DEADLINE]++;
                 }
 
-                if ($oBug->hasFlag(Bug::FLAG_SCREEN, Bugzilla::BUG_FLAG_REQUEST)) {
+                if ($oTicket->hasFlag(Bug::FLAG_SCREEN, Bugzilla::BUG_FLAG_REQUEST)) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_SCREEN]++;
                 }
 
-                if ($oBug->hasFlag(Bug::FLAG_COMMENT, Bugzilla::BUG_FLAG_REQUEST) or $oBug->getStatus() === Bug::STATUS_CLARIFICATION) {
+                if ($oTicket->hasFlag(Bug::FLAG_COMMENT, Bugzilla::BUG_FLAG_REQUEST) or $oTicket->getStatus() === Bug::STATUS_CLARIFICATION) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_COMMENT]++;
                 }
 
-                if ($oBug->isQuickOne()) {
+                if ($oTicket->isQuickOne()) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_QUICK]++;
                 }
 
-                if ($oBug->isOnlyTranslation()) {
+                if ($oTicket->isOnlyTranslation()) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_TRANSLATION]++;
                 }
 
-                if ($oBug->hasFlag(Bug::FLAG_TRANSLATION, Bugzilla::BUG_FLAG_REQUEST) === true) {
+                if ($oTicket->hasFlag(Bug::FLAG_TRANSLATION, Bugzilla::BUG_FLAG_REQUEST) === true) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_TRANSLATION_PENDING]++;
                 }
 
-                if ($oBug->isChangedWithinLimit($iTimeoutLimit) !== true) {
+                if ($oTicket->isChangedWithinLimit($iTimeoutLimit) !== true) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_TIMEDOUT]++;
                 }
             }
@@ -755,33 +757,6 @@ class Service {
         }
 
         return $this->_aCache[self::STATS_WORKFLOW];
-    }
-
-    /**
-     * Return all statuses with percentage.
-     *
-     * @return array
-     */
-    public function getStatuses() {
-
-        if (empty($this->_aCache[self::STATS_STATUS]) === true) {
-            $this->_aCache[self::STATS_STATUS] = array();
-
-            foreach ($this->_aFilteredStack as $oBug) {
-                /* @var $oBug Bug */
-                $sStatus = (string) $oBug->getStatus();
-                if (empty($this->_aCache[self::STATS_STATUS][$sStatus]) === true) {
-                    $this->_aCache[self::STATS_STATUS][$sStatus] = 0;
-                }
-
-                $this->_aCache[self::STATS_STATUS][$sStatus]++;
-            }
-
-            $this->_percentify($this->_aCache[self::STATS_STATUS], $this->getCount());
-            ksort($this->_aCache[self::STATS_STATUS]);
-        }
-
-        return $this->_aCache[self::STATS_STATUS];
     }
 
     /**
@@ -828,30 +803,23 @@ class Service {
     }
 
     /**
+     * Return all statuses with percentage.
+     *
+     * @return array
+     */
+    public function getStatuses() {
+
+        return $this->_getGenericMethodAttribute(self::STATS_STATUS, 'getStatus');
+    }
+
+    /**
      * Get the priorities
      *
      * @return array
      */
     public function getPriorities() {
 
-        if (empty($this->_aCache[self::STATS_PRIORITIES]) === true) {
-            $this->_aCache[self::STATS_PRIORITIES] = array();
-
-            foreach ($this->_aFilteredStack as $oBug) {
-                /* @var $oBug Bug */
-                $sPriority = $oBug->getPriority();
-                if (empty($this->_aCache[self::STATS_PRIORITIES][$sPriority]) === true) {
-                    $this->_aCache[self::STATS_PRIORITIES][$sPriority] = 0;
-                }
-
-                $this->_aCache[self::STATS_PRIORITIES][$sPriority]++;
-            }
-
-            $this->_percentify($this->_aCache[self::STATS_PRIORITIES], $this->getCount());
-            ksort($this->_aCache[self::STATS_PRIORITIES]);
-        }
-
-        return $this->_aCache[self::STATS_PRIORITIES];
+        return $this->_getGenericMethodAttribute(self::STATS_PRIORITIES, 'getPriority');
     }
 
     /**
@@ -861,24 +829,94 @@ class Service {
      */
     public function getSeverities() {
 
-        if (empty($this->_aCache[self::STATS_SEVERITIES]) === true) {
-            $this->_aCache[self::STATS_SEVERITIES] = array();
+        return $this->_getGenericMethodAttribute(self::STATS_SEVERITIES, 'getSeverity');
+    }
 
-            foreach ($this->_aFilteredStack as $oBug) {
-                /* @var $oBug Bug */
-                $sSeverity = $oBug->getSeverity();
-                if (empty($this->_aCache[self::STATS_SEVERITIES][$sSeverity]) === true) {
-                    $this->_aCache[self::STATS_SEVERITIES][$sSeverity] = 0;
+    /**
+     * Get the tickets per activity within 0 to 7 days
+     *
+     * @return array
+     */
+    public function getTicketsActiveWithinDays() {
+
+        return $this->_getGenericDateAttribute(self::STATS_ACTIVE_DAYS, 'getLastActivity');
+    }
+
+    /**
+     * Get the tickets per activity within 0 to 7 days
+     *
+     * @return array
+     */
+    public function getTicketsCreatedWithinDays() {
+
+        return $this->_getGenericDateAttribute(self::STATS_CREATE_DAYS, 'getCreationTime');
+    }
+
+    /**
+     * Generic getter for date-attribute comparisson
+     *
+     * @param  string $sCacheEntry
+     * @param  string $sMethod
+     * @param  int $iDayStart
+     * @param  int $iDayEnd
+     *
+     * @return array
+     */
+    protected function _getGenericDateAttribute($sCacheEntry, $sMethod, $iDayStart = 0, $iDayEnd = self::TIME_WINDOW_1WEEK) {
+        if (empty($this->_aCache[$sCacheEntry]) === true) {
+            $this->_aCache[$sCacheEntry] = array();
+
+            $iDaysActive = $iDayStart;
+            while ($iDaysActive < $iDayEnd) {
+                $sCompareDate = date('dmy', strtotime(sprintf('-%d days', $iDaysActive)));
+                foreach ($this->_aFilteredStack as $oTicket) {
+                    /* @var $oTicket Bug */
+                    if (date('dmy', $oTicket->$sMethod()) === $sCompareDate) {
+                        if (empty($this->_aCache[$sCacheEntry][$iDaysActive]) === true) {
+                            $this->_aCache[$sCacheEntry][$iDaysActive] = 0;
+                        }
+
+                        $this->_aCache[$sCacheEntry][$iDaysActive]++;
+                    }
                 }
 
-                $this->_aCache[self::STATS_SEVERITIES][$sSeverity]++;
+                $iDaysActive++;
             }
 
-            $this->_percentify($this->_aCache[self::STATS_SEVERITIES], $this->getCount());
-            ksort($this->_aCache[self::STATS_SEVERITIES]);
+            $this->_percentify($this->_aCache[$sCacheEntry], $this->getCount());
+            ksort($this->_aCache[$sCacheEntry]);
         }
 
-        return $this->_aCache[self::STATS_SEVERITIES];
+        return $this->_aCache[$sCacheEntry];
+    }
+
+    /**
+     * Generic getter for comparisson based on method-results
+     *
+     * @param  string $sCacheEntry
+     * @param  string $sMethod
+     *
+     * @return array
+     */
+    protected function _getGenericMethodAttribute($sCacheEntry, $sMethod) {
+        if (empty($this->_aCache[$sCacheEntry]) === true) {
+            $this->_aCache[$sCacheEntry] = array();
+
+            foreach ($this->_aFilteredStack as $oTicket) {
+                /* @var $oTicket Bug */
+                $sProperty = $oTicket->$sMethod();
+                if (empty($this->_aCache[$sCacheEntry][$sProperty]) === true) {
+                    $this->_aCache[$sCacheEntry][$sProperty] = 0;
+                }
+
+                $this->_aCache[$sCacheEntry][$sProperty]++;
+            }
+
+            $this->_percentify($this->_aCache[$sCacheEntry], $this->getCount());
+            ksort($this->_aCache[$sCacheEntry]);
+        }
+
+        return $this->_aCache[$sCacheEntry];
     }
 
     /**

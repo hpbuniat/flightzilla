@@ -39,6 +39,26 @@
             </a></li>
         <?php endif; ?>
         <?php endforeach; endif; ?>
+
+        <li class="nav-header">Created before</li>
+        <?php if (empty($this->aDaysCreated) !== true):
+            foreach ($this->aDaysCreated as $sType => $aStatus): ?>
+                <?php if ($aStatus['num'] > 0): ?>
+                    <li><a href="javascript:;" data-target="created<?php echo $sType?>" class="toggleBugs created<?php echo $sType?>">
+                            <?php echo str_replace('-', ' ', ucwords(strtolower($sType))); ?> days: <?php echo $aStatus['num']?> (<?php echo ceil($aStatus['per'])?>%)
+                        </a></li>
+                <?php endif; ?>
+            <?php endforeach; endif; ?>
+
+        <li class="nav-header">Active before</li>
+        <?php if (empty($this->aDaysActive) !== true):
+            foreach ($this->aDaysActive as $sType => $aStatus): ?>
+                <?php if ($aStatus['num'] > 0): ?>
+                    <li><a href="javascript:;" data-target="active<?php echo $sType?>" class="toggleBugs active<?php echo $sType?>">
+                            <?php echo str_replace('-', ' ', ucwords(strtolower($sType))); ?> days: <?php echo $aStatus['num']?> (<?php echo ceil($aStatus['per'])?>%)
+                        </a></li>
+                <?php endif; ?>
+            <?php endforeach; endif; ?>
     </ul>
     <?php
       echo $this->render('flightzilla/index/partial/legend.phtml');
