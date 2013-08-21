@@ -265,8 +265,8 @@ h4.member-name, h3.table-toggle {
     }
 
     .badge, .label, .print-box {
-        font-size: 22px !important;
-        line-height: 1em !important;
+        font-size: 20px !important;
+        line-height: 1.2em !important;
     }
 
     a[href]:after {
@@ -277,7 +277,7 @@ h4.member-name, h3.table-toggle {
         page-break-inside: avoid;
     }
 
-    i[class|="icon"] {
+    i[class^="glyphicon"] {
         display: none !important;
     }
 

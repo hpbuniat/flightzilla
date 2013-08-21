@@ -48,7 +48,7 @@ div.progress-heading {
 }
 
 .print-box {
-    padding: 5px;
+    margin: 5px;
 }
 
 .wide-definition .dl-horizontal dt {
@@ -166,13 +166,6 @@ div.progress-heading {
 @media print {
     * {
         color: inherit !important;
-        text-shadow: inherit !important;
         background: inherit !important;
-        box-shadow: inherit !important;
-    }
-
-    @page {
-        margin: 0.5cm;
-        padding: 1cm;
     }
 }
