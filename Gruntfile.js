@@ -80,8 +80,7 @@ module.exports = function (grunt) {
                     ], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
                     {src: ['./bower_components/jquery-ui/jquery.ui.custom.min.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
                     {src: ['./bower_components/jquery.tablesorter/js/jquery.tablesorter.min.js'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
-                    {src: ['./bower_components/bootstrap-glyphicons/css/bootstrap-glyphicons.css'], dest: './public/vendor/', filter: 'isFile', expand: true, flatten: true},
-                    {src: ['./bower_components/bootstrap-glyphicons/fonts/*'], dest: './public/fonts/', filter: 'isFile', expand: true, flatten: true}
+                    {src: ['./bower_components/bootstrap/dist/fonts/*'], dest: './public/fonts/', filter: 'isFile', expand: true, flatten: true}
                 ]
             }
         }

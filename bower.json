@@ -4,8 +4,7 @@
     "dependencies": {
         "jquery": "latest",
         "jquery-ui": "latest",
-        "bootstrap": "3.0.0-rc.2",
-        "bootstrap-glyphicons": "gh-pages",
+        "bootstrap": "latest",
         "highcharts.com": "latest",
         "jquery.tablesorter": "latest",
         "d3": "latest",
