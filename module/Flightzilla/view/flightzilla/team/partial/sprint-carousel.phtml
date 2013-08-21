@@ -3,16 +3,6 @@
         <?php echo $this->render('flightzilla/team/partial/member.phtml'); ?>
     </div>
     <div id="<?php echo $this->sCarousel ?>" class="col-lg-10 member-carousel carousel slide" data-interval="false">
-
-        <ol class="carousel-indicators">
-            <?php $iCount = 0;
-            foreach (array_keys($this->aMemberWeekTickets) as $sTitle): ?>
-                <li data-target="#<?php echo $this->sCarousel ?>" data-slide-to="<?php echo $iCount; ?>" class="<?php echo ($iCount === 1) ? 'active' : ''; ?>"></li>
-                <?php
-                $iCount++;
-            endforeach; ?>
-        </ol>
-
         <div class="carousel-inner">
             <?php $iCount = 0;
             $iExpected = \Flightzilla\Model\Timeline\Date::WEEK - ((date('w') - 1) * \Flightzilla\Model\Timeline\Date::AMOUNT);
@@ -50,6 +40,15 @@
                 <?php $iCount++;
             endforeach; ?>
         </div>
+
+        <ol class="carousel-indicators">
+            <?php $iCount = 0;
+            foreach (array_keys($this->aMemberWeekTickets) as $sTitle): ?>
+                <li data-target="#<?php echo $this->sCarousel ?>" data-slide-to="<?php echo $iCount; ?>" class="<?php echo ($iCount === 1) ? 'active' : ''; ?>"></li>
+                <?php
+                $iCount++;
+            endforeach; ?>
+        </ol>
 
         <a class="carousel-control left" href="#<?php echo $this->sCarousel ?>" data-slide="prev">&lsaquo;</a>
         <a class="carousel-control right" href="#<?php echo $this->sCarousel ?>" data-slide="next">&rsaquo;</a>

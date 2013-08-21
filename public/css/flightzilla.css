@@ -197,6 +197,7 @@ textarea.input-xxxlarge {
 .member-box .carousel-indicators {
     bottom: 0;
     top: 155px;
+    height: 10px;
 }
 
 .member-box .carousel-indicators li {
