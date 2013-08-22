@@ -2,6 +2,7 @@
 
 ## master 2013-08-22
 
+- added ticket-list-filter for db-change, missing container & product-dependencies
 - added visual hints to indicate if a ticket/project has dependencies to other products
 
 ## master 2013-08-21

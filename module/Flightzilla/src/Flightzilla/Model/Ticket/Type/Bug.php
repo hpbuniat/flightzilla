@@ -153,6 +153,9 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     const WORKFLOW_TRANSLATION = 'only-i18n';
     const WORKFLOW_TRANSLATION_PENDING = 'i18n-pending';
     const WORKFLOW_TIMEDOUT = 'timedout';
+    const WORKFLOW_DB_CHANGE = 'dbchange';
+    const WORKFLOW_NO_CONTAINER = 'no-container';
+    const WORKFLOW_PRODUCT_DEPENDENCY = 'product-dependency';
 
     /**
      * Components
@@ -354,6 +357,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     const CACHE_CREATION_TIME = 'creationtime';
     const CACHE_LAST_ACTIVITY = 'lastactiviy';
     const CACHE_HAS_DEPENDENCIES_TO_OTHER_PRODUCT = 'dependencies to other product';
+    const CACHE_HAS_MISSING_CONTAINER = 'missing container';
 
 
     /**
@@ -2042,5 +2046,19 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function getProductName() {
         return $this->_sProduct;
+    }
+
+    /**
+     * Check if the ticket has no container, but it should have one
+     *
+     * @Return bool
+     */
+    public function hasMissingContainer() {
+        if (isset($this->_aMethodCache[self::CACHE_HAS_MISSING_CONTAINER]) !== true) {
+
+            $this->_aMethodCache[self::CACHE_HAS_MISSING_CONTAINER] = ($this->isType(Bug::TYPE_BUG) === false and $this->isContainer() === false and $this->hasContainer() === false and $this->isAdministrative() === false);
+        }
+
+        return $this->_aMethodCache[self::CACHE_HAS_MISSING_CONTAINER];
     }
 }

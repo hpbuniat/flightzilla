@@ -685,6 +685,9 @@ class Service {
                 Bug::WORKFLOW_TRANSLATION => 0,
                 Bug::WORKFLOW_TRANSLATION_PENDING => 0,
                 Bug::WORKFLOW_TIMEDOUT    => 0,
+                Bug::WORKFLOW_DB_CHANGE    => 0,
+                Bug::WORKFLOW_NO_CONTAINER    => 0,
+                Bug::WORKFLOW_PRODUCT_DEPENDENCY    => 0,
             );
 
             $iTimeoutLimit = $this->_config->tickets->workflow->timeout;
@@ -697,18 +700,18 @@ class Service {
                     $bShouldHaveEstimation = false;
                 }
 
-                if ($oTicket->isEstimated()) {
+                if ($oTicket->isEstimated() === true) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_ESTIMATED]++;
                 }
                 elseif ($bShouldHaveEstimation === true) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_UNESTIMATED]++;
                 }
 
-                if ($oTicket->isWorkedOn()) {
+                if ($oTicket->isWorkedOn() === true) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_INPROGRESS]++;
                 }
 
-                if ($oTicket->isActive()) {
+                if ($oTicket->isActive() === true) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_ACTIVE]++;
                 }
 
@@ -716,15 +719,15 @@ class Service {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_TESTING]++;
                 }
 
-                if ($oTicket->isFailed()) {
+                if ($oTicket->isFailed() === true) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_FAILED]++;
                 }
 
-                if ($oTicket->isMergeable()) {
+                if ($oTicket->isMergeable() === true) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_MERGE]++;
                 }
 
-                if ($oTicket->deadlineStatus()) {
+                if ($oTicket->deadlineStatus() === true) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_DEADLINE]++;
                 }
 
@@ -736,12 +739,24 @@ class Service {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_COMMENT]++;
                 }
 
-                if ($oTicket->isQuickOne()) {
+                if ($oTicket->isQuickOne() === true) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_QUICK]++;
                 }
 
-                if ($oTicket->isOnlyTranslation()) {
+                if ($oTicket->isOnlyTranslation() === true) {
                     $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_TRANSLATION]++;
+                }
+
+                if ($oTicket->hasDependenciesToOtherProducts() === true) {
+                    $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_PRODUCT_DEPENDENCY]++;
+                }
+
+                if ($oTicket->hasMissingContainer() === true) {
+                    $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_NO_CONTAINER]++;
+                }
+
+                if ($oTicket->hasFlag(Bug::FLAG_DBCHANGE, Bugzilla::BUG_FLAG_REQUEST) === true) {
+                    $this->_aCache[self::STATS_WORKFLOW][Bug::WORKFLOW_DB_CHANGE]++;
                 }
 
                 if ($oTicket->hasFlag(Bug::FLAG_TRANSLATION, Bugzilla::BUG_FLAG_REQUEST) === true) {

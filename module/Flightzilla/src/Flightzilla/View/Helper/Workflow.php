@@ -101,16 +101,28 @@ class Workflow extends AbstractHelper {
             $aClasses[] = Bug::WORKFLOW_MERGE;
         }
 
-        if ($oTicket->isWorkedOn()) {
+        if ($oTicket->isWorkedOn() === true) {
             $aClasses[] = Bug::WORKFLOW_INPROGRESS;
         }
 
-        if ($oTicket->isActive()) {
+        if ($oTicket->isActive() === true) {
             $aClasses[] = Bug::WORKFLOW_ACTIVE;
         }
 
         if ($oTicket->isOnlyTranslation() === true) {
             $aClasses[] = Bug::WORKFLOW_TRANSLATION;
+        }
+
+        if ($oTicket->hasDependenciesToOtherProducts() === true) {
+            $aClasses[] = Bug::WORKFLOW_PRODUCT_DEPENDENCY;
+        }
+
+        if ($oTicket->hasMissingContainer() === true) {
+            $aClasses[] = Bug::WORKFLOW_NO_CONTAINER;
+        }
+
+        if ($oTicket->hasFlag(Bug::FLAG_DBCHANGE, Bugzilla::BUG_FLAG_REQUEST) === true) {
+            $aClasses[] = Bug::WORKFLOW_DB_CHANGE;
         }
 
         if ($oTicket->hasFlag(Bug::FLAG_TRANSLATION, Bugzilla::BUG_FLAG_REQUEST) === true) {
