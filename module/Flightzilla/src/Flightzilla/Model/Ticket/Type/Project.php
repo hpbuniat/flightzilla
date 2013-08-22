@@ -376,4 +376,28 @@ class Project extends Bug {
     public function getLeftHours() {
         return $this->getLeftTimeOfDependencies();
     }
+
+    /**
+     * Check if the project has dependencies to other products
+     *
+     * @return bool
+     */
+    public function hasDependenciesToOtherProducts() {
+        if (isset($this->_aMethodCache[self::CACHE_HAS_DEPENDENCIES_TO_OTHER_PRODUCT]) !== true) {
+
+            $bHasDependencies = false;
+            $aCheckTickets = array_merge($this->getDependsAsStack(), $this->getBlockedAsStack());
+            foreach ($aCheckTickets as $oTicket) {
+                /* @var Bug $oTicket */
+                if ($oTicket->getProductName() !== $this->getProductName()) {
+                    $bHasDependencies = true;
+                    break;
+                }
+            }
+
+            $this->_aMethodCache[self::CACHE_HAS_DEPENDENCIES_TO_OTHER_PRODUCT] = $bHasDependencies;
+        }
+
+        return $this->_aMethodCache[self::CACHE_HAS_DEPENDENCIES_TO_OTHER_PRODUCT];
+    }
 }

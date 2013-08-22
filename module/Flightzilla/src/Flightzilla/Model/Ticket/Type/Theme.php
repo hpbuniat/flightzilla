@@ -52,4 +52,13 @@ namespace Flightzilla\Model\Ticket\Type;
  */
 class Theme extends Project {
 
+    /**
+     * Check if the theme has dependencies to other products
+     *
+     * @return bool
+     */
+    public function hasDependenciesToOtherProducts() {
+
+        return false;
+    }
 }

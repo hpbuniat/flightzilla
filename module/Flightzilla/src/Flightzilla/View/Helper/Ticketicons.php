@@ -73,6 +73,7 @@ class Ticketicons extends AbstractHelper {
     const ICON_MERGABLE = 'glyphicon glyphicon-random';
     const ICON_MERGED = 'glyphicon glyphicon-plus-sign';
     const ICON_WATCHED = 'glyphicon glyphicon-camera';
+    const ICON_PRODUCT_DEPENDENCY = 'glyphicon glyphicon-link';
 
     /**
      * Get the workflow-stats of the bug
@@ -138,11 +139,15 @@ class Ticketicons extends AbstractHelper {
 
         $sRevenue = $oBug->getRevenue();
         if (empty($sRevenue) !== true) {
-            $aClasses[] = sprintf('<i class="%s" title="%s">&nbsp;</i>', self::ICON_REVENUE, $sRevenue);
+            $aClasses[] = sprintf('<i class="%s" title="%s"></i>', self::ICON_REVENUE, $sRevenue);
         }
 
         if ($oBug->hasFlag(Bug::FLAG_TESTSERVER, Bugzilla::BUG_FLAG_REQUEST) === true) {
             $aClasses[] = sprintf('<i class="%s" title="Awaiting %s"></i>', self::ICON_UPDATE, Bug::FLAG_TESTSERVER);
+        }
+
+        if ($oBug->hasDependenciesToOtherProducts() === true) {
+            $aClasses[] = sprintf('<i class="%s" title="Check dependencies!"></i>', self::ICON_PRODUCT_DEPENDENCY);
         }
 
         if ($oBug->isType(Bug::TYPE_BUG) === true) {

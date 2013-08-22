@@ -50,10 +50,26 @@
  * @link https://github.com/hpbuniat/flightzilla
  */
 namespace Flightzilla\View\Helper;
-use Zend\View\Helper\AbstractHelper;
-use Flightzilla\Model\Ticket\Type\Bug;
+use Zend\View\Helper\AbstractHelper,
+    Flightzilla\Model\Ticket\Type\Bug,
+    Flightzilla\Model\Ticket\Source\Bugzilla;
 
 class Buggradient extends AbstractHelper {
+
+    /**
+     * flightzilla color-definitions
+     *
+     * @var string
+     */
+    const COLOR_TESTING = 'yellow';
+    const COLOR_TESTED = 'lightgreen';
+    const COLOR_PARTIALLY_TESTED = '#CCFF99';
+    const COLOR_DB_CHANGE = 'orchid';
+    const COLOR_TEST_FAILED = 'crimson';
+    const COLOR_MERGE_REQUEST = '#9FB9FF';
+    const COLOR_SCREEN_REQUEST = '#9F9F9F';
+    const COLOR_TRANSLATION_REQUEST = 'orange';
+    const COLOR_PRODUCT_DEPENDENCY = '#770000';
 
     /**
      * Get the gradient-color for a bug
@@ -67,38 +83,43 @@ class Buggradient extends AbstractHelper {
     public function __invoke(Bug $oTicket, $bReady = false, $bTransparent = true) {
 
         $aColors = array();
-        $bTestingOpen = $oTicket->hasFlag(Bug::FLAG_TESTING, '?');
-        $bTestingGranted = $oTicket->hasFlag(Bug::FLAG_TESTING, '+');
+        $bTestingOpen = $oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST);
+        $bTestingGranted = $oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED);
+        $bMergeRequestOpen = $oTicket->hasFlag(Bug::FLAG_MERGE, Bugzilla::BUG_FLAG_REQUEST);
         if ($bTestingOpen === true) {
-            $aColors[] = 'yellow';
+            $aColors[] = self::COLOR_TESTING;
         }
 
         if ($bReady and $bTestingGranted) {
-            $aColors[] = 'lightgreen';
+            $aColors[] = self::COLOR_TESTED;
         }
 
         if (($bReady xor $bTestingGranted) and $bTestingOpen === false) {
-            $aColors[] = '#CCFF99';
+            $aColors[] = self::COLOR_PARTIALLY_TESTED;
         }
 
-        if ($oTicket->hasFlag(Bug::FLAG_DBCHANGE, '?') === true or $oTicket->hasFlag(Bug::FLAG_DBCHANGE_TEST, '?') === true) {
-            $aColors[] = 'orchid';
+        if ($oTicket->hasFlag(Bug::FLAG_DBCHANGE, Bugzilla::BUG_FLAG_REQUEST) === true or $oTicket->hasFlag(Bug::FLAG_DBCHANGE_TEST, Bugzilla::BUG_FLAG_REQUEST) === true) {
+            $aColors[] = self::COLOR_DB_CHANGE;
         }
 
         if ($oTicket->isFailed() === true and $bTestingGranted !== true) {
-            $aColors[] = 'crimson';
+            $aColors[] = self::COLOR_TEST_FAILED;
         }
 
-        if ($oTicket->hasFlag(Bug::FLAG_MERGE, '?') === true) {
-            $aColors[] = '#9FB9FF';
+        if ($bMergeRequestOpen === true) {
+            $aColors[] = self::COLOR_MERGE_REQUEST;
         }
 
-        if ($oTicket->hasFlag(Bug::FLAG_SCREEN, '?') === true) {
-            $aColors[] = '#9F9F9F';
+        if ($oTicket->hasFlag(Bug::FLAG_SCREEN, Bugzilla::BUG_FLAG_REQUEST) === true) {
+            $aColors[] = self::COLOR_SCREEN_REQUEST;
         }
 
-        if ($oTicket->hasFlag(Bug::FLAG_TRANSLATION, '?') === true) {
-            $aColors[] = 'orange';
+        if ($oTicket->hasFlag(Bug::FLAG_TRANSLATION, Bugzilla::BUG_FLAG_REQUEST) === true) {
+            $aColors[] = self::COLOR_TRANSLATION_REQUEST;
+        }
+
+        if (($oTicket->couldBeInTrunk() === true or ($bReady and $bTestingGranted) or $bMergeRequestOpen === true) and $oTicket->hasDependenciesToOtherProducts() === true) {
+            $aColors[] = self::COLOR_PRODUCT_DEPENDENCY;
         }
 
         $sStyle = '';

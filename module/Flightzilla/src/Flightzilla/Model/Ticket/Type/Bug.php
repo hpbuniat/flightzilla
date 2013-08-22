@@ -287,6 +287,13 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     protected $_sKeywords = '';
 
     /**
+     * The bugzilla-product
+     *
+     * @var string
+     */
+    protected $_sProduct = '';
+
+    /**
      * The ticket-source
      *
      * @var Bugzilla
@@ -346,6 +353,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     const CACHE_ISMERGED  = 'ismerged';
     const CACHE_CREATION_TIME = 'creationtime';
     const CACHE_LAST_ACTIVITY = 'lastactiviy';
+    const CACHE_HAS_DEPENDENCIES_TO_OTHER_PRODUCT = 'dependencies to other product';
 
 
     /**
@@ -918,7 +926,8 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
 
         $this->_iId       = (int) $this->_data->bug_id;
         $this->_sKeywords = (string) $this->_data->keywords;
-        $this->_sStatus   = (string) $this->bug_status;
+        $this->_sStatus   = (string) $this->_data->bug_status;
+        $this->_sProduct  = (string) $this->_data->product;
 
         $this->_sType = \Flightzilla\Model\Ticket\Type::getType($this->_data, $this->title(), $this->_sKeywords);
         if (empty($this->_sType) === true) {
@@ -1987,5 +1996,51 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
         }
 
         return ($this->_mappedStatus[$sStatus] <= $this->_mappedStatus[$sComparisonStatus]);
+    }
+
+    /**
+     * Check if the ticket has dependencies to other products
+     *
+     * @return bool
+     */
+    public function hasDependenciesToOtherProducts() {
+        if (isset($this->_aMethodCache[self::CACHE_HAS_DEPENDENCIES_TO_OTHER_PRODUCT]) !== true) {
+
+            $bHasDependencies = false;
+            $aProjects = $this->getProjects();
+            if (empty($aProjects) === true) {
+                foreach ($aProjects as $oProject) {
+                    /* @var Project $oProject */
+                    if ($oProject->getProductName() !== $this->getProductName() or $oProject->hasDependenciesToOtherProducts() === true) {
+                        $bHasDependencies = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($bHasDependencies === false) {
+                $aCheckTickets = array_merge($this->getDependsAsStack(), $this->getBlockedAsStack());
+                foreach ($aCheckTickets as $oTicket) {
+                    /* @var Bug $oTicket */
+                    if ($oTicket->getProductName() !== $this->getProductName()) {
+                        $bHasDependencies = true;
+                        break;
+                    }
+                }
+            }
+
+            $this->_aMethodCache[self::CACHE_HAS_DEPENDENCIES_TO_OTHER_PRODUCT] = $bHasDependencies;
+        }
+
+        return $this->_aMethodCache[self::CACHE_HAS_DEPENDENCIES_TO_OTHER_PRODUCT];
+    }
+
+    /**
+     * Get the name of the tickets bugzilla-project
+     *
+     * @return string
+     */
+    public function getProductName() {
+        return $this->_sProduct;
     }
 }
