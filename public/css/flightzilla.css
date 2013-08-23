@@ -37,6 +37,11 @@ img {
     display:none;
 }
 
+.legend div {
+    padding: 10px;
+    font-weight: bold;
+}
+
 #quickList {
     text-align: right;
 }
