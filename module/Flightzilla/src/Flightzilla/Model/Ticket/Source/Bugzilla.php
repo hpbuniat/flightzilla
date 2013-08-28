@@ -1396,7 +1396,7 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
         $aThemed = array();
         foreach ($this->_allBugs as $oBug) {
             /* @var $oBug Bug */
-            if ($oBug->doesBlock() === true and $oBug->isContainer() !== true and $oBug->isMerged() === false and $oBug->isMergeable() === false) {
+            if ($oBug->doesBlock() === true and $oBug->isContainer() !== true and $oBug->isMerged() === false) {
                 $aThemed[$oBug->id()] = $oBug;
             }
         }
