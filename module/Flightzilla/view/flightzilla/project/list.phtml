@@ -7,12 +7,18 @@
         <form id="buglist-form" method="get" target="_blank" action="#">
             <?php
             foreach ($this->aProjects as $iTicket => $oProject) {
-                echo $this->partial('flightzilla/index/partial/table.phtml', array(
-                      'captionTicket' => $oProject,
-                      'sBugzilla' => $this->layout()->sBugzilla,
-                      'bugs' => $oProject->getDependsAsStack(),
-                      'ready' => 'REVIEWED'
-                 ));
+                /* @var \Flightzilla\Model\Ticket\Type\Bug $oProject */
+                try {
+                    echo $this->partial('flightzilla/index/partial/table.phtml', array(
+                        'captionTicket' => $oProject,
+                        'sBugzilla' => $this->layout()->sBugzilla,
+                        'bugs' => $oProject->getDependsAsStack(),
+                        'ready' => 'REVIEWED'
+                    ));
+                }
+                catch (\Flightzilla\Model\Ticket\Type\Bug\Exception $e) {
+                    echo sprintf('<div class="alert alert-danger">An Error occured when fetching the tickets for: %s</div>', $oProject->title());
+                }
             }
             ?>
         </form>

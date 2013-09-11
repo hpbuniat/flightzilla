@@ -26,6 +26,7 @@ $oControllerViewModel = reset($aViewModels);
                     <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'dashboard')); ?>">My Dashboard</a></li>
                     <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'mytickets')); ?>">My Tickets</a></li>
                     <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'watchlist', 'action' => 'index')); ?>">My Watchlist</a></li>
+                    <li class="divider"></li>
                     <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'index', 'action' => 'conflicts')); ?>">Conflicts</a></li>
                     <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'stats', 'action' => 'index')); ?>">Stats</a></li>
                 </ul>
@@ -52,6 +53,8 @@ $oControllerViewModel = reset($aViewModels);
                     <b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu">
+                    <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'project', 'action' => 'dashboard')); ?>">My Projects</a></li>
+                    <li class="divider"></li>
                     <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'project', 'action' => 'index')); ?>">List</a></li>
                     <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'project', 'action' => 'board')); ?>">Board</a></li>
                     <li><a href="<?php echo $this->url('flightzilla', array('controller' => 'project', 'action' => 'list')); ?>">Ticket-List</a></li>
