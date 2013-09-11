@@ -1,5 +1,9 @@
 # Changelog
 
+## master 2013-09-11
+
+- added "My Projects" which shows a list of all projects, assigned to the current user
+
 ## master 2013-08-22
 
 - added ticket-list-filter for db-change, missing container & product-dependencies
