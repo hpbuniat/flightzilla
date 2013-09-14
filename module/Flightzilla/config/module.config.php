@@ -171,6 +171,7 @@ return array(
             \Flightzilla\Controller\Plugin\Authenticate::NAME => 'Flightzilla\Controller\Plugin\Authenticate',
             \Flightzilla\Controller\Plugin\TicketService::NAME => 'Flightzilla\Controller\Plugin\TicketService',
             \Flightzilla\Controller\Plugin\AnalyticsService::NAME => 'Flightzilla\Controller\Plugin\AnalyticsService',
+            \Flightzilla\Controller\Plugin\ProjectService::NAME => 'Flightzilla\Controller\Plugin\ProjectService',
         ),
     ),
     'view_helpers' => array(

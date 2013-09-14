@@ -561,7 +561,7 @@ class Service {
 
             foreach ($this->_aFilteredStack as $oTicket) {
                 /* @var Bug $oTicket */
-                if ($oTicket->getLastActivity() >= $iRef) {
+                if (($oTicket->getLastWorkDate() >= $iRef or $oTicket->getCreationTime() >= $iRef)) {
                     if ($oTicket->getCreationTime() >= $iRef) {
                         $sCreationDate = date('Ymd', $oTicket->getCreationTime());
                         if (empty($aResult[$sCreationDate]) === true) {
@@ -574,8 +574,8 @@ class Service {
                         $aResult[$sCreationDate][self::DIFF_CREATED]++;
                     }
 
-                    if ($oTicket->isStatusAtLeast(Bug::STATUS_RESOLVED) === true) {
-                        $sResolveDate = date('Ymd', $oTicket->getLastActivity());
+                    if ($oTicket->isStatusAtLeast(Bug::STATUS_RESOLVED) === true and $oTicket->hasWorkedHours() === true) {
+                        $sResolveDate = date('Ymd', $oTicket->getLastWorkDate());
                         if (empty($aResult[$sResolveDate]) === true) {
                             $aResult[$sResolveDate] = array(
                                 self::DIFF_CREATED => 0,
@@ -612,6 +612,8 @@ class Service {
             unset($aResult);
         }
 
+
+        error_log(\Zend\Debug\Debug::dump($this->_aCache[self::STATS_DIFF], __FILE__ . ':' . __LINE__, false), 3, '/var/www/buglog.log');
         return $this->_aCache[self::STATS_DIFF];
     }
 

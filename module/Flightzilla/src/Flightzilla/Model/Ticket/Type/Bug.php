@@ -1754,6 +1754,22 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     }
 
     /**
+     * Get the last date, when someone worked on this bug
+     *
+     * @return int
+     */
+    public function getLastWorkDate() {
+        $iTimestamp = null;
+        $aTimes     = $this->getWorkedHours();
+        if (empty($aTimes) !== true) {
+            $aLast = end($aTimes);
+            $iTimestamp = $aLast['datetime'];
+        }
+
+        return $iTimestamp;
+    }
+
+    /**
      * Get the date of the last-activity
      *
      * @return int
