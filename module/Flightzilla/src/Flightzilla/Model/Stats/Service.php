@@ -612,8 +612,6 @@ class Service {
             unset($aResult);
         }
 
-
-        error_log(\Zend\Debug\Debug::dump($this->_aCache[self::STATS_DIFF], __FILE__ . ':' . __LINE__, false), 3, '/var/www/buglog.log');
         return $this->_aCache[self::STATS_DIFF];
     }
 
