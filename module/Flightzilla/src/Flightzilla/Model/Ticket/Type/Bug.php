@@ -583,7 +583,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
      */
     public function isFailed() {
 
-        return ($this->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_DENIED) === true and $this->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED) !== true and $this->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST) !== true);
+        return ($this->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_DENIED) === true and $this->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST) !== true);
     }
 
     /**

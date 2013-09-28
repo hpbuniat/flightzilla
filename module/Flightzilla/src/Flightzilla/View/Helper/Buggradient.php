@@ -84,7 +84,7 @@ class Buggradient extends AbstractHelper {
 
         $aColors = array();
         $bTestingOpen = $oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST);
-        $bTestingGranted = $oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED);
+        $bTestingGranted = ($oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED) and $oTicket->isFailed() !== true);
         $bMergeRequestOpen = $oTicket->hasFlag(Bug::FLAG_MERGE, Bugzilla::BUG_FLAG_REQUEST);
         if ($bTestingOpen === true) {
             $aColors[] = self::COLOR_TESTING;
@@ -102,7 +102,7 @@ class Buggradient extends AbstractHelper {
             $aColors[] = self::COLOR_DB_CHANGE;
         }
 
-        if ($oTicket->isFailed() === true and $bTestingGranted !== true) {
+        if ($oTicket->isFailed() === true) {
             $aColors[] = self::COLOR_TEST_FAILED;
         }
 
