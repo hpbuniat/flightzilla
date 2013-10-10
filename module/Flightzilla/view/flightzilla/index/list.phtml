@@ -21,6 +21,14 @@ echo $this->partial('flightzilla/index/partial/table.phtml', array(
 ));
 
 echo $this->partial('flightzilla/index/partial/table.phtml', array(
+    'caption' => 'Merged but open',
+    'sBugzilla' => $this->layout()->sBugzilla,
+    'bugs' => $this->mergedOpen,
+    'ready' => \Flightzilla\Model\Ticket\Type\Bug::STATUS_RESOLVED,
+    'mode' => $this->mode
+));
+
+echo $this->partial('flightzilla/index/partial/table.phtml', array(
     'caption' => 'Mergeable issues',
     'sBugzilla' => $this->layout()->sBugzilla,
     'bugs' => $this->bugsBranch,

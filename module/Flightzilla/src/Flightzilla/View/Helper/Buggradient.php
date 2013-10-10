@@ -105,6 +105,9 @@ class Buggradient extends AbstractHelper {
         if ($oTicket->isFailed() === true) {
             $aColors[] = self::COLOR_TEST_FAILED;
         }
+        elseif ($oTicket->hasFlag(Bug::FLAG_MERGE, Bugzilla::BUG_FLAG_GRANTED) === true and $oTicket->isStatusAtLeast(Bug::STATUS_RESOLVED) === false) {
+            $aColors[] = self::COLOR_TEST_FAILED;
+        }
 
         if ($bMergeRequestOpen === true) {
             $aColors[] = self::COLOR_MERGE_REQUEST;

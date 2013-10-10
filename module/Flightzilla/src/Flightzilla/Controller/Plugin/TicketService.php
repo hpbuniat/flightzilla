@@ -96,6 +96,7 @@ class TicketService extends AbstractTicketService {
             $oViewModel->bugsFixed = $oTicketService->getFixedBugsUnknown();
             $oViewModel->bugsOpen = $oTicketService->getThemedTickets();
             $oViewModel->bugsUnthemed = $oTicketService->getUnthemedBugs();
+            $oViewModel->mergedOpen = $oTicketService->getMergedButOpen();
         }
 
         if ($sMode === 'board') {

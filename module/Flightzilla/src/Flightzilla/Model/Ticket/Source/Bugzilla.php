@@ -1118,6 +1118,24 @@ class Bugzilla extends \Flightzilla\Model\Ticket\AbstractSource {
     }
 
     /**
+     * Get all merged tickets that are still open and so should most likely no be merged!
+     *
+     * @return array
+     */
+    public function getMergedButOpen() {
+
+        $aMergedOpen = array();
+        foreach ($this->_allBugs as $oTicket) {
+            /* @var $oTicket Bug */
+            if ($oTicket->hasFlag(Bug::FLAG_MERGE, Bugzilla::BUG_FLAG_GRANTED) === true and $oTicket->isStatusAtLeast(Bug::STATUS_RESOLVED) === false) {
+                $aMergedOpen[$oTicket->id()] = $oTicket;
+            }
+        }
+
+        return $aMergedOpen;
+    }
+
+    /**
      * Get all fixed-tickets which are not yet in the stable-branch
      *
      * @param  string $sFlag
