@@ -315,7 +315,7 @@ class Status  {
         if ($sReturnStatus === self::WAITING) {
             $oTicket = $this->_oTicketService->getBugById($iTicket);
             if ($oTicket->isClosed() === true) {
-                $sReturnStatus = self::RELEASE;
+                $sReturnStatus = ($this->_bGrouped === true) ? self::DONE : self::RELEASE;
             }
         }
 
