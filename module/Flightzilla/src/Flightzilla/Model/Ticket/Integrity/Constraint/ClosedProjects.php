@@ -68,7 +68,7 @@ class ClosedProjects implements ConstraintInterface {
      */
     public static function check(Bug $oTicket, Bugzilla $oTicketSource) {
         $bPass = true;
-        if ($oTicket->isContainer() === true) {
+        if ($oTicket->isContainer() === true and $oTicket->getStatus() !== Bug::STATUS_CLOSED) {
             $aStack = $oTicket->getDependsAsStack();
             $bPass = empty($aStack);
             foreach ($aStack as $oDepends) {
