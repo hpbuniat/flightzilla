@@ -70,7 +70,7 @@ class Review implements TaskInterface {
      */
     public static function check(Bug $oTicket, Bugzilla $oTicketSource, Human $oUser) {
         return ($oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_DENIED, $oUser->getEmail(), Bug::FLAG_USER_SETTER)
-                and $oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST, $oUser->getEmail(), Bug::FLAG_USER_SETTER) === false
-                and $oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED, $oUser->getEmail(), Bug::FLAG_USER_SETTER) === false);
+                and $oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_REQUEST) === false
+                and $oTicket->hasFlag(Bug::FLAG_TESTING, Bugzilla::BUG_FLAG_GRANTED) === false);
     }
 }
