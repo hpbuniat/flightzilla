@@ -56,11 +56,10 @@ if ($iCount > 0):?>
             <th>Prio</th>
             <th>Bug No.</th>
             <?php if ($this->mode === 'project'):?>
-                <th>Update</th>
                 <th>Status</th>
                 <th data-sorter="digit">Revenue</th>
-                <th data-sorter="digit">Dependency</th>
-                <th data-sorter="digit">Complexity</th>
+                <th data-sorter="digit"><span class="tipper" title="Dependencies">Dep.</span></th>
+                <th data-sorter="digit"><span class="tipper" title="Complexity">Comp.</span></th>
                 <th data-sorter="digit">Risk</th>
                 <th>Team</th>
             <?php else: ?>
@@ -71,6 +70,8 @@ if ($iCount > 0):?>
             <th>Summary</th>
             <th data-sorter="false"></th>
             <th>Component</th>
+            <th><i class="glyphicon glyphicon-certificate" alt="updated"></i></th>
+            <th><i class="glyphicon glyphicon-edit" alt="updated"></i></th>
         </tr>
         </thead>
         <tbody>

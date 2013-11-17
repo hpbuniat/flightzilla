@@ -649,6 +649,27 @@
             });
 
             /**
+             * Init table-toggler
+             */
+            $('.data-toggler').on('click', function() {
+                var $this = $(this),
+                    w = $this.data('toggled'),
+                    s = $this.data('toggle')
+                    $sel = $('.toggle-' + s);
+
+                $sel.each(function() {
+                    var $t = $(this),
+                        s = (w === 'short') ? 'long' : 'short';
+                    $t.text($t.data('toggle-' + s)).data('toggled', s);
+                });
+            }).each(function() {
+                var $this = $(this);
+                if (!$this.data('toggled')) {
+                    $this.trigger('click');
+                }
+            });
+
+            /**
              * Add all selected tickets to the quick-list
              */
             $('input:checkbox').on('click', function() {

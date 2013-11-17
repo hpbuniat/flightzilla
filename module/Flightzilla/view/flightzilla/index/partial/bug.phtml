@@ -18,7 +18,6 @@
         ?>
     </td>
     <?php if ($this->mode === 'project'):?>
-        <td><?php echo date('Y-m-d', $this->bug->getLastActivityOfDependencies()); ?></td>
         <td><?php echo (isset($this->aKanban[$this->bug->id()]) === true) ? \Flightzilla\Model\Kanban\Status::$aStatusText[$this->aKanban[$this->bug->id()]] : '-'; ?></td>
         <td><?php echo number_format($this->bug->getRevenue(), 0, '', '.'); ?></td>
         <td><?php echo $this->bug->getRevenueProbability(); ?></td>
@@ -52,4 +51,10 @@
             <a href="javascript:;" data-ticket="<?php echo $this->bug->id(); ?>" class="ticket-detail glyphicon glyphicon-list"></a>
         </span>
     </td>
+    <td class="data-toggler data-toggle toggle-create" data-toggle="create"
+        data-toggle-short="<?php echo date('y/W', $this->bug->getCreationTime()); ?>"
+        data-toggle-long="<?php echo date('Y-m-d', $this->bug->getCreationTime()); ?>"></td>
+    <td class="data-toggler data-toggle toggle-update" data-toggle="update"
+        data-toggle-short="<?php echo date('y/W', ($this->mode === 'project') ? $this->bug->getLastActivityOfDependencies() : $this->bug->getLastActivity()); ?>"
+        data-toggle-long="<?php echo date('Y-m-d', ($this->mode === 'project') ? $this->bug->getLastActivityOfDependencies() : $this->bug->getLastActivity()); ?>"></td>
 </tr>
