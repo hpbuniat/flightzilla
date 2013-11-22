@@ -43,7 +43,6 @@ namespace Flightzilla\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController,
     Zend\View\Model\ViewModel,
-    Flightzilla\Controller\Plugin\Authenticate,
     Flightzilla\Controller\Plugin\AnalyticsService as Analytics;
 
 /**
