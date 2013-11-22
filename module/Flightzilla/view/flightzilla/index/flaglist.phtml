@@ -1,0 +1,19 @@
+<?php foreach ($this->aFlagStats as $sUser => $aFlags): ?>
+    <div class="callout callout-info">
+        <h3 class="table-toggle"><?php echo $sUser;?></h3>
+    </div>
+    <dl class="dl-horizontal">
+        <?php foreach ($aFlags as $sFlag => $aStack): ?>
+            <?php foreach ($aStack as $aFlag): ?>
+                <dt><?php echo $sFlag; ?></dt>
+                <dd>
+                    <?php
+                        $this->oTask = $aFlag['ticket'];
+                        echo $this->render('flightzilla/index/partial/bug-line.phtml');
+                    ?>
+                    (by <?php echo $aFlag['flag']['setter']; ?>)
+                </dd>
+            <?php endforeach; ?>
+        <?php endforeach; ?>
+    </dl>
+<?php endforeach; ?>
