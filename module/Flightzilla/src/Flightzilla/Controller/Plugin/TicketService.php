@@ -150,6 +150,7 @@ class TicketService extends AbstractTicketService {
         $oViewModel->aDaysCreated = $oTicketStats->getTicketsCreatedWithinDays();
         $oViewModel->aDaysActive = $oTicketStats->getTicketsActiveWithinDays();
         $oViewModel->sChuck = $oTicketStats->getChuckStatus();
+        $oViewModel->aFlagStats = $oTicketStats->getFlagStats();
 
         $oViewModel->iThroughPut = $oTicketStats->getThroughPut();
 

@@ -1561,7 +1561,7 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
                     $sUser                                       = strtok($flag['requestee'], '@');
                     $aName                                       = explode('.', strtoupper($sUser));
                     $this->_data->{strtolower($sName) . '_user'} = $aName[0]{0} . ((isset($aName[1]) === true) ? $aName[1]{0} : '');
-                    $aFlag['requestee']                          = $sUser;
+                    $aFlag['requestee']                          = (string) $sUser;
                     $aFlag['requestee_mail']                     = (string) $flag['requestee'];
                     $aFlag['requestee_short']                    = (string) $this->_data->{strtolower($sName) . '_user'};
                 }

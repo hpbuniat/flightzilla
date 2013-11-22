@@ -60,6 +60,7 @@ class Service {
      *
      * @var string
      */
+    const STATS_FLAGS = 'flags';
     const STATS_WORKFLOW = 'workflow';
     const STATS_CHUCK = 'chuck';
     const STATS_PRIORITIES = 'priority';
@@ -815,6 +816,47 @@ class Service {
         }
 
         return $this->_aCache[self::STATS_CHUCK];
+    }
+
+    /**
+     * Get all open flags sorted by requestee
+     *
+     * @return array
+     */
+    public function getFlagStats() {
+        if (empty($this->_aCache[self::STATS_FLAGS]) === true) {
+            $aResult = array();
+
+            foreach ($this->_aFilteredStack as $oTicket) {
+                /* @var $oTicket Bug */
+                $aFlags = $oTicket->getRequestedFlags();
+                foreach ($aFlags as $aFlag) {
+                    $sName = $aFlag['name'];
+                    $sReq = (isset($aFlag['requestee']) === true) ? $aFlag['requestee'] : 'anonymous';
+                    if (empty($aResult[$sReq]) === true) {
+                        $aResult[$sReq] = array();
+                    }
+
+                    if (empty($aResult[$sReq][$sName]) === true) {
+                        $aResult[$sReq][$sName] = array();
+                    }
+
+                    $aResult[$sReq][$sName][] = array(
+                        'flag' => $aFlag,
+                        'ticket' => $oTicket
+                    );
+                }
+            }
+
+            ksort($aResult);
+            foreach ($aResult as $sReq => $aFlags) {
+                ksort($aResult[$sReq]);
+            }
+
+            $this->_aCache[self::STATS_FLAGS] = $aResult;
+        }
+
+        return $this->_aCache[self::STATS_FLAGS];
     }
 
     /**

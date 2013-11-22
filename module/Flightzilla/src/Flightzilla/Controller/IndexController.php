@@ -98,6 +98,19 @@ class IndexController extends AbstractActionController {
     /**
      *
      */
+    public function flaglistAction() {
+        $oViewModel = new ViewModel;
+        $oViewModel->mode = 'dashboard';
+
+        $oViewModel->oTicketService = $this->getPluginManager()->get(TicketService::NAME)->init($oViewModel)->getService();
+        $this->getServiceLocator()->get('notifyy')->notify(\notifyy\Notifyable::INFO, 'finished list-update', 'flightzilla');
+
+        return $oViewModel;
+    }
+
+    /**
+     *
+     */
     public function listAction() {
         $oViewModel = new ViewModel;
         $oViewModel->mode = 'list';
