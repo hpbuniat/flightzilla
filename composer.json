@@ -23,7 +23,7 @@
     "require": {
         "php": ">=5.3.3",
         "zendframework/zendframework": "2.2.*",
-        "zendframework/zendgdata": "2.*",
+        "zendframework/zendgdata": "dev-master",
         "zendframework/zend-developer-tools": "dev-master",
         "hpbuniat/notifyy": "dev-master"
     }
