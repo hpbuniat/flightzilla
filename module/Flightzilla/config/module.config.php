@@ -120,6 +120,7 @@ return array(
                          'sslverifypeer' => false
                     )
                 );
+                $oGdataHttpClient->setAdapter('Zend\Http\Client\Adapter\Socket');
                 $oConfig = $oServiceManager->get('_serviceConfig');
 
                 $oAnalytics = new \Flightzilla\Model\Analytics\Service($oGdataHttpClient, $oConfig);
