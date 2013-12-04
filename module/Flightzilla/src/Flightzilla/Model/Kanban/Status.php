@@ -228,7 +228,7 @@ class Status  {
                 $this->_aResult[self::DONE][$oTicket->id()] = $oTicket;
             }
             else {
-                $sStatus = self::RELEASE;
+                $sStatus = self::DONE;
                 if ($this->_bGrouped === true) {
                     $aStack = $oTicket->getDepends();
                     if (empty($aStack) === true) {
@@ -315,7 +315,7 @@ class Status  {
         if ($sReturnStatus === self::WAITING) {
             $oTicket = $this->_oTicketService->getBugById($iTicket);
             if ($oTicket->isClosed() === true) {
-                $sReturnStatus = ($this->_bGrouped === true) ? self::DONE : self::RELEASE;
+                $sReturnStatus = self::DONE;
             }
         }
 
