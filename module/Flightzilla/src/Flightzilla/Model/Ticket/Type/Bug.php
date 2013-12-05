@@ -1297,15 +1297,19 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     /**
      * Estimated hours of all dependencies
      *
+     * @param  array $aTypes Ticket-types to filter - empty = all
+     *
      * @return float
      */
-    public function getEstimationTimeOfDependencies() {
+    public function getEstimationTimeOfDependencies(array $aTypes = array()) {
 
         $fEstimation = 0;
         $aDepends = $this->getDependsAsStack();
         foreach ($aDepends as $oTicket) {
             /* @var $oTicket Bug */
-            $fEstimation += (float) $oTicket->getEstimation();
+            if (empty($aTypes) === true or in_array($oTicket->getType(), $aTypes)) {
+                $fEstimation += (float) $oTicket->getEstimation();
+            }
         }
 
         unset($aDepends);
@@ -1315,15 +1319,19 @@ class Bug extends \Flightzilla\Model\Ticket\AbstractType {
     /**
      * Actual hours of all dependencies
      *
+     * @param  array $aTypes Ticket-types to filter - empty = all
+     *
      * @return float
      */
-    public function getActualTimeOfDependencies() {
+    public function getActualTimeOfDependencies(array $aTypes = array()) {
 
         $fActual  = 0;
         $aDepends = $this->getDependsAsStack();
         foreach ($aDepends as $oTicket) {
             /* @var $oTicket Bug */
-            $fActual += (float) $oTicket->getActualTime();
+            if (empty($aTypes) === true or in_array($oTicket->getType(), $aTypes)) {
+                $fActual += (float) $oTicket->getActualTime();
+            }
         }
 
         unset($aDepends);

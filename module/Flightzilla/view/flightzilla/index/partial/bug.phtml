@@ -24,6 +24,8 @@
         <td><?php echo $this->bug->getComplexity(); ?></td>
         <td><?php echo $this->bug->getRisk(); ?></td>
         <td><?php echo $this->bug->getDevelopmentTeam(); ?></td>
+        <td><?php echo $this->bug->getActualTime(); ?></td>
+        <td><?php echo $this->bug->getEstimation(); ?></td>
     <?php else: ?>
         <?php if (strlen($this->bug->resolution) == 0):?>
             <td colspan="2" width="10%" class="<?php echo $this->bug->getStatus(); ?>"><?php echo $this->bug->getStatus(); ?></td>

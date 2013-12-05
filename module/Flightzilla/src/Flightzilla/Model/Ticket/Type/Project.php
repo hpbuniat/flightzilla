@@ -378,6 +378,36 @@ class Project extends Bug {
     }
 
     /**
+     * Get the estimation
+     *
+     * @return float
+     */
+    public function getEstimation() {
+
+        return $this->getEstimationTimeOfDependencies(array(
+            Bug::TYPE_BUG,
+            Bug::TYPE_CONCEPT,
+            Bug::TYPE_FEATURE,
+            Bug::TYPE_HOMELESS_FEATURE
+        ));
+    }
+
+    /**
+     * Get the actual invested time
+     *
+     * @return float
+     */
+    public function getActualTime() {
+
+        return $this->getActualTimeOfDependencies(array(
+            Bug::TYPE_BUG,
+            Bug::TYPE_CONCEPT,
+            Bug::TYPE_FEATURE,
+            Bug::TYPE_HOMELESS_FEATURE
+        ));
+    }
+
+    /**
      * Check if the project has dependencies to other products
      *
      * @return bool
